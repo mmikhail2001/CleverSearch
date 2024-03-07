@@ -1,5 +1,7 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class IDataProcessor(ABC):
-    pass
+    @abstractmethod
+    def process():
+        pass
