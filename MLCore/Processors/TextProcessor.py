@@ -66,8 +66,8 @@ class TextProcessor(IDataProcessor):
             )
         return result
 
+if __name__ == '__main__':
+    processor = TextProcessor('./MLCore/CRAFT/craft_mlt_25k.pth')
 
-processor = TextProcessor('./MLCore/CRAFT/craft_mlt_25k.pth')
-
-img = Image.open('./hwt.jpg')
-print(processor.process(img))
+    img = Image.open('./hwt.jpg')
+    print(processor.process(img))
