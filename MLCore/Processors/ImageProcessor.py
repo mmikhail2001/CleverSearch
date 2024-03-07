@@ -11,7 +11,7 @@ from CRAFT.craft import CRAFT
 from CRAFT.test import test_net
 
 
-class TextProcessor(IDataProcessor):
+class ImageProcessor(IDataProcessor):
     def __init__(self, craft_weights_path = None, cpu: bool =True):
         if craft_weights_path is None:
             raise ValueError('enter a path to CRAFT weights')
@@ -67,7 +67,7 @@ class TextProcessor(IDataProcessor):
         return result
 
 if __name__ == '__main__':
-    processor = TextProcessor('./MLCore/CRAFT/craft_mlt_25k.pth')
+    processor = ImageProcessor('./MLCore/CRAFT/craft_mlt_25k.pth')
 
     img = Image.open('./hwt.jpg')
     print(processor.process(img))
