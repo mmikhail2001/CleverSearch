@@ -12,7 +12,7 @@ export interface Option {
 
 interface SelectorMultiProps {
   options: Option[];
-  isMulti?;
+  isMulti?: boolean;
   onChange: (
     newValue: MultiValue<Option> | SingleValue<Option>,
     actionMeta: ActionMeta<Option>
