@@ -1,7 +1,8 @@
 pika==1.3.2
 numpy==1.26.4
 torch==2.2.1
-pytesseract
+easyocr
+transformers
 opencv-python
 scikit-image
 scipy

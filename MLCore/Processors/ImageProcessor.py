@@ -5,6 +5,7 @@ from pytesseract import image_to_string
 from PIL import Image
 from collections import OrderedDict
 import sys
+from easyocr import Reader
 sys.path.insert(1, './MLCore/')
 sys.path.insert(2, './MLCore/CRAFT')
 from CRAFT.craft import CRAFT
@@ -20,6 +21,8 @@ class ImageProcessor(IDataProcessor):
         self.craft_instance = CRAFT()
         self.craft_instance.eval()
 
+        self.reader = Reader(['ru', 'en'], gpu=not cpu)
+
         if cpu:
             self.craft_instance.load_state_dict(self.__copyStateDict(torch.load(self.craft_weights_path, map_location='cpu')))
         else:
@@ -31,12 +34,17 @@ class ImageProcessor(IDataProcessor):
     def process(self, img: Image)->list[str]:
         bboxes = self.__get_text_bboxes(img)
         img_crops = self.__crop_image(img, bboxes)
-
+        string = self.__get_string_from_crops(img_crops).lower()
+        return string
+    
+    def __get_string_from_crops(self, crops: list)->str:
         result = []
-        for crop in img_crops:
-            result.append(
-                image_to_string(crop, lang='eng+rus')
-            )
+        for crop in crops:
+            word = self.reader.readtext(np.array(crop), detail=False)
+            if len(word):
+                result.append(
+                    *word
+                )
 
         return ' '.join(result)
 
@@ -69,5 +77,5 @@ class ImageProcessor(IDataProcessor):
 if __name__ == '__main__':
     processor = ImageProcessor('./MLCore/CRAFT/craft_mlt_25k.pth')
 
-    img = Image.open('./hwt.jpg')
+    img = Image.open('./hwt_rus.jpg')
     print(processor.process(img))
