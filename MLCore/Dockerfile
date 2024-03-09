@@ -8,9 +8,10 @@ RUN pip install -r /requirements.txt && rm /requirements.txt
 
 RUN cd / && \
     git clone https://github.com/WindowsKonon1337/CRAFT-pytorch && \
-    mv CRAFT-pytorch CRAFT && \
-    cd /app
+    mv CRAFT-pytorch CRAFT
+
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 
 COPY . /app/MLCore
 
-RUN python /app/MLCore/__main__.py
+CMD ["python", "/app/MLCore/__main__.py"]
