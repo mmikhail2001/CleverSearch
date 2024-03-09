@@ -6,5 +6,5 @@ class IService(ABC):
 
 class IDataService(IService, ABC):
     @abstractmethod
-    def insert_into_collection(self, data):
+    def update_collection_file(self, data):
         pass

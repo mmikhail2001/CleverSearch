@@ -2,6 +2,8 @@ from pymongo.collection import Collection
 from pymongo import MongoClient
 from service_interfaces import IDataService
 from PIL import Image
+from minio import Minio
+import os
 
 import sys
 sys.path.insert(3, './MLCore/')
@@ -16,6 +18,7 @@ class ImageService(IDataService):
             proc_cls: IDataProcessor = ImageProcessor,
             num_of_insts: int = 1,
             mongo_collection: Collection = None,
+            minio_client: Minio = None,
             craft_weights_path: str = './MLCore/weights/craft_mlt_25k.pth',
             cpu: bool = True
             ):
@@ -23,29 +26,47 @@ class ImageService(IDataService):
             raise ValueError('pizdec')
         
         self.mongo_collection = mongo_collection
+        self.minio_client = minio_client
         self.num_of_insts = num_of_insts
         self.worker = proc_cls(craft_weights_path, cpu)
 
-    def insert_into_collection(self, data: dict):  # {uuid: str, url: str, type: str} 
+    def update_collection_file(self, uuid: str):
+
+        document = self.mongo_collection.find_one({'_id': uuid})
+
+        local_file_path = f'./{document["s3_bucket"]}_{document["filename"]}'
+
+        self.minio_client.fget_object(
+            document['s3_bucket'],
+            document['s3_path'],
+            local_file_path
+        )
+        
         proc_str = self.worker.process(
             Image.open(
-                data['url']
+                local_file_path
             )
         )
 
-        self.mongo_collection.insert_one(
+        os.remove(local_file_path)
+
+        upd_query = {
+            '$set':
             {
-                'uuid': data['uuid'],
-                'type': data['type'],
-                'text_content': proc_str,
-                'url': data['url']
+                'ml_data': {
+                    'text_repr': proc_str
+                }
             }
+        }
+
+        self.mongo_collection.update_one(
+            {'_id': document['_id']}, upd_query
         )
 
 
 if __name__ == '__main__':
     client = MongoClient('mongodb://localhost:1488')
-    collection = client['test']['test']
+    collection = client['CleverSearch']['files']
 
     service = ImageService(
         mongo_collection=collection

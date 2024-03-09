@@ -1,5 +1,6 @@
 import pika
 from pymongo import MongoClient
+from minio import Minio
 import json
 import sys
 sys.path.insert(5, './MLCore/')
@@ -18,7 +19,14 @@ class MLDispatcher:
         self.ip = rabbit_ip
         self.port = rabbit_port
         self.client = MongoClient(f'mongodb://{mongo_ip}:{mongo_port}')
-        self.collection = self.client['test']['test']
+        self.minio_client = Minio(
+            'localhost:9000',
+            access_key="minioadmin",
+            secret_key="minioadmin",
+            secure=False
+        )
+        
+        self.collection = self.client['CleverSearch']['files']
         self.services = {
             'image': None,
             'audio': None,
@@ -27,13 +35,14 @@ class MLDispatcher:
         }
 
     def __callback(self, ch, method, properties, body):
-            req = json.loads(
-                 body.decode()
-            )
-            if self.services[req['type']] is None:
-                raise ValueError('pizdec')
-            self.services[req['type']].insert_into_collection(
-                req
+            doc_uuid = json.loads(
+                body.decode()
+            )['id']
+
+            file_type = self.collection.find_one({'_id': doc_uuid})['type']
+
+            self.services[file_type].update_collection_file(
+                doc_uuid
             )
 
     def run(self):
@@ -50,4 +59,4 @@ class MLDispatcher:
     def reg_service(self, service_cls: IDataService, type:str, *args, **kwargs):
         if type not in self.services.keys():
              raise TypeError(f'this type <{type}> not supported ((')
-        self.services[type] = service_cls(mongo_collection = self.collection, *args, **kwargs)
+        self.services[type] = service_cls(mongo_collection = self.collection, minio_client = self.minio_client, *args, **kwargs)
