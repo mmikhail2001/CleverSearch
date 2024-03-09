@@ -1,36 +1,48 @@
-import React, { FC, useState } from "react";
+import { skipToken } from "@reduxjs/toolkit/query";
+import { FC, useState } from "react";
+import { useLoginMutation } from "../../api/userApi";
 import { Button, Variants } from "../../ui/button/Button";
-
-// https://react-select.com/components
-// https://www.youtube.com/watch?v=3u_ulMvTYZI&t=269s&ab_channel=MonsterlessonsAcademy
+import { Input } from "../../ui/input/input";
+import "./login.css";
 
 interface LoginFormProps {}
 
 export const LoginForm: FC<LoginFormProps> = ({}) => {
-  const [login, setLogin] = useState("");
-  const [password, setPassword] = useState("");
+  const [loginField, setLogin] = useState("");
+  const [passwordField, setPassword] = useState("");
+
+  const [login, { isLoading, isError, error }] = useLoginMutation(
+    {} ?? skipToken
+  );
+
   return (
-    <div>
-      <div>
-        <input
+    <div className="login-form">
+      <div className="login-form__inputs">
+        <Input
+          className={["input-login"]}
+          disabled={isLoading}
           type="email"
           placeholder="email"
-          value={login}
+          value={loginField}
           onChange={(e) => setLogin(e.target.value)}
-        ></input>
-        <input
+        ></Input>
+        <Input
+          className={["input-password"]}
+          disabled={isLoading}
           type="password"
           placeholder="password"
-          value={password}
+          value={passwordField}
           onChange={(e) => setPassword(e.target.value)}
-        ></input>
+        ></Input>
       </div>
       {/* TODO api call */}
       <Button
         variant={Variants.filled}
         buttonText="Lets go"
-        clickHandler={() => console.log(login, " ", password)}
-        disabled={login && password ? false : true}
+        clickHandler={() =>
+          login({ email: loginField, password: passwordField })
+        }
+        disabled={(loginField && passwordField) || isLoading ? false : true}
       ></Button>
     </div>
   );

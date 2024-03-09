@@ -1,0 +1,119 @@
+
+
+/* Removes browser default styling */
+
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+
+:root {   
+    /* Font sizes */
+    --ft-small-text: 1.4rem;
+    --ft-body: 1.8rem;
+    --ft-paragraph: 2.4rem;
+    --ft-title: 3.2rem;
+
+    /* Radius */
+    --small-radius: 1rem;
+    --big-radius: 2.5rem;
+
+    /* Colors */
+    /* Main color */
+    --main-color-50 : #edf5f9 ;
+    --main-color-100 : #c8e0ed ;
+    --main-color-200 : #aed1e4 ;
+    --main-color-300 : #88bbd7 ;
+    --main-color-400 : #71aed0 ;
+    --main-color-500 : #4e9ac4 ;
+    --main-color-600 : #478cb2 ;
+    --main-color-700 : #376d8b ;
+    --main-color-800 : #2b556c ;
+    --main-color-900 : #214152 ;
+
+    /* Sub color */
+    --sub-color-50 : #fbedec ;
+    --sub-color-100 : #f3c6c4 ;
+    --sub-color-200 : #edaaa7 ;
+    --sub-color-300 : #e5837f ;
+    --sub-color-400 : #e06b66 ;
+    --sub-color-500 : #d84640 ;
+    --sub-color-600 : #c5403a ;
+    --sub-color-700 : #99322d ;
+    --sub-color-800 : #772723 ;
+    --sub-color-900 : #5b1d1b ;
+
+    /* Other colors */
+    --text-color-light: #F7FBFC;
+    --text-color-dark: #13252F;
+
+    --Bg-white: #F7FBFC;
+    --Bg-dark: #13252F;
+
+    /* Paddings */
+    --small-padding: 0.4rem;
+    --normal-padding: 0.8rem;
+    --big-padding: 1.6rem;
+    --huge-padding: 2.4rem;
+
+}
+
+html {
+    font-size: 62.5%;
+}
+
+body {
+    font-size: 1.6rem;
+    width: 100vw;
+    height: 100vh;
+}
+
+#root {
+    width: 100%;
+    height: 100%;
+}

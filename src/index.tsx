@@ -13,10 +13,18 @@ import {
   useNavigation,
 } from "react-router-dom";
 
+import ErorrPage from "./modules/errorPage/errorPage";
+import { LoginForm } from "./modules/login/login";
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: <ErorrPage />,
+  },
+  {
+    path: "/login",
+    element: <LoginForm></LoginForm>,
   },
 ]);
 

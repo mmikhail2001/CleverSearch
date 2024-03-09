@@ -11,13 +11,6 @@ export const Checkbox: FC<CheckboxProps> = ({
   isChecked,
   disabled,
 }) => {
-  let clkHandler: (e: React.MouseEvent<HTMLInputElement>) => void;
-  if (!disabled) {
-    clkHandler = clickHandler;
-  } else {
-    clkHandler = () => {};
-  }
-
   return (
     <input
       type="checkbox"

@@ -1,0 +1,18 @@
+.button {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: var(--big-radius);
+    outline: none;
+    border-width: 0.1rem;
+}
+
+.filled {
+    background-color: var(--sub-color-800);
+    color: var(--text-color-light);
+}
+
+.disabled-button {
+    opacity: 80%;
+}

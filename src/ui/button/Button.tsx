@@ -16,7 +16,7 @@ interface ButtonProps {
 function getClassForButton(disabled: boolean, variant: Variants): string {
   let out: string = "";
   if (disabled) {
-    out = "disabled-button";
+    out = "button disabled-button";
   } else {
     out = "button";
   }
