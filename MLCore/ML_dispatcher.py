@@ -51,7 +51,3 @@ class MLDispatcher:
         if type not in self.services.keys():
              raise TypeError(f'this type <{type}> not supported ((')
         self.services[type] = service_cls(mongo_collection = self.collection, *args, **kwargs)
-
-disp = MLDispatcher()
-disp.reg_service(ImageService, 'image')
-disp.run()
