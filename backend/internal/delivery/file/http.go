@@ -57,6 +57,23 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func (h *Handler) DeleteFiles(w http.ResponseWriter, r *http.Request) {
+	req := DeleteFilesDTO{}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Println("Failed to decode json files to delete", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err := h.usecase.DeleteFiles(r.Context(), req.Files)
+	if err != nil {
+		log.Println("Failed to detele files", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
 func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	queryValues := r.URL.Query()
 
@@ -112,7 +129,7 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 			Size:        strconv.Itoa(int(file.Size)),
 			ContentType: file.ContentType,
 			Extension:   file.Extension,
-			Status:      file.Status,
+			Status:      string(file.Status),
 			S3URL:       file.S3URL,
 		})
 	}
@@ -124,6 +141,18 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
+}
+
+func (h *Handler) CreateDir(w http.ResponseWriter, r *http.Request) {
+	dirPath := r.URL.Query().Get("dir_path")
+	file := file.File{
+		Path: dirPath,
+	}
+	_, err := h.usecase.CreateDir(r.Context(), file)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *Handler) CompleteProcessingFile(w http.ResponseWriter, r *http.Request) {

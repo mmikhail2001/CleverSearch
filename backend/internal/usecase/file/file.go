@@ -2,6 +2,7 @@ package file
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,14 +23,13 @@ func NewUsecase(repo Repository, notifyUsecase NotifyUsecase) *Usecase {
 }
 
 func (uc *Usecase) Upload(ctx context.Context, file file.File) error {
-	file, err := uc.repo.Upload(ctx, file)
+	file, err := uc.repo.UploadToStorage(ctx, file)
 	if err != nil {
 		return err
 	}
 	file.Status = "uploaded"
 	file.TimeCreated = time.Now()
 	file.ID = uuid.New().String()
-	// для этого files/mkdir
 	file.IsDir = false
 	file.IsShared = false
 
@@ -38,7 +38,8 @@ func (uc *Usecase) Upload(ctx context.Context, file file.File) error {
 		return err
 	}
 	uc.notifyUsecase.Notify(notifier.Notify{
-		Event:  "upload",
+		Event: "upload",
+		// TODO: UserID: string(file.UserID),
 		UserID: "1",
 		S3URL:  file.S3URL,
 	})
@@ -59,11 +60,49 @@ func (uc *Usecase) GetFiles(ctx context.Context, options file.FileOptions) ([]fi
 	return uc.repo.GetFiles(ctx, options)
 }
 
+func (uc *Usecase) CreateDir(ctx context.Context, file file.File) (file.File, error) {
+	file.TimeCreated = time.Now()
+	file.ID = uuid.New().String()
+	file.IsDir = true
+	file.IsShared = false
+	// TODO: нужно проверка, что все директории в цепочке (кроме последней), существуют
+	err := uc.repo.CreateDir(ctx, file)
+	if err != nil {
+		return file, err
+	}
+	return file, nil
+}
+
 func (uc *Usecase) Search(ctx context.Context, options file.FileOptions) ([]file.File, error) {
 	if options.IsSmartSearch {
 		return uc.repo.SmartSearch(ctx, options)
 	}
 	return uc.repo.Search(ctx, options)
+}
+
+func (uc *Usecase) DeleteFiles(ctx context.Context, filePaths []string) error {
+	var files []file.File
+	for _, path := range filePaths {
+		file, err := uc.repo.GetFileByPath(ctx, path)
+		if err != nil {
+			return fmt.Errorf("file with path[%v] not exist: %w", path, err)
+		}
+		files = append(files, file)
+	}
+
+	for _, file := range files {
+		if !file.IsDir {
+			err := uc.repo.RemoveFromStorage(ctx, file.Path)
+			if err != nil {
+				return fmt.Errorf("error remove from storage path[%v]: %w", file.Path, err)
+			}
+		}
+		err := uc.repo.DeleteFile(ctx, file)
+		if err != nil {
+			return fmt.Errorf("error delete from db path[%v]: %w", file.Path, err)
+		}
+	}
+	return nil
 }
 
 func (uc *Usecase) CompleteProcessingFile(ctx context.Context, uuidFile string) error {
@@ -81,7 +120,7 @@ func (uc *Usecase) CompleteProcessingFile(ctx context.Context, uuidFile string) 
 
 	uc.notifyUsecase.Notify(notifier.Notify{
 		Event: "complete-processing",
-		// UserID: string(file.UserID),
+		// TODO: UserID: string(file.UserID),
 		UserID: "1",
 		S3URL:  file.S3URL,
 	})

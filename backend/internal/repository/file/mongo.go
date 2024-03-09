@@ -41,8 +41,36 @@ func (r *Repository) CreateFile(ctx context.Context, file file.File) error {
 		Size:        file.Size,
 		ContentType: file.ContentType,
 		Extension:   filepath.Ext(file.Filename),
-		Status:      file.Status,
+		Status:      string(file.Status),
 		S3URL:       file.S3URL,
+		UserID:      file.UserID,
+		Path:        file.Path,
+		TimeCreated: file.TimeCreated,
+		IsDir:       file.IsDir,
+		IsShared:    file.IsShared,
+	}
+
+	collection := r.mongo.Collection("files")
+	_, err := collection.InsertOne(ctx, dto)
+	if err != nil {
+		log.Println("Failed to insert to mongo:", err)
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) DeleteFile(ctx context.Context, file file.File) error {
+	_, err := r.mongo.Collection("files").DeleteOne(ctx, bson.M{"_id": file.ID})
+	if err != nil {
+		log.Println("Failed to delete file from MongoDB:", err)
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) CreateDir(ctx context.Context, file file.File) error {
+	dto := fileDTO{
+		ID:          file.ID,
 		UserID:      file.UserID,
 		Path:        file.Path,
 		TimeCreated: file.TimeCreated,
@@ -91,7 +119,7 @@ func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) (
 			Filename:    fileDTO.Filename,
 			Size:        fileDTO.Size,
 			ContentType: fileDTO.ContentType,
-			Status:      fileDTO.Status,
+			Status:      file.StatusType(fileDTO.Status),
 			S3URL:       fileDTO.S3URL,
 			TimeCreated: fileDTO.TimeCreated,
 			UserID:      fileDTO.UserID,
@@ -154,7 +182,7 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 			Filename:    fileDTO.Filename,
 			Size:        fileDTO.Size,
 			ContentType: fileDTO.ContentType,
-			Status:      fileDTO.Status,
+			Status:      file.StatusType(fileDTO.Status),
 			S3URL:       fileDTO.S3URL,
 			TimeCreated: fileDTO.TimeCreated,
 			UserID:      fileDTO.UserID,
@@ -188,8 +216,44 @@ func (r *Repository) GetFileByID(ctx context.Context, uuidFile string) (file.Fil
 		Filename:    resultDTO.Filename,
 		Size:        resultDTO.Size,
 		ContentType: resultDTO.ContentType,
-		Status:      resultDTO.Status,
+		Status:      file.StatusType(resultDTO.Status),
 		S3URL:       resultDTO.S3URL,
+		IsShared:    resultDTO.IsShared,
+		IsDir:       resultDTO.IsDir,
+		Path:        resultDTO.Path,
+		UserID:      resultDTO.UserID,
+		TimeCreated: resultDTO.TimeCreated,
+		Extension:   resultDTO.Extension,
+	}
+
+	return file, nil
+}
+
+// TODO: объединить с GetFileByID
+func (r *Repository) GetFileByPath(ctx context.Context, path string) (file.File, error) {
+	var resultDTO fileDTO
+
+	filter := bson.M{"path": path}
+	err := r.mongo.Collection("files").FindOne(ctx, filter).Decode(&resultDTO)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return file.File{}, fmt.Errorf("GetFileByPath no file with path %v: %w", path, err)
+		}
+		return file.File{}, err
+	}
+	file := file.File{
+		ID:          resultDTO.ID,
+		Filename:    resultDTO.Filename,
+		Size:        resultDTO.Size,
+		ContentType: resultDTO.ContentType,
+		Status:      file.StatusType(resultDTO.Status),
+		S3URL:       resultDTO.S3URL,
+		IsShared:    resultDTO.IsShared,
+		IsDir:       resultDTO.IsDir,
+		Path:        resultDTO.Path,
+		UserID:      resultDTO.UserID,
+		TimeCreated: resultDTO.TimeCreated,
+		Extension:   resultDTO.Extension,
 	}
 
 	return file, nil

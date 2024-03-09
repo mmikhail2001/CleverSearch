@@ -12,6 +12,13 @@ const (
 	Writer AccessType = "writer"
 )
 
+type StatusType string
+
+const (
+	Uploaded  AccessType = "uploaded"
+	Processed AccessType = "processed"
+)
+
 type File struct {
 	ID          string
 	Filename    string
@@ -28,7 +35,7 @@ type File struct {
 	File        multipart.File
 	ContentType string
 	Extension   string
-	Status      string
+	Status      StatusType
 	S3URL       string
 }
 

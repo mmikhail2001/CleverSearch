@@ -15,7 +15,7 @@ import (
 // - а до этого всего уже создать в mongo запись о том, что файл на загрузке в s3
 
 // можно не отвечать фронту, пока не загрузим файл PutObject
-func (r *Repository) Upload(ctx context.Context, file file.File) (file.File, error) {
+func (r *Repository) UploadToStorage(ctx context.Context, file file.File) (file.File, error) {
 	_, err := r.minio.PutObject(ctx, bucketName, file.Path, file.File, file.Size, minio.PutObjectOptions{ContentType: file.ContentType})
 	if err != nil {
 		log.Println("Failed to PutObject minio:", err)
@@ -23,4 +23,13 @@ func (r *Repository) Upload(ctx context.Context, file file.File) (file.File, err
 	}
 	file.S3URL = "https://" + minioHost + "/" + bucketName + "/" + file.Path
 	return file, nil
+}
+
+func (r *Repository) RemoveFromStorage(ctx context.Context, path string) error {
+	err := r.minio.RemoveObject(ctx, bucketName, path, minio.RemoveObjectOptions{})
+	if err != nil {
+		log.Println("Failed to RemoveObject from MinIO:", err)
+		return err
+	}
+	return nil
 }

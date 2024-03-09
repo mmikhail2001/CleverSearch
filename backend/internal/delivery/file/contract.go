@@ -11,4 +11,6 @@ type Usecase interface {
 	GetFiles(ctx context.Context, options file.FileOptions) ([]file.File, error)
 	Search(ctx context.Context, options file.FileOptions) ([]file.File, error)
 	CompleteProcessingFile(ctx context.Context, uuid string) error
+	CreateDir(ctx context.Context, file file.File) (file.File, error)
+	DeleteFiles(ctx context.Context, filePaths []string) error
 }

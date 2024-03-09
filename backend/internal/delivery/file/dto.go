@@ -25,3 +25,7 @@ type FileDTO struct {
 	Status      string    `json:"status"`
 	S3URL       string    `json:"url_s3"`
 }
+
+type DeleteFilesDTO struct {
+	Files []string `json:"files"`
+}

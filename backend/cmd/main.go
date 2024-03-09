@@ -37,6 +37,9 @@ import (
 // если в поле директории указать /dir, то 2024/03/04 21:49:12 Failed to PutObject minio: Object name contains unsupported characters.
 // - проблема в / в начале
 
+// перед загрузкой файла в директорию нужно проверить, существует ли такая директория
+// имеет смысл разделить репозиторий на fileStorage, db....
+
 var staticDir string = "../frontend"
 
 func main() {
@@ -70,12 +73,15 @@ func Run() error {
 
 	log.Println("rabbitMQ connected")
 
+	// userRepo := user.NewRepository()
 	fileRepo := file.NewRepository(minio, mongoDB, channelRabbitMQ)
 	notifyGateway := notifier.NewGateway()
 
+	// userUsecase := userUsecase.NewUsecase(userRepo)
 	notifyUsecase := notifyUsecase.NewUsecase(notifyGateway)
 	fileUsecase := fileUsecase.NewUsecase(fileRepo, notifyUsecase)
 
+	// userHandler := userDelivery.NewHandler(userUsecase)
 	fileHandler := fileDelivery.NewHandler(fileUsecase)
 	notifyDelivery := notifyDelivery.NewHandler(notifyUsecase)
 
@@ -87,6 +93,15 @@ func Run() error {
 	api.HandleFunc("/files", fileHandler.GetFiles).Methods("GET")
 	api.HandleFunc("/files/search", fileHandler.GetFiles).Methods("GET")
 	api.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
+	api.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
+	api.HandleFunc("/dirs/create", fileHandler.CreateDir).Methods("POST")
+	// api.HandleFunc("/dirs/share", fileHandler.CreateDir).Methods("POST")
+
+	// api.HandleFunc("/user/profile", userHandler.Profile).Methods("GET")
+	// api.HandleFunc("/user/login", userHandler.Login).Methods("POST")
+	// api.HandleFunc("/user/logout", userHandler.Logout).Methods("POST")
+	// api.HandleFunc("/user/register", userHandler.Register).Methods("POST")
+
 	api.HandleFunc("/ml/complete", fileHandler.CompleteProcessingFile).Methods("GET")
 	api.HandleFunc("/ws", notifyDelivery.ConnectNotifications).Methods("GET")
 
