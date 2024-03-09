@@ -31,7 +31,7 @@ class ImageProcessor(IDataProcessor):
         print('success!')
 
 
-    def process(self, img: Image)->list[str]:
+    def process(self, img: Image)->str:
         bboxes = self.__get_text_bboxes(img)
         img_crops = self.__crop_image(img, bboxes)
         string = self.__get_string_from_crops(img_crops).lower()
