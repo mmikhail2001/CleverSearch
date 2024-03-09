@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import "./selector.css";
+import "./selector.scss";
 import Selector, {
   components,
   ActionMeta,

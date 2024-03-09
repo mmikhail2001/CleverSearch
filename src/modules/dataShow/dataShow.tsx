@@ -1,10 +1,11 @@
 import { FC, useEffect } from "react";
-import { useSearchMutation, useShowMutation } from "../../api/searchApi";
-import "./dataShow.css";
+// import { useSearchMutation, useShowMutation } from "api/searchApi";
+import "./dataShow.scss";
 
 import { skipToken } from "@reduxjs/toolkit/query";
-import { useAppSelector } from "../../store/store";
-import { FileShow } from "../../ui/fileShow/fileShow";
+import { FileShow } from "@ui/fileShow/fileShow";
+import { useSearchMutation, useShowMutation } from "@api/searchApi";
+import { useAppSelector } from "@store/store";
 interface DataShowProps {}
 
 export const DataShow: FC<DataShowProps> = ({}) => {
@@ -14,7 +15,7 @@ export const DataShow: FC<DataShowProps> = ({}) => {
     return;
   }, []);
 
-  const [search, response] = useSearchMutation({} ?? skipToken);
+  const [search, response] = useSearchMutation();
   const params = useAppSelector((state) => state.searchRequest);
   useEffect(() => {
     search(params);

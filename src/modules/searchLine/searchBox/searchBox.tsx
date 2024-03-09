@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { diskTypes, fileTypes } from "../../../models/searchParams";
 import { Button, Variants } from "../../../ui/button/Button";
 import { Checkbox } from "../../../ui/checkbox/Checkbox";
-import "./searchBox.css";
+import "./searchBox.scss";
 import { SearchDiskLine } from "./searchLines/searchDisk";
 import { SearchFileType } from "./searchLines/searchFilteType";
 import { SearchFolderLine } from "./searchLines/searchFolder";

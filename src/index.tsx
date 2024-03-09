@@ -1,20 +1,13 @@
+import { store } from "@store/store";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
-import "./index.css";
-import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
-import { store } from "./store/store";
-import {
-  Outlet,
-  Link,
-  createBrowserRouter,
-  RouterProvider,
-  useNavigation,
-} from "react-router-dom";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import App from "./App";
+import "./index.scss";
 
-import ErorrPage from "./modules/errorPage/errorPage";
-import { LoginForm } from "./modules/login/login";
+import ErorrPage from "@modules/errorPage/errorPage";
+import { LoginForm } from "@modules/login/login";
 
 const router = createBrowserRouter([
   {
@@ -38,8 +31,6 @@ root.render(
     </Provider>
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+//  @reduxjs/toolkit @types/react-redux @types/react-select react react-dom react-redux react-router-dom react-select
+//  @types/node @types/react @types/react-dom @types/react-router-dom @types/webpack @types/webpack-dev-server
+//  css-loader html-webpack-plugin mini-css-extract-plugin sass sass-loader style-loader ts-loader ts-node typescript webpack webpack-cli webpack-dev-server

@@ -35,7 +35,7 @@ function getDiskKey(diskStr: string): keyof typeof diskTypes | null {
 let diskVal = (
   newVal: MultiValue<Option> | SingleValue<Option>
 ): diskTypes[] => {
-  if (newVal && "length" in newVal) {
+  if ("length" in newVal) {
     let diskValuesInString = newVal
       .map((val) => getDiskKey(val.value))
       .filter((val) => val !== null) as unknown as keyof diskTypes[];

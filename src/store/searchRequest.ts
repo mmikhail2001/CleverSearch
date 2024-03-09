@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { diskTypes, fileTypes } from "../models/searchParams";
+import { diskTypes, fileTypes } from "@models/searchParams";
 
 const searchSlice = createSlice({
   name: "whatToShow",

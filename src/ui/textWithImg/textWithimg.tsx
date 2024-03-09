@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import "./textWithImg.css";
+import "./textWithImg.scss";
 
 interface TextWithImgProps {
   text: string;

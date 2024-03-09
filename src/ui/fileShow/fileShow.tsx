@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import "./fileShow.css";
+import "./fileShow.scss";
 
 interface FileShowProps {
   iconSrc: string;

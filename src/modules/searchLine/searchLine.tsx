@@ -1,13 +1,13 @@
 import { skipToken } from "@reduxjs/toolkit/query";
 import { FC, useState } from "react";
-import { useSearchMutation } from "../../api/searchApi";
-import { diskTypes, fileTypes } from "../../models/searchParams";
-import { Input, InputVariants } from "../../ui/input/input";
-import "./searchLine.css";
+import { useSearchMutation } from "@api/searchApi";
+import { diskTypes, fileTypes } from "@models/searchParams";
+import { Input, InputVariants } from "@ui/input/input";
+import "./searchLine.scss";
 
 import { useDispatch } from "react-redux";
-import { newValues } from "../../store/searchRequest";
-import { switchToSearch } from "../../store/whatToShow";
+import { newValues } from "@store/searchRequest";
+import { switchToSearch } from "@store/whatToShow";
 import { SearchBox } from "./searchBox/searchBox";
 interface SearchLineProps {}
 
@@ -22,7 +22,7 @@ export const SearchLine: FC<SearchLineProps> = ({}) => {
   });
 
   //   TODO make search api
-  const [search, response] = useSearchMutation({} ?? skipToken);
+  const [search, response] = useSearchMutation();
   const dispatch = useDispatch();
 
   return (

@@ -1,7 +1,8 @@
-import { DataShow } from "./modules/dataShow/dataShow";
-import { SearchLine } from "./modules/searchLine/searchLine";
-import { Sidebar } from "./modules/sidebar/sidebar";
-import "./App.css";
+import { DataShow } from "@modules/dataShow/dataShow";
+import { SearchLine } from "@modules/searchLine/searchLine";
+import { Sidebar } from "@modules/sidebar/sidebar";
+import "./App.scss";
+
 function App() {
   return (
     <div className="App">

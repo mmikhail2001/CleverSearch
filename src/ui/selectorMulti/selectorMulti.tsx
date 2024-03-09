@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import "./selector.css";
+import "./selector.scss";
 import Selector, { ActionMeta, MultiValue, SingleValue } from "react-select";
 
 // https://react-select.com/components

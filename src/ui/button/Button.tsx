@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import "./Button.css";
+import "./Button.scss";
 
 export enum Variants {
   filled = "filled",

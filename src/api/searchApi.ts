@@ -4,7 +4,7 @@ import {
   SearchResponse,
   ShowParams,
   ShowResponse,
-} from "../models/searchParams";
+} from "@models/searchParams";
 
 export const searchAPi = createApi({
   reducerPath: "searchAPi",

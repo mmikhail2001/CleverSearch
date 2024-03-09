@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react";
-import { DiskType, diskImgSrc } from "../../models/disk";
-import { TextWithImg } from "../../ui/textWithImg/textWithimg";
-import "./navbar.css";
+import { DiskType, diskImgSrc } from "@models/disk";
+import { TextWithImg } from "@ui/textWithImg/textWithimg";
+import "./navbar.scss";
 
 interface NavbarProps {}
 

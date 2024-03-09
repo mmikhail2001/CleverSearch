@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import "./input.css";
+import "./input.scss";
 
 export enum InputVariants {
   default = "default",

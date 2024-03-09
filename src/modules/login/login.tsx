@@ -1,9 +1,9 @@
 import { skipToken } from "@reduxjs/toolkit/query";
 import { FC, useState } from "react";
-import { useLoginMutation } from "../../api/userApi";
-import { Button, Variants } from "../../ui/button/Button";
-import { Input } from "../../ui/input/input";
-import "./login.css";
+import { useLoginMutation } from "@api/userApi";
+import { Button, Variants } from "@ui/button/Button";
+import { Input } from "@ui/input/input";
+import "./login.scss";
 
 interface LoginFormProps {}
 
@@ -11,9 +11,7 @@ export const LoginForm: FC<LoginFormProps> = ({}) => {
   const [loginField, setLogin] = useState("");
   const [passwordField, setPassword] = useState("");
 
-  const [login, { isLoading, isError, error }] = useLoginMutation(
-    {} ?? skipToken
-  );
+  const [login, { isLoading, isError, error }] = useLoginMutation();
 
   return (
     <div className="login-form">

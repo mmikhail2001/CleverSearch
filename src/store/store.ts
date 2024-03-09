@@ -1,8 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useSelector } from "react-redux";
-import { filesApi } from "../api/filesApi";
-import { userApi } from "../api/userApi";
-import { searchAPi } from "./../api/searchApi";
+import { filesApi } from "@api/filesApi";
+import { userApi } from "@api/userApi";
+import { searchAPi } from "@api/searchApi";
 import { reducer as reducerSearch } from "./searchRequest";
 import reducer from "./whatToShow";
 

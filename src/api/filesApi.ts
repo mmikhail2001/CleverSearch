@@ -1,8 +1,8 @@
 // Import the RTK Query methods from the React-specific entry point
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Folder } from "../models/folder";
+import { Folder } from "@models/folder";
 
-// Define our single API slice object
+// Define our single @api slice object
 export const filesApi = createApi({
   // The cache reducer expects to be added at `state.api` (already default - this is optional)
   reducerPath: "filesApi",

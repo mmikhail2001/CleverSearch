@@ -1,10 +1,10 @@
+import { DiskType, diskImgSrc } from "@models/disk";
+import { switchToShow } from "@store/whatToShow";
+import { Button, Variants } from "@ui/button/Button";
+import { TextWithImg } from "@ui/textWithImg/textWithimg";
 import React, { FC, useState } from "react";
-import { DiskType, diskImgSrc } from "../../models/disk";
-import { Button, Variants } from "../../ui/button/Button";
-import { TextWithImg } from "../../ui/textWithImg/textWithimg";
-import "./sidebar.css";
 import { useDispatch } from "react-redux";
-import { switchToShow } from "../../store/whatToShow";
+import "./sidebar.scss";
 
 interface SidebarProps {}
 

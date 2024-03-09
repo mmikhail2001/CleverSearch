@@ -42,7 +42,7 @@ function getFileKey(fileStr: string): keyof typeof fileTypes | null {
 let fileValues = (
   newVal: MultiValue<MultiOption> | SingleValue<MultiOption>
 ): fileTypes[] => {
-  if (newVal && "length" in newVal) {
+  if ("length" in newVal) {
     let diskValuesInString = newVal
       .map((val) => getFileKey(val.value))
       .filter((val) => val !== null) as unknown as keyof fileTypes[];
