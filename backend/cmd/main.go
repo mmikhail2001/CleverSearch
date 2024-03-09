@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mmikhail2001/test-clever-search/internal/repository/file"
 	"github.com/mmikhail2001/test-clever-search/internal/repository/notifier"
+	"github.com/mmikhail2001/test-clever-search/internal/repository/user"
 	"github.com/mmikhail2001/test-clever-search/pkg/client/minio"
 	"github.com/mmikhail2001/test-clever-search/pkg/client/mongo"
 	"github.com/mmikhail2001/test-clever-search/pkg/client/rabbitmq"
@@ -16,8 +17,10 @@ import (
 	fileDelivery "github.com/mmikhail2001/test-clever-search/internal/delivery/file"
 	"github.com/mmikhail2001/test-clever-search/internal/delivery/middleware"
 	notifyDelivery "github.com/mmikhail2001/test-clever-search/internal/delivery/notifier"
+	userDelivery "github.com/mmikhail2001/test-clever-search/internal/delivery/user"
 	fileUsecase "github.com/mmikhail2001/test-clever-search/internal/usecase/file"
 	notifyUsecase "github.com/mmikhail2001/test-clever-search/internal/usecase/notifier"
+	userUsecase "github.com/mmikhail2001/test-clever-search/internal/usecase/user"
 )
 
 // TODO:
@@ -73,23 +76,27 @@ func Run() error {
 
 	log.Println("rabbitMQ connected")
 
-	// userRepo := user.NewRepository()
+	userRepo := user.NewRepository()
 	fileRepo := file.NewRepository(minio, mongoDB, channelRabbitMQ)
 	notifyGateway := notifier.NewGateway()
 
-	// userUsecase := userUsecase.NewUsecase(userRepo)
+	userUsecase := userUsecase.NewUsecase(userRepo)
 	notifyUsecase := notifyUsecase.NewUsecase(notifyGateway)
 	fileUsecase := fileUsecase.NewUsecase(fileRepo, notifyUsecase)
 
-	// userHandler := userDelivery.NewHandler(userUsecase)
+	userHandler := userDelivery.NewHandler(userUsecase)
 	fileHandler := fileDelivery.NewHandler(fileUsecase)
 	notifyDelivery := notifyDelivery.NewHandler(notifyUsecase)
 
 	r := mux.NewRouter()
-	middleware := middleware.NewMiddleware()
+	middleware := middleware.NewMiddleware(userHandler)
 	r.Use(middleware.AddJSONHeader)
 
 	api := r.PathPrefix("/api").Subrouter()
+
+	apiAuth := api.Methods("GET", "POST").Subrouter()
+	apiAuth.Use(middleware.AuthMiddleware)
+
 	api.HandleFunc("/files", fileHandler.GetFiles).Methods("GET")
 	api.HandleFunc("/files/search", fileHandler.GetFiles).Methods("GET")
 	api.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
@@ -97,10 +104,10 @@ func Run() error {
 	api.HandleFunc("/dirs/create", fileHandler.CreateDir).Methods("POST")
 	// api.HandleFunc("/dirs/share", fileHandler.CreateDir).Methods("POST")
 
-	// api.HandleFunc("/user/profile", userHandler.Profile).Methods("GET")
-	// api.HandleFunc("/user/login", userHandler.Login).Methods("POST")
-	// api.HandleFunc("/user/logout", userHandler.Logout).Methods("POST")
-	// api.HandleFunc("/user/register", userHandler.Register).Methods("POST")
+	apiAuth.HandleFunc("/users/profile", userHandler.Profile).Methods("GET")
+	api.HandleFunc("/users/login", userHandler.Login).Methods("POST")
+	apiAuth.HandleFunc("/users/logout", userHandler.Logout).Methods("POST")
+	api.HandleFunc("/users/register", userHandler.Register).Methods("POST")
 
 	api.HandleFunc("/ml/complete", fileHandler.CompleteProcessingFile).Methods("GET")
 	api.HandleFunc("/ws", notifyDelivery.ConnectNotifications).Methods("GET")
