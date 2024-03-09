@@ -1,7 +1,6 @@
 import torch
 import numpy as np
 from IDataProcessor import IDataProcessor
-from pytesseract import image_to_string
 from PIL import Image
 from collections import OrderedDict
 import sys
