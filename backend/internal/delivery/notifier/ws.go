@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/mmikhail2001/test-clever-search/internal/domain/notifier"
+	"github.com/mmikhail2001/test-clever-search/internal/domain/user"
 )
 
 var upgrader = websocket.Upgrader{
@@ -29,11 +30,16 @@ func (h *Handler) ConnectNotifications(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error with HandleConnectWS:", err)
 		return
 	}
+
+	user, ok := r.Context().Value("user").(user.User)
+	if !ok {
+		http.Error(w, "User not found in context", http.StatusInternalServerError)
+		return
+	}
+
 	client := &notifier.Client{
-		Conn: conn,
-		// TODO: по куке
-		// UserID: uuid.New().String(),
-		UserID: "1",
+		Conn:   conn,
+		UserID: user.ID,
 		Send:   make(chan notifier.Notify, 5),
 	}
 	h.usecase.Register(client)

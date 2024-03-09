@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mmikhail2001/test-clever-search/internal/domain/file"
 	"github.com/mmikhail2001/test-clever-search/internal/domain/notifier"
+	"github.com/mmikhail2001/test-clever-search/internal/domain/user"
 )
 
 type Usecase struct {
@@ -23,36 +24,48 @@ func NewUsecase(repo Repository, notifyUsecase NotifyUsecase) *Usecase {
 }
 
 func (uc *Usecase) Upload(ctx context.Context, file file.File) error {
-	file, err := uc.repo.UploadToStorage(ctx, file)
-	if err != nil {
-		return err
+	user, ok := ctx.Value("user").(user.User)
+	if !ok {
+		return fmt.Errorf("user not found in context")
 	}
-	file.Status = "uploaded"
+
+	uc.notifyUsecase.Notify(notifier.Notify{
+		Event:  "transferred",
+		UserID: user.ID,
+		S3URL:  file.S3URL,
+	})
+
+	file.Status = "transferred"
 	file.TimeCreated = time.Now()
 	file.ID = uuid.New().String()
 	file.IsDir = false
 	file.IsShared = false
 
-	err = uc.repo.CreateFile(ctx, file)
+	err := uc.repo.CreateFile(ctx, file)
 	if err != nil {
 		return err
 	}
+
+	file, err = uc.repo.UploadToStorage(ctx, file)
+	if err != nil {
+		return err
+	}
+
+	file.Status = "uploaded"
+	err = uc.repo.Update(ctx, file)
+	if err != nil {
+		return err
+	}
+
 	uc.notifyUsecase.Notify(notifier.Notify{
-		Event: "upload",
-		// TODO: UserID: string(file.UserID),
-		UserID: "1",
+		Event:  "uploaded",
+		UserID: user.ID,
 		S3URL:  file.S3URL,
 	})
 	err = uc.repo.PublishMessage(ctx, file)
 	if err != nil {
 		return err
 	}
-	// time.Sleep(time.Second * 2)
-	// uc.notifyUsecase.Notify(notifier.Notify{
-	// 	Event:   "wait processing",
-	// 	UserID:  "1",
-	// 	FileURL: file.URL,
-	// })
 	return err
 }
 
@@ -118,10 +131,14 @@ func (uc *Usecase) CompleteProcessingFile(ctx context.Context, uuidFile string) 
 		return err
 	}
 
+	user, ok := ctx.Value("user").(user.User)
+	if !ok {
+		return fmt.Errorf("user not found in context")
+	}
+
 	uc.notifyUsecase.Notify(notifier.Notify{
-		Event: "complete-processing",
-		// TODO: UserID: string(file.UserID),
-		UserID: "1",
+		Event:  "processed",
+		UserID: user.ID,
 		S3URL:  file.S3URL,
 	})
 	return nil

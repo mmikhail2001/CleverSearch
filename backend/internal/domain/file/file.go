@@ -24,6 +24,7 @@ type File struct {
 	Filename    string
 	TimeCreated time.Time
 	UserID      string
+	BucketName  string
 	Path        string
 	IsDir       bool
 	IsShared    bool

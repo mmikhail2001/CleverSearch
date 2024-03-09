@@ -97,20 +97,22 @@ func Run() error {
 	apiAuth := api.Methods("GET", "POST").Subrouter()
 	apiAuth.Use(middleware.AuthMiddleware)
 
-	api.HandleFunc("/files", fileHandler.GetFiles).Methods("GET")
-	api.HandleFunc("/files/search", fileHandler.GetFiles).Methods("GET")
-	api.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
-	api.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
-	api.HandleFunc("/dirs/create", fileHandler.CreateDir).Methods("POST")
+	apiAuth.HandleFunc("/files", fileHandler.GetFiles).Methods("GET")
+	apiAuth.HandleFunc("/files/search", fileHandler.GetFiles).Methods("GET")
+	apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
+	apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
+	apiAuth.HandleFunc("/dirs/create", fileHandler.CreateDir).Methods("POST")
 	// api.HandleFunc("/dirs/share", fileHandler.CreateDir).Methods("POST")
 
 	apiAuth.HandleFunc("/users/profile", userHandler.Profile).Methods("GET")
-	api.HandleFunc("/users/login", userHandler.Login).Methods("POST")
 	apiAuth.HandleFunc("/users/logout", userHandler.Logout).Methods("POST")
+
+	api.HandleFunc("/users/login", userHandler.Login).Methods("POST")
 	api.HandleFunc("/users/register", userHandler.Register).Methods("POST")
 
 	api.HandleFunc("/ml/complete", fileHandler.CompleteProcessingFile).Methods("GET")
-	api.HandleFunc("/ws", notifyDelivery.ConnectNotifications).Methods("GET")
+
+	apiAuth.HandleFunc("/ws", notifyDelivery.ConnectNotifications).Methods("GET")
 
 	fileServer := http.FileServer(http.Dir(staticDir))
 	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

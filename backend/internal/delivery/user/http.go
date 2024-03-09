@@ -10,17 +10,17 @@ import (
 )
 
 type Handler struct {
-	users     []user.User
-	usersMap  map[string]user.User
-	usersLock sync.RWMutex
-	usecase   Usecase
+	users        map[string]user.User
+	userSessions map[string]user.User
+	usersLock    sync.RWMutex
+	usecase      Usecase
 }
 
 func NewHandler(usecase Usecase) *Handler {
 	return &Handler{
-		usecase:  usecase,
-		users:    make([]user.User, 0),
-		usersMap: make(map[string]user.User),
+		usecase:      usecase,
+		users:        make(map[string]user.User),
+		userSessions: make(map[string]user.User),
 	}
 }
 
@@ -41,8 +41,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	h.usersLock.Lock()
 	defer h.usersLock.Unlock()
 
-	h.users = append(h.users, user)
-	// h.usersMap[user.ID] = user
+	h.users[user.ID] = user
 
 	w.WriteHeader(http.StatusOK)
 }
@@ -71,7 +70,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 				Path:  "/",
 			})
 
-			h.usersMap[sessionID] = userFromStore
+			h.userSessions[sessionID] = userFromStore
 
 			w.WriteHeader(http.StatusOK)
 			return
@@ -91,7 +90,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	h.usersLock.Lock()
 	defer h.usersLock.Unlock()
 
-	delete(h.usersMap, sessionCookie.Value)
+	delete(h.userSessions, sessionCookie.Value)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:   "session_id",
@@ -102,8 +101,8 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Handler) GetUsers() map[string]user.User {
-	return h.usersMap
+func (h *Handler) GetUserSessions() map[string]user.User {
+	return h.userSessions
 }
 
 func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {

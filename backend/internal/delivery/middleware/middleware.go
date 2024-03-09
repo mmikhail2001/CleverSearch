@@ -32,7 +32,7 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		users := m.userHandler.GetUsers()
+		users := m.userHandler.GetUserSessions()
 		var user user.User
 		var flag = false
 		for session, u := range users {

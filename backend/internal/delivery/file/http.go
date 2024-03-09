@@ -9,6 +9,7 @@ import (
 
 	"github.com/mmikhail2001/test-clever-search/internal/delivery/shared"
 	"github.com/mmikhail2001/test-clever-search/internal/domain/file"
+	"github.com/mmikhail2001/test-clever-search/internal/domain/user"
 )
 
 type Handler struct {
@@ -41,12 +42,17 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Uploaded File: %+v\n", handler.Filename)
 
+	user, ok := r.Context().Value("user").(user.User)
+	if !ok {
+		http.Error(w, "User not found in context", http.StatusInternalServerError)
+		return
+	}
+
 	err = h.usecase.Upload(r.Context(), file.File{
-		File:     f,
-		Filename: handler.Filename,
-		Size:     handler.Size,
-		// TODO: мидлвара поместить User в context, оттуда берем
-		UserID:      "1",
+		File:        f,
+		Filename:    handler.Filename,
+		Size:        handler.Size,
+		UserID:      user.ID,
 		Path:        dir + "/" + handler.Filename,
 		ContentType: handler.Header["Content-Type"][0],
 	})
