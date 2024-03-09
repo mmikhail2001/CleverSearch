@@ -33,47 +33,14 @@ class ImageService(IDataService):
             )
         )
 
-        tf_idf = self.__get_tfidf(
-            data['uuid'], data['type'], proc_str
-        )
-
         self.mongo_collection.insert_one(
             {
                 'uuid': data['uuid'],
                 'type': data['type'],
-                'text_context': proc_str,
-                'url': data['url'],
-                'embedding': tf_idf
+                'text_content': proc_str,
+                'url': data['url']
             }
         )
-
-    def __get_tfidf(self, uuid: str, type: str, current_doc: str):
-        documents = self.get_docs(uuid, type)
-
-        if documents:
-            self.__reindex_docs(documents, current_doc)
-        else:
-            return [1 for i in range(10)]
-
-    def __reindex_docs(documents: list[str], current_doc: str):
-        pass
-        
-
-    def get_docs(self, uuid: str, type: str):
-        query = {
-            '$and': [
-                {'uuid': uuid},
-                {'type': type}
-            ]
-        }
-
-        documents = list(
-            self.mongo_collection.find(
-                query
-            )
-        )
-
-        return None if not len(documents) else documents
 
 
 if __name__ == '__main__':
