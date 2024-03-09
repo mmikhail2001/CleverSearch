@@ -6,6 +6,8 @@ class MLDispatcher:
     def __init__(self, ip: str = 'localhost', port:int = 1338):
         self.ip = ip
         self.port = port
+        self.client = MongoClient('mongodb://localhost:1488')
+        self.collection = self.client['test']['test']
 
     def __callback(self, ch, method, properties, body):
             print(body.decode())
