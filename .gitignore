@@ -1,2 +1,4 @@
+tmp
+backend/vendor
 .venv
 __py*
