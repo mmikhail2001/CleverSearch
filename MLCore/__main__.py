@@ -30,6 +30,8 @@ if __name__ == '__main__':
         app, port=args.search_serv_port
     )
 
+    rec_service = RecomendationService()
+
     dispathcer = MLDispatcher()
 
     dispathcer.reg_service(ImageService, 'image')

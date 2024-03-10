@@ -1,9 +1,10 @@
 import numpy as np
+from fastapi import FastAPI
 from pandas import DataFrame
+from pymongo import MongoClient
 from pymongo.collection import Collection
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from fastapi import FastAPI
 
 app = FastAPI()
 
@@ -11,9 +12,10 @@ app = FastAPI()
 class RecomendationService:
     def __init__(
             self,
-            mongo_collection: Collection
     ):
-        self.mongo_collection = mongo_collection
+        client = MongoClient('mongodb://localhost:27018/')
+        db = client["CleverSearch"]
+        self.mongo_collection = db.files
 
     @app.get('/search/{query}/{type}/{usr_id}')
     def search(self, user_id, doctype, search_query, number_of_results=5):
@@ -30,7 +32,7 @@ class RecomendationService:
         list_cur = list(cursor)
         df = DataFrame(list_cur)
 
-        txt_list = list(df.ml_data)
+        txt_list = [list(val.values())[0] for val in df.ml_data]
         txt_list.append(search_query)
 
         vectorizer = TfidfVectorizer()
