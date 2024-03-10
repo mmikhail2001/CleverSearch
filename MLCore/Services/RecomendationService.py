@@ -8,45 +8,39 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 app = FastAPI()
 
+client = MongoClient('mongodb://localhost:27018/')
+db = client["CleverSearch"]
+mongo_collection = db.files
 
-class RecomendationService:
-    def __init__(
-            self,
-    ):
-        client = MongoClient('mongodb://localhost:27018/')
-        db = client["CleverSearch"]
-        self.mongo_collection = db.files
+@app.get('/search')
+def search(query, file_type, user, dir, disk, number_of_results=5):
+    q = {
+        '$and': [
+            {'user_id': user},
+            {'content_type': file_type}
+        ]
+    }
 
-    @app.get('/search/{query}/{type}/{usr_id}')
-    def search(self, user_id, doctype, search_query, number_of_results=5):
+    cursor = mongo_collection.find(q)
 
-        query = {
-            '$and': [
-                {'user_id': user_id},
-                {'content_type': doctype}
-            ]
-        }
+    list_cur = list(cursor)
+    df = DataFrame(list_cur)
 
-        cursor = self.mongo_collection.find(query)
+    txt_list = [list(val.values())[0] for val in df.ml_data]
+    txt_list.append(query)
 
-        list_cur = list(cursor)
-        df = DataFrame(list_cur)
+    vectorizer = TfidfVectorizer()
+    X = vectorizer.fit_transform(txt_list).todense()
 
-        txt_list = [list(val.values())[0] for val in df.ml_data]
-        txt_list.append(search_query)
+    cosine = [cosine_similarity(
+        np.array(vec), np.array(X[-1])
+        ) for vec in X[:-1]]
 
-        vectorizer = TfidfVectorizer()
-        X = vectorizer.fit_transform(txt_list).todense()
+    tmp_dict = {index: value for index, value in enumerate(cosine)}
+    sorted_dict = dict(sorted(
+        tmp_dict.items(), key=lambda item: item[1], reverse=True
+        ))
 
-        cosine = [cosine_similarity(
-            np.array(vec), np.array(X[-1])
-            ) for vec in X[:-1]]
+    keys = list(sorted_dict.keys())[:number_of_results]
 
-        tmp_dict = {index: value for index, value in enumerate(cosine)}
-        sorted_dict = dict(sorted(
-            tmp_dict.items(), key=lambda item: item[1], reverse=True
-            ))
-
-        keys = list(sorted_dict.keys())[:number_of_results]
-
-        return df.iloc[keys]._id
+    return df.iloc[keys]._id

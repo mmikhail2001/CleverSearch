@@ -2,10 +2,10 @@ import sys
 from argparse import ArgumentParser
 
 import uvicorn
-from ML_dispatcher import MLDispatcher
+# from ML_dispatcher import MLDispatcher
 
-from Services.ImageService import ImageService
-from Services.RecomendationService import RecomendationService, app
+# from Services.ImageService import ImageService
+from Services.RecomendationService import search, app
 sys.path.insert(1, './MLCore/')
 sys.path.insert(2, './MLCore/Services')
 
@@ -26,14 +26,14 @@ if __name__ == '__main__':
 
     args = arg_parser.parse_args()
 
-    rec_service = RecomendationService()
+    # rec_service = RecomendationService()
 
     uvicorn.run(
         app, port=args.search_serv_port
     )
 
-    dispathcer = MLDispatcher()
+    # dispathcer = MLDispatcher()
 
-    dispathcer.reg_service(ImageService, 'image')
+    # dispathcer.reg_service(ImageService, 'image')
 
-    dispathcer.run()
+    # dispathcer.run()
