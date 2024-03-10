@@ -5,7 +5,9 @@ import "github.com/gorilla/websocket"
 type Notify struct {
 	Event  string
 	UserID string
-	S3URL  string
+	Path   string
+	Status string
+	Link   string
 }
 
 type Client struct {

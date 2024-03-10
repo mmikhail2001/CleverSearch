@@ -28,7 +28,8 @@ func (gw *Gateway) WriteLoop(client *notifier.Client) {
 		messageDTO := NotifyDTO{
 			Event:  message.Event,
 			UserID: message.UserID,
-			S3URL:  message.S3URL,
+			Path:   message.Path,
+			Status: message.Status,
 		}
 
 		jsonMsg, err := json.Marshal(messageDTO)

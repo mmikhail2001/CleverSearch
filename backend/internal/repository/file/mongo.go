@@ -16,7 +16,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var bucketName string = "test"
 var minioHost string = "localhost:9000"
 var channelName string = "test-queue"
 
@@ -42,12 +41,13 @@ func (r *Repository) CreateFile(ctx context.Context, file file.File) error {
 		ContentType: file.ContentType,
 		Extension:   filepath.Ext(file.Filename),
 		Status:      string(file.Status),
-		S3URL:       file.S3URL,
 		UserID:      file.UserID,
 		Path:        file.Path,
+		Bucket:      file.Bucket,
 		TimeCreated: file.TimeCreated,
 		IsDir:       file.IsDir,
 		IsShared:    file.IsShared,
+		Link:        file.Link,
 	}
 
 	collection := r.mongo.Collection("files")
@@ -120,13 +120,14 @@ func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) (
 			Size:        fileDTO.Size,
 			ContentType: fileDTO.ContentType,
 			Status:      file.StatusType(fileDTO.Status),
-			S3URL:       fileDTO.S3URL,
 			TimeCreated: fileDTO.TimeCreated,
 			UserID:      fileDTO.UserID,
 			Path:        fileDTO.Path,
+			Bucket:      fileDTO.Bucket,
 			IsDir:       fileDTO.IsDir,
 			IsShared:    fileDTO.IsShared,
 			Extension:   fileDTO.Extension,
+			Link:        fileDTO.Link,
 		}
 	}
 
@@ -144,7 +145,7 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 	}
 
 	if fileOptions.Dir != "all" {
-		filter["path"] = fileOptions.Dir
+		filter["path"] = bson.M{"$regex": "^" + fileOptions.Dir}
 	}
 
 	if fileOptions.Shared {
@@ -153,6 +154,10 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 
 	if fileOptions.Disk != "all" {
 		filter["disk"] = fileOptions.Disk
+	}
+
+	if fileOptions.OnlyDirs {
+		filter["is_dir"] = true
 	}
 
 	// сортировка нужна по дате добавления
@@ -183,13 +188,14 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 			Size:        fileDTO.Size,
 			ContentType: fileDTO.ContentType,
 			Status:      file.StatusType(fileDTO.Status),
-			S3URL:       fileDTO.S3URL,
 			TimeCreated: fileDTO.TimeCreated,
 			UserID:      fileDTO.UserID,
 			Path:        fileDTO.Path,
+			Bucket:      fileDTO.Bucket,
 			IsDir:       fileDTO.IsDir,
 			IsShared:    fileDTO.IsShared,
 			Extension:   fileDTO.Extension,
+			Link:        fileDTO.Link,
 		}
 	}
 
@@ -217,13 +223,14 @@ func (r *Repository) GetFileByID(ctx context.Context, uuidFile string) (file.Fil
 		Size:        resultDTO.Size,
 		ContentType: resultDTO.ContentType,
 		Status:      file.StatusType(resultDTO.Status),
-		S3URL:       resultDTO.S3URL,
 		IsShared:    resultDTO.IsShared,
 		IsDir:       resultDTO.IsDir,
 		Path:        resultDTO.Path,
+		Bucket:      resultDTO.Bucket,
 		UserID:      resultDTO.UserID,
 		TimeCreated: resultDTO.TimeCreated,
 		Extension:   resultDTO.Extension,
+		Link:        resultDTO.Link,
 	}
 
 	return file, nil
@@ -247,13 +254,14 @@ func (r *Repository) GetFileByPath(ctx context.Context, path string) (file.File,
 		Size:        resultDTO.Size,
 		ContentType: resultDTO.ContentType,
 		Status:      file.StatusType(resultDTO.Status),
-		S3URL:       resultDTO.S3URL,
 		IsShared:    resultDTO.IsShared,
 		IsDir:       resultDTO.IsDir,
 		Path:        resultDTO.Path,
+		Bucket:      resultDTO.Bucket,
 		UserID:      resultDTO.UserID,
 		TimeCreated: resultDTO.TimeCreated,
 		Extension:   resultDTO.Extension,
+		Link:        resultDTO.Link,
 	}
 
 	return file, nil
@@ -264,7 +272,6 @@ func (r *Repository) Update(ctx context.Context, file file.File) error {
 		"$set": bson.M{
 			"filename": file.Filename,
 			"status":   file.Status,
-			"url_s3":   file.S3URL,
 		},
 	}
 

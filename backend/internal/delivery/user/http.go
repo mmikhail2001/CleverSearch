@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/mmikhail2001/test-clever-search/internal/delivery/shared"
@@ -22,6 +23,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	var userDTO UserDTO
 	err := json.NewDecoder(r.Body).Decode(&userDTO)
 	if err != nil {
+		log.Println("Register parse data error:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -34,6 +36,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	_, err = h.usecase.Register(r.Context(), newUser)
 
 	if err != nil {
+		log.Println("Register usecase error:", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
@@ -44,6 +47,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var userDTO UserDTO
 	err := json.NewDecoder(r.Body).Decode(&userDTO)
 	if err != nil {
+		log.Println("Login parse data error:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -55,6 +59,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	sessionID, err := h.usecase.Login(r.Context(), user)
 
 	if err != nil {
+		log.Println("Login usecase error:", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
@@ -70,12 +75,14 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	sessionCookie, err := r.Cookie(shared.CookieName)
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		log.Println("Logout without cookie:", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	err = h.usecase.Logout(r.Context(), sessionCookie.Value)
 	if err != nil {
+		log.Println("Logout usecase error:", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
@@ -91,12 +98,12 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {
 	user, ok := r.Context().Value(shared.UserContextName).(cleveruser.User)
 	if !ok {
-		http.Error(w, "User not found in context", http.StatusInternalServerError)
+		log.Println("User not found in context")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	email := EmailDTO{
 		Email: user.Email,
 	}
-
 	json.NewEncoder(w).Encode(email)
 }

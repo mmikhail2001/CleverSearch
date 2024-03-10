@@ -4,10 +4,10 @@ import "time"
 
 type fileDTO struct {
 	ID          string    `bson:"_id"`
-	S3URL       string    `bson:"url_s3"`
 	Filename    string    `bson:"filename"`
 	UserID      string    `bson:"user_id"`
 	Path        string    `bson:"path"`
+	Bucket      string    `bson:"bucket"`
 	Size        int64     `bson:"size"`
 	TimeCreated time.Time `bson:"time_created"`
 	ContentType string    `bson:"content_type"`
@@ -15,17 +15,23 @@ type fileDTO struct {
 	Status      string    `bson:"status"`
 	IsDir       bool      `bson:"is_dir"`
 	IsShared    bool      `bson:"is_shared"`
+	Link        string    `bson:"link"`
 }
 
 type fileForQueueDTO struct {
 	ID          string `json:"id"`
-	S3URL       string `json:"url"`
+	Path        string `json:"path"`
+	Bucket      string `json:"bucket"`
 	ContentType string `json:"contentType"`
 }
 
-type SearchResponseDTO struct {
-	Status int `json:"status"`
-	Body   struct {
-		Ids []string `json:"ids"`
-	} `json:"body"`
+// { "status": TODO, "body": { "ids": [ file_id1, file_id2, file_id3, ... ] } }
+
+type searchResponseDTO struct {
+	Status int         `json:"status"`
+	Body   interface{} `json:"body"`
+}
+
+type Ids struct {
+	Ids []string `json:"ids"`
 }

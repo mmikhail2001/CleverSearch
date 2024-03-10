@@ -44,10 +44,7 @@ import (
 // перед загрузкой файла в директорию нужно проверить, существует ли такая директория
 // имеет смысл разделить репозиторий на fileStorage, db....
 
-// таблица пользователей
-// куки в мапе
-
-var staticDir string = "../frontend"
+var staticDir string = "/app/frontend/build"
 
 func main() {
 
@@ -101,10 +98,10 @@ func Run() error {
 	origins := handlers.AllowedOrigins([]string{"*"})
 	r.Use(handlers.CORS(headers, methods, origins))
 
-	middleware := middleware.NewMiddleware(userUsecase)
-	r.Use(middleware.AddJSONHeader)
-
 	api := r.PathPrefix("/api").Subrouter()
+
+	middleware := middleware.NewMiddleware(userUsecase)
+	api.Use(middleware.AddJSONHeader)
 
 	apiAuth := api.Methods("GET", "POST").Subrouter()
 	apiAuth.Use(middleware.AuthMiddleware)

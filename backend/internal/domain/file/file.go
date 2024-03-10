@@ -15,8 +15,8 @@ const (
 type StatusType string
 
 const (
-	Uploaded  AccessType = "uploaded"
-	Processed AccessType = "processed"
+	Uploaded  StatusType = "uploaded"
+	Processed StatusType = "processed"
 )
 
 type File struct {
@@ -24,10 +24,11 @@ type File struct {
 	Filename    string
 	TimeCreated time.Time
 	UserID      string
-	BucketName  string
 	Path        string
+	Bucket      string
 	IsDir       bool
 	IsShared    bool
+	Link        string
 	Sharing     struct {
 		Access AccessType
 		Link   string
@@ -37,7 +38,7 @@ type File struct {
 	ContentType string
 	Extension   string
 	Status      StatusType
-	S3URL       string
+	// Disk
 }
 
 type FileType string
@@ -62,6 +63,7 @@ const (
 
 type FileOptions struct {
 	FileType      FileType
+	OnlyDirs      bool
 	Dir           string
 	Shared        bool
 	Disk          DiskType

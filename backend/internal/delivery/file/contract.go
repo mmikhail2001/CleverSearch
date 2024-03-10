@@ -7,7 +7,7 @@ import (
 )
 
 type Usecase interface {
-	Upload(ctx context.Context, file file.File) error
+	Upload(ctx context.Context, file file.File) (file.File, error)
 	GetFiles(ctx context.Context, options file.FileOptions) ([]file.File, error)
 	Search(ctx context.Context, options file.FileOptions) ([]file.File, error)
 	CompleteProcessingFile(ctx context.Context, uuid string) error

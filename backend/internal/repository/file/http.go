@@ -27,7 +27,7 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 	// }
 	// defer resp.Body.Close()
 
-	// var response SearchResponseDTO
+	// var response searchResponseDTO
 
 	// err = json.NewDecoder(resp.Body).Decode(&response)
 	// if err != nil {
@@ -42,16 +42,14 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		idsMock = append(idsMock, file.ID)
 	}
 
-	response := SearchResponseDTO{
-		Body: struct {
-			Ids []string `json:"ids"`
-		}{
+	response := searchResponseDTO{
+		Body: Ids{
 			Ids: idsMock,
 		},
 	}
 
 	var files []file.File
-	for _, id := range response.Body.Ids {
+	for _, id := range response.Body.(Ids).Ids {
 		file, err := r.GetFileByID(ctx, id)
 		if err != nil {
 			return nil, err

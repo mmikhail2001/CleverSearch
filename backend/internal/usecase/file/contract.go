@@ -19,7 +19,7 @@ type Repository interface {
 	DeleteFile(ctx context.Context, file file.File) error
 	Update(ctx context.Context, file file.File) error
 	UploadToStorage(ctx context.Context, file file.File) (file.File, error)
-	RemoveFromStorage(ctx context.Context, path string) error
+	RemoveFromStorage(ctx context.Context, file file.File) error
 }
 
 type NotifyUsecase interface {

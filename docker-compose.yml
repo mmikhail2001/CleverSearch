@@ -42,9 +42,7 @@ services:
     networks:
       clevernet:
 
-  # dd compose stop backend
-  # dd compose start backend --build
-  
+  # dd compose stop backend && dd compose up --build backend
   backend:
     build:
       context: .
@@ -56,6 +54,8 @@ services:
       - rabbitmq
       - mongodb
       - minio
+    volumes:
+      - ./frontend/build:/app/frontend/build
     networks:
       clevernet:
 

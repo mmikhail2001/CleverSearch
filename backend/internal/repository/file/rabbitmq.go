@@ -11,7 +11,8 @@ import (
 func (r *Repository) PublishMessage(ctx context.Context, file file.File) error {
 	fileDTO := fileForQueueDTO{
 		ID:          file.ID,
-		S3URL:       file.S3URL,
+		Path:        file.Path,
+		Bucket:      file.Bucket,
 		ContentType: file.ContentType,
 	}
 

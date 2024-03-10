@@ -11,6 +11,7 @@ type FileDTO struct {
 	Filename string `json:"filename"`
 	UserID   string `json:"user_id"`
 	Path     string `json:"path"`
+	Bucket   string `json:"bucket"`
 	IsShared bool   `json:"is_shared"`
 	Sharing  struct {
 		AuthorID string `json:"author_id"`
@@ -23,7 +24,7 @@ type FileDTO struct {
 	ContentType string    `json:"content_type"`
 	Extension   string    `json:"extension"`
 	Status      string    `json:"status"`
-	S3URL       string    `json:"url_s3"`
+	Link        string    `json:"link"`
 }
 
 type DeleteFilesDTO struct {

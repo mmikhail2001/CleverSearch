@@ -3,7 +3,9 @@ module github.com/mmikhail2001/test-clever-search
 go 1.21.0
 
 require (
+	github.com/dranikpg/go-dto v1.0.0
 	github.com/google/uuid v1.6.0
+	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.1
 	github.com/minio/minio-go/v7 v7.0.68
@@ -16,7 +18,6 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
-	github.com/gorilla/handlers v1.5.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.17.6 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect

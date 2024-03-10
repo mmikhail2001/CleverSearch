@@ -29,14 +29,15 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessionCookie, err := r.Cookie(shared.CookieName)
 		if err != nil {
-			log.Println(err)
-			http.Error(w, "User not auth", http.StatusBadRequest)
+			log.Println("User not auth:", err)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		user, err := m.userUsecase.GetUserBySession(r.Context(), sessionCookie.Value)
 		if err != nil {
-			http.Error(w, "session unvalid", http.StatusNotFound)
+			log.Println("Session unvalid:", err)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
