@@ -7,6 +7,7 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
+
 class RecomendationService:
     def __init__(
             self,
