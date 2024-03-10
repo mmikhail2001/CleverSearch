@@ -145,6 +145,7 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 	}
 
 	if fileOptions.Dir != "all" {
+		// TODO: sdflksdlf
 		filter["path"] = bson.M{"$regex": "^" + fileOptions.Dir}
 	}
 

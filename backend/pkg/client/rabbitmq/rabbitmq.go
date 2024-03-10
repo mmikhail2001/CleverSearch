@@ -35,7 +35,7 @@ func NewClient() (*amqp.Channel, error) {
 	}
 
 	_, err = channel.QueueDeclare(
-		"test-queue",
+		"transmit-queue",
 		true,
 		false,
 		false,
