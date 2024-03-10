@@ -3,7 +3,7 @@ package file
 import "time"
 
 type fileDTO struct {
-	ID          string    `bson:"_id,omitempty"`
+	ID          string    `bson:"_id"`
 	S3URL       string    `bson:"url_s3"`
 	Filename    string    `bson:"filename"`
 	UserID      string    `bson:"user_id"`

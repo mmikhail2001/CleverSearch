@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/mmikhail2001/test-clever-search/internal/domain/cleveruser"
 	"github.com/mmikhail2001/test-clever-search/internal/domain/file"
 	"github.com/mmikhail2001/test-clever-search/internal/domain/notifier"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/user"
 )
 
 type Usecase struct {
@@ -24,7 +24,7 @@ func NewUsecase(repo Repository, notifyUsecase NotifyUsecase) *Usecase {
 }
 
 func (uc *Usecase) Upload(ctx context.Context, file file.File) error {
-	user, ok := ctx.Value("user").(user.User)
+	user, ok := ctx.Value("user").(cleveruser.User)
 	if !ok {
 		return fmt.Errorf("user not found in context")
 	}
@@ -131,7 +131,7 @@ func (uc *Usecase) CompleteProcessingFile(ctx context.Context, uuidFile string) 
 		return err
 	}
 
-	user, ok := ctx.Value("user").(user.User)
+	user, ok := ctx.Value("user").(cleveruser.User)
 	if !ok {
 		return fmt.Errorf("user not found in context")
 	}

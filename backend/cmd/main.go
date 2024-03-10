@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/mmikhail2001/test-clever-search/internal/repository/file"
 	"github.com/mmikhail2001/test-clever-search/internal/repository/notifier"
@@ -43,6 +44,9 @@ import (
 // перед загрузкой файла в директорию нужно проверить, существует ли такая директория
 // имеет смысл разделить репозиторий на fileStorage, db....
 
+// таблица пользователей
+// куки в мапе
+
 var staticDir string = "../frontend"
 
 func main() {
@@ -54,6 +58,8 @@ func main() {
 
 func Run() error {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
+
+	log.Println("start init")
 
 	minio, err := minio.NewClient()
 	if err != nil {
@@ -76,7 +82,7 @@ func Run() error {
 
 	log.Println("rabbitMQ connected")
 
-	userRepo := user.NewRepository()
+	userRepo := user.NewRepository(mongoDB)
 	fileRepo := file.NewRepository(minio, mongoDB, channelRabbitMQ)
 	notifyGateway := notifier.NewGateway()
 
@@ -89,7 +95,13 @@ func Run() error {
 	notifyDelivery := notifyDelivery.NewHandler(notifyUsecase)
 
 	r := mux.NewRouter()
-	middleware := middleware.NewMiddleware(userHandler)
+
+	headers := handlers.AllowedHeaders([]string{"Content-Type"})
+	methods := handlers.AllowedMethods([]string{"GET", "POST"})
+	origins := handlers.AllowedOrigins([]string{"*"})
+	r.Use(handlers.CORS(headers, methods, origins))
+
+	middleware := middleware.NewMiddleware(userUsecase)
 	r.Use(middleware.AddJSONHeader)
 
 	api := r.PathPrefix("/api").Subrouter()

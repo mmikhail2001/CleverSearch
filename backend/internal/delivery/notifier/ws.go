@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
+	"github.com/mmikhail2001/test-clever-search/internal/domain/cleveruser"
 	"github.com/mmikhail2001/test-clever-search/internal/domain/notifier"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/user"
 )
 
 var upgrader = websocket.Upgrader{
@@ -31,7 +31,7 @@ func (h *Handler) ConnectNotifications(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, ok := r.Context().Value("user").(user.User)
+	user, ok := r.Context().Value("user").(cleveruser.User)
 	if !ok {
 		http.Error(w, "User not found in context", http.StatusInternalServerError)
 		return

@@ -2,18 +2,19 @@ package middleware
 
 import (
 	"context"
+	"log"
 	"net/http"
 
-	"github.com/mmikhail2001/test-clever-search/internal/domain/user"
+	"github.com/mmikhail2001/test-clever-search/internal/delivery/shared"
 )
 
 type Middleware struct {
-	userHandler UserHandler
+	userUsecase UserUsecase
 }
 
-func NewMiddleware(uh UserHandler) *Middleware {
+func NewMiddleware(userUsecase UserUsecase) *Middleware {
 	return &Middleware{
-		userHandler: uh,
+		userUsecase: userUsecase,
 	}
 }
 
@@ -26,29 +27,20 @@ func (m *Middleware) AddJSONHeader(next http.Handler) http.Handler {
 
 func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sessionCookie, err := r.Cookie("session_id")
+		sessionCookie, err := r.Cookie(shared.CookieName)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			log.Println(err)
+			http.Error(w, "User not auth", http.StatusBadRequest)
 			return
 		}
 
-		users := m.userHandler.GetUserSessions()
-		var user user.User
-		var flag = false
-		for session, u := range users {
-			if session == sessionCookie.Value {
-				user = u
-				flag = true
-				break
-			}
-		}
-
-		if !flag {
-			http.Error(w, "User not found", http.StatusNotFound)
+		user, err := m.userUsecase.GetUserBySession(r.Context(), sessionCookie.Value)
+		if err != nil {
+			http.Error(w, "session unvalid", http.StatusNotFound)
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "user", user)
+		ctx := context.WithValue(r.Context(), shared.UserContextName, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

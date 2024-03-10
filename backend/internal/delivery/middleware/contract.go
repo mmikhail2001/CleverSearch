@@ -1,7 +1,11 @@
 package middleware
 
-import "github.com/mmikhail2001/test-clever-search/internal/domain/user"
+import (
+	"context"
 
-type UserHandler interface {
-	GetUserSessions() map[string]user.User
+	"github.com/mmikhail2001/test-clever-search/internal/domain/cleveruser"
+)
+
+type UserUsecase interface {
+	GetUserBySession(ctx context.Context, session string) (cleveruser.User, error)
 }

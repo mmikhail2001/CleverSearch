@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/mmikhail2001/test-clever-search/internal/delivery/shared"
+	"github.com/mmikhail2001/test-clever-search/internal/domain/cleveruser"
 	"github.com/mmikhail2001/test-clever-search/internal/domain/file"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/user"
 )
 
 type Handler struct {
@@ -42,7 +42,7 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Uploaded File: %+v\n", handler.Filename)
 
-	user, ok := r.Context().Value("user").(user.User)
+	user, ok := r.Context().Value("user").(cleveruser.User)
 	if !ok {
 		http.Error(w, "User not found in context", http.StatusInternalServerError)
 		return
@@ -106,10 +106,11 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 
 	var results []file.File
 	if strings.Contains(r.URL.Path, "search") {
-		if options.Query != "" {
+		if options.Query == "" {
 			log.Println("search with empty query")
 			w.WriteHeader(http.StatusInternalServerError)
 		}
+		log.Println(options)
 		results, err = h.usecase.Search(r.Context(), options)
 	} else {
 		results, err = h.usecase.GetFiles(r.Context(), options)

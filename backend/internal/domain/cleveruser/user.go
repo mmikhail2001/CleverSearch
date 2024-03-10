@@ -1,4 +1,4 @@
-package user
+package cleveruser
 
 type User struct {
 	ID       string

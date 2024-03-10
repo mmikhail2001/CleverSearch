@@ -3,24 +3,18 @@ package user
 import (
 	"encoding/json"
 	"net/http"
-	"sync"
 
-	"github.com/google/uuid"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/user"
+	"github.com/mmikhail2001/test-clever-search/internal/delivery/shared"
+	"github.com/mmikhail2001/test-clever-search/internal/domain/cleveruser"
 )
 
 type Handler struct {
-	users        map[string]user.User
-	userSessions map[string]user.User
-	usersLock    sync.RWMutex
-	usecase      Usecase
+	usecase Usecase
 }
 
 func NewHandler(usecase Usecase) *Handler {
 	return &Handler{
-		usecase:      usecase,
-		users:        make(map[string]user.User),
-		userSessions: make(map[string]user.User),
+		usecase: usecase,
 	}
 }
 
@@ -32,16 +26,16 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := user.User{
-		ID:       uuid.New().String(),
+	newUser := cleveruser.User{
 		Email:    userDTO.Email,
 		Password: userDTO.Password,
 	}
 
-	h.usersLock.Lock()
-	defer h.usersLock.Unlock()
+	_, err = h.usecase.Register(r.Context(), newUser)
 
-	h.users[user.ID] = user
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
 
 	w.WriteHeader(http.StatusOK)
 }
@@ -53,47 +47,40 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	user := user.User{
+	user := cleveruser.User{
 		Email:    userDTO.Email,
 		Password: userDTO.Password,
 	}
 
-	h.usersLock.RLock()
-	defer h.usersLock.RUnlock()
+	sessionID, err := h.usecase.Login(r.Context(), user)
 
-	for _, userFromStore := range h.users {
-		if userFromStore.Email == user.Email && userFromStore.Password == user.Password {
-			sessionID := uuid.New().String()
-			http.SetCookie(w, &http.Cookie{
-				Name:  "session_id",
-				Value: sessionID,
-				Path:  "/",
-			})
-
-			h.userSessions[sessionID] = userFromStore
-
-			w.WriteHeader(http.StatusOK)
-			return
-		}
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	w.WriteHeader(http.StatusBadRequest)
+	http.SetCookie(w, &http.Cookie{
+		Name:  shared.CookieName,
+		Value: sessionID,
+		Path:  "/",
+	})
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
-	sessionCookie, err := r.Cookie("session_id")
+	sessionCookie, err := r.Cookie(shared.CookieName)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	h.usersLock.Lock()
-	defer h.usersLock.Unlock()
-
-	delete(h.userSessions, sessionCookie.Value)
+	err = h.usecase.Logout(r.Context(), sessionCookie.Value)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:   "session_id",
+		Name:   shared.CookieName,
 		Value:  "",
 		Path:   "/",
 		MaxAge: -1,
@@ -101,12 +88,8 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Handler) GetUserSessions() map[string]user.User {
-	return h.userSessions
-}
-
 func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value("user").(user.User)
+	user, ok := r.Context().Value(shared.UserContextName).(cleveruser.User)
 	if !ok {
 		http.Error(w, "User not found in context", http.StatusInternalServerError)
 		return
