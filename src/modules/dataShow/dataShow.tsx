@@ -1,66 +1,176 @@
+import { fileFile } from "@models/searchParams";
 import { FC, useEffect } from "react";
-// import { useSearchMutation, useShowMutation } from "api/searchApi";
 import "./dataShow.scss";
 
-import { skipToken } from "@reduxjs/toolkit/query";
-import { FileShow } from "@ui/fileShow/fileShow";
 import { useSearchMutation, useShowMutation } from "@api/searchApi";
+import { Dispatch, SerializedError, UnknownAction } from "@reduxjs/toolkit";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { changeDir } from "@store/currentDirectoryAndDisk";
 import { useAppSelector } from "@store/store";
+import { FileShow } from "@ui/fileShow/fileShow";
+import { useDispatch } from "react-redux";
+import { useDeleteFileMutation } from "@api/filesApi";
 interface DataShowProps {}
 
-export const DataShow: FC<DataShowProps> = ({}) => {
-  const [show, resp] = useShowMutation();
-  useEffect(() => {
-    show({ limit: 10, offset: 0 });
-    return;
-  }, []);
+const showData = (
+  data: fileFile[],
+  error: FetchBaseQueryError | SerializedError,
+  isError: boolean,
+  isLoading: boolean,
+  dispatch: Dispatch<UnknownAction>,
+  dirs: string[],
+  deleteFile: (fileName: string) => void
+) => {
+  if (isLoading) {
+    return <h1>Подождите, загружаем файлы...</h1>;
+  }
 
-  const [search, response] = useSearchMutation();
-  const params = useAppSelector((state) => state.searchRequest);
+  if (isError) {
+    return <h1>Произошла ошибка ${JSON.stringify(error)}</h1>;
+  }
+
+  return (
+    <div>
+      {data?.map((file) => {
+        return (
+          <FileShow
+            iconSrc={"TODO"}
+            altText={file.is_dir ? "folder" : "file"}
+            filename={file.is_dir ? file.path.split('/').pop() : file.filename}
+            date={file.date}
+            size={file.size}
+            onClick={
+              file.is_dir
+                ? () =>
+                    dispatch(
+                      changeDir({
+                        dirs: file.path.split('/'),
+                        current: file.path,
+                      })
+                    )
+                : () => {}
+            }
+            onDelete={() => deleteFile(file.path)}
+          ></FileShow>
+        );
+      })}
+    </div>
+  );
+};
+
+const showSearch = (
+  data: fileFile[],
+  error: FetchBaseQueryError | SerializedError,
+  isError: boolean,
+  isLoading: boolean,
+  dispatch: Dispatch<UnknownAction>,
+  dirs: string[],
+  deleteFile: (fileName: string) => void
+) => {
+  if (isLoading) {
+    return <h1>Подождите, загружаем файлы...</h1>;
+  }
+
+  if (isError) {
+    return <h1>Произошла ошибка ${JSON.stringify(error)}</h1>;
+  }
+
+  return (
+    <div>
+      {data?.map((file) => {
+        return (
+          <FileShow
+            iconSrc={"TODO"}
+            altText={"TODO"}
+            filename={file.filename}
+            date={file.date}
+            size={file.size}
+            onClick={
+              file.is_dir
+                ? () =>
+                    dispatch(
+                      changeDir({
+                        dirs: [file.filename],
+                        current: "",
+                      })
+                    )
+                : () => {}
+            }
+            onDelete={() => deleteFile(file.path)}
+          ></FileShow>
+        );
+      })}
+    </div>
+  );
+};
+
+export const DataShow: FC<DataShowProps> = ({}) => {
+  const [show, showResp] = useShowMutation();
+  const { currentDisk, currentDir, dirs } = useAppSelector(
+    (state) => state.currentDirDisk
+  );
   useEffect(() => {
-    search(params);
+    if (isShow) {
+      show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
+    }
     return;
-  }, [params]);
+  }, [currentDisk, dirs]);
   const { isSearch, isShow } = useAppSelector((state) => state.whatToShow);
-  console.log("respa response", response);
+
+  const [search, {data, ...searchResp}] = useSearchMutation({fixedCacheKey: "search"});
+  const params = useAppSelector((state) => state.searchRequest);
+
+  useEffect(() => {
+    if (isSearch) {
+      console.log('searchb')
+    }
+    return;
+  }, [params.dir, params.disk, params.fileType, params.limit, params.offset, params.query, params.smartSearch, isSearch]);
+
+  const [deleteFile, _] = useDeleteFileMutation();
+  const dispatch = useDispatch();
   return (
     <div className="data-show">
-      {isShow ? (
-        <div className="Show">
-          {resp.isLoading ? "Loading..." : ""}
-          {resp.isError ? `Error ${resp.error}` : ""}
-          {resp.isSuccess
-            ? resp.data.files.map((file) => {
-                return (
-                  <FileShow
-                    iconSrc={"TODO"}
-                    altText={"TODO"}
-                    filename={file.filename}
-                    date={file.date}
-                    size={file.size}
-                  />
-                );
+      <div className="data-show__header">
+        {isShow ? dirs.map((dir) => <p>{dir}</p>) : ""}
+        {isSearch ? "Результаты поиска:" : ""}
+        <div
+          style={{ color: "var(--main-color-500)" }}
+          onClick={() =>
+            dispatch(
+              changeDir({
+                dirs: dirs.slice(0, -1) || [],
+                current: dirs[-2] || "",
               })
-            : ""}
+            )
+          }
+        >
+          Назад
         </div>
-      ) : (
-        ""
-      )}
-      {isSearch
-        ? response.data?.files.map((file) => {
-            return (
-              <FileShow
-                iconSrc={"TODO"}
-                altText={"TODO"}
-                filename={file.filename}
-                date={file.date}
-                size={file.size}
-              />
-            );
-          })
+      </div>
+      {isShow
+        ? showData(
+            showResp.data?.body,
+            showResp.error,
+            showResp.isError,
+            showResp.isLoading,
+            dispatch,
+            dirs,
+            // TODO make with tags
+            (fileName) => {deleteFile([fileName]); search(params);}
+          )
         : ""}
-      <div>{response.isLoading ? "Search loading" : ""}</div>
-      <div>{response.isError && isSearch ? "Error at search request" : ""}</div>
+      {isSearch
+        ? showSearch(
+            data?.body,
+            searchResp.error,
+            searchResp.isError,
+            searchResp.isLoading,
+            dispatch,
+            [""],
+            (fileName) => {console.log(params);deleteFile([fileName]); search(params);}
+          )
+        : ""}
     </div>
   );
 };

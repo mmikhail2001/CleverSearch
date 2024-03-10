@@ -21,24 +21,13 @@ let getDisksToOptions = () => {
   return [{ label: "", value: "", imgSrc: "" }];
 };
 
-function getDiskKey(diskStr: string): keyof typeof diskTypes | null {
-  const keys = Object.values(diskTypes) as Array<keyof typeof diskTypes>;
-  for (const key of keys) {
-    if (diskTypes[key] === diskStr) {
-      return key;
-    }
-  }
-
-  return null;
-}
-
 let diskVal = (
   newVal: MultiValue<Option> | SingleValue<Option>
 ): diskTypes[] => {
   if ("length" in newVal) {
     let diskValuesInString = newVal
-      .map((val) => getDiskKey(val.value))
-      .filter((val) => val !== null) as unknown as keyof diskTypes[];
+      .map((val) => val.value)
+      .filter((val) => val !== null) as diskTypes[];
 
     let newDiskValuesInString;
     if (!Array.isArray(diskValuesInString)) {
@@ -47,18 +36,16 @@ let diskVal = (
       newDiskValuesInString = diskValuesInString;
     }
 
-    // HACK ts ignore remove
-    // @ts-ignore
-    return [newDiskValuesInString].map((type) => diskTypes[type]);
+    return newDiskValuesInString as diskTypes[];
   }
   if (newVal) {
-    let diskType = getDiskKey(newVal.value);
+    let diskType = newVal.value;
     if (diskType) {
-      return [diskTypes[diskType]];
+      return [diskType] as diskTypes[];
     }
   }
 
-  return [diskTypes.all];
+  return ["all"];
 };
 
 export interface SearchDiskLineProps {

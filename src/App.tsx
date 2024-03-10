@@ -2,6 +2,7 @@ import { DataShow } from "@modules/dataShow/dataShow";
 import { SearchLine } from "@modules/searchLine/searchLine";
 import { Sidebar } from "@modules/sidebar/sidebar";
 import "./App.scss";
+import { LoginForm } from "@modules/login/login";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <SearchLine></SearchLine>
         <DataShow></DataShow>
       </div>
+      <LoginForm></LoginForm>
     </div>
   );
 }

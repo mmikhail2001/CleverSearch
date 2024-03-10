@@ -9,7 +9,7 @@ export enum Variants {
 interface ButtonProps {
   buttonText: string;
   clickHandler: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  disabled: boolean;
+  disabled?: boolean;
   variant: Variants;
 }
 
@@ -31,6 +31,7 @@ export const Button: FC<ButtonProps> = ({
   disabled,
   variant,
 }) => {
+  if (!!disabled) disabled=false
   let clkHandler: (e: React.MouseEvent<HTMLButtonElement>) => void;
   if (!disabled) {
     clkHandler = clickHandler;

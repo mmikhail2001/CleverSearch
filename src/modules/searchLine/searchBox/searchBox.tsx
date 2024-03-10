@@ -51,7 +51,7 @@ let setToInitial = (
     smartSearch: false,
     query: state.query,
     dir: "",
-    disk: [diskTypes.google],
+    disk: ["google"] as diskTypes[],
   });
 };
 

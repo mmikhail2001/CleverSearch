@@ -1,5 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { diskTypes, fileTypes } from "@models/searchParams";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { SearchParams, diskTypes, fileTypes } from "@models/searchParams";
 
 const searchSlice = createSlice({
   name: "whatToShow",
@@ -8,17 +8,14 @@ const searchSlice = createSlice({
     fileType: [fileTypes.all],
     query: "",
     dir: "",
-    disk: [diskTypes.our],
-  },
+    disk: ["own"] as diskTypes[],
+  } as SearchParams,
   reducers: {
-    newValues(state, action) {
+    newValues(state, action: PayloadAction<SearchParams>) {
       state = action.payload;
     },
   },
 });
 
-// Extract the action creators object and the reducer
 export const { actions, reducer } = searchSlice;
-// Extract and export each action creator by name
 export const { newValues } = actions;
-// Export the reducer, either as a default or named export

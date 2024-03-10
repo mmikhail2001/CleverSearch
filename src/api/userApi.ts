@@ -5,7 +5,7 @@ export const userApi = createApi({
   reducerPath: "userApi",
 
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://localhost:3000",
+    baseUrl: "http://localhost:8080/api/users",
   }),
 
   endpoints: (builder) => ({

@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { newValues } from "@store/searchRequest";
 import { switchToSearch } from "@store/whatToShow";
 import { SearchBox } from "./searchBox/searchBox";
+import { changeDir } from "@store/currentDirectoryAndDisk";
 interface SearchLineProps {}
 
 export const SearchLine: FC<SearchLineProps> = ({}) => {
@@ -18,11 +19,11 @@ export const SearchLine: FC<SearchLineProps> = ({}) => {
     fileType: [fileTypes.all],
     query: "",
     dir: "",
-    disk: [diskTypes.our],
+    disk: ["all"] as diskTypes[],
   });
 
   //   TODO make search api
-  const [search, response] = useSearchMutation();
+  const [search, response] = useSearchMutation({fixedCacheKey: "search"});
   const dispatch = useDispatch();
 
   return (
@@ -37,7 +38,8 @@ export const SearchLine: FC<SearchLineProps> = ({}) => {
               if (e.key.toLowerCase() === "enter") {
                 search(searchValue);
                 dispatch(newValues(searchValue));
-                dispatch(switchToSearch(""));
+                dispatch(switchToSearch());
+                dispatch(changeDir({ dirs: [], current: "" }));
               }
             }}
             onChange={(e) =>

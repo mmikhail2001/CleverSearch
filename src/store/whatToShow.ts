@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 const showSlice = createSlice({
   name: "whatToShow",
@@ -7,11 +7,11 @@ const showSlice = createSlice({
     isShow: true,
   },
   reducers: {
-    switchToSearch(state, action) {
+    switchToSearch(state, action: PayloadAction<null>) {
       state.isSearch = true;
       state.isShow = false;
     },
-    switchToShow(state, action) {
+    switchToShow(state, action: PayloadAction<null>) {
       state.isShow = true;
       state.isSearch = false;
     },

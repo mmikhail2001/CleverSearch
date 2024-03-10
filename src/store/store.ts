@@ -4,6 +4,7 @@ import { filesApi } from "@api/filesApi";
 import { userApi } from "@api/userApi";
 import { searchAPi } from "@api/searchApi";
 import { reducer as reducerSearch } from "./searchRequest";
+import { reducer as reducerPath } from "./currentDirectoryAndDisk";
 import reducer from "./whatToShow";
 
 export const store = configureStore({
@@ -12,6 +13,7 @@ export const store = configureStore({
     [filesApi.reducerPath]: filesApi.reducer,
     [searchAPi.reducerPath]: searchAPi.reducer,
     whatToShow: reducer,
+    currentDirDisk: reducerPath,
     searchRequest: reducerSearch,
   },
   middleware: (getDefaultMiddleware) =>
@@ -21,9 +23,7 @@ export const store = configureStore({
       .concat(searchAPi.middleware),
 });
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;
 
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

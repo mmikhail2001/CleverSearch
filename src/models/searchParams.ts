@@ -1,15 +1,15 @@
-export enum diskTypes {
-  google = "google",
-  yandex = "yandex",
-  our = "our",
-  local = "local",
-  all = "all",
-}
+export type diskTypes = "google" | "yandex" | "own" | "local" | "all";
 
-export const enum sharedType {
-  reader = "reader",
-  writer = "writer",
-}
+/** if text of diskType return true */
+export let isDiskType = (text: string): boolean => {
+  if (["google", "yandex", "own", "local", "all"].includes(text)) return true;
+  return false;
+};
+
+export const sharedType = {
+  reader: "reader",
+  writer: "writer",
+} as const;
 
 export enum fileTypes {
   all = "all",
@@ -25,6 +25,8 @@ export interface SearchParams {
   query: string;
   dir?: string;
   disk?: diskTypes[];
+  limit?: number;
+  offset?: number;
 }
 
 export interface fileFile {
@@ -35,7 +37,7 @@ export interface fileFile {
   is_shared: boolean;
   shared: {
     author_id: string;
-    access: sharedType;
+    access: typeof sharedType;
     is_owner: boolean;
   };
   date: string;
@@ -46,15 +48,24 @@ export interface fileFile {
 }
 
 export interface SearchResponse {
-  files: fileFile[];
-  total_count: number;
+  status: number;
+  body:fileFile[];
 }
 
 export interface ShowParams {
   limit: number;
   offset: number;
+  fileType?: fileTypes[];
+  query?: string;
+  dir?: string[];
+  disk?: diskTypes;
 }
 
 export interface ShowResponse {
-  files: fileFile[];
+  body: fileFile[];
+}
+
+export interface DiskSearch {
+  disk: diskTypes;
+  dir: string;
 }

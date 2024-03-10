@@ -1,17 +1,10 @@
 import webpack from "webpack";
-import { buildWebpackConfig } from "./config/build/buildWebpackConfig";
-import { BuildEnv, BuildPaths } from "./config/build/types/config";
 import path from "path";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
+import "webpack-dev-server";
 
-export default (env: BuildEnv) => {
-  const paths: BuildPaths = {
-    entry: path.resolve(__dirname, "src", "index.tsx"),
-    build: path.resolve(__dirname, "build"),
-    html: path.resolve(__dirname, "public", "index.html"),
-  };
-
+export default (env: { mode: "production" | "development"; port: number }) => {
   const mode = env.mode || "development";
   const isDev = mode === "development";
   const PORT = env.port || 3000;
@@ -53,7 +46,7 @@ export default (env: BuildEnv) => {
     watch: true,
     watchOptions: {
       ignored: /node_modules/,
-      poll: 100,
+      poll: 20,
     },
     resolve: {
       extensions: [".js", ".ts", ".tsx"],

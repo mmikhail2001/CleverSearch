@@ -1,25 +1,48 @@
-// Import the RTK Query methods from the React-specific entry point
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { Folder } from "@models/folder";
+import { DiskSearch, diskTypes, fileFile } from "@models/searchParams";
 
-// Define our single @api slice object
 export const filesApi = createApi({
-  // The cache reducer expects to be added at `state.api` (already default - this is optional)
   reducerPath: "filesApi",
-  // All of our requests will have URLs starting with '/fakeApi'
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://localhost:3000",
+    baseUrl: "http://localhost:8080/api/",
   }),
-  // The "endpoints" represent operations and requests for this server
   endpoints: (builder) => ({
-    getFolders: builder.mutation<Folder[], string>({
+    getFolders: builder.mutation<fileFile[], string>({
       query: (folderSearch: string) => ({
-        url: `/files?_limit=5`,
-        method: "GET",
+        url: `/dirs?_query=${folderSearch}`,
+        method: "POST",
+        keepUnusedDataFor: 3,
+      }),
+    }),
+    // TODO добавить directory current
+    pushFile: builder.mutation<Folder[], FormData>({
+      query: (formData: FormData) => ({
+        url: `/files/upload`,
+        method: "POST",
+        body: formData,
+        keepUnusedDataFor: 0,
+      }),
+    }),
+    deleteFile: builder.mutation<Folder[], string[]>({
+      query: (files: string[]) => ({
+        url: `/files/delete`,
+        method: "POST",
+        body: {"files": files} ,
+      }),
+    }),
+    createDir: builder.mutation<Folder[], string[]>({
+      query: (dirPath: string[]) => ({
+        url: `/dirs/create?dir_path="${dirPath.join('')}"`,
+        method: "POST",
       }),
     }),
   }),
 });
 
-// Export the auto-generated hook for the `getPosts` query endpoint
-export const { useGetFoldersMutation } = filesApi;
+export const {
+  useDeleteFileMutation,
+  useGetFoldersMutation,
+  usePushFileMutation,
+  useCreateDirMutation
+} = filesApi;

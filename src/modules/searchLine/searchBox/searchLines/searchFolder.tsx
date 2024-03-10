@@ -2,14 +2,14 @@ import React, { FC } from "react";
 import { MultiValue, SingleValue } from "react-select";
 import { useGetFoldersMutation } from "@api/filesApi";
 import { Folder } from "@models/folder";
-import { diskTypes, fileTypes } from "@models/searchParams";
+import { diskTypes, fileFile, fileTypes } from "@models/searchParams";
 import { Option, SelectorAsync } from "@ui/selectorAsync/selectorAsync";
 
-let transformToOptions = (folders: Folder[]): Option[] => {
+let transformToOptions = (folders: fileFile[]): Option[] => {
   return folders.map((folder) => {
     return {
-      label: String(folder.title),
-      value: String(folder.id),
+      label: String(folder.filename),
+      value: String(folder.filename),
       color: "black",
     };
   });

@@ -19,7 +19,7 @@ export const diskImgSrc = new Map([
     },
   ],
   [
-    "our",
+    "own",
     {
       src: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fd%2Fda%2FPurple_flower_(4764445139).jpg&f=1&nofb=1&ipt=447efee6d4bff25104c5e9593c10c1fc7e7f14813132bf35904df30ca20c035a&ipo=images",
       altText: "text",
@@ -32,4 +32,11 @@ export const diskImgSrc = new Map([
       altText: "text",
     },
   ],
+  [
+    "all",
+    {
+      src: "TODO",
+      altText: "text",
+    }
+  ]
 ]);
