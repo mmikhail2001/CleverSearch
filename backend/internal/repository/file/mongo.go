@@ -17,7 +17,7 @@ import (
 )
 
 var minioHost string = "localhost:9000"
-var channelName string = "test-queue"
+var channelName string = "transmit-queue"
 
 type Repository struct {
 	minio           *minio.Client
