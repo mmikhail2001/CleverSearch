@@ -105,27 +105,15 @@ const showSearch = (
 };
 
 export const DataShow: FC<DataShowProps> = ({}) => {
-  const [show, showResp] = useShowMutation();
+  const [show, showResp] = useShowMutation({fixedCacheKey: "show"});
   const { currentDisk, currentDir, dirs } = useAppSelector(
     (state) => state.currentDirDisk
   );
-  useEffect(() => {
-    if (isShow) {
-      show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
-    }
-    return;
-  }, [currentDisk, dirs]);
+
   const { isSearch, isShow } = useAppSelector((state) => state.whatToShow);
 
   const [search, {data, ...searchResp}] = useSearchMutation({fixedCacheKey: "search"});
   const params = useAppSelector((state) => state.searchRequest);
-
-  useEffect(() => {
-    if (isSearch) {
-      console.log('searchb')
-    }
-    return;
-  }, [params.dir, params.disk, params.fileType, params.limit, params.offset, params.query, params.smartSearch, isSearch]);
 
   const [deleteFile, _] = useDeleteFileMutation();
   const dispatch = useDispatch();
@@ -157,7 +145,7 @@ export const DataShow: FC<DataShowProps> = ({}) => {
             dispatch,
             dirs,
             // TODO make with tags
-            (fileName) => {deleteFile([fileName]); search(params);}
+            (fileName) => {deleteFile([fileName]); setTimeout(() => show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs }), 100);}
           )
         : ""}
       {isSearch
@@ -168,7 +156,10 @@ export const DataShow: FC<DataShowProps> = ({}) => {
             searchResp.isLoading,
             dispatch,
             [""],
-            (fileName) => {console.log(params);deleteFile([fileName]); search(params);}
+            (fileName) => {
+              deleteFile([fileName]);
+              setTimeout(() =>search(params), 100); 
+            }
           )
         : ""}
     </div>

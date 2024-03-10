@@ -12,7 +12,7 @@ export const searchAPi = createApi({
   reducerPath: "searchAPi",
 
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:8080/api",
+    baseUrl: `${process.env.protocol}://${process.env.adress}/api/`,
   }),
 
   endpoints: (builder) => ({

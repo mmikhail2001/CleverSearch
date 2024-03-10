@@ -6,10 +6,12 @@ import { Input, InputVariants } from "@ui/input/input";
 import "./searchLine.scss";
 
 import { useDispatch } from "react-redux";
-import { newValues } from "@store/searchRequest";
 import { switchToSearch } from "@store/whatToShow";
 import { SearchBox } from "./searchBox/searchBox";
 import { changeDir } from "@store/currentDirectoryAndDisk";
+import { useAppSelector } from "@store/store";
+import {newValues} from "@store/searchRequest"
+
 interface SearchLineProps {}
 
 export const SearchLine: FC<SearchLineProps> = ({}) => {
@@ -22,7 +24,6 @@ export const SearchLine: FC<SearchLineProps> = ({}) => {
     disk: ["all"] as diskTypes[],
   });
 
-  //   TODO make search api
   const [search, response] = useSearchMutation({fixedCacheKey: "search"});
   const dispatch = useDispatch();
 
@@ -66,7 +67,10 @@ export const SearchLine: FC<SearchLineProps> = ({}) => {
             changeState={setsearchValue}
             state={searchValue}
             closeDrop={() => setisBoxOpen(false)}
-            search={() => search(searchValue)}
+            search={() => {
+              dispatch(newValues(searchValue));
+              search(searchValue);
+            }}
           ></SearchBox>
         </div>
       ) : (

@@ -10,6 +10,7 @@ import { useCreateDirMutation, useDeleteFileMutation, usePushFileMutation } from
 import { useAppSelector } from "@store/store";
 import { changeDir, changeDisk } from "@store/currentDirectoryAndDisk";
 import { diskTypes, isDiskType } from "@models/searchParams";
+import { useSearchMutation, useShowMutation } from "@api/searchApi";
 
 interface SidebarProps {}
 
@@ -43,8 +44,10 @@ export const Sidebar: FC<SidebarProps> = ({}) => {
   );
 
   const { isSearch, isShow } = useAppSelector((state) => state.whatToShow);
-  const { dirs } = useAppSelector((state) => state.currentDirDisk);
+  const { dirs, currentDisk } = useAppSelector((state) => state.currentDirDisk);
   const dispatch = useDispatch();
+  const [search] = useSearchMutation({fixedCacheKey: "search"})
+  const [show] = useShowMutation({fixedCacheKey: "show"})
 
   const allDisks = Array.from(diskImgSrc.keys()).map((key) =>
     getTextWithImg(
@@ -61,6 +64,7 @@ export const Sidebar: FC<SidebarProps> = ({}) => {
       }
     )
   );
+  const params = useAppSelector((state) => state.searchRequest);
 
   const [createDir, respCreateDir] = useCreateDirMutation();
 
@@ -85,6 +89,13 @@ export const Sidebar: FC<SidebarProps> = ({}) => {
             formData.append("file", file, file.name);
             formData.append('dir', dirs.join(''))
             send(formData);
+            setTimeout(() => {
+              if (isSearch) {
+                search(params)
+              } else {
+                show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs })
+              }
+            }, 100);
           });
         }}
         disabled={false}
@@ -93,7 +104,16 @@ export const Sidebar: FC<SidebarProps> = ({}) => {
       <Button 
         buttonText="Добавить папку" 
         variant={Variants.filled} 
-        clickHandler={() => createDir(dirs.concat("Папка"))}
+        clickHandler={() => {
+          createDir(dirs.concat("Папка"));
+          setTimeout(() => {
+            if (isSearch) {
+              search(params)
+            } else {
+              show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs })
+            }
+          }, 100);
+        }}
       />
       <div className="disk-show">
         <h2 className="disk-show-label">Ваши диски</h2>

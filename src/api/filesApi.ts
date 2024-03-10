@@ -5,23 +5,20 @@ import { DiskSearch, diskTypes, fileFile } from "@models/searchParams";
 export const filesApi = createApi({
   reducerPath: "filesApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:8080/api/",
+    baseUrl: `${process.env.protocol}://${process.env.adress}/api/`,
   }),
   endpoints: (builder) => ({
     getFolders: builder.mutation<fileFile[], string>({
       query: (folderSearch: string) => ({
         url: `/dirs?_query=${folderSearch}`,
         method: "POST",
-        keepUnusedDataFor: 3,
       }),
     }),
-    // TODO добавить directory current
-    pushFile: builder.mutation<Folder[], FormData>({
+    pushFile: builder.mutation<fileFile, FormData>({
       query: (formData: FormData) => ({
         url: `/files/upload`,
         method: "POST",
         body: formData,
-        keepUnusedDataFor: 0,
       }),
     }),
     deleteFile: builder.mutation<Folder[], string[]>({
@@ -33,7 +30,7 @@ export const filesApi = createApi({
     }),
     createDir: builder.mutation<Folder[], string[]>({
       query: (dirPath: string[]) => ({
-        url: `/dirs/create?dir_path="${dirPath.join('')}"`,
+        url: `/dirs/create?dir_path=${dirPath.join('')}`,
         method: "POST",
       }),
     }),

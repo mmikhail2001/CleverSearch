@@ -4,10 +4,13 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 import "webpack-dev-server";
 
-export default (env: { mode: "production" | "development"; port: number }) => {
+export default (env: { watch: string; mode: "production" | "development"; protocol: string; adress: string }) => {
   const mode = env.mode || "development";
   const isDev = mode === "development";
-  const PORT = env.port || 3000;
+  const PORT = 3000
+  const isWatch = env.watch === "true" || false;
+  const adress = env.adress || "localhost:8080" 
+  const protocol = env.protocol || "http"
 
   const config: webpack.Configuration = {
     mode: "development",
@@ -37,13 +40,17 @@ export default (env: { mode: "production" | "development"; port: number }) => {
         title: "Development",
         template: "./public/index.html",
       }),
+      new webpack.DefinePlugin({
+        'process.env.adress': JSON.stringify(adress),
+        'process.env.protocol': JSON.stringify(protocol)
+      })
     ],
     devtool: "inline-source-map",
     devServer: {
       static: "./build",
       port: PORT,
     },
-    watch: true,
+    watch: isWatch,
     watchOptions: {
       ignored: /node_modules/,
       poll: 20,

@@ -12,7 +12,10 @@ const searchSlice = createSlice({
   } as SearchParams,
   reducers: {
     newValues(state, action: PayloadAction<SearchParams>) {
-      state = action.payload;
+      return {
+        ...state,
+        ...action.payload
+      }
     },
   },
 });
