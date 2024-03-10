@@ -8,12 +8,15 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 app = FastAPI()
 
-client = MongoClient('mongodb://localhost:27018/')
-db = client["CleverSearch"]
-mongo_collection = db.files
-
 @app.get('/search')
 def search(query, file_type, user, dir, disk, number_of_results=5):
+
+    print('search handler')
+
+    client = MongoClient('mongodb://mongodb:27017/')
+    db = client["CleverSearch"]
+    mongo_collection = db.files
+
     q = {
         '$and': [
             {'user_id': user},

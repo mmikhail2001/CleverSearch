@@ -2,9 +2,9 @@ import sys
 from argparse import ArgumentParser
 
 import uvicorn
-# from ML_dispatcher import MLDispatcher
+from ML_dispatcher import MLDispatcher
 
-# from Services.ImageService import ImageService
+from Services.ImageService import ImageService
 from Services.RecomendationService import search, app
 sys.path.insert(1, './MLCore/')
 sys.path.insert(2, './MLCore/Services')
@@ -17,7 +17,7 @@ arg_parser = ArgumentParser(
 arg_parser.add_argument(
         '--search_serv_port',
         type=int,
-        default='22869',
+        default='8081',
         help='port of searching handler'
     )
 
@@ -26,14 +26,12 @@ if __name__ == '__main__':
 
     args = arg_parser.parse_args()
 
-    # rec_service = RecomendationService()
-
     # uvicorn.run(
     #     app, port=args.search_serv_port
-    # )
+    # ) # ОН БЛОКИРУЕТ!!!
 
-    # dispathcer = MLDispatcher()
+    dispathcer = MLDispatcher()
 
-    # dispathcer.reg_service(ImageService, 'image')
+    dispathcer.reg_service(ImageService, 'image/jpeg')
 
-    # dispathcer.run()
+    dispathcer.run()

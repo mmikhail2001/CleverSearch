@@ -15,7 +15,7 @@ class MLDispatcher:
             rabbit_ip: str = 'rabbitmq',
             rabbit_port:int = 5672,
             mongo_ip: str = 'mongodb',
-            mongo_port:int = 27018):
+            mongo_port:int = 27017):
         self.ip = rabbit_ip
         self.port = rabbit_port
         self.client = MongoClient(f'mongodb://{mongo_ip}:{mongo_port}')
@@ -26,9 +26,12 @@ class MLDispatcher:
             secure=False
         )
         
-        self.collection = self.client['CleverSearch']['files']
+        self.collection = self.client['CLEVERSEARCH']['files']
+
+        self.collection.insert_one({'hello': 'world'})
+
         self.services = {
-            'image': None,
+            'image/jpeg': None,
             'audio': None,
             'video': None,
             'document': None
@@ -39,7 +42,9 @@ class MLDispatcher:
                 body.decode()
             )['id']
 
-            file_type = self.collection.find_one({'_id': doc_uuid})['type']
+            print(body.decode())
+
+            file_type = self.collection.find_one({'_id': doc_uuid})['content_type']
 
             self.services[file_type].update_collection_file(
                 doc_uuid
@@ -50,7 +55,7 @@ class MLDispatcher:
             virtual_host='/',credentials=pika.PlainCredentials('guest', 'guest'), heartbeat=600, blocked_connection_timeout=300))
         channel = connection.channel()
 
-        queue_name = 'transmit_queue'
+        queue_name = 'transmit-queue'
 
         channel.basic_consume(queue=queue_name, on_message_callback=self.__callback, auto_ack=True)
 

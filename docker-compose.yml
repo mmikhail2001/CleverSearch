@@ -20,11 +20,8 @@ services:
   mongodb:
     image: mongo:5.0
     restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: USERNAME
-      MONGO_INITDB_ROOT_PASSWORD: PASSWORD
     ports:
-      - 27018:27017
+      - 27017:27017
     volumes:
       - mongo_data:/data/db
     networks:
@@ -65,7 +62,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - 22869:22869
+      - 8081:8081
     depends_on:
       - rabbitmq
       - mongodb

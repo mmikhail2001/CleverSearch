@@ -34,11 +34,11 @@ class ImageService(IDataService):
 
         document = self.mongo_collection.find_one({'_id': uuid})
 
-        local_file_path = f'./{document["s3_bucket"]}_{document["filename"]}'
+        local_file_path = f'./{document["bucket"]}_{document["path"][1:]}'
 
         self.minio_client.fget_object(
-            document['s3_bucket'],
-            document['s3_path'],
+            document['bucket'],
+            document['path'],
             local_file_path
         )
         
