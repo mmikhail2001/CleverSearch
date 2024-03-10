@@ -59,13 +59,19 @@ services:
     networks:
       clevernet:
 
-  # nginx:
-  #   image: nginx:latest
-  #   ports:
-  #     - 80:80
-  #   volumes:
-  #     - ./config/nginx.conf:/etc/nginx/nginx.conf
-  #     - ./frontend:/frontend
+  mlcore:
+    build:
+      context: ./MLCore
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 22869:22869
+    depends_on:
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
 
 volumes:
   minio_data:

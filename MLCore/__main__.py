@@ -26,11 +26,11 @@ if __name__ == '__main__':
 
     args = arg_parser.parse_args()
 
-    rec_service = RecomendationService()
+    # rec_service = RecomendationService()
 
-    uvicorn.run(
-        app, port=args.search_serv_port
-    )
+    # uvicorn.run(
+    #     app, port=args.search_serv_port
+    # )
 
     dispathcer = MLDispatcher()
 

@@ -12,15 +12,15 @@ from Services.service_interfaces import IDataService
 class MLDispatcher:
     def __init__(
             self,
-            rabbit_ip: str = 'localhost',
-            rabbit_port:int = 1338,
-            mongo_ip: str = 'localhost',
-            mongo_port:int = 1488):
+            rabbit_ip: str = 'rabbitmq',
+            rabbit_port:int = 5672,
+            mongo_ip: str = 'mongodb',
+            mongo_port:int = 27018):
         self.ip = rabbit_ip
         self.port = rabbit_port
         self.client = MongoClient(f'mongodb://{mongo_ip}:{mongo_port}')
         self.minio_client = Minio(
-            'localhost:9000',
+            'minio:9000',
             access_key="minioadmin",
             secret_key="minioadmin",
             secure=False
