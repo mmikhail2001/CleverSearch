@@ -16,7 +16,8 @@
       "@store/*":["./src/store/*"],
       "@modules/*":["./src/modules/*"],
       "@api/*":["./src/api/*"],
-      "@icons/*":["./public/icons/*"]
+      "@icons/*":["./public/icons/*"],
+      "@pages/*":["./src/pages/*"],
     },
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true

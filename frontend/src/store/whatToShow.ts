@@ -1,21 +1,21 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const showSlice = createSlice({
-  name: "whatToShow",
-  initialState: {
-    isSearch: false,
-    isShow: true,
-  },
-  reducers: {
-    switchToSearch(state, action: PayloadAction<null>) {
-      state.isSearch = true;
-      state.isShow = false;
-    },
-    switchToShow(state, action: PayloadAction<null>) {
-      state.isShow = true;
-      state.isSearch = false;
-    },
-  },
+	name: 'whatToShow',
+	initialState: {
+		isSearch: false,
+		isShow: true,
+	},
+	reducers: {
+		switchToSearch(state) {
+			state.isSearch = true;
+			state.isShow = false;
+		},
+		switchToShow(state) {
+			state.isShow = true;
+			state.isSearch = false;
+		},
+	},
 });
 
 // Extract the action creators object and the reducer

@@ -1,20 +1,11 @@
-import { DataShow } from "@modules/dataShow/dataShow";
-import { SearchLine } from "@modules/searchLine/searchLine";
-import { Sidebar } from "@modules/sidebar/sidebar";
-import "./App.scss";
-import { LoginForm } from "@modules/login/login";
+import './App.scss';
+import {MainPage} from '@pages/mainPage/mainPage';
+import React from 'react';
 
 function App() {
-  return (
-    <div className="App">
-      <Sidebar></Sidebar>
-      <div className="main-app">
-        <SearchLine></SearchLine>
-        <DataShow></DataShow>
-      </div>
-      <LoginForm></LoginForm>
-    </div>
-  );
+	return (
+		<MainPage/>
+	);
 }
 
 export default App;

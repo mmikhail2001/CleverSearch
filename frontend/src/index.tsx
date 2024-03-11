@@ -1,37 +1,32 @@
-import { store } from "@store/store";
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { Provider } from "react-redux";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import App from "./App";
-import "./index.scss";
+import { store } from '@store/store';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import App from './App';
+import './index.scss';
 
-import ErorrPage from "@modules/errorPage/errorPage";
-import { LoginForm } from "@modules/login/login";
+import { LoginForm } from '@modules/login/login';
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <App />,
-    errorElement: <ErorrPage />,
-  },
-  {
-    path: "/login",
-    element: <LoginForm></LoginForm>,
-  },
-]);
+import {AuthProvider, RequireAuth, ProtectedFromAuthUser} from './authProvider';
+import ErrorPage from '@modules/errorPage/errorPage';
 
 const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
+  document.getElementById('root') as HTMLElement
 );
-//TODO
+
+
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <RouterProvider router={router} fallbackElement={<p>Loading...</p>} />;
-    </Provider>
-  </React.StrictMode>
+	<React.StrictMode>
+		<Provider store={store}>
+			<BrowserRouter>
+				<AuthProvider>
+					<Routes>
+						<Route path='/' errorElement={<ErrorPage />} element={<RequireAuth><App /></RequireAuth>}></Route>
+						<Route path='/login' errorElement={<ErrorPage />} element={<ProtectedFromAuthUser><LoginForm /></ProtectedFromAuthUser>}></Route>
+					</Routes>
+				</AuthProvider>
+			</BrowserRouter>
+		</Provider>
+	</React.StrictMode>
 );
-//  @reduxjs/toolkit @types/react-redux @types/react-select react react-dom react-redux react-router-dom react-select
-//  @types/node @types/react @types/react-dom @types/react-router-dom @types/webpack @types/webpack-dev-server
-//  css-loader html-webpack-plugin mini-css-extract-plugin sass sass-loader style-loader ts-loader ts-node typescript webpack webpack-cli webpack-dev-server

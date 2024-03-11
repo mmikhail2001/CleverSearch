@@ -1,6 +1,6 @@
-import React, { FC } from "react";
-import "./selector.scss";
-import Selector, { ActionMeta, MultiValue, SingleValue } from "react-select";
+import React, { FC } from 'react';
+import './selector.scss';
+import Selector, { ActionMeta, MultiValue, SingleValue } from 'react-select';
 
 // https://react-select.com/components
 // https://www.youtube.com/watch?v=3u_ulMvTYZI&t=269s&ab_channel=MonsterlessonsAcademy
@@ -20,15 +20,15 @@ interface SelectorMultiProps {
 }
 
 export const SelectorMulti: FC<SelectorMultiProps> = ({
-  options,
-  isMulti,
-  onChange,
+	options,
+	isMulti,
+	onChange,
 }) => {
-  return (
-    <Selector
-      options={options}
-      isMulti={isMulti}
-      onChange={onChange}
-    ></Selector>
-  );
+	return (
+		<Selector
+			options={options}
+			isMulti={isMulti}
+			onChange={onChange}
+		></Selector>
+	);
 };

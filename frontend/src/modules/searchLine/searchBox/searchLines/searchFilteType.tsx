@@ -1,71 +1,62 @@
-import React, { FC } from "react";
-import { MultiValue, SingleValue } from "react-select";
-import { diskTypes, fileTypes } from "../../../../models/searchParams";
+import React, { FC } from 'react';
+import { MultiValue, SingleValue } from 'react-select';
+import { diskTypes, fileTypes, isFileType } from '../../../../models/searchParams';
 import {
-  Option as MultiOption,
-  SelectorMulti,
-} from "../../../../ui/selectorMulti/selectorMulti";
+	Option as MultiOption,
+	SelectorMulti,
+} from '../../../../ui/selectorMulti/selectorMulti';
 
-let getFilesTypesToOptions = (): MultiOption[] => {
-  return [
-    {
-      label: "Изображение",
-      value: "img",
-    },
-    {
-      label: "Текст",
-      value: "text",
-    },
-    {
-      label: "Видео",
-      value: "video",
-    },
-    {
-      label: "Аудио",
-      value: "audio",
-    },
-  ];
+const getFilesTypesToOptions = (): MultiOption[] => {
+	return [
+		{
+			label: 'Изображение',
+			value: 'img',
+		},
+		{
+			label: 'Текст',
+			value: 'text',
+		},
+		{
+			label: 'Видео',
+			value: 'video',
+		},
+		{
+			label: 'Аудио',
+			value: 'audio',
+		},
+	];
 };
 
-// TODO think about connecting with searchDisk enum
-function getFileKey(fileStr: string): keyof typeof fileTypes | null {
-  const keys = Object.values(fileTypes) as Array<keyof typeof fileTypes>;
-  for (const key of keys) {
-    if (fileTypes[key] === fileStr) {
-      return key;
-    }
-  }
 
-  return null;
-}
-
-let fileValues = (
-  newVal: MultiValue<MultiOption> | SingleValue<MultiOption>
+const fileValues = (
+	newVal: MultiValue<MultiOption> | SingleValue<MultiOption>
 ): fileTypes[] => {
-  if ("length" in newVal) {
-    let diskValuesInString = newVal
-      .map((val) => getFileKey(val.value))
-      .filter((val) => val !== null) as unknown as keyof fileTypes[];
+	if ('length' in newVal) {
+		// @ts-expect-error Nothing will happen because isFileType 
+		// checks on type of file 
+		const diskValuesInString: fileTypes[] = newVal
+			.filter((val) => isFileType(val.value))
+			.filter((val) => val !== null);
 
-    let newDiskValuesInString;
-    if (!Array.isArray(diskValuesInString)) {
-      newDiskValuesInString = [diskValuesInString];
-    } else {
-      newDiskValuesInString = diskValuesInString;
-    }
+		let newDiskValuesInString;
+		if (!Array.isArray(diskValuesInString)) {
+			newDiskValuesInString = [diskValuesInString];
+		} else {
+			newDiskValuesInString = diskValuesInString;
+		}
 
-    // HACK ts ignore remove
-    // @ts-ignore
-    return [newDiskValuesInString].map((type) => fileTypes[type]);
-  }
-  if (newVal) {
-    let diskType = getFileKey(newVal.value);
-    if (diskType) {
-      return [fileTypes[diskType]];
-    }
-  }
+		// @ts-expect-error check value 
+		return [newDiskValuesInString].map((type) => fileTypes[type]);
+	}
+	if (newVal) {
+		if (isFileType(newVal.value)) {
+			// @ts-expect-error  Nothing will happen because isFileType 
+			// checks on type of file 
+			return [newVal.value];
+		}
+	}
 
-  return [fileTypes.all];
+	return ['all' as fileTypes];
 };
 export interface SearchFileTypeLineProps {
   changeState: React.Dispatch<
@@ -87,19 +78,19 @@ export interface SearchFileTypeLineProps {
 }
 
 export const SearchFileType: FC<SearchFileTypeLineProps> = ({
-  changeState,
-  state,
+	changeState,
+	state,
 }) => {
-  return (
-    <div className="line">
-      <p className="search-box__text">Тип файла</p>
-      <SelectorMulti
-        options={getFilesTypesToOptions()}
-        isMulti={true}
-        onChange={(newVal) =>
-          changeState({ ...state, fileType: fileValues(newVal) })
-        }
-      />
-    </div>
-  );
+	return (
+		<div className="line">
+			<p className="search-box__text">Тип файла</p>
+			<SelectorMulti
+				options={getFilesTypesToOptions()}
+				isMulti={true}
+				onChange={(newVal) =>
+					changeState({ ...state, fileType: fileValues(newVal) })
+				}
+			/>
+		</div>
+	);
 };

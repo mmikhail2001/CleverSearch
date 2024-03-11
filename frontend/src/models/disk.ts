@@ -1,7 +1,7 @@
-import DiskSVG from "@icons/disks/Disk.svg"
-import GoogleSVG from "@icons/disks/Google.svg"
-import YandexSVG from "@icons/disks/Yandex.svg"
-import MonitorSVG from "@icons/disks/Monitor.svg"
+import DiskSVG from '@icons/disks/Disk.svg';
+import GoogleSVG from '@icons/disks/Google.svg';
+import YandexSVG from '@icons/disks/Yandex.svg';
+import MonitorSVG from '@icons/disks/Monitor.svg';
 
 export interface DiskType {
   src: string;
@@ -9,39 +9,39 @@ export interface DiskType {
 }
 
 export const diskImgSrc = new Map([
-  [
-    "google",
-    {
-      src: GoogleSVG, 
-      altText: "text",
-    },
-  ],
-  [
-    "yandex",
-    {
-      src: YandexSVG,
-      altText: "text",
-    },
-  ],
-  [
-    "own",
-    {
-      src: DiskSVG, 
-      altText: "text",
-    },
-  ],
-  [
-    "local",
-    {
-      src: MonitorSVG,
-      altText: "text",
-    },
-  ],
-  [
-    "all",
-    {
-      src: MonitorSVG,
-      altText: "text",
-    }
-  ]
+	[
+		'google',
+		{
+			src: GoogleSVG, 
+			altText: 'text',
+		},
+	],
+	[
+		'yandex',
+		{
+			src: YandexSVG,
+			altText: 'text',
+		},
+	],
+	[
+		'own',
+		{
+			src: DiskSVG, 
+			altText: 'text',
+		},
+	],
+	[
+		'local',
+		{
+			src: MonitorSVG,
+			altText: 'text',
+		},
+	],
+	[
+		'all',
+		{
+			src: MonitorSVG,
+			altText: 'text',
+		}
+	]
 ]);

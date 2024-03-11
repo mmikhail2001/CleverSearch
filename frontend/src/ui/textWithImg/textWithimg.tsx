@@ -1,5 +1,5 @@
-import React, { FC } from "react";
-import "./textWithImg.scss";
+import React, { FC } from 'react';
+import './textWithImg.scss';
 
 interface TextWithImgProps {
   text: string;
@@ -10,16 +10,16 @@ interface TextWithImgProps {
 }
 
 export const TextWithImg: FC<TextWithImgProps> = ({
-  text,
-  imgSrc,
-  className,
-  onClick,
-  altImgText,
+	text,
+	imgSrc,
+	className,
+	onClick,
+	altImgText,
 }) => {
-  return (
-    <div className={["text-with-img", className].join(" ")} onClick={onClick}>
-      <img className="text-image" src={imgSrc} alt={altImgText}></img>
-      <p className="text">{text}</p>
-    </div>
-  );
+	return (
+		<div className={['text-with-img', className].join(' ')} onClick={onClick}>
+			<img className="text-image" src={imgSrc} alt={altImgText}></img>
+			<p className="text">{text}</p>
+		</div>
+	);
 };

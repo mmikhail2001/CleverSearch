@@ -1,9 +1,9 @@
-import React, { FC } from "react";
-import "./Button.scss";
+import React, { FC } from 'react';
+import './Button.scss';
 
 export enum Variants {
-  filled = "filled",
-  not_filled = "not-filled",
+  filled = 'filled',
+  not_filled = 'not-filled',
 }
 
 interface ButtonProps {
@@ -14,38 +14,38 @@ interface ButtonProps {
 }
 
 function getClassForButton(disabled: boolean, variant: Variants): string {
-  let out: string = "";
-  if (disabled) {
-    out = "button disabled-button";
-  } else {
-    out = "button";
-  }
+	let out: string = '';
+	if (disabled) {
+		out = 'button disabled-button';
+	} else {
+		out = 'button';
+	}
 
-  out += " " + variant;
-  return out;
+	out += ' ' + variant;
+	return out;
 }
 
 export const Button: FC<ButtonProps> = ({
-  clickHandler,
-  buttonText,
-  disabled,
-  variant,
+	clickHandler,
+	buttonText,
+	disabled,
+	variant,
 }) => {
-  if (!!disabled) disabled=false
-  let clkHandler: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  if (!disabled) {
-    clkHandler = clickHandler;
-  } else {
-    clkHandler = () => {};
-  }
+	if (disabled) disabled=false;
+	let clkHandler: (e: React.MouseEvent<HTMLButtonElement>) => void;
+	if (!disabled) {
+		clkHandler = clickHandler;
+	} else {
+		clkHandler = () => {};
+	}
 
-  return (
-    <button
-      disabled={disabled}
-      className={getClassForButton(disabled, variant)}
-      onClick={clkHandler}
-    >
-      <p>{buttonText}</p>
-    </button>
-  );
+	return (
+		<button
+			disabled={disabled}
+			className={getClassForButton(disabled, variant)}
+			onClick={clkHandler}
+		>
+			<p>{buttonText}</p>
+		</button>
+	);
 };

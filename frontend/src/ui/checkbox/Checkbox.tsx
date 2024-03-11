@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC } from 'react';
 
 interface CheckboxProps {
   isChecked: boolean;
@@ -7,17 +7,17 @@ interface CheckboxProps {
 }
 
 export const Checkbox: FC<CheckboxProps> = ({
-  clickHandler,
-  isChecked,
-  disabled,
+	clickHandler,
+	isChecked,
+	disabled,
 }) => {
-  return (
-    <input
-      type="checkbox"
-      checked={isChecked}
-      disabled={disabled}
-      className={disabled ? "disabled-checkbox" : "checkbox"}
-      onClick={clickHandler}
-    ></input>
-  );
+	return (
+		<input
+			type="checkbox"
+			checked={isChecked}
+			disabled={disabled}
+			className={disabled ? 'disabled-checkbox' : 'checkbox'}
+			onClick={clickHandler}
+		></input>
+	);
 };

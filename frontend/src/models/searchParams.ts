@@ -1,23 +1,23 @@
-export type diskTypes = "google" | "yandex" | "own" | "local" | "all";
+export type diskTypes = 'google' | 'yandex' | 'own' | 'local' | 'all';
 
 /** if text of diskType return true */
-export let isDiskType = (text: string): boolean => {
-  if (["google", "yandex", "own", "local", "all"].includes(text)) return true;
-  return false;
+export const isDiskType = (text: string): boolean => {
+	if (['google', 'yandex', 'own', 'local', 'all'].includes(text)) return true;
+	return false;
 };
 
 export const sharedType = {
-  reader: "reader",
-  writer: "writer",
+	reader: 'reader',
+	writer: 'writer',
 } as const;
 
-export enum fileTypes {
-  all = "all",
-  img = "img",
-  video = "video",
-  text = "text",
-  audio = "audio",
-}
+export type fileTypes = 'all' | 'img' | 'video' | 'text' | 'audio';
+
+/** if text of diskType return true */
+export const isFileType = (text: string): boolean => {
+	if (['all', 'img', 'video', 'text', 'audio'].includes(text)) return true;
+	return false;
+};
 
 export interface SearchParams {
   smartSearch: boolean;
@@ -43,7 +43,7 @@ export interface fileFile {
   date: string;
   is_dir: boolean;
   size: string;
-  "content_type": string;
+  'content_type': string;
   status: string;
 }
 
