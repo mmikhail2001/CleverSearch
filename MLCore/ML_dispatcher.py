@@ -15,7 +15,9 @@ class MLDispatcher:
             rabbit_ip: str = 'rabbitmq',
             rabbit_port:int = 5672,
             mongo_ip: str = 'mongodb',
-            mongo_port:int = 27017):
+            mongo_port:int = 27017,
+            mongo_db_name: str = 'CleverSearch',
+            mongo_collection: str = 'files'):
         self.ip = rabbit_ip
         self.port = rabbit_port
         self.client = MongoClient(f'mongodb://{mongo_ip}:{mongo_port}')
@@ -26,7 +28,7 @@ class MLDispatcher:
             secure=False
         )
         
-        self.collection = self.client['CLEVERSEARCH']['files']
+        self.collection = self.client[mongo_db_name][mongo_collection]
 
         self.services = {
             'image/jpeg': None,
