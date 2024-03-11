@@ -9,8 +9,10 @@ import { useDispatch } from "react-redux";
 import { switchToSearch } from "@store/whatToShow";
 import { SearchBox } from "./searchBox/searchBox";
 import { changeDir } from "@store/currentDirectoryAndDisk";
-import { useAppSelector } from "@store/store";
 import {newValues} from "@store/searchRequest"
+
+import SearchSVG from '@icons/Search.svg'
+import FilterSVG from '@icons/Filter.svg'
 
 interface SearchLineProps {}
 
@@ -31,7 +33,7 @@ export const SearchLine: FC<SearchLineProps> = ({}) => {
     <div className="search-line">
       <div className="icon-with-text">
         <div className="search-icon-container">
-          <img alt="search icon" className="search-icon" src=""></img>
+          <img alt="search icon" className="search-icon" src={SearchSVG}></img>
         </div>
         <div className="search-text">
           <Input
@@ -59,7 +61,7 @@ export const SearchLine: FC<SearchLineProps> = ({}) => {
         className="filter-icon-container"
         onClick={() => setisBoxOpen(!isBoxOpen)}
       >
-        <img alt="filter icon" className="filter-icon" src=""></img>
+        <img alt="filter icon" className="filter-icon" src={FilterSVG}></img>
       </div>
       {isBoxOpen ? (
         <div className="place-for-search-box">

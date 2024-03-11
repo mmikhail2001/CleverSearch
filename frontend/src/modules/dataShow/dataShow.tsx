@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import "./dataShow.scss";
 
 import { useDeleteFileMutation } from "@api/filesApi";
@@ -7,6 +7,7 @@ import { changeDir } from "@store/currentDirectoryAndDisk";
 import { useAppSelector } from "@store/store";
 import { useDispatch } from "react-redux";
 import { RenderFields } from "@ui/renderFields/renderFields";
+import {fileFile} from '@models/searchParams'
 interface DataShowProps {}
 
 export const DataShow: FC<DataShowProps> = ({}) => {
@@ -21,6 +22,9 @@ export const DataShow: FC<DataShowProps> = ({}) => {
 
   const [deleteFile] = useDeleteFileMutation();
   const dispatch = useDispatch();
+  // TODO create posts and get them from this place not from responses
+  // const [showPosts, setShowPosts] = useState([] as fileFile[])
+
   return (
     <div className="data-show">
       <div className="data-show__header">

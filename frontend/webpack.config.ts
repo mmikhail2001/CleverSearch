@@ -33,6 +33,10 @@ export default (env: { watch: string; mode: "production" | "development"; protoc
           include: path.resolve(__dirname, "src"),
           exclude: /node_modules/,
         },
+        {
+          test: /\.(png|svg|jpg|jpeg|gif)$/i,
+          type: 'asset/resource',
+        },
       ],
     },
     plugins: [

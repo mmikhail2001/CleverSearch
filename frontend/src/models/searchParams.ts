@@ -43,7 +43,7 @@ export interface fileFile {
   date: string;
   is_dir: boolean;
   size: string;
-  "content-type": string;
+  "content_type": string;
   status: string;
 }
 

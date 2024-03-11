@@ -11,6 +11,9 @@ import { useAppSelector } from "@store/store";
 import { changeDir, changeDisk } from "@store/currentDirectoryAndDisk";
 import { diskTypes, isDiskType } from "@models/searchParams";
 import { useSearchMutation, useShowMutation } from "@api/searchApi";
+import RobotSVG from '@icons/Robot.svg'
+import DownloadSVG from '@icons/Download.svg'
+import CleverSVG from '@icons/disks/Disk.svg'
 
 interface SidebarProps {}
 
@@ -94,7 +97,7 @@ export const Sidebar: FC<SidebarProps> = ({}) => {
           onClick={() => dispatch(switchToShow())}
           text="CleverSearch"
           className="our-name"
-          imgSrc="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fd%2Fda%2FPurple_flower_(4764445139).jpg&f=1&nofb=1&ipt=447efee6d4bff25104c5e9593c10c1fc7e7f14813132bf35904df30ca20c035a&ipo=images"
+          imgSrc={CleverSVG}
           altImgText="our-logo"
         />
       </div>
@@ -143,7 +146,7 @@ export const Sidebar: FC<SidebarProps> = ({}) => {
         <TextWithImg
           text="Загружаются"
           className="downloading"
-          imgSrc="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fd%2Fda%2FPurple_flower_(4764445139).jpg&f=1&nofb=1&ipt=447efee6d4bff25104c5e9593c10c1fc7e7f14813132bf35904df30ca20c035a&ipo=images"
+          imgSrc={DownloadSVG}
           altImgText="Загрузка"
         />
         {/*TODO  изменить на другой элемент*/}
@@ -154,7 +157,7 @@ export const Sidebar: FC<SidebarProps> = ({}) => {
           <img
             className="text-image"
             src={
-              "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fd%2Fda%2FPurple_flower_(4764445139).jpg&f=1&nofb=1&ipt=447efee6d4bff25104c5e9593c10c1fc7e7f14813132bf35904df30ca20c035a&ipo=images"
+              RobotSVG
             }
             alt={"Робот"}
           ></img>

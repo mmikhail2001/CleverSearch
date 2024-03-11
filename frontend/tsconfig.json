@@ -16,6 +16,7 @@
       "@store/*":["./src/store/*"],
       "@modules/*":["./src/modules/*"],
       "@api/*":["./src/api/*"],
+      "@icons/*":["./public/icons/*"]
     },
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
@@ -24,5 +25,5 @@
     "compilerOptions": {
       "module": "CommonJS"
     }
-  }
+  },
 }
