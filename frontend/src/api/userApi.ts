@@ -5,7 +5,7 @@ export const userApi = createApi({
   reducerPath: "userApi",
 
   baseQuery: fetchBaseQuery({
-    baseUrl: `${process.env.protocol}://${process.env.adress}/api/`,
+    baseUrl: `${process.env.protocol}://${process.env.adress}/api/users`,
   }),
 
   endpoints: (builder) => ({

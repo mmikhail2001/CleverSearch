@@ -2,7 +2,7 @@ import { DiskType, diskImgSrc } from "@models/disk";
 import { switchToShow } from "@store/whatToShow";
 import { Button, Variants } from "@ui/button/Button";
 import { TextWithImg } from "@ui/textWithImg/textWithimg";
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import "./sidebar.scss";
 import { ButtonWithInput } from "@ui/buttonWithInput/buttonWithInput";
@@ -40,7 +40,7 @@ let getTextWithImg = (
 
 export const Sidebar: FC<SidebarProps> = ({}) => {
   const [selectedField, setSelectedField] = useState(
-    Array.from(diskImgSrc.keys())[0]
+    Array.from(diskImgSrc.keys())[4]
   );
 
   const { isSearch, isShow } = useAppSelector((state) => state.whatToShow);
@@ -60,13 +60,31 @@ export const Sidebar: FC<SidebarProps> = ({}) => {
           dispatch(switchToShow());
         }
         dispatch(changeDisk(text));
-        dispatch(changeDir({ dirs: [], current: "" }));
       }
     )
   );
   const params = useAppSelector((state) => state.searchRequest);
 
   const [createDir, respCreateDir] = useCreateDirMutation();
+
+  const debounce = (func:any, delay:any) => {
+    let debounceHandler: NodeJS.Timeout ;
+    return function () {
+      const context = this;
+      const args = arguments;
+      clearTimeout(debounceHandler);
+      debounceHandler = setTimeout(() => {
+        func.apply(context, args);
+      }, delay);
+    };
+  };
+  
+  useEffect(()=> {
+    if (isShow) {
+      dispatch(changeDir({ dirs: [], current: "" }));
+      show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
+    }
+  }, [currentDisk])
 
   const [send, resp] = usePushFileMutation();
   return (
@@ -83,19 +101,20 @@ export const Sidebar: FC<SidebarProps> = ({}) => {
       <ButtonWithInput
         buttonText="Добавить"
         onChange={(files: FileList) => {
+          let debouncFunc = debounce(() => {
+            if (isSearch) {
+              search(params)
+            } else {
+              show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs })
+            }
+          }, 100);
           Array.from(files).forEach((file) => {
             const formData = new FormData();
 
             formData.append("file", file, file.name);
             formData.append('dir', dirs.join(''))
             send(formData);
-            setTimeout(() => {
-              if (isSearch) {
-                search(params)
-              } else {
-                show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs })
-              }
-            }, 100);
+            debouncFunc()
           });
         }}
         disabled={false}
@@ -105,14 +124,15 @@ export const Sidebar: FC<SidebarProps> = ({}) => {
         buttonText="Добавить папку" 
         variant={Variants.filled} 
         clickHandler={() => {
-          createDir(dirs.concat("Папка"));
-          setTimeout(() => {
+          let debounceFunc = debounce(() => {
             if (isSearch) {
               search(params)
             } else {
               show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs })
             }
           }, 100);
+          createDir(dirs.concat("Папка"));
+          debounceFunc();
         }}
       />
       <div className="disk-show">

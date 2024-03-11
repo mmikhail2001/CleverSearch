@@ -46,10 +46,6 @@ export default (env: { watch: string; mode: "production" | "development"; protoc
       })
     ],
     devtool: "inline-source-map",
-    devServer: {
-      static: "./build",
-      port: PORT,
-    },
     watch: isWatch,
     watchOptions: {
       ignored: /node_modules/,

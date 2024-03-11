@@ -30,7 +30,7 @@ export interface SearchParams {
 }
 
 export interface fileFile {
-  ID: string;
+  id: string;
   filename: string;
   user_id: string;
   path: string;

@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import "./fileShow.scss";
 
 interface FileShowProps {
+  keyForComp?: string;
   iconSrc: string;
   altText?: string;
   filename: string;
@@ -12,6 +13,7 @@ interface FileShowProps {
 }
 
 export const FileShow: FC<FileShowProps> = ({
+  keyForComp,
   iconSrc,
   altText,
   filename,
@@ -21,7 +23,7 @@ export const FileShow: FC<FileShowProps> = ({
   onDelete,
 }) => {
   return (
-    <div className="file-show-line">
+    <div key={keyForComp} className="file-show-line" >
       <div className="icon-placement">
         <img className="icon" src={iconSrc} alt={altText ? altText : ""}></img>
       </div>
