@@ -11,10 +11,8 @@ app = FastAPI()
 @app.get('/search')
 def search(query, file_type, user, dir, disk, number_of_results=5):
 
-    print('search handler')
-
     client = MongoClient('mongodb://mongodb:27017/')
-    db = client["CleverSearch"]
+    db = client["CLEVERSEARCH"]
     mongo_collection = db.files
 
     q = {

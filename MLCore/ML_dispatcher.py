@@ -28,8 +28,6 @@ class MLDispatcher:
         
         self.collection = self.client['CLEVERSEARCH']['files']
 
-        self.collection.insert_one({'hello': 'world'})
-
         self.services = {
             'image/jpeg': None,
             'audio': None,

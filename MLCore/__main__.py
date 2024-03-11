@@ -1,6 +1,6 @@
 import sys
 from argparse import ArgumentParser
-
+import os
 import uvicorn
 from ML_dispatcher import MLDispatcher
 
@@ -22,16 +22,24 @@ arg_parser.add_argument(
     )
 
 
+def main(args):
+    pid = os.fork()
+
+    if pid:
+        dispathcer = MLDispatcher()
+
+        dispathcer.reg_service(ImageService, 'image/jpeg')
+
+        dispathcer.run()
+    else:
+        uvicorn.run(
+            app,
+            host='0.0.0.0',
+            port=args.search_serv_port
+        )
+
 if __name__ == '__main__':
 
     args = arg_parser.parse_args()
 
-    # uvicorn.run(
-    #     app, port=args.search_serv_port
-    # ) # ОН БЛОКИРУЕТ!!!
-
-    dispathcer = MLDispatcher()
-
-    dispathcer.reg_service(ImageService, 'image/jpeg')
-
-    dispathcer.run()
+    main(args)
