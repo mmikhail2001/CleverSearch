@@ -3,6 +3,7 @@ from pymongo import MongoClient
 from minio import Minio
 import json
 import sys
+import requests
 sys.path.insert(5, './MLCore/')
 sys.path.insert(6, './MLCore/Services')
 from Services.ImageService import ImageService
@@ -49,6 +50,8 @@ class MLDispatcher:
             self.services[file_type].update_collection_file(
                 doc_uuid
             )
+
+            # requests.post(f'backend:8080/ml/complete/{doc_uuid}')
 
     def run(self):
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port,\
