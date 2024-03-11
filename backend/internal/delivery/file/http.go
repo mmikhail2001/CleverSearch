@@ -5,17 +5,17 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 
-	"github.com/mmikhail2001/test-clever-search/internal/delivery/shared"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/cleveruser"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/file"
+	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 )
 
-var limitSizeFile int64 = 200 * 1024 * 1024
-var defaultLimit int = 20
-var defaultOffset int = 0
+var (
+	limitSizeFile int64 = 200 * 1024 * 1024
+	defaultLimit  int   = 20
+	defaultOffset int   = 0
+)
 
 type Handler struct {
 	usecase Usecase
@@ -44,25 +44,27 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	dir := r.FormValue("dir")
 
-	log.Printf("File: %+v, Dir: %+v\n", handler.Filename, dir)
+	log.Printf("Uploading: File: %+v, Dir: %+v\n", handler.Filename, dir)
 
-	user, ok := r.Context().Value(shared.UserContextName).(cleveruser.User)
-	if !ok {
-		log.Printf("User not found in context\n")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	var contentType string
+	if contentTypes, ok := handler.Header["Content-Type"]; ok && len(contentTypes) > 0 {
+		contentType = contentTypes[0]
+	} else {
+		contentType = "unknown"
 	}
 
-	bucketName := strings.Split(user.Email, "@")[0]
+	fileType, ok := fileTypeMap[contentType]
+	if !ok {
+		fileType = file.Unknown
+	}
 
-	file, err := h.usecase.Upload(r.Context(), file.File{
-		File:        f,
-		Filename:    handler.Filename,
-		Size:        handler.Size,
-		Bucket:      bucketName,
-		UserID:      user.ID,
-		Path:        dir + "/" + handler.Filename,
-		ContentType: handler.Header["Content-Type"][0],
+	file, err := h.usecase.Upload(r.Context(), f, file.File{
+		Filename: handler.Filename,
+		Size:     handler.Size,
+		Path:     dir + "/" + handler.Filename,
+		// TODO: обработать отсутствие заголовка ([0] может не быть, т.к. такого заголовка может не быть)
+		ContentType: contentType,
+		FileType:    fileType,
 	})
 	if err != nil {
 		log.Println("Error Upload usecase:", err)
@@ -76,13 +78,14 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 		Path:        file.Path,
 		Bucket:      file.Bucket,
 		IsShared:    false,
-		DateCreated: file.TimeCreated,
+		TimeCreated: file.TimeCreated,
 		IsDir:       file.IsDir,
-		Size:        strconv.Itoa(int(file.Size)),
+		// TODO: нужно текстом отдавать...
+		// Size:        strconv.Itoa(int(file.Size)),
+		Size:        file.Size,
 		ContentType: file.ContentType,
 		Extension:   file.Extension,
-		Status:      string(file.Status),
-		Link:        file.Link,
+		Status:      file.Status,
 	}
 	w.WriteHeader(http.StatusOK)
 
@@ -165,13 +168,13 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 			Path:        file.Path,
 			Bucket:      file.Bucket,
 			IsShared:    false,
-			DateCreated: file.TimeCreated,
+			TimeCreated: file.TimeCreated,
 			IsDir:       file.IsDir,
-			Size:        strconv.Itoa(int(file.Size)),
+			// Size:        strconv.Itoa(int(file.Size)),
+			Size:        file.Size,
 			ContentType: file.ContentType,
 			Extension:   file.Extension,
-			Status:      string(file.Status),
-			Link:        file.Link,
+			Status:      file.Status,
 		})
 	}
 

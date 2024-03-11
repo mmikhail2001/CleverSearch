@@ -2,11 +2,12 @@ package file
 
 import (
 	"context"
+	"io"
 	"log"
 	"time"
 
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	"github.com/minio/minio-go/v7"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/file"
 )
 
 // TODO: Link только 7 дней...
@@ -19,7 +20,7 @@ var shareLinkTimeExpires = time.Hour * 24 * 7
 // - а до этого всего уже создать в mongo запись о том, что файл на загрузке в s3
 
 // можно не отвечать фронту, пока не загрузим файл PutObject
-func (r *Repository) UploadToStorage(ctx context.Context, file file.File) (file.File, error) {
+func (r *Repository) UploadToStorage(ctx context.Context, fileReader io.Reader, file file.File) (file.File, error) {
 	exists, err := r.minio.BucketExists(ctx, file.Bucket)
 	if err != nil {
 		log.Println("Failed to check bucket existence:", err)
@@ -37,18 +38,11 @@ func (r *Repository) UploadToStorage(ctx context.Context, file file.File) (file.
 		log.Println("Bucket created successfully:", file.Bucket)
 	}
 
-	_, err = r.minio.PutObject(ctx, file.Bucket, file.Path, file.File, file.Size, minio.PutObjectOptions{ContentType: file.ContentType})
+	_, err = r.minio.PutObject(ctx, file.Bucket, file.Path, fileReader, file.Size, minio.PutObjectOptions{ContentType: file.ContentType})
 	if err != nil {
 		log.Println("Failed to PutObject minio:", err)
 		return file, err
 	}
-
-	presignedURL, err := r.minio.PresignedGetObject(ctx, file.Bucket, file.Path, shareLinkTimeExpires, nil)
-	if err != nil {
-		log.Println("Failed to generate presigned URL:", err)
-		return file, err
-	}
-	file.Link = presignedURL.String()
 
 	return file, nil
 }

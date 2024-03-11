@@ -1,21 +1,29 @@
 package file
 
-import "time"
+import (
+	"time"
+
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+)
 
 type fileDTO struct {
-	ID          string    `bson:"_id"`
-	Filename    string    `bson:"filename"`
-	UserID      string    `bson:"user_id"`
-	Path        string    `bson:"path"`
-	Bucket      string    `bson:"bucket"`
-	Size        int64     `bson:"size"`
-	TimeCreated time.Time `bson:"time_created"`
-	ContentType string    `bson:"content_type"`
-	Extension   string    `bson:"extension"`
-	Status      string    `bson:"status"`
-	IsDir       bool      `bson:"is_dir"`
-	IsShared    bool      `bson:"is_shared"`
-	Link        string    `bson:"link"`
+	ID            string          `bson:"_id"`
+	Filename      string          `bson:"filename"`
+	TimeCreated   time.Time       `bson:"time_created"`
+	UserID        string          `bson:"user_id"`
+	Path          string          `bson:"path"`
+	Bucket        string          `bson:"bucket"`
+	IsDir         bool            `bson:"is_dir"`
+	FileType      file.FileType   `bson:"file_type"`
+	Size          int64           `bson:"size"`
+	ContentType   string          `bson:"content_type"`
+	Extension     string          `bson:"extension"`
+	Status        file.StatusType `bson:"status"`
+	IsShared      bool            `bson:"is_shared"`
+	ShareAccess   file.AccessType `bson:"share_access"`
+	ShareLink     string          `bson:"share_link"`
+	ShareAuthorID string          `bson:"share_author_id"`
+	// Disk
 }
 
 type fileForQueueDTO struct {

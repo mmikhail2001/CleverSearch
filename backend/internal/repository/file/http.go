@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/mmikhail2001/test-clever-search/internal/domain/file"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 )
 
 var APIServiceMLSearch = "http://service-ml/search"

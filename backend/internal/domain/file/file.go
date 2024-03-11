@@ -1,7 +1,6 @@
 package file
 
 import (
-	"mime/multipart"
 	"time"
 )
 
@@ -20,24 +19,22 @@ const (
 )
 
 type File struct {
-	ID          string
-	Filename    string
-	TimeCreated time.Time
-	UserID      string
-	Path        string
-	Bucket      string
-	IsDir       bool
-	IsShared    bool
-	Link        string
-	Sharing     struct {
-		Access AccessType
-		Link   string
-	}
-	Size        int64
-	File        multipart.File
-	ContentType string
-	Extension   string
-	Status      StatusType
+	ID            string
+	Filename      string
+	TimeCreated   time.Time
+	UserID        string
+	Path          string
+	Bucket        string
+	IsDir         bool
+	FileType      FileType
+	Size          int64
+	ContentType   string
+	Extension     string
+	Status        StatusType
+	IsShared      bool
+	ShareAccess   AccessType
+	ShareLink     string
+	ShareAuthorID string
 	// Disk
 }
 
@@ -49,6 +46,7 @@ const (
 	Video    FileType = "video"
 	Text     FileType = "text"
 	Audio    FileType = "audio"
+	Unknown  FileType = "unknown"
 )
 
 type DiskType string

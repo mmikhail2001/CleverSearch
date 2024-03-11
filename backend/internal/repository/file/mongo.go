@@ -5,19 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"path/filepath"
+	"regexp"
 
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+	"github.com/dranikpg/dto-mapper"
 	"github.com/minio/minio-go/v7"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/file"
 	"github.com/streadway/amqp"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-var minioHost string = "localhost:9000"
-var channelName string = "transmit-queue"
 
 type Repository struct {
 	minio           *minio.Client
@@ -34,24 +32,15 @@ func NewRepository(minio *minio.Client, mongo *mongo.Database, channelRabbitMQ *
 }
 
 func (r *Repository) CreateFile(ctx context.Context, file file.File) error {
-	dto := fileDTO{
-		ID:          file.ID,
-		Filename:    file.Filename,
-		Size:        file.Size,
-		ContentType: file.ContentType,
-		Extension:   filepath.Ext(file.Filename),
-		Status:      string(file.Status),
-		UserID:      file.UserID,
-		Path:        file.Path,
-		Bucket:      file.Bucket,
-		TimeCreated: file.TimeCreated,
-		IsDir:       file.IsDir,
-		IsShared:    file.IsShared,
-		Link:        file.Link,
+	var fileDTO fileDTO
+	err := dto.Map(&fileDTO, &file)
+	if err != nil {
+		log.Println("CreateFile repo error map:", err)
+		return err
 	}
 
 	collection := r.mongo.Collection("files")
-	_, err := collection.InsertOne(ctx, dto)
+	_, err = collection.InsertOne(ctx, fileDTO)
 	if err != nil {
 		log.Println("Failed to insert to mongo:", err)
 		return err
@@ -119,7 +108,7 @@ func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) (
 			Filename:    fileDTO.Filename,
 			Size:        fileDTO.Size,
 			ContentType: fileDTO.ContentType,
-			Status:      file.StatusType(fileDTO.Status),
+			Status:      fileDTO.Status,
 			TimeCreated: fileDTO.TimeCreated,
 			UserID:      fileDTO.UserID,
 			Path:        fileDTO.Path,
@@ -127,7 +116,6 @@ func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) (
 			IsDir:       fileDTO.IsDir,
 			IsShared:    fileDTO.IsShared,
 			Extension:   fileDTO.Extension,
-			Link:        fileDTO.Link,
 		}
 	}
 
@@ -145,8 +133,7 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 	}
 
 	if fileOptions.Dir != "all" {
-		// TODO: sdflksdlf
-		filter["path"] = bson.M{"$regex": "^" + fileOptions.Dir}
+		filter["path"] = bson.M{"$regex": "^" + regexp.QuoteMeta(fileOptions.Dir) + "/"}
 	}
 
 	if fileOptions.Shared {
@@ -161,7 +148,7 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 		filter["is_dir"] = true
 	}
 
-	// сортировка нужна по дате добавления
+	// TODO: сортировка нужна по дате добавления
 	opts := options.Find().SetSort(bson.D{{Key: "filename", Value: 1}})
 	opts = opts.SetLimit(int64(fileOptions.Limit)).SetSkip(int64(fileOptions.Offset))
 
@@ -188,7 +175,7 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 			Filename:    fileDTO.Filename,
 			Size:        fileDTO.Size,
 			ContentType: fileDTO.ContentType,
-			Status:      file.StatusType(fileDTO.Status),
+			Status:      fileDTO.Status,
 			TimeCreated: fileDTO.TimeCreated,
 			UserID:      fileDTO.UserID,
 			Path:        fileDTO.Path,
@@ -196,7 +183,6 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 			IsDir:       fileDTO.IsDir,
 			IsShared:    fileDTO.IsShared,
 			Extension:   fileDTO.Extension,
-			Link:        fileDTO.Link,
 		}
 	}
 
@@ -223,7 +209,7 @@ func (r *Repository) GetFileByID(ctx context.Context, uuidFile string) (file.Fil
 		Filename:    resultDTO.Filename,
 		Size:        resultDTO.Size,
 		ContentType: resultDTO.ContentType,
-		Status:      file.StatusType(resultDTO.Status),
+		Status:      resultDTO.Status,
 		IsShared:    resultDTO.IsShared,
 		IsDir:       resultDTO.IsDir,
 		Path:        resultDTO.Path,
@@ -231,7 +217,6 @@ func (r *Repository) GetFileByID(ctx context.Context, uuidFile string) (file.Fil
 		UserID:      resultDTO.UserID,
 		TimeCreated: resultDTO.TimeCreated,
 		Extension:   resultDTO.Extension,
-		Link:        resultDTO.Link,
 	}
 
 	return file, nil
@@ -254,7 +239,7 @@ func (r *Repository) GetFileByPath(ctx context.Context, path string) (file.File,
 		Filename:    resultDTO.Filename,
 		Size:        resultDTO.Size,
 		ContentType: resultDTO.ContentType,
-		Status:      file.StatusType(resultDTO.Status),
+		Status:      resultDTO.Status,
 		IsShared:    resultDTO.IsShared,
 		IsDir:       resultDTO.IsDir,
 		Path:        resultDTO.Path,
@@ -262,7 +247,6 @@ func (r *Repository) GetFileByPath(ctx context.Context, path string) (file.File,
 		UserID:      resultDTO.UserID,
 		TimeCreated: resultDTO.TimeCreated,
 		Extension:   resultDTO.Extension,
-		Link:        resultDTO.Link,
 	}
 
 	return file, nil

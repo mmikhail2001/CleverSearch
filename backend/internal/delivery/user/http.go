@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mmikhail2001/test-clever-search/internal/delivery/shared"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/cleveruser"
+	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
 )
 
 type Handler struct {

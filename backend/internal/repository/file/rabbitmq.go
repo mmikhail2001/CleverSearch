@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/mmikhail2001/test-clever-search/internal/domain/file"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	"github.com/streadway/amqp"
 )
+
+var queueName string = "transmit-queue"
 
 func (r *Repository) PublishMessage(ctx context.Context, file file.File) error {
 	fileDTO := fileForQueueDTO{
@@ -23,7 +25,7 @@ func (r *Repository) PublishMessage(ctx context.Context, file file.File) error {
 
 	err = r.channelRabbitMQ.Publish(
 		"",
-		channelName,
+		queueName,
 		false,
 		false,
 		amqp.Publishing{

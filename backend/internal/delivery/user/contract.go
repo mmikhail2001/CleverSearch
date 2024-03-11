@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	"github.com/mmikhail2001/test-clever-search/internal/domain/cleveruser"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
 )
 
 type Usecase interface {

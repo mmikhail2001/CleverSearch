@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/notifier"
 	"github.com/gorilla/websocket"
-	"github.com/mmikhail2001/test-clever-search/internal/delivery/shared"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/cleveruser"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/notifier"
 )
 
 var bufferChannelNotification = 10
