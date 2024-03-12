@@ -4,14 +4,10 @@ import (
 	"context"
 	"io"
 	"log"
-	"time"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	"github.com/minio/minio-go/v7"
 )
-
-// TODO: Link только 7 дней...
-var shareLinkTimeExpires = time.Hour * 24 * 7
 
 // TODO:
 // можно в отдельной горутине загружать файл или несолько файлов (PutObject)

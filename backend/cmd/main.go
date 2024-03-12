@@ -49,6 +49,10 @@ import (
 
 // убрать file.File multipart, чтобы через dto.Map мапить DTO и Entity structures
 
+// файлы с таким же path в s3 заново не загружаются, а в mongo загружаются
+
+// фронт запрашивает папки или файлы? что в начале, что потом? или сортировка по используемым?
+
 var staticDir string = "/app/frontend/build"
 
 func main() {

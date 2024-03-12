@@ -33,13 +33,11 @@ type fileForQueueDTO struct {
 	ContentType string `json:"contentType"`
 }
 
-// { "status": TODO, "body": { "ids": [ file_id1, file_id2, file_id3, ... ] } }
-
 type searchResponseDTO struct {
-	Status int         `json:"status"`
-	Body   interface{} `json:"body"`
+	FilesID []searchItemDTO `json:"files_uuid"`
 }
 
-type Ids struct {
-	Ids []string `json:"ids"`
+type searchItemDTO struct {
+	Index  int    `json:"index"`
+	FileID string `json:"file_uuid"`
 }

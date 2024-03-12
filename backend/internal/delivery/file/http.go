@@ -9,6 +9,7 @@ import (
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+	"github.com/dranikpg/dto-mapper"
 )
 
 var (
@@ -43,7 +44,6 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	defer f.Close()
 
 	dir := r.FormValue("dir")
-
 	log.Printf("Uploading: File: %+v, Dir: %+v\n", handler.Filename, dir)
 
 	var contentType string
@@ -59,34 +59,20 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	file, err := h.usecase.Upload(r.Context(), f, file.File{
-		Filename: handler.Filename,
-		Size:     handler.Size,
-		Path:     dir + "/" + handler.Filename,
-		// TODO: обработать отсутствие заголовка ([0] может не быть, т.к. такого заголовка может не быть)
+		Filename:    handler.Filename,
+		Size:        handler.Size,
+		Path:        dir + "/" + handler.Filename,
 		ContentType: contentType,
 		FileType:    fileType,
 	})
 	if err != nil {
 		log.Println("Error Upload usecase:", err)
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
+	var fileDTO FileDTO
+	dto.Map(&fileDTO, &file)
 
-	fileDTO := FileDTO{
-		ID:          file.ID,
-		Filename:    file.Filename,
-		UserID:      file.UserID,
-		Path:        file.Path,
-		Bucket:      file.Bucket,
-		IsShared:    false,
-		TimeCreated: file.TimeCreated,
-		IsDir:       file.IsDir,
-		// TODO: нужно текстом отдавать...
-		// Size:        strconv.Itoa(int(file.Size)),
-		Size:        file.Size,
-		ContentType: file.ContentType,
-		Extension:   file.Extension,
-		Status:      file.Status,
-	}
 	w.WriteHeader(http.StatusOK)
 
 	response := shared.Response{
@@ -100,14 +86,14 @@ func (h *Handler) DeleteFiles(w http.ResponseWriter, r *http.Request) {
 	req := DeleteFilesDTO{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Println("Failed to decode json files to delete", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	err := h.usecase.DeleteFiles(r.Context(), req.Files)
 	if err != nil {
 		log.Println("Error DeleteFiles usecase", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -153,7 +139,7 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println("Error Search or GetFileswith:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -161,21 +147,9 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 
 	filesDTO := []FileDTO{}
 	for _, file := range results {
-		filesDTO = append(filesDTO, FileDTO{
-			ID:          file.ID,
-			Filename:    file.Filename,
-			UserID:      file.UserID,
-			Path:        file.Path,
-			Bucket:      file.Bucket,
-			IsShared:    false,
-			TimeCreated: file.TimeCreated,
-			IsDir:       file.IsDir,
-			// Size:        strconv.Itoa(int(file.Size)),
-			Size:        file.Size,
-			ContentType: file.ContentType,
-			Extension:   file.Extension,
-			Status:      file.Status,
-		})
+		var fileDTO FileDTO
+		dto.Map(&fileDTO, &file)
+		filesDTO = append(filesDTO, fileDTO)
 	}
 
 	response := shared.Response{
