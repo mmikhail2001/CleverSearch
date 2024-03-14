@@ -1,0 +1,21 @@
+.text-with-img {
+    display: flex;
+    flex-direction: row;
+    gap: var(--normal-padding);
+    border-radius: var(--big-radius);
+    padding-left: var(--big-padding);
+    padding-right: var(--big-padding);
+    padding-top: var(--normal-padding);
+    padding-bottom: var(--normal-padding);
+
+    align-items: center;
+}
+
+.text-image {
+    width: calc(var(--ft-body) * 2);
+    height: calc(var(--ft-body) * 2);
+}
+
+.text {
+    font-size: var(--ft-body);
+}
