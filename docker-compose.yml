@@ -1,0 +1,81 @@
+version: '3.7'
+
+services:
+  minio:
+    image: minio/minio:latest
+    # for DNS resolve
+    restart: always
+    ports:
+      - 9000:9000
+      - 9090:9090 # web
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server --console-address ":9090" /data
+    networks:
+      clevernet:
+    
+  mongodb:
+    image: mongo:5.0
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      clevernet:
+
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    restart: always
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      clevernet:
+
+  # dd compose stop backend && dd compose up --build backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - rabbitmq
+      - mongodb
+      - minio
+    volumes:
+      - ./frontend/build:/app/frontend/build
+    networks:
+      clevernet:
+
+  mlcore:
+    build:
+      context: ./MLCore
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 8081:8081
+    depends_on:
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
+
+volumes:
+  minio_data:
+  mongo_data:
+
+networks:
+  clevernet:
+    driver: bridge
+    # dd network inspect clevernet
+    name: clevernet
