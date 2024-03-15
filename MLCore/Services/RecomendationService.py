@@ -10,21 +10,22 @@ app = FastAPI()
 
 def setup_search_handler(args):
     @app.get('/search')
-    def search(query, file_type, user, dir, disk, number_of_results=5):
-
+    def search(query, file_type, user_id, dir, disk, number_of_results=5):
+        
         client = MongoClient(f'mongodb://{args.mongo_addr}:{args.mongo_port}/')
         mongo_collection = client[args.mongo_DB_name][args.mongo_collection_name]
 
         q = {
             '$and': [
-                {'user_id': user},
-                {'content_type': file_type}
+                {'user_id': user_id},
+                {'file_type': file_type},
+                {'status': "processed"},
             ]
         }
-
+        
         cursor = mongo_collection.find(q)
-
         list_cur = list(cursor)
+        
         df = DataFrame(list_cur)
 
         txt_list = [list(val.values())[0] for val in df.ml_data]
@@ -45,6 +46,6 @@ def setup_search_handler(args):
         keys = list(sorted_dict.keys())[:number_of_results]
 
         files_uuid = [{"index": k, "file_uuid": df.iloc[k]._id} for k in keys]
-        return {"files_uuid": files_uuid}
+        return {"files": files_uuid}
     
     return search

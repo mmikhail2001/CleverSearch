@@ -27,14 +27,14 @@ type fileDTO struct {
 }
 
 type fileForQueueDTO struct {
-	ID          string `json:"id"`
-	Path        string `json:"path"`
-	Bucket      string `json:"bucket"`
-	ContentType string `json:"contentType"`
+	ID     string `json:"id"`
+	Path   string `json:"path"`
+	Bucket string `json:"bucket"`
+	Type   string `json:"type"`
 }
 
 type searchResponseDTO struct {
-	FilesID []searchItemDTO `json:"files_uuid"`
+	FilesID []searchItemDTO `json:"files"`
 }
 
 type searchItemDTO struct {

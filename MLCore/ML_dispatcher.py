@@ -32,7 +32,7 @@ class MLDispatcher:
         self.collection = self.client[mongo_db_name][mongo_collection]
 
         self.services = {
-            'image/jpeg': None,
+            'img': None,
             'audio': None,
             'video': None,
             'document': None
@@ -45,13 +45,13 @@ class MLDispatcher:
 
             print(body.decode())
 
-            file_type = self.collection.find_one({'_id': doc_uuid})['content_type']
+            file_type = self.collection.find_one({'_id': doc_uuid})['file_type']
 
             self.services[file_type].update_collection_file(
                 doc_uuid
             )
 
-            # requests.post(f'backend:8080/ml/complete/{doc_uuid}')
+            requests.post(f'http://backend:8080/api/ml/complete?file_uuid={doc_uuid}')
 
     def run(self):
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port,\

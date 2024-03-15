@@ -5,8 +5,8 @@ from PIL import Image
 from collections import OrderedDict
 import sys
 from easyocr import Reader
-sys.path.insert(1, './MLCore/')
-sys.path.insert(2, '/CRAFT')
+sys.path.insert(1, '/')
+sys.path.insert(2, '/CRAFT/')
 from CRAFT.craft import CRAFT
 from CRAFT.test import test_net
 
@@ -28,7 +28,6 @@ class ImageProcessor(IDataProcessor):
             self.craft_instance.load_state_dict(self.__copyStateDict(torch.load(self.craft_weights_path)))
 
         print('success!')
-
 
     def process(self, img: Image)->str:
         bboxes = self.__get_text_bboxes(img)

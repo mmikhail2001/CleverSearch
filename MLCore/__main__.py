@@ -62,7 +62,7 @@ def main(args):
             mongo_collection=args.mongo_collection_name
         )
 
-        dispathcer.reg_service(ImageService, 'image/jpeg')
+        dispathcer.reg_service(ImageService, 'img')
 
         dispathcer.run()
     else:
