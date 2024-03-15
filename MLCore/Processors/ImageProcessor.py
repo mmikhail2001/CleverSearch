@@ -5,8 +5,8 @@ from PIL import Image
 from collections import OrderedDict
 import sys
 from easyocr import Reader
-sys.path.insert(1, './MLCore/')
-sys.path.insert(2, './MLCore/CRAFT')
+sys.path.insert(1, '/')
+sys.path.insert(2, '/CRAFT/')
 from CRAFT.craft import CRAFT
 from CRAFT.test import test_net
 
