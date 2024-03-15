@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"golang.org/x/crypto/bcrypt"
@@ -24,6 +23,11 @@ func NewUsecase(repo Repository) *Usecase {
 }
 
 func (uc *Usecase) Register(ctx context.Context, user cleveruser.User) (cleveruser.User, error) {
+	_, err := uc.repo.GetUserByEmail(ctx, user.Email)
+	if err == nil {
+		log.Println("GetUserByEmail: user already exists:", err)
+		return user, cleveruser.ErrUserAlreadyExists
+	}
 	user.ID = uuid.New().String()
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -44,8 +48,8 @@ func (uc *Usecase) Register(ctx context.Context, user cleveruser.User) (cleverus
 func (uc *Usecase) GetUserBySession(ctx context.Context, sessionID string) (cleveruser.User, error) {
 	user, ok := uc.userSessions[sessionID]
 	if !ok {
-		log.Println("GetUserBySession not found")
-		return cleveruser.User{}, fmt.Errorf("user by session not found")
+		log.Println("GetUserBySession: session not found")
+		return cleveruser.User{}, cleveruser.ErrSessionNotFound
 	}
 	return user, nil
 }
@@ -53,14 +57,14 @@ func (uc *Usecase) GetUserBySession(ctx context.Context, sessionID string) (clev
 func (uc *Usecase) Login(ctx context.Context, authUser cleveruser.User) (string, error) {
 	user, err := uc.repo.GetUserByEmail(ctx, authUser.Email)
 	if err != nil {
-		log.Println("GetUserByEmail repo error:", err)
+		log.Println("Login: GetUserByEmail repo error:", err)
 		return "", err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(authUser.Password))
 	if err != nil {
-		log.Println("CompareHashAndPassword error:", err)
-		return "", err
+		log.Println("Login: CompareHashAndPassword error:", err)
+		return "", cleveruser.ErrWrongCredentials
 	}
 
 	sessionID := uuid.New().String()
@@ -73,7 +77,7 @@ func (uc *Usecase) Logout(ctx context.Context, sessionID string) error {
 	_, ok := uc.userSessions[sessionID]
 	if !ok {
 		log.Println("Logout: session not found")
-		return fmt.Errorf("user by session not found")
+		return cleveruser.ErrSessionNotFound
 	}
 	delete(uc.userSessions, sessionID)
 	return nil

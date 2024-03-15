@@ -25,7 +25,7 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 	queryParams.Set("file_type", string(fileOptions.FileType))
 	queryParams.Set("dir", fileOptions.Dir)
 	queryParams.Set("disk", string(fileOptions.Disk))
-	queryParams.Set("user_id", string(user.ID))
+	queryParams.Set("user_id", user.ID)
 	url := APIServiceMLSearch + "?" + queryParams.Encode()
 
 	resp, err := http.Get(url)

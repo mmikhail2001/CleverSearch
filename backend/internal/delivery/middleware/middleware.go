@@ -2,10 +2,12 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
 )
 
 type Middleware struct {
@@ -31,6 +33,7 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 		if err != nil {
 			log.Println("User not auth:", err)
 			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(0, cleveruser.ErrAuthenticationRequired.Error(), nil))
 			return
 		}
 
@@ -38,6 +41,7 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 		if err != nil {
 			log.Println("Session unvalid:", err)
 			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(0, cleveruser.ErrSessionNotFound.Error(), nil))
 			return
 		}
 

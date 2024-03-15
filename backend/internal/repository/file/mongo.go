@@ -75,6 +75,7 @@ func (r *Repository) CreateDir(ctx context.Context, file file.File) error {
 }
 
 func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) ([]file.File, error) {
+	// TODO: Поиск не в рамках директории
 	filter := bson.M{}
 	if fileOptions.Query != "" {
 		filter["filename"] = bson.M{"$regex": primitive.Regex{Pattern: fileOptions.Query, Options: "i"}}
@@ -86,6 +87,9 @@ func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) (
 	cursor, err := r.mongo.Collection("files").Find(ctx, filter, opts)
 	if err != nil {
 		log.Println("Get collection files error:", err)
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return []file.File{}, file.ErrNotFound
+		}
 		return nil, err
 	}
 	defer cursor.Close(ctx)
@@ -118,11 +122,12 @@ func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) (
 
 func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions) ([]file.File, error) {
 	filter := bson.M{}
-	if fileOptions.FileType != file.AllTypes {
+
+	if fileOptions.FileType != "" && fileOptions.FileType != file.AllTypes {
 		filter["content_type"] = string(fileOptions.FileType)
 	}
 
-	if fileOptions.Dir != "all" {
+	if fileOptions.Dir != "/" {
 		filter["path"] = bson.M{"$regex": "^" + regexp.QuoteMeta(fileOptions.Dir) + "/"}
 	}
 
@@ -130,15 +135,20 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 		filter["is_shared"] = true
 	}
 
-	if fileOptions.Disk != "all" {
+	if fileOptions.Disk != "" && fileOptions.Disk != "all" {
 		filter["disk"] = fileOptions.Disk
+	}
+
+	if fileOptions.Status != "" && fileOptions.Status != "all" {
+		filter["status"] = string(fileOptions.Status)
 	}
 
 	if fileOptions.OnlyDirs {
 		filter["is_dir"] = true
-	} else {
-		filter["is_dir"] = false
 	}
+	// } else {
+	// 	filter["is_dir"] = false
+	// }
 
 	// TODO: сортировка нужна по дате добавления
 	opts := options.Find().SetSort(bson.D{{Key: "filename", Value: 1}})
@@ -147,6 +157,9 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 	cursor, err := r.mongo.Collection("files").Find(ctx, filter, opts)
 	if err != nil {
 		log.Println("Get collection files error:", err)
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return []file.File{}, file.ErrNotFound
+		}
 		return nil, err
 	}
 	defer cursor.Close(ctx)
@@ -183,8 +196,9 @@ func (r *Repository) GetFileByID(ctx context.Context, uuidFile string) (file.Fil
 	filter := bson.M{"_id": uuidFile}
 	err := r.mongo.Collection("files").FindOne(ctx, filter).Decode(&resultDTO)
 	if err != nil {
+		log.Println("GetFileByID: FindOne:", uuidFile, err)
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return file.File{}, fmt.Errorf("GetFileByID no file with uuid: %w", err)
+			return file.File{}, file.ErrNotFound
 		}
 		return file.File{}, err
 	}
@@ -205,8 +219,9 @@ func (r *Repository) GetFileByPath(ctx context.Context, path string) (file.File,
 	filter := bson.M{"path": path}
 	err := r.mongo.Collection("files").FindOne(ctx, filter).Decode(&resultDTO)
 	if err != nil {
+		log.Println("GetFileByPath: FindOne:", path, err)
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return file.File{}, fmt.Errorf("GetFileByPath no file with path %v: %w", path, err)
+			return file.File{}, file.ErrNotFound
 		}
 		return file.File{}, err
 	}

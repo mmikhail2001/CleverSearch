@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"errors"
+	"log"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
 	"go.mongodb.org/mongo-driver/bson"
@@ -29,6 +31,7 @@ func (r *Repository) CreateUser(ctx context.Context, user cleveruser.User) (clev
 
 	_, err := collection.InsertOne(ctx, userDTO)
 	if err != nil {
+		log.Println("CreateUser: InsertOne error")
 		return user, err
 	}
 
@@ -41,6 +44,10 @@ func (r *Repository) GetUserByEmail(ctx context.Context, email string) (cleverus
 	var userDTO UserDTO
 	err := collection.FindOne(ctx, bson.M{"email": email}).Decode(&userDTO)
 	if err != nil {
+		log.Println("GetUserByEmail: FindOne error")
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return cleveruser.User{}, cleveruser.ErrUserNotFound
+		}
 		return cleveruser.User{}, err
 	}
 

@@ -1,7 +1,20 @@
 package file
 
 import (
+	"errors"
 	"time"
+)
+
+var (
+	ErrFileExceedsMaxSize          = errors.New("file exceeds maximum size")
+	ErrFileAlreadyExists           = errors.New("file already exists")
+	ErrDirectoryAlreadyExists      = errors.New("dir already exists")
+	ErrDirectoryNotStartsWithSlash = errors.New("directory does not start with slash")
+	ErrContentTypeNotSet           = errors.New("content-type not set for file upload")
+	ErrSearchWithEmptyQuery        = errors.New("search with empty query")
+	ErrNotFound                    = errors.New("not found")
+	ErrSubdirectoryNotFound        = errors.New("subdirectory does not exist")
+	ErrDirectoryNotSpecified       = errors.New("directory not specified")
 )
 
 type AccessType string
@@ -68,5 +81,6 @@ type FileOptions struct {
 	Limit         int
 	Offset        int
 	Query         string
+	Status        StatusType
 	IsSmartSearch bool
 }

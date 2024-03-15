@@ -2,6 +2,7 @@ package file
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -13,6 +14,7 @@ import (
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	fileDomain "github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/notifier"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/sharederrors"
 	"github.com/google/uuid"
 )
 
@@ -41,7 +43,7 @@ func getFileExtension(filename string) string {
 func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDomain.File) (fileDomain.File, error) {
 	if !strings.HasPrefix(file.Path, "/") {
 		log.Printf("Directory path [%s] does not start with /\n", file.Path)
-		return fileDomain.File{}, fmt.Errorf("directory path [%s] does not start with /", file.Path)
+		return fileDomain.File{}, fileDomain.ErrDirectoryNotStartsWithSlash
 	}
 	pathComponents := strings.Split(file.Path, "/")
 
@@ -51,6 +53,9 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 		_, err := uc.repo.GetFileByPath(ctx, dirPath)
 		if err != nil {
 			log.Printf("Error checking directory %s existence: %v\n", dirPath, err)
+			if errors.Is(err, fileDomain.ErrNotFound) {
+				return fileDomain.File{}, fileDomain.ErrSubdirectoryNotFound
+			}
 			return file, err
 		}
 	}
@@ -58,12 +63,15 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 	_, err := uc.repo.GetFileByPath(ctx, file.Path)
 	if err == nil {
 		log.Println("Upload: the file path already exists")
-		return fileDomain.File{}, fmt.Errorf("the file path already exists")
+		return fileDomain.File{}, fileDomain.ErrFileAlreadyExists
+	} else if err != fileDomain.ErrNotFound {
+		return fileDomain.File{}, err
 	}
 
 	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
 	if !ok {
-		return file, fmt.Errorf("user not found in context")
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return file, sharederrors.ErrUserNotFoundInContext
 	}
 
 	bucketName := strings.Split(user.Email, "@")[0]
@@ -108,7 +116,7 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions) ([]fileDomain.File, error) {
 	if options.Dir != "" && !strings.HasPrefix(options.Dir, "/") {
 		log.Printf("Directory path [%s] does not start with /\n", options.Dir)
-		return []fileDomain.File{}, fmt.Errorf("directory path [%s] does not start with /", options.Dir)
+		return []fileDomain.File{}, fileDomain.ErrDirectoryNotStartsWithSlash
 	}
 	return uc.repo.GetFiles(ctx, options)
 }
@@ -116,16 +124,19 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDomain.File, error) {
 	if file.Path == "" {
 		log.Printf("CreateDir: dir path is empty")
-		return fileDomain.File{}, fmt.Errorf("CreateDir: dir path is empty")
+		return file, fileDomain.ErrDirectoryNotSpecified
 	}
 	if !strings.HasPrefix(file.Path, "/") {
 		log.Printf("Directory path [%s] does not start with /\n", file.Path)
-		return fileDomain.File{}, fmt.Errorf("directory path [%s] does not start with /", file.Path)
+		return file, fileDomain.ErrDirectoryNotStartsWithSlash
 	}
 	_, err := uc.repo.GetFileByPath(ctx, file.Path)
 	if err == nil {
-		log.Println("CreateDir: the dir path already exists")
-		return fileDomain.File{}, fmt.Errorf("the dir path already exists")
+		log.Println("Upload: the file path already exists")
+		return file, fileDomain.ErrDirectoryAlreadyExists
+	} else if err != fileDomain.ErrNotFound {
+		log.Println("Upload: err", err)
+		return file, err
 	}
 
 	pathComponents := strings.Split(file.Path, "/")
@@ -136,6 +147,9 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 		_, err := uc.repo.GetFileByPath(ctx, dirPath)
 		if err != nil {
 			log.Printf("Error checking directory %s existence: %v\n", dirPath, err)
+			if errors.Is(err, fileDomain.ErrNotFound) {
+				return file, fileDomain.ErrSubdirectoryNotFound
+			}
 			return file, err
 		}
 	}
@@ -173,31 +187,53 @@ func (uc *Usecase) DeleteFiles(ctx context.Context, filePaths []string) error {
 	for _, path := range filePaths {
 		if !strings.HasPrefix(path, "/") {
 			log.Printf("DeleteFiles: Directory path [%s] does not start with /\n", path)
-			return fmt.Errorf("deleteFiles: Directory path [%s] does not start with /", path)
+			return fileDomain.ErrDirectoryNotStartsWithSlash
 		}
 	}
 	var files []file.File
 	for _, path := range filePaths {
 		file, err := uc.repo.GetFileByPath(ctx, path)
 		if err != nil {
-			log.Println("GetFileByPath repo error:", err)
-			return fmt.Errorf("file with path[%v] not exist: %w", path, err)
+			log.Println("GetFileByPath repo, path:", path, ", error:", err)
+			return err
 		}
 		files = append(files, file)
 	}
 
-	for _, file := range files {
-		if !file.IsDir {
-			err := uc.repo.RemoveFromStorage(ctx, file)
+	stack := make([]file.File, 0)
+	stack = append(stack, files...)
+
+	for len(stack) > 0 {
+
+		currentFile := stack[len(stack)-1]
+
+		// fmt.Printf("%#v\n\n", stack)
+		// fmt.Printf("%d\n\n", len(stack))
+		// fmt.Printf("%#v\n\n", currentFile)
+
+		stack = stack[:len(stack)-1]
+
+		if currentFile.IsDir {
+			retrievedFiles, err := uc.repo.GetFiles(ctx, fileDomain.FileOptions{Dir: currentFile.Path, FileType: fileDomain.AllTypes})
 			if err != nil {
-				log.Println("RemoveFromStorage repo error:", err)
-				return fmt.Errorf("error remove from storage path[%v]: %w", file.Path, err)
+				if errors.Is(err, file.ErrNotFound) {
+					continue
+				}
+				log.Println("Error retrieving files in directory:", currentFile.Path, ", error:", err)
+				return err
 			}
-		}
-		err := uc.repo.DeleteFile(ctx, file)
-		if err != nil {
-			log.Println("DeleteFile repo error:", err)
-			return fmt.Errorf("error delete from db path[%v]: %w", file.Path, err)
+			stack = append(stack, retrievedFiles...)
+		} else {
+			err := uc.repo.RemoveFromStorage(ctx, currentFile)
+			if err != nil {
+				log.Println("Error removing from storage:", currentFile.Path, ", error:", err)
+				return err
+			}
+			err = uc.repo.DeleteFile(ctx, currentFile)
+			if err != nil {
+				log.Println("Error deleting file:", currentFile.Path, ", error:", err)
+				return err
+			}
 		}
 	}
 	return nil
