@@ -44,6 +44,7 @@ def setup_search_handler(args):
 
         keys = list(sorted_dict.keys())[:number_of_results]
 
-        return df.iloc[keys]._id
+        files_uuid = [{"index": k, "file_uuid": df.iloc[k]._id} for k in keys]
+        return {"files_uuid": files_uuid}
     
     return search

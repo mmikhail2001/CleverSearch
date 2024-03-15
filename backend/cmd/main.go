@@ -6,22 +6,22 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/WindowsKonon1337/CleverSearch/internal/repository/file"
+	"github.com/WindowsKonon1337/CleverSearch/internal/repository/notifier"
+	"github.com/WindowsKonon1337/CleverSearch/internal/repository/user"
+	"github.com/WindowsKonon1337/CleverSearch/pkg/client/minio"
+	"github.com/WindowsKonon1337/CleverSearch/pkg/client/mongo"
+	"github.com/WindowsKonon1337/CleverSearch/pkg/client/rabbitmq"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/mmikhail2001/test-clever-search/internal/repository/file"
-	"github.com/mmikhail2001/test-clever-search/internal/repository/notifier"
-	"github.com/mmikhail2001/test-clever-search/internal/repository/user"
-	"github.com/mmikhail2001/test-clever-search/pkg/client/minio"
-	"github.com/mmikhail2001/test-clever-search/pkg/client/mongo"
-	"github.com/mmikhail2001/test-clever-search/pkg/client/rabbitmq"
 
-	fileDelivery "github.com/mmikhail2001/test-clever-search/internal/delivery/file"
-	"github.com/mmikhail2001/test-clever-search/internal/delivery/middleware"
-	notifyDelivery "github.com/mmikhail2001/test-clever-search/internal/delivery/notifier"
-	userDelivery "github.com/mmikhail2001/test-clever-search/internal/delivery/user"
-	fileUsecase "github.com/mmikhail2001/test-clever-search/internal/usecase/file"
-	notifyUsecase "github.com/mmikhail2001/test-clever-search/internal/usecase/notifier"
-	userUsecase "github.com/mmikhail2001/test-clever-search/internal/usecase/user"
+	fileDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/file"
+	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/middleware"
+	notifyDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/notifier"
+	userDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/user"
+	fileUsecase "github.com/WindowsKonon1337/CleverSearch/internal/usecase/file"
+	notifyUsecase "github.com/WindowsKonon1337/CleverSearch/internal/usecase/notifier"
+	userUsecase "github.com/WindowsKonon1337/CleverSearch/internal/usecase/user"
 )
 
 // TODO:
@@ -43,6 +43,15 @@ import (
 
 // перед загрузкой файла в директорию нужно проверить, существует ли такая директория
 // имеет смысл разделить репозиторий на fileStorage, db....
+
+// TODO: user not found in context,
+// api.HandleFunc("/ml/complete", fileHandler.CompleteProcessingFile).Methods("GET")
+
+// убрать file.File multipart, чтобы через dto.Map мапить DTO и Entity structures
+
+// файлы с таким же path в s3 заново не загружаются, а в mongo загружаются
+
+// фронт запрашивает папки или файлы? что в начале, что потом? или сортировка по используемым?
 
 var staticDir string = "/app/frontend/build"
 
@@ -119,7 +128,7 @@ func Run() error {
 	api.HandleFunc("/users/login", userHandler.Login).Methods("POST")
 	api.HandleFunc("/users/register", userHandler.Register).Methods("POST")
 
-	api.HandleFunc("/ml/complete", fileHandler.CompleteProcessingFile).Methods("GET")
+	api.HandleFunc("/ml/complete", fileHandler.CompleteProcessingFile).Methods("POST")
 
 	apiAuth.HandleFunc("/ws", notifyDelivery.ConnectNotifications).Methods("GET")
 

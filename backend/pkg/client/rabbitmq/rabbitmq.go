@@ -7,9 +7,12 @@ import (
 	"github.com/streadway/amqp"
 )
 
-var url string = "amqp://guest:guest@rabbitmq:5672/"
-var retryCount = 5
-var retryInterval = 2 * time.Second
+var (
+	url           string = "amqp://guest:guest@rabbitmq:5672/"
+	retryCount           = 5
+	retryInterval        = 2 * time.Second
+	queueName            = "transmit-queue"
+)
 
 func NewClient() (*amqp.Channel, error) {
 	var conn *amqp.Connection
@@ -35,7 +38,7 @@ func NewClient() (*amqp.Channel, error) {
 	}
 
 	_, err = channel.QueueDeclare(
-		"transmit-queue",
+		queueName,
 		true,
 		false,
 		false,

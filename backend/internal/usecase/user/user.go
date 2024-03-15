@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
 	"github.com/google/uuid"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/cleveruser"
 )
 
 type Usecase struct {

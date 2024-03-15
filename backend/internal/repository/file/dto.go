@@ -1,21 +1,29 @@
 package file
 
-import "time"
+import (
+	"time"
+
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+)
 
 type fileDTO struct {
-	ID          string    `bson:"_id"`
-	Filename    string    `bson:"filename"`
-	UserID      string    `bson:"user_id"`
-	Path        string    `bson:"path"`
-	Bucket      string    `bson:"bucket"`
-	Size        int64     `bson:"size"`
-	TimeCreated time.Time `bson:"time_created"`
-	ContentType string    `bson:"content_type"`
-	Extension   string    `bson:"extension"`
-	Status      string    `bson:"status"`
-	IsDir       bool      `bson:"is_dir"`
-	IsShared    bool      `bson:"is_shared"`
-	Link        string    `bson:"link"`
+	ID            string          `bson:"_id"`
+	Filename      string          `bson:"filename"`
+	TimeCreated   time.Time       `bson:"time_created"`
+	UserID        string          `bson:"user_id"`
+	Path          string          `bson:"path"`
+	Bucket        string          `bson:"bucket"`
+	IsDir         bool            `bson:"is_dir"`
+	FileType      file.FileType   `bson:"file_type"`
+	Size          int64           `bson:"size"`
+	ContentType   string          `bson:"content_type"`
+	Extension     string          `bson:"extension"`
+	Status        file.StatusType `bson:"status"`
+	IsShared      bool            `bson:"is_shared"`
+	ShareAccess   file.AccessType `bson:"share_access"`
+	ShareLink     string          `bson:"share_link"`
+	ShareAuthorID string          `bson:"share_author_id"`
+	// Disk
 }
 
 type fileForQueueDTO struct {
@@ -25,13 +33,11 @@ type fileForQueueDTO struct {
 	ContentType string `json:"contentType"`
 }
 
-// { "status": TODO, "body": { "ids": [ file_id1, file_id2, file_id3, ... ] } }
-
 type searchResponseDTO struct {
-	Status int         `json:"status"`
-	Body   interface{} `json:"body"`
+	FilesID []searchItemDTO `json:"files_uuid"`
 }
 
-type Ids struct {
-	Ids []string `json:"ids"`
+type searchItemDTO struct {
+	Index  int    `json:"index"`
+	FileID string `json:"file_uuid"`
 }

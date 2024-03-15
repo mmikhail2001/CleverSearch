@@ -5,19 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"path/filepath"
+	"regexp"
 
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+	"github.com/dranikpg/dto-mapper"
 	"github.com/minio/minio-go/v7"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/file"
 	"github.com/streadway/amqp"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-var minioHost string = "localhost:9000"
-var channelName string = "transmit-queue"
 
 type Repository struct {
 	minio           *minio.Client
@@ -34,24 +32,15 @@ func NewRepository(minio *minio.Client, mongo *mongo.Database, channelRabbitMQ *
 }
 
 func (r *Repository) CreateFile(ctx context.Context, file file.File) error {
-	dto := fileDTO{
-		ID:          file.ID,
-		Filename:    file.Filename,
-		Size:        file.Size,
-		ContentType: file.ContentType,
-		Extension:   filepath.Ext(file.Filename),
-		Status:      string(file.Status),
-		UserID:      file.UserID,
-		Path:        file.Path,
-		Bucket:      file.Bucket,
-		TimeCreated: file.TimeCreated,
-		IsDir:       file.IsDir,
-		IsShared:    file.IsShared,
-		Link:        file.Link,
+	var fileDTO fileDTO
+	err := dto.Map(&fileDTO, &file)
+	if err != nil {
+		log.Println("Dto Map CreateFile repo error:", err)
+		return err
 	}
 
 	collection := r.mongo.Collection("files")
-	_, err := collection.InsertOne(ctx, dto)
+	_, err = collection.InsertOne(ctx, fileDTO)
 	if err != nil {
 		log.Println("Failed to insert to mongo:", err)
 		return err
@@ -69,17 +58,15 @@ func (r *Repository) DeleteFile(ctx context.Context, file file.File) error {
 }
 
 func (r *Repository) CreateDir(ctx context.Context, file file.File) error {
-	dto := fileDTO{
-		ID:          file.ID,
-		UserID:      file.UserID,
-		Path:        file.Path,
-		TimeCreated: file.TimeCreated,
-		IsDir:       file.IsDir,
-		IsShared:    file.IsShared,
+	var fileDTO fileDTO
+	err := dto.Map(&fileDTO, &file)
+	if err != nil {
+		log.Println("Dto Map CreateDir repo error:", err)
+		return err
 	}
 
 	collection := r.mongo.Collection("files")
-	_, err := collection.InsertOne(ctx, dto)
+	_, err = collection.InsertOne(ctx, fileDTO)
 	if err != nil {
 		log.Println("Failed to insert to mongo:", err)
 		return err
@@ -98,6 +85,7 @@ func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) (
 
 	cursor, err := r.mongo.Collection("files").Find(ctx, filter, opts)
 	if err != nil {
+		log.Println("Get collection files error:", err)
 		return nil, err
 	}
 	defer cursor.Close(ctx)
@@ -107,31 +95,21 @@ func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) (
 		var dto fileDTO
 		err := cursor.Decode(&dto)
 		if err != nil {
+			log.Println("Cursor Decode error:", err)
 			return nil, err
 		}
 		resultsDTO = append(resultsDTO, dto)
 	}
 
 	results := make([]file.File, len(resultsDTO))
-	for i, fileDTO := range resultsDTO {
-		results[i] = file.File{
-			ID:          fileDTO.ID,
-			Filename:    fileDTO.Filename,
-			Size:        fileDTO.Size,
-			ContentType: fileDTO.ContentType,
-			Status:      file.StatusType(fileDTO.Status),
-			TimeCreated: fileDTO.TimeCreated,
-			UserID:      fileDTO.UserID,
-			Path:        fileDTO.Path,
-			Bucket:      fileDTO.Bucket,
-			IsDir:       fileDTO.IsDir,
-			IsShared:    fileDTO.IsShared,
-			Extension:   fileDTO.Extension,
-			Link:        fileDTO.Link,
-		}
+	err = dto.Map(&results, &resultsDTO)
+	if err != nil {
+		log.Println("Dto Map Search repo error:", err)
+		return []file.File{}, err
 	}
 
 	if err := cursor.Err(); err != nil {
+		log.Println("Cursor error:", err)
 		return nil, err
 	}
 
@@ -145,8 +123,7 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 	}
 
 	if fileOptions.Dir != "all" {
-		// TODO: sdflksdlf
-		filter["path"] = bson.M{"$regex": "^" + fileOptions.Dir}
+		filter["path"] = bson.M{"$regex": "^" + regexp.QuoteMeta(fileOptions.Dir) + "/"}
 	}
 
 	if fileOptions.Shared {
@@ -159,14 +136,17 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 
 	if fileOptions.OnlyDirs {
 		filter["is_dir"] = true
+	} else {
+		filter["is_dir"] = false
 	}
 
-	// сортировка нужна по дате добавления
+	// TODO: сортировка нужна по дате добавления
 	opts := options.Find().SetSort(bson.D{{Key: "filename", Value: 1}})
 	opts = opts.SetLimit(int64(fileOptions.Limit)).SetSkip(int64(fileOptions.Offset))
 
 	cursor, err := r.mongo.Collection("files").Find(ctx, filter, opts)
 	if err != nil {
+		log.Println("Get collection files error:", err)
 		return nil, err
 	}
 	defer cursor.Close(ctx)
@@ -182,25 +162,15 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 	}
 
 	results := make([]file.File, len(resultsDTO))
-	for i, fileDTO := range resultsDTO {
-		results[i] = file.File{
-			ID:          fileDTO.ID,
-			Filename:    fileDTO.Filename,
-			Size:        fileDTO.Size,
-			ContentType: fileDTO.ContentType,
-			Status:      file.StatusType(fileDTO.Status),
-			TimeCreated: fileDTO.TimeCreated,
-			UserID:      fileDTO.UserID,
-			Path:        fileDTO.Path,
-			Bucket:      fileDTO.Bucket,
-			IsDir:       fileDTO.IsDir,
-			IsShared:    fileDTO.IsShared,
-			Extension:   fileDTO.Extension,
-			Link:        fileDTO.Link,
-		}
+	// TODO:
+	err = dto.Map(&results, &resultsDTO)
+	if err != nil {
+		log.Println("Dto Map GetFiles repo error:", err)
+		return nil, err
 	}
 
 	if err := cursor.Err(); err != nil {
+		log.Println("Cursor error:", err)
 		return nil, err
 	}
 
@@ -218,23 +188,14 @@ func (r *Repository) GetFileByID(ctx context.Context, uuidFile string) (file.Fil
 		}
 		return file.File{}, err
 	}
-	file := file.File{
-		ID:          resultDTO.ID,
-		Filename:    resultDTO.Filename,
-		Size:        resultDTO.Size,
-		ContentType: resultDTO.ContentType,
-		Status:      file.StatusType(resultDTO.Status),
-		IsShared:    resultDTO.IsShared,
-		IsDir:       resultDTO.IsDir,
-		Path:        resultDTO.Path,
-		Bucket:      resultDTO.Bucket,
-		UserID:      resultDTO.UserID,
-		TimeCreated: resultDTO.TimeCreated,
-		Extension:   resultDTO.Extension,
-		Link:        resultDTO.Link,
+	var fileRes file.File
+	err = dto.Map(&fileRes, &resultDTO)
+	if err != nil {
+		log.Println("Dto Map GetFileByID repo error:", err)
+		return file.File{}, err
 	}
 
-	return file, nil
+	return fileRes, nil
 }
 
 // TODO: объединить с GetFileByID
@@ -249,23 +210,13 @@ func (r *Repository) GetFileByPath(ctx context.Context, path string) (file.File,
 		}
 		return file.File{}, err
 	}
-	file := file.File{
-		ID:          resultDTO.ID,
-		Filename:    resultDTO.Filename,
-		Size:        resultDTO.Size,
-		ContentType: resultDTO.ContentType,
-		Status:      file.StatusType(resultDTO.Status),
-		IsShared:    resultDTO.IsShared,
-		IsDir:       resultDTO.IsDir,
-		Path:        resultDTO.Path,
-		Bucket:      resultDTO.Bucket,
-		UserID:      resultDTO.UserID,
-		TimeCreated: resultDTO.TimeCreated,
-		Extension:   resultDTO.Extension,
-		Link:        resultDTO.Link,
+	var fileRes file.File
+	err = dto.Map(&fileRes, &resultDTO)
+	if err != nil {
+		log.Println("Dto Map GetFileByID repo error:", err)
+		return file.File{}, err
 	}
-
-	return file, nil
+	return fileRes, nil
 }
 
 func (r *Repository) Update(ctx context.Context, file file.File) error {

@@ -3,15 +3,17 @@ package file
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
+	"strings"
 	"time"
 
+	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+	fileDomain "github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/notifier"
 	"github.com/google/uuid"
-	"github.com/mmikhail2001/test-clever-search/internal/delivery/shared"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/cleveruser"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/file"
-	fileDomain "github.com/mmikhail2001/test-clever-search/internal/domain/file"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/notifier"
 )
 
 var eventChangeStatus = "changeStatus"
@@ -28,23 +30,58 @@ func NewUsecase(repo Repository, notifyUsecase NotifyUsecase) *Usecase {
 	}
 }
 
-func (uc *Usecase) Upload(ctx context.Context, file file.File) (file.File, error) {
+func getFileExtension(filename string) string {
+	parts := strings.Split(filename, ".")
+	if len(parts) > 1 {
+		return parts[len(parts)-1]
+	}
+	return ""
+}
+
+func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDomain.File) (fileDomain.File, error) {
+	if !strings.HasPrefix(file.Path, "/") {
+		log.Printf("Directory path [%s] does not start with /\n", file.Path)
+		return fileDomain.File{}, fmt.Errorf("directory path [%s] does not start with /", file.Path)
+	}
+	pathComponents := strings.Split(file.Path, "/")
+
+	// TODO: при условии, что в начале /
+	for i := 1; i < len(pathComponents)-1; i++ {
+		dirPath := strings.Join(pathComponents[:i+1], "/")
+		_, err := uc.repo.GetFileByPath(ctx, dirPath)
+		if err != nil {
+			log.Printf("Error checking directory %s existence: %v\n", dirPath, err)
+			return file, err
+		}
+	}
+
+	_, err := uc.repo.GetFileByPath(ctx, file.Path)
+	if err == nil {
+		log.Println("Upload: the file path already exists")
+		return fileDomain.File{}, fmt.Errorf("the file path already exists")
+	}
+
 	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
 	if !ok {
 		return file, fmt.Errorf("user not found in context")
 	}
 
-	file, err := uc.repo.UploadToStorage(ctx, file)
-	if err != nil {
-		log.Println("UploadToStorage repo error:", err)
-		return file, err
-	}
+	bucketName := strings.Split(user.Email, "@")[0]
 
+	file.Extension = getFileExtension(file.Filename)
+	file.UserID = user.ID
+	file.Bucket = bucketName
 	file.Status = fileDomain.Uploaded
 	file.TimeCreated = time.Now()
 	file.ID = uuid.New().String()
 	file.IsDir = false
 	file.IsShared = false
+
+	file, err = uc.repo.UploadToStorage(ctx, fileReader, file)
+	if err != nil {
+		log.Println("UploadToStorage repo error:", err)
+		return file, err
+	}
 
 	err = uc.repo.CreateFile(ctx, file)
 	if err != nil {
@@ -53,11 +90,11 @@ func (uc *Usecase) Upload(ctx context.Context, file file.File) (file.File, error
 	}
 
 	uc.notifyUsecase.Notify(notifier.Notify{
-		Event:  eventChangeStatus,
-		UserID: user.ID,
-		Path:   file.Path,
-		Status: string(file.Status),
-		Link:   file.Link,
+		Event:    eventChangeStatus,
+		UserID:   user.ID,
+		Path:     file.Path,
+		Status:   string(file.Status),
+		FileType: file.FileType,
 	})
 
 	err = uc.repo.PublishMessage(ctx, file)
@@ -68,11 +105,41 @@ func (uc *Usecase) Upload(ctx context.Context, file file.File) (file.File, error
 	return file, nil
 }
 
-func (uc *Usecase) GetFiles(ctx context.Context, options file.FileOptions) ([]file.File, error) {
+func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions) ([]fileDomain.File, error) {
+	if options.Dir != "" && !strings.HasPrefix(options.Dir, "/") {
+		log.Printf("Directory path [%s] does not start with /\n", options.Dir)
+		return []fileDomain.File{}, fmt.Errorf("directory path [%s] does not start with /", options.Dir)
+	}
 	return uc.repo.GetFiles(ctx, options)
 }
 
-func (uc *Usecase) CreateDir(ctx context.Context, file file.File) (file.File, error) {
+func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDomain.File, error) {
+	if file.Path == "" {
+		log.Printf("CreateDir: dir path is empty")
+		return fileDomain.File{}, fmt.Errorf("CreateDir: dir path is empty")
+	}
+	if !strings.HasPrefix(file.Path, "/") {
+		log.Printf("Directory path [%s] does not start with /\n", file.Path)
+		return fileDomain.File{}, fmt.Errorf("directory path [%s] does not start with /", file.Path)
+	}
+	_, err := uc.repo.GetFileByPath(ctx, file.Path)
+	if err == nil {
+		log.Println("CreateDir: the dir path already exists")
+		return fileDomain.File{}, fmt.Errorf("the dir path already exists")
+	}
+
+	pathComponents := strings.Split(file.Path, "/")
+
+	// TODO: при условии, что в начале /
+	for i := 1; i < len(pathComponents)-1; i++ {
+		dirPath := strings.Join(pathComponents[:i+1], "/")
+		_, err := uc.repo.GetFileByPath(ctx, dirPath)
+		if err != nil {
+			log.Printf("Error checking directory %s existence: %v\n", dirPath, err)
+			return file, err
+		}
+	}
+
 	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
 	if !ok {
 		return file, fmt.Errorf("user not found in context")
@@ -83,8 +150,7 @@ func (uc *Usecase) CreateDir(ctx context.Context, file file.File) (file.File, er
 	file.ID = uuid.New().String()
 	file.IsDir = true
 	file.IsShared = false
-	// TODO: нужно проверка, что все директории в цепочке (кроме последней), существуют
-	err := uc.repo.CreateDir(ctx, file)
+	err = uc.repo.CreateDir(ctx, file)
 	if err != nil {
 		log.Println("CreateDir repo error:", err)
 		return file, err
@@ -92,7 +158,11 @@ func (uc *Usecase) CreateDir(ctx context.Context, file file.File) (file.File, er
 	return file, nil
 }
 
-func (uc *Usecase) Search(ctx context.Context, options file.FileOptions) ([]file.File, error) {
+func (uc *Usecase) Search(ctx context.Context, options fileDomain.FileOptions) ([]fileDomain.File, error) {
+	if !strings.HasPrefix(options.Dir, "/") {
+		log.Printf("Directory path [%s] does not start with /\n", options.Dir)
+		return []fileDomain.File{}, fmt.Errorf("directory path [%s] does not start with /", options.Dir)
+	}
 	if options.IsSmartSearch {
 		return uc.repo.SmartSearch(ctx, options)
 	}
@@ -100,6 +170,12 @@ func (uc *Usecase) Search(ctx context.Context, options file.FileOptions) ([]file
 }
 
 func (uc *Usecase) DeleteFiles(ctx context.Context, filePaths []string) error {
+	for _, path := range filePaths {
+		if !strings.HasPrefix(path, "/") {
+			log.Printf("DeleteFiles: Directory path [%s] does not start with /\n", path)
+			return fmt.Errorf("deleteFiles: Directory path [%s] does not start with /", path)
+		}
+	}
 	var files []file.File
 	for _, path := range filePaths {
 		file, err := uc.repo.GetFileByPath(ctx, path)
@@ -142,17 +218,12 @@ func (uc *Usecase) CompleteProcessingFile(ctx context.Context, uuidFile string) 
 		return err
 	}
 
-	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
-	if !ok {
-		return fmt.Errorf("user not found in context")
-	}
-
 	uc.notifyUsecase.Notify(notifier.Notify{
-		Event:  eventChangeStatus,
-		UserID: user.ID,
-		Path:   file.Path,
-		Status: string(file.Status),
-		Link:   file.Link,
+		Event:    eventChangeStatus,
+		UserID:   file.UserID,
+		Path:     file.Path,
+		Status:   string(file.Status),
+		FileType: file.FileType,
 	})
 	return nil
 }

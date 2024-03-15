@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	"github.com/mmikhail2001/test-clever-search/internal/domain/cleveruser"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -38,10 +38,16 @@ func (r *Repository) CreateUser(ctx context.Context, user cleveruser.User) (clev
 func (r *Repository) GetUserByEmail(ctx context.Context, email string) (cleveruser.User, error) {
 	collection := r.mongo.Collection("users")
 
-	var user cleveruser.User
-	err := collection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
+	var userDTO UserDTO
+	err := collection.FindOne(ctx, bson.M{"email": email}).Decode(&userDTO)
 	if err != nil {
-		return user, err
+		return cleveruser.User{}, err
+	}
+
+	user := cleveruser.User{
+		ID:       userDTO.ID,
+		Email:    userDTO.Email,
+		Password: userDTO.Password,
 	}
 
 	return user, nil

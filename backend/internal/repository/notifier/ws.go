@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/notifier"
 	"github.com/gorilla/websocket"
-	"github.com/mmikhail2001/test-clever-search/internal/domain/notifier"
 )
 
 type Gateway struct {

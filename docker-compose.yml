@@ -39,10 +39,10 @@ services:
     networks:
       clevernet:
 
-  # dd compose stop backend && dd compose up --build backend
+  # docker compose stop backend && docker compose up --build backend
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     restart: always
     ports:
@@ -56,19 +56,19 @@ services:
     networks:
       clevernet:
 
-  mlcore:
-    build:
-      context: ./MLCore
-      dockerfile: Dockerfile
-    restart: always
-    ports:
-      - 8081:8081
-    depends_on:
-      - rabbitmq
-      - mongodb
-      - minio
-    networks:
-      clevernet:
+  # mlcore:
+  #   build:
+  #     context: ./MLCore
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   ports:
+  #     - 8081:8081
+  #   depends_on:
+  #     - rabbitmq
+  #     - mongodb
+  #     - minio
+  #   networks:
+  #     clevernet:
 
 volumes:
   minio_data:

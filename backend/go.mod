@@ -1,14 +1,14 @@
-module github.com/mmikhail2001/test-clever-search
+module github.com/WindowsKonon1337/CleverSearch
 
 go 1.21.0
 
 require (
-	github.com/dranikpg/go-dto v1.0.0
+	github.com/dranikpg/dto-mapper v0.2.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.1
-	github.com/minio/minio-go/v7 v7.0.68
+	github.com/minio/minio-go/v7 v7.0.69
 	github.com/streadway/amqp v1.1.0
 	go.mongodb.org/mongo-driver v1.14.0
 	golang.org/x/crypto v0.21.0

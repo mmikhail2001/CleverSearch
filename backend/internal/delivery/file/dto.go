@@ -2,29 +2,27 @@ package file
 
 import (
 	"time"
+
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 )
 
-type AccessType string
-
 type FileDTO struct {
-	ID       string `json:"id"`
-	Filename string `json:"filename"`
-	UserID   string `json:"user_id"`
-	Path     string `json:"path"`
-	Bucket   string `json:"bucket"`
-	IsShared bool   `json:"is_shared"`
-	Sharing  struct {
-		AuthorID string `json:"author_id"`
-		Access   string `json:"access"`
-		IsOwner  bool   `json:"is_owner"`
-	} `json:"sharing"`
-	DateCreated time.Time `json:"date_created"`
-	IsDir       bool      `json:"is_dir"`
-	Size        string    `json:"size"`
-	ContentType string    `json:"content_type"`
-	Extension   string    `json:"extension"`
-	Status      string    `json:"status"`
-	Link        string    `json:"link"`
+	ID            string          `json:"id"`
+	Filename      string          `json:"filename"`
+	TimeCreated   time.Time       `json:"time_created"`
+	UserID        string          `json:"user_id"`
+	Path          string          `json:"path"`
+	Bucket        string          `json:"bucket"`
+	IsDir         bool            `json:"is_dir"`
+	FileType      file.FileType   `json:"file_type"`
+	Size          int64           `json:"size"`
+	ContentType   string          `json:"content_type"`
+	Extension     string          `json:"extension"`
+	Status        file.StatusType `json:"status"`
+	IsShared      bool            `json:"is_shared"`
+	ShareAccess   file.AccessType `json:"share_access"`
+	ShareLink     string          `json:"share_link"`
+	ShareAuthorID string          `json:"share_author_id"`
 }
 
 type DeleteFilesDTO struct {
