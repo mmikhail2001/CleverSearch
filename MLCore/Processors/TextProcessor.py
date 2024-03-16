@@ -24,7 +24,7 @@ class TextProcessor(IDataProcessor):
                 padding=True)
 
             embedding = self.model(**encodes).last_hidden_state[:, 0, :]
-            embeddings.append(embedding)
+            embeddings.append(embedding.tolist())
 
         return embeddings
 
@@ -37,4 +37,4 @@ class TextProcessor(IDataProcessor):
             padding=True)
 
         query_embedding = self.model(**query_tokens).last_hidden_state[:, 0, :]
-        return query_embedding
+        return query_embedding.tolist()
