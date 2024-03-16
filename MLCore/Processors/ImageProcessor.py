@@ -1,14 +1,29 @@
 import torch
+from transformers import AutoTokenizer, AutoModel
+import logging
 import numpy as np
 from IDataProcessor import IDataProcessor
 from PIL import Image
 from collections import OrderedDict
 import sys
 from easyocr import Reader
+from TextPreprocessor import TextPreprocessor
 sys.path.insert(1, '/')
 sys.path.insert(2, '/CRAFT/')
 from CRAFT.craft import CRAFT
 from CRAFT.test import test_net
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+
+logger.addHandler(console_handler)
+
 
 
 class ImageProcessor(IDataProcessor):
@@ -20,20 +35,46 @@ class ImageProcessor(IDataProcessor):
         self.craft_instance = CRAFT()
         self.craft_instance.eval()
 
-        self.reader = Reader(['ru', 'en'], gpu=not cpu)
+        self.reader = Reader(['ru'], gpu=not cpu)
 
         if cpu:
             self.craft_instance.load_state_dict(self.__copyStateDict(torch.load(self.craft_weights_path, map_location='cpu')))
         else:
             self.craft_instance.load_state_dict(self.__copyStateDict(torch.load(self.craft_weights_path)))
 
-        print('success!')
+        logger.info('CRAFT init >> status: success')
+
+        BERT_MODEL_NAME = 'cointegrated/rubert-tiny'
+
+        self.bert_tokenizer = AutoTokenizer.from_pretrained(BERT_MODEL_NAME)
+        self.bert = AutoModel.from_pretrained(BERT_MODEL_NAME)
+        self.bert = self.bert.eval()
+
+        logger.info('bert init >> status: success')
+        
+        logger.info('Image Processor started!')
 
     def process(self, img: Image)->str:
-        bboxes = self.__get_text_bboxes(img)
-        img_crops = self.__crop_image(img, bboxes)
-        string = self.__get_string_from_crops(img_crops).lower()
-        return string
+        try:
+            bboxes = self.__get_text_bboxes(img)
+            if not len(bboxes):
+                logger.warning(f'{img.filename}: >> text not found')
+            img_crops = self.__crop_image(img, bboxes)
+            string = self.__get_string_from_crops(img_crops).lower()
+            
+            processed_str_list = TextPreprocessor(string).process()
+
+            logger.debug(f'processed list: {processed_str_list} \n length: {len(processed_str_list)}')
+
+            emds_list = self.__encode_processed_string(processed_str_list)
+
+            return emds_list
+
+        except Exception as e:
+            logger.critical(
+                e, exc_info=True
+            )
+            return None
     
     def __get_string_from_crops(self, crops: list)->str:
         result = []
@@ -41,10 +82,21 @@ class ImageProcessor(IDataProcessor):
             word = self.reader.readtext(np.array(crop), detail=False)
             if len(word):
                 result.append(
-                    *word
+                    ' '.join(word)
                 )
 
         return ' '.join(result)
+    
+
+    def __encode_processed_string(self, processed_string):
+        embeddings = []
+        for sentence in processed_string:
+            tokens = self.bert_tokenizer(sentence, return_tensors='pt', padding=True)
+            embeddings.append(
+                self.bert(**tokens).last_hidden_state[:, 0, :]
+            )
+
+        return embeddings
 
     def __copyStateDict(self, state_dict):
         if list(state_dict.keys())[0].startswith("module"):
@@ -72,8 +124,12 @@ class ImageProcessor(IDataProcessor):
             )
         return result
 
-if __name__ == '__main__':
-    processor = ImageProcessor('./MLCore/CRAFT/craft_mlt_25k.pth')
 
-    img = Image.open('./hwt_rus.jpg')
-    print(processor.process(img))
+if __name__ == '__main__':
+    proc = ImageProcessor(craft_weights_path='MLCore/weights/craft_mlt_25k.pth')
+
+    img = Image.open(
+        '/home/windowskonon1337/Downloads/hwt_rus.jpg'
+    )
+
+    proc.process(img)
