@@ -4,10 +4,19 @@ from minio import Minio
 import json
 import sys
 import requests
+import logging
 sys.path.insert(5, './MLCore/')
 sys.path.insert(6, './MLCore/Services')
+sys.path.insert(7, './MLCore/utils')
+from utils.get_console_logger import get_console_logger
 from Services.ImageService import ImageService
 from Services.service_interfaces import IDataService
+
+
+logger = get_console_logger(
+    __name__,
+    logging.DEBUG
+)
 
 
 class MLDispatcher:
@@ -43,9 +52,11 @@ class MLDispatcher:
                 body.decode()
             )['id']
 
-            print(body.decode())
+            logging.critical(f'decoded body: {body.decode()}')
 
             file_type = self.collection.find_one({'_id': doc_uuid})['file_type']
+
+            logging.critical(f'doc_uuid: {doc_uuid} || file type: {file_type}')
 
             self.services[file_type].update_collection_file(
                 doc_uuid

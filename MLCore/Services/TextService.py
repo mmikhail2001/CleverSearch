@@ -1,10 +1,21 @@
 import os
 
 from minio import Minio
+import logging
 from Processors import IDataProcessor
 from Processors.TextProcessor import TextProcessor
 from pymongo.collection import Collection
 from service_interfaces import IDataService
+import sys
+sys.path.insert(0, './MLCore/utils')
+from utils.get_console_logger import get_console_logger
+
+
+logger = get_console_logger(
+    __name__,
+    logging.DEBUG
+)
+
 
 
 class TextService(IDataService):
@@ -23,9 +34,9 @@ class TextService(IDataService):
         self.num_of_insts = num_of_insts
         self.worker = proc_cls()
 
-    def update_collection_file(self, uuid: str):
+        logger.info('Text Service ')
 
-        print('Я ТУТ !!!')
+    def update_collection_file(self, uuid: str):
 
         document = self.mongo_collection.find_one({'_id': uuid})
 
@@ -38,7 +49,7 @@ class TextService(IDataService):
         )
 
         proc_list = self.worker.process(local_file_path)
-        print(proc_list)
+        logger.debug(proc_list)
 
         os.remove(local_file_path)
 

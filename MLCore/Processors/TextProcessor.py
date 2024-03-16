@@ -1,6 +1,15 @@
 from IDataProcessor import IDataProcessor
-from TextPreprocessor import TextPreprocessor
+from TextPreprocessor import TextPreprocessor, TextReader
 from transformers import AutoModel, AutoTokenizer
+import logging
+import sys
+sys.path.insert(0, './MLCore/utils')
+from utils.get_console_logger import get_console_logger
+
+logger = get_console_logger(
+    __name__,
+    logging.INFO
+)
 
 
 class TextProcessor(IDataProcessor):
@@ -12,8 +21,12 @@ class TextProcessor(IDataProcessor):
         self.model.eval()
 
     def process(self, filename):
-        preprocessor = TextPreprocessor(filename)
+        preprocessor = TextPreprocessor(
+            TextReader(filename)
+        )
         text = preprocessor.process()
+
+        logger.debug(f'preprocessed text: {text}')
 
         embeddings = []
 

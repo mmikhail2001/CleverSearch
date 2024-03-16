@@ -27,6 +27,8 @@ def setup_search_handler(args):
 
         df = DataFrame(list_cur)
 
+        print(df)
+
         list_embs = [list(val.values())[0] for val in df.ml_data]
 
         text_processor = TextProcessor

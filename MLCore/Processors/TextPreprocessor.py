@@ -6,7 +6,15 @@ from pypdf import PdfReader
 
 nltk.download('stopwords')
 from nltk.corpus import stopwords
+import logging
+import sys
+sys.path.insert(0, './MLCore/utils')
+from utils.get_console_logger import get_console_logger
 
+logger = get_console_logger(
+    __name__,
+    logging.DEBUG
+)
 
 class TextReader:
     def __init__(self, filename) -> None:
@@ -20,11 +28,14 @@ class TextReader:
 
 
 class TextPreprocessor:
-    def __init__(self, string) -> None:
+    def __init__(self, readable: str | TextReader) -> None:
         self.morph = pymorphy2.MorphAnalyzer()
         self.stopwords_ru = stopwords.words("russian")
-        # reader = TextReader(filename)
-        self.text = string
+        if isinstance(readable, str):
+            self.text = readable
+        else:
+            self.text = readable.read()
+        logger.info(self.text)
 
     def process(self):
         cleaned_text = self.__clean_string(self.text)
@@ -67,10 +78,3 @@ class TextPreprocessor:
         filtered_sentence = [w for w in input_string
                             if not w.lower() in self.stopwords_ru]
         return filtered_sentence
-
-
-if __name__ == '__main__':
-    text = 'Task3.pdf'
-    text_processor = TextPreprocessor(text)
-    processed_text = text_processor.process()
-    print(processed_text)
