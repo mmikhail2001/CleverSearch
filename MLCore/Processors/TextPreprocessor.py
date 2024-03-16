@@ -13,7 +13,7 @@ from utils.get_console_logger import get_console_logger
 
 logger = get_console_logger(
     __name__,
-    logging.DEBUG
+    logging.INFO
 )
 
 class TextReader:
@@ -35,7 +35,7 @@ class TextPreprocessor:
             self.text = readable
         else:
             self.text = readable.read()
-        logger.info(self.text)
+        logger.debug(self.text)
 
     def process(self):
         cleaned_text = self.__clean_string(self.text)

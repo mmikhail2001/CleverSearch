@@ -49,7 +49,6 @@ class TextService(IDataService):
         )
 
         proc_list = self.worker.process(local_file_path)
-        logger.debug(proc_list)
 
         os.remove(local_file_path)
 
