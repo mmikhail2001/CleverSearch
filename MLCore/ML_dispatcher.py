@@ -35,7 +35,7 @@ class MLDispatcher:
             'img': None,
             'audio': None,
             'video': None,
-            'document': None
+            'text': None
         }
 
     def __callback(self, ch, method, properties, body):

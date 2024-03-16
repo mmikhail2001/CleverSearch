@@ -25,6 +25,8 @@ class TextService(IDataService):
 
     def update_collection_file(self, uuid: str):
 
+        print('Я ТУТ !!!')
+
         document = self.mongo_collection.find_one({'_id': uuid})
 
         local_file_path = f'./{document["bucket"]}_{document["path"][1:]}'
@@ -36,6 +38,7 @@ class TextService(IDataService):
         )
 
         proc_list = self.worker.process(local_file_path)
+        print(proc_list)
 
         os.remove(local_file_path)
 
