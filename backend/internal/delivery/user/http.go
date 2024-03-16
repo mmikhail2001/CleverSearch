@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
@@ -37,7 +38,14 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println("Register usecase error:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		switch {
+		case errors.Is(err, cleveruser.ErrUserAlreadyExists):
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(0, cleveruser.ErrUserAlreadyExists.Error(), nil))
+		default:
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -60,7 +68,15 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println("Login usecase error:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		switch {
+		case errors.Is(err, cleveruser.ErrUserNotFound) || errors.Is(err, cleveruser.ErrNotValidPassword):
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(0, cleveruser.ErrWrongCredentials.Error(), nil))
+		default:
+			w.WriteHeader(http.StatusInternalServerError)
+
+		}
+		return
 	}
 
 	http.SetCookie(w, &http.Cookie{
@@ -76,22 +92,31 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	sessionCookie, err := r.Cookie(shared.CookieName)
 	if err != nil {
 		log.Println("Logout without cookie:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(shared.NewResponse(0, cleveruser.ErrCookieNotFound.Error(), nil))
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	err = h.usecase.Logout(r.Context(), sessionCookie.Value)
-	if err != nil {
-		log.Println("Logout usecase error:", err)
-		w.WriteHeader(http.StatusBadRequest)
-	}
-
 	http.SetCookie(w, &http.Cookie{
 		Name:   shared.CookieName,
 		Value:  "",
 		Path:   "/",
 		MaxAge: -1,
 	})
+
+	if err != nil {
+		log.Println("Logout usecase error:", err)
+		switch {
+		case errors.Is(err, cleveruser.ErrSessionNotFound):
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(0, cleveruser.ErrSessionNotFound.Error(), nil))
+			w.WriteHeader(http.StatusOK)
+		default:
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 }
 

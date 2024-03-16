@@ -14,15 +14,13 @@ from CRAFT.craft import CRAFT
 from CRAFT.test import test_net
 
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+sys.path.insert(0, './MLCore/utils')
+from utils.get_console_logger import get_console_logger
 
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-console_handler.setFormatter(formatter)
-
-logger.addHandler(console_handler)
+logger = get_console_logger(
+    __name__,
+    logging.INFO
+)
 
 
 
@@ -123,13 +121,3 @@ class ImageProcessor(IDataProcessor):
                 )
             )
         return result
-
-
-if __name__ == '__main__':
-    proc = ImageProcessor(craft_weights_path='MLCore/weights/craft_mlt_25k.pth')
-
-    img = Image.open(
-        '/home/windowskonon1337/Downloads/hwt_rus.jpg'
-    )
-
-    proc.process(img)

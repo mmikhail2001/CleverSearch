@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -12,7 +13,7 @@ import (
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 )
 
-var APIServiceMLSearch = "http://mlcore/search"
+var APIServiceMLSearch = "http://mlcore:8081/search"
 
 func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptions) ([]file.File, error) {
 	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
@@ -25,8 +26,10 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 	queryParams.Set("file_type", string(fileOptions.FileType))
 	queryParams.Set("dir", fileOptions.Dir)
 	queryParams.Set("disk", string(fileOptions.Disk))
-	queryParams.Set("user_id", string(user.ID))
+	queryParams.Set("user_id", user.ID)
 	url := APIServiceMLSearch + "?" + queryParams.Encode()
+
+	// http://mlcore:8081/search?query=serer&file_type=img&dir=/&user_id=user_id
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -34,9 +37,13 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 	}
 	defer resp.Body.Close()
 
-	var response searchResponseDTO
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	var response searchResponseDTO
+	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
 		return nil, err
 	}
