@@ -14,4 +14,5 @@ type Usecase interface {
 	CompleteProcessingFile(ctx context.Context, uuid string) error
 	CreateDir(ctx context.Context, file file.File) (file.File, error)
 	DeleteFiles(ctx context.Context, filePaths []string) error
+	DownloadFile(ctx context.Context, filePath string) (io.ReadCloser, error)
 }

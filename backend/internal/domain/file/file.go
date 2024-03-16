@@ -48,6 +48,7 @@ type File struct {
 	ShareAccess   AccessType
 	ShareLink     string
 	ShareAuthorID string
+	Link          string
 	// Disk
 }
 

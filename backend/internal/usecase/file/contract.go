@@ -21,6 +21,7 @@ type Repository interface {
 	Update(ctx context.Context, file file.File) error
 	UploadToStorage(ctx context.Context, fileReader io.Reader, file file.File) (file.File, error)
 	RemoveFromStorage(ctx context.Context, file file.File) error
+	DownloadFile(ctx context.Context, filePath string) (io.ReadCloser, error)
 }
 
 type NotifyUsecase interface {

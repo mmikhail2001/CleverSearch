@@ -53,6 +53,7 @@ services:
       - minio
     volumes:
       - ./frontend/build:/app/frontend/build
+      - minio_data:/app/minio_files
     networks:
       clevernet:
 

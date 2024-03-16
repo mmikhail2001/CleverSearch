@@ -74,11 +74,10 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 		return file, sharederrors.ErrUserNotFoundInContext
 	}
 
-	bucketName := strings.Split(user.Email, "@")[0]
-
+	file.Link = "/minio" + file.Path
+	file.Bucket = user.Bucket
 	file.Extension = getFileExtension(file.Filename)
 	file.UserID = user.ID
-	file.Bucket = bucketName
 	file.Status = fileDomain.Uploaded
 	file.TimeCreated = time.Now()
 	file.ID = uuid.New().String()
@@ -262,4 +261,8 @@ func (uc *Usecase) CompleteProcessingFile(ctx context.Context, uuidFile string) 
 		FileType: file.FileType,
 	})
 	return nil
+}
+
+func (uc *Usecase) DownloadFile(ctx context.Context, filePath string) (io.ReadCloser, error) {
+	return uc.repo.DownloadFile(ctx, filePath)
 }

@@ -3,8 +3,11 @@ package file
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
+	"mime"
 	"net/http"
+	"path/filepath"
 	"strings"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
@@ -188,6 +191,31 @@ func (h *Handler) CreateDir(w http.ResponseWriter, r *http.Request) {
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
 		}
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) DownloadFile(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path[len("/minio"):]
+	fileReader, err := h.usecase.DownloadFile(r.Context(), path)
+	if err != nil {
+		log.Println("filepath [", path, "] not found:", err)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	defer fileReader.Close()
+
+	contentType := mime.TypeByExtension(filepath.Ext(path))
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+
+	w.Header().Set("Content-Type", contentType)
+
+	if _, err := io.Copy(w, fileReader); err != nil {
+		log.Println("error copy fileReader to w:", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusOK)

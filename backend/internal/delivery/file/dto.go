@@ -23,6 +23,7 @@ type FileDTO struct {
 	ShareAccess   file.AccessType `json:"share_access"`
 	ShareLink     string          `json:"share_link"`
 	ShareAuthorID string          `json:"share_author_id"`
+	Link          string          `json:"link"`
 }
 
 type DeleteFilesDTO struct {

@@ -23,6 +23,7 @@ type fileDTO struct {
 	ShareAccess   file.AccessType `bson:"share_access"`
 	ShareLink     string          `bson:"share_link"`
 	ShareAuthorID string          `bson:"share_author_id"`
+	Link          string          `bson:"link"`
 	// Disk
 }
 

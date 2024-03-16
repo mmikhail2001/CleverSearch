@@ -5,7 +5,10 @@ import (
 	"io"
 	"log"
 
+	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/sharederrors"
 	"github.com/minio/minio-go/v7"
 )
 
@@ -50,4 +53,18 @@ func (r *Repository) RemoveFromStorage(ctx context.Context, file file.File) erro
 		return err
 	}
 	return nil
+}
+
+func (r *Repository) DownloadFile(ctx context.Context, filePath string) (io.ReadCloser, error) {
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println("User not found in context")
+		return nil, sharederrors.ErrUserNotFoundInContext
+	}
+
+	object, err := r.minio.GetObject(ctx, user.Bucket, filePath, minio.GetObjectOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return object, nil
 }

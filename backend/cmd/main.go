@@ -48,6 +48,7 @@ import (
 // ручка поиск - общее количестов + поиск в рамках директории + остальные фильтры
 
 var staticDir string = "/app/frontend/build"
+var staticDirMinio string = "/app/minio_files"
 
 func main() {
 
@@ -94,6 +95,8 @@ func Run() error {
 	fileHandler := fileDelivery.NewHandler(fileUsecase)
 	notifyDelivery := notifyDelivery.NewHandler(notifyUsecase)
 
+	middleware := middleware.NewMiddleware(userUsecase)
+
 	r := mux.NewRouter()
 
 	headers := handlers.AllowedHeaders([]string{"Content-Type"})
@@ -101,9 +104,11 @@ func Run() error {
 	origins := handlers.AllowedOrigins([]string{"*"})
 	r.Use(handlers.CORS(headers, methods, origins))
 
-	api := r.PathPrefix("/api").Subrouter()
+	minioRouter := r.PathPrefix("/minio").Subrouter()
+	minioRouter.Use(middleware.AuthMiddleware)
+	minioRouter.HandleFunc("/{path:.*}", fileHandler.DownloadFile).Methods("GET")
 
-	middleware := middleware.NewMiddleware(userUsecase)
+	api := r.PathPrefix("/api").Subrouter()
 	api.Use(middleware.AddJSONHeader)
 
 	apiAuth := api.Methods("GET", "POST").Subrouter()
@@ -128,6 +133,7 @@ func Run() error {
 
 	fileServer := http.FileServer(http.Dir(staticDir))
 	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("== fileserver: ", r.URL.Path)
 		if _, err := os.Stat(staticDir + r.URL.Path); err != nil {
 			http.ServeFile(w, r, staticDir+"/index.html")
 		} else {

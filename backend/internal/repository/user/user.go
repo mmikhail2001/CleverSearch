@@ -27,6 +27,7 @@ func (r *Repository) CreateUser(ctx context.Context, user cleveruser.User) (clev
 		ID:       user.ID,
 		Email:    user.Email,
 		Password: user.Password,
+		Bucket:   user.Bucket,
 	}
 
 	_, err := collection.InsertOne(ctx, userDTO)
@@ -55,6 +56,7 @@ func (r *Repository) GetUserByEmail(ctx context.Context, email string) (cleverus
 		ID:       userDTO.ID,
 		Email:    userDTO.Email,
 		Password: userDTO.Password,
+		Bucket:   userDTO.Bucket,
 	}
 
 	return user, nil

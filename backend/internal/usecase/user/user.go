@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"log"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -29,6 +30,7 @@ func (uc *Usecase) Register(ctx context.Context, user cleveruser.User) (cleverus
 		return user, cleveruser.ErrUserAlreadyExists
 	}
 	user.ID = uuid.New().String()
+	user.Bucket = strings.Split(user.Email, "@")[0]
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
