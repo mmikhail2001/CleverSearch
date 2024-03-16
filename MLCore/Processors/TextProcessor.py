@@ -42,7 +42,7 @@ class TextProcessor(IDataProcessor):
         return embeddings
 
     def process_query_string(self, query_string):
-        text_processor = TextProcessor(query_string)
+        text_processor = TextPreprocessor(query_string)
         processed_text = text_processor.process()
         query_tokens = self.tokenizer(
             processed_text,

@@ -62,19 +62,19 @@ def main(args):
             mongo_collection=args.mongo_collection_name
         )
 
-        # dispathcer.reg_service(ImageService, 'img')
+        dispathcer.reg_service(ImageService, 'img')
         dispathcer.reg_service(TextService, 'text')
 
         dispathcer.run()
-    # else:
+    else:
 
-    #     setup_search_handler(args)
+        setup_search_handler(args)
 
-    #     uvicorn.run(
-    #         app,
-    #         host='0.0.0.0',
-    #         port=args.search_serv_port
-    #     )
+        uvicorn.run(
+            app,
+            host='0.0.0.0',
+            port=args.search_serv_port
+        )
 
 if __name__ == '__main__':
 
