@@ -35,7 +35,7 @@ export const searchAPi = createApi({
 					`${showReq.query ? `&query=${showReq.query}` : ''}`,
 					`&disk=${showReq.disk ? showReq.disk : 'all'}`,
 					`&file_type=${showReq.fileType ? showReq.fileType.join(',') : 'all' as fileTypes}`,
-					`&dir=${showReq.dir && showReq.dir.length !== 0 ? showReq.dir : 'all'}`].join(''),
+					`&dir=${showReq.dir && showReq.dir.length !== 0 ? showReq.dir : '/'}`].join(''),
 				method: 'GET',
 			}),
 		}),

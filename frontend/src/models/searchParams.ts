@@ -45,6 +45,7 @@ export interface fileFile {
   size: string;
   'content_type': string;
   status: string;
+  link:string,
 }
 
 export interface SearchResponse {

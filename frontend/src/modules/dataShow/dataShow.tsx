@@ -12,7 +12,7 @@ import React from 'react';
 interface DataShowProps { }
 
 export const DataShow: FC<DataShowProps> = () => {
-	const [show, showResp] = useShowMutation({fixedCacheKey: 'show'});
+	const [show, showResp] = useShowMutation({ fixedCacheKey: 'show' });
 	const { currentDisk, dirs } = useAppSelector(
 		(state) => state.currentDirDisk
 	);
@@ -21,7 +21,7 @@ export const DataShow: FC<DataShowProps> = () => {
 	const paramsSearch = useAppSelector((state) => state.searchRequest);
 
 
-	const  [search, {data, ...searchResp}] = useSearchMutation({fixedCacheKey: 'search'});
+	const [search, { data, ...searchResp }] = useSearchMutation({ fixedCacheKey: 'search' });
 
 	const [deleteFile] = useDeleteFileMutation();
 	const dispatch = useDispatch();
@@ -44,42 +44,42 @@ export const DataShow: FC<DataShowProps> = () => {
 						)
 					}
 				>
-          Назад
+					Назад
 				</div>
 			</div>
 			{isShow
-				? <RenderFields 
-					data = {showResp.data?.body}
-					error = {showResp.error}
-					isError = {showResp.isError}
-					isLoading = {showResp.isLoading}
-					dispatch = {dispatch}
-					deleteFile = { 
-						(fileName:string): void => {
+				? <RenderFields
+					data={showResp.data?.body}
+					error={showResp.error}
+					isError={showResp.isError}
+					isLoading={showResp.isLoading}
+					dispatch={dispatch}
+					deleteFile={
+						(fileName: string): void => {
 							deleteFile([fileName]);
-							setTimeout(() => 
+							setTimeout(() =>
 								show(
 									{ limit: 10, offset: 0, disk: currentDisk, dir: dirs }),
-							100);
+								100);
 						}}
-					openFolder={(path)=> show({limit:10, offset:0, disk:currentDisk, dir: path.split('/')})}
+					openFolder={(path) => show({ limit: 10, offset: 0, disk: currentDisk, dir: path.split('/') })}
 				/>
 				: ''}
 			{isSearch
-				? <RenderFields 
-					data = {data?.body}
-					error = {searchResp.error}
-					isError = {searchResp.isError}
-					isLoading = {searchResp.isLoading}
-					dispatch = {dispatch}
-					deleteFile = { 
-						(fileName:string): void => {
+				? <RenderFields
+					data={data?.body}
+					error={searchResp.error}
+					isError={searchResp.isError}
+					isLoading={searchResp.isLoading}
+					dispatch={dispatch}
+					deleteFile={
+						(fileName: string): void => {
 							deleteFile([fileName]);
-							setTimeout(() => 
+							setTimeout(() =>
 								search(paramsSearch),
-							100);
+								100);
 						}}
-					openFolder={(path)=> search({...paramsSearch, dir:path})}
+					openFolder={(path) => search({ ...paramsSearch, dir: path })}
 				/>
 				: ''}
 		</div>
