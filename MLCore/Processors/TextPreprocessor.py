@@ -20,11 +20,11 @@ class TextReader:
 
 
 class TextPreprocessor:
-    def __init__(self, filename) -> None:
+    def __init__(self, string) -> None:
         self.morph = pymorphy2.MorphAnalyzer()
         self.stopwords_ru = stopwords.words("russian")
-        reader = TextReader(filename)
-        self.text = reader.read()
+        # reader = TextReader(filename)
+        self.text = string
 
     def process(self):
         cleaned_text = self.__clean_string(self.text)

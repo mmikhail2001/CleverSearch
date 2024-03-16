@@ -42,19 +42,29 @@ class ImageService(IDataService):
             local_file_path
         )
         
-        proc_str = self.worker.process(
+        text_embeddings = self.worker.process(
             Image.open(
                 local_file_path
             )
         )
 
+        if text_embeddings:
+            self.__insert_text_repr_data(
+                document,
+                text_embeddings
+            )
+
         os.remove(local_file_path)
+
+    def __insert_text_repr_data(self, document, text_embeddings):
+
+        emds_vec = [embd.tolist() for embd in text_embeddings]
 
         upd_query = {
             '$set':
             {
                 'ml_data': {
-                    'text_repr': proc_str
+                    'text_repr': emds_vec
                 }
             }
         }
