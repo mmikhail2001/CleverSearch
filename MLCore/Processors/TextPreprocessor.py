@@ -25,6 +25,7 @@ class TextPreprocessor:
         self.stopwords_ru = stopwords.words("russian")
         reader = TextReader(filename)
         self.text = reader.read()
+        self.filtered_list = []
 
     def process(self):
         cleaned_text = self.__clean_string(self.text)
@@ -34,15 +35,18 @@ class TextPreprocessor:
 
         sentences = list(map(self.__remove_nonexistent_words, sentences))
 
-        filtered_list = [string for string in sentences if len(string) > 2]
+        self.filtered_list = [string for string in sentences if len(string) > 2]
 
-        lemmatized_list = list(map(self.__lemmatize, filtered_list))
+        lemmatized_list = list(map(self.__lemmatize, self.filtered_list))
 
         filtered_strings = list(map(self.__delete_stopwords, lemmatized_list))
 
         joined_string = [' '.join(string) for string in filtered_strings]
 
         return joined_string
+
+    def get_initial_texts(self):
+        return self.filtered_list
 
     def __clean_string(self, input_string):
         cleaned_string = re.sub(r'[^a-zA-Zа-яА-Я.,!? ]', '', input_string)
