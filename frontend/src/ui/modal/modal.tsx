@@ -27,7 +27,6 @@ export const Modal: FC<ModalProps> = ({
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
-            console.log(event.target)
             if (ref.current && (ref.current === event.target || !ref.current.contains(event.target as Node & EventTarget))) {
                 closeModal()
             }
@@ -39,17 +38,22 @@ export const Modal: FC<ModalProps> = ({
         };
     }, [ref]);
 
+
     return ReactDOM.createPortal(
         <dialog
+            style={isOpen ? {} : { display: 'none' }}
             ref={ref}
             aria-modal="true"
             aria-labelledby='dialog-title'
             className={className + ' ' + 'modal-dialog'}
         >
-            <div className='modal-body'>
-                {children}
-                <button onClick={closeModal}>Close</button>
-            </div>
+            {isOpen ?
+                <div className='modal-body'>
+                    {children}
+                    {/* TODO remove classname and set another */}
+                    <button onClick={closeModal} className='pdf-viewer'>Close</button>
+                </div>
+                : null}
         </dialog>,
         document.body
     )

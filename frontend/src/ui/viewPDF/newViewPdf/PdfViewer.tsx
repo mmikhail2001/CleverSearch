@@ -1,16 +1,31 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
-import PropTypes from "prop-types";
+import CSS from 'csstype';
+import { PDFPageProxy } from "pdfjs-dist";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import { VariableSizeList } from "react-window";
 import useResizeObserver from "use-resize-observer";
-import PdfPage from "./PdfPage";
 import Page from "./Page";
+import PdfPage from "./PdfPage";
 
-const PdfViewer = props => {
-  const { width, height, itemCount, getPdfPage, scale, gap, windowRef } = props;
+export interface PdfViewerProps {
+  itemCount: number,
+  getPdfPage: (index: number) => Promise<PDFPageProxy> | undefined,
+  scale: number,
+  gap: number,
+  windowRef: React.MutableRefObject<VariableSizeList>,
+  onLoad: () => void
+}
 
-  const [pages, setPages] = useState([]);
 
-  const listRef = useRef();
+const PdfViewer: FC<PdfViewerProps> = ({
+  itemCount,
+  getPdfPage,
+  scale,
+  gap,
+  windowRef,
+  onLoad,
+}) => {
+  const [pages, setPages] = useState([] as PDFPageProxy[]);
+  const listRef = useRef<VariableSizeList>();
 
   const {
     ref,
@@ -19,9 +34,10 @@ const PdfViewer = props => {
   } = useResizeObserver();
 
   const fetchPage = useCallback(
-    index => {
+    (index: number) => {
       if (!pages[index]) {
-        getPdfPage(index).then(page => {
+        getPdfPage(index)?.then((page: PDFPageProxy) => {
+          onLoad()
           setPages(prev => {
             const next = [...prev];
             next[index] = page;
@@ -35,7 +51,7 @@ const PdfViewer = props => {
   );
 
   const handleItemSize = useCallback(
-    index => {
+    (index: number) => {
       const page = pages[index];
       if (page) {
         const viewport = page.getViewport({ scale });
@@ -47,7 +63,7 @@ const PdfViewer = props => {
   );
 
   const handleListRef = useCallback(
-    elem => {
+    (elem: React.MutableRefObject<VariableSizeList>) => {
       listRef.current = elem;
       if (windowRef) {
         windowRef.current = elem;
@@ -60,15 +76,16 @@ const PdfViewer = props => {
     listRef.current.resetAfterIndex(0);
   }, [scale]);
 
+  // TODO replace with class
   const style = {
-    width,
-    height,
+    width: '100%',
+    height: '100%',
     border: "1px solid #ccc",
     background: "#ddd"
   };
 
   return (
-    <div ref={ref} style={style}>
+    <div className="pdf-viewer" ref={ref} style={style}>
       <VariableSizeList
         ref={handleListRef}
         width={internalWidth}
@@ -76,7 +93,7 @@ const PdfViewer = props => {
         itemCount={itemCount}
         itemSize={handleItemSize}
       >
-        {({ index, style }) => {
+        {({ index, style }: { index: number, style: CSS.Properties }) => {
           fetchPage(index);
           return (
             <Page style={style}>
@@ -87,23 +104,6 @@ const PdfViewer = props => {
       </VariableSizeList>
     </div>
   );
-};
-
-PdfViewer.propTypes = {
-  width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  itemCount: PropTypes.number.isRequired,
-  getPdfPage: PropTypes.func.isRequired,
-  scale: PropTypes.number,
-  gap: PropTypes.number,
-  windowRef: PropTypes.object
-};
-
-PdfViewer.defaultProps = {
-  width: "100%",
-  height: "400px",
-  scale: 1,
-  gap: 40
 };
 
 export default PdfViewer;

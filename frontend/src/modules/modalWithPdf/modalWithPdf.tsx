@@ -1,5 +1,4 @@
 import React, { FC, useEffect, useRef } from 'react';
-import { Button } from '@ui/button/Button';
 import { Modal } from '@ui/modal/modal';
 import { ViewPDF } from '@ui/viewPDF/viewPDF';
 import './ModalWithPDF.scss'
@@ -22,7 +21,7 @@ export const ModalWithPDF: FC<ModalWithPDFProps> = ({
     return (
         <div>
             <Modal className={'modal__pdf-show'} isOpen={isOpen} closeModal={close}>
-                <ViewPDF isVisible={isOpen} pdfURL={pdfURL} openPageInPDF={pageNumber} searchString={searchString}></ViewPDF>
+                <ViewPDF pdfURL={pdfURL} openPageInPDF={pageNumber} searchString={searchString}></ViewPDF>
             </Modal>
         </div >
     );

@@ -1,7 +1,13 @@
-import React from "react";
+import CSS from 'csstype';
+import React, { FC } from "react";
 
-const Page = React.memo(props => {
-  const { children, style } = props;
+
+export interface PageProps {
+  children: React.ReactNode,
+  style: CSS.Properties,
+}
+
+const Page: FC<PageProps> = React.memo(({ children, style }) => {
   const internalStyle = {
     ...style,
     display: "flex",

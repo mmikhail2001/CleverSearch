@@ -5,105 +5,30 @@ import * as pdfjsLib from 'pdfjs-dist';
 // import pdfjs from 'pdfjs-dist'
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import { Button, Variants } from '@ui/button/Button';
 import './viewPDF.scss'
 
-import { Test } from './test'
 import PdfUrlViewer from './newViewPDF/PdfUrlViewer'
-
-// pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
-
-function highlightPattern(text: string, pattern: string) {
-	// TODO make css class not inline style
-	const replacedText = text.replace(
-		pattern,
-		(value: string) =>
-			`<b style="background-color:yellow; color:black;">${value}</b>`
-	);
-
-	return replacedText;
-}
 
 export interface ViewPDFProps {
 	pdfURL: string;
 	openPageInPDF?: number;
 	searchString?: string;
-	isVisible: boolean;
 }
 
-console.log('version', pdfjsLib.version)
-// pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
-// pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/browse/pdfjs-dist@${pdfjs.version}/build/pdf.worker.mjs`;
+/**
+ * Render pdf document
+ * @param pdfURL is url where we get pdf 
+ * @param openPageInPDF what page to open when visualize pdf
+ * @param searchString not supported. For future updates 
+ * @returns 
+ */
+export const ViewPDF: FC<ViewPDFProps> = React.memo(({ pdfURL, openPageInPDF, searchString }) => {
+	// https://codesandbox.io/p/sandbox/3vnx878jk5?file=%2Findex.js%3A1%2C1-31%2C1 -- sample of code that in PdfUrlViewer
+	// react-window docs https://github.com/bvaughn/react-window?tab=readme-ov-file
+	// more docs https://react-window.vercel.app/#/examples/list/fixed-size
+	// Good examples https://codesandbox.io/examples/package/react-virtualized-auto-sizer
+	// https://www.youtube.com/watch?v=UrgfPjX97Yg&ab_channel=LogRocket
+	// search with pdfjs = https://stackoverflow.com/questions/35501417/how-to-search-with-pdf-js/39770115#39770115
+	return < PdfUrlViewer url={pdfURL} page={openPageInPDF} />
+});
 
-const ViewPDFBeforeMemo: FC<ViewPDFProps> = ({ pdfURL, openPageInPDF, searchString, isVisible }) => {
-	// const pageRefs = useRef([] as HTMLDivElement[]);
-	// const [searchText, setSearchText] = useState(searchString);
-	// const [pageNumber, setPageNumber] = useState(openPageInPDF || 1);
-	// const [numPages, setNumPages] = useState(0);
-	// console.log("PDF")
-
-	// const urlOfPDF = pdfURL;
-
-	// const onItemClick = ({ pageNumber }: { pageNumber: number }): void => {
-	// 	pageRefs.current[pageNumber].scrollIntoView({ behavior: 'smooth' });
-	// 	return;
-	// };
-
-	// const textRenderer = useCallback(
-	// 	(textItem: { str: string }) => {
-	// 		return highlightPattern(textItem.str, searchText);
-	// 	},
-	// 	[searchText]
-	// );
-
-
-	// const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
-	// 	setNumPages(numPages);
-	// }, [])
-
-
-	// function renderPage(el: any, index: number) {
-	// 	console.log("pages", searchText, pageNumber, numPages)
-	// 	let funcOnLoad: () => void;
-	// 	if (index + 1 === pageNumber) {
-	// 		funcOnLoad = () => onItemClick({ pageNumber: pageNumber })
-	// 	} else {
-	// 		funcOnLoad = () => { }
-	// 	};
-
-	// 	return <div className='page' key={index + 1} ref={el => { pageRefs.current[index + 1] = el; }}>
-	// 		<Page
-	// 			pageNumber={index + 1}
-	// 			customTextRenderer={textRenderer}
-	// 			onLoadSuccess={funcOnLoad}
-	// 		/>
-	// 		<div className='page-number'>{index + 1}</div>
-	// 	</div>;
-	// }
-
-
-	// const RenderDoc = memo(function RenderDoc({ classname, urlOfFile, onDocumentLoadSuccess }: { classname: string, urlOfFile: string, onDocumentLoadSuccess: ({ numPages }: { numPages: number }) => void }) {
-	// 	return <Document
-	// 		className={classname}
-	// 		file={{ url: urlOfFile }}
-	// 		onLoadSuccess={onDocumentLoadSuccess}
-	// 	>
-	// 		{isVisible && numPages !== 0 ? Array.from(new Array(numPages), renderPage) : <></>}
-	// 	</Document>
-	// })
-
-	// return (
-	// 	<>
-	// 		<RenderDoc
-	// 			classname={'document'}
-	// 			urlOfFile={urlOfPDF}
-	// 			onDocumentLoadSuccess={onDocumentLoadSuccess} />
-	// 		<Button buttonText={'Наверх'} clickHandler={() => onItemClick({ pageNumber: 1 })} variant={Variants.not_filled} />
-	// 	</>
-	// );
-	// retur <Test url={pdfURL}></Test>
-	const windowRef = useRef();
-	return < PdfUrlViewer url={pdfURL} />
-};
-
-export const ViewPDF: FC<ViewPDFProps> = memo(ViewPDFBeforeMemo);

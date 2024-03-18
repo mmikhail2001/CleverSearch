@@ -1,13 +1,15 @@
-import React, { useRef, useEffect } from "react";
 import * as pdfjs from "pdfjs-dist";
+import React, { FC, useEffect, useRef } from "react";
 import "./PdfPage.css";
 
-const PdfPage = React.memo(props => {
-  const { page, scale } = props;
+export interface PdfPageProps {
+  page: pdfjs.PDFPageProxy,
+  scale: number,
+}
 
-  const canvasRef = useRef();
-
-  const textLayerRef = useRef();
+const PdfPage: FC<PdfPageProps> = React.memo(({ page, scale }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const textLayerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!page) {
@@ -29,7 +31,6 @@ const PdfPage = React.memo(props => {
       };
       const renderTask = page.render(renderContext);
       renderTask.promise.then(function () {
-        // console.log("Page rendered");
       });
 
       page.getTextContent().then(textContent => {

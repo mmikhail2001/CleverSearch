@@ -1,16 +1,23 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
-import PropTypes from "prop-types";
 import * as pdfjs from "pdfjs-dist";
+import { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
+import { VariableSizeList } from 'react-window';
 import PdfViewer from "./PdfViewer";
 
-const PdfUrlViewer = props => {
-  const { url, ...others } = props;
+export interface PdfUrlViewerProps {
+  url: string,
+  page: number,
+}
 
-  const pdfRef = useRef();
-
+const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
+  const pdfRef = useRef<PDFDocumentProxy>();
+  const windowRef = useRef<VariableSizeList>(null)
   const [itemCount, setItemCount] = useState(0);
+  const [isFirstPageLoaded, setFirstPageLoaded] = useState(false);
 
-  const windowRef = useRef()
+  const scrollToItem = () => {
+    windowRef?.current && windowRef.current.scrollToItem(page - 1, "start");
+  };
 
   useEffect(() => {
     var loadingTask = pdfjs.getDocument(url);
@@ -22,9 +29,8 @@ const PdfUrlViewer = props => {
 
         // Fetch the first page
         var pageNumber = 1;
-        pdf.getPage(pageNumber).then(function (page) {
-          console.log("Page loaded");
-        });
+        // pdf.getPage(pageNumber).then(function (page) {
+        // });
       },
       reason => {
         // PDF loading error
@@ -33,22 +39,26 @@ const PdfUrlViewer = props => {
     );
   }, [url]);
 
-  const handleGetPdfPage = useCallback(index => {
-    return pdfRef.current.getPage(index + 1);
+  const handleGetPdfPage = useCallback((index: number) => {
+    return pdfRef.current?.getPage(index + 1);
   }, []);
 
-  return (
-    <PdfViewer
-      {...others}
-      windowRef={windowRef}
-      itemCount={itemCount}
-      getPdfPage={handleGetPdfPage}
-    />
-  );
-};
+  useEffect(() => {
+    scrollToItem()
+  }, [isFirstPageLoaded])
 
-PdfUrlViewer.propTypes = {
-  url: PropTypes.string.isRequired
+  return (
+    <>
+      <PdfViewer
+        windowRef={windowRef}
+        itemCount={itemCount}
+        getPdfPage={handleGetPdfPage}
+        onLoad={() => { setFirstPageLoaded(true); }}
+        scale={1}
+        gap={40}
+      />
+    </>
+  );
 };
 
 export default PdfUrlViewer;
