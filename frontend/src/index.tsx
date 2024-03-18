@@ -8,25 +8,42 @@ import './index.scss';
 
 import { LoginForm } from '@modules/login/login';
 
-import {AuthProvider, RequireAuth, ProtectedFromAuthUser} from './authProvider';
+import { AuthProvider, RequireAuth, ProtectedFromAuthUser } from './authProvider';
 import ErrorPage from '@modules/errorPage/errorPage';
 
+import * as pdfjsLib from 'pdfjs-dist/webpack.mjs';
+
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+	document.getElementById('root') as HTMLElement
 );
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
 
 root.render(
-	<React.StrictMode>
-		<Provider store={store}>
-			<BrowserRouter>
-				<AuthProvider>
-					<Routes>
-						<Route path='/' errorElement={<ErrorPage />} element={<RequireAuth><App /></RequireAuth>}></Route>
-						<Route path='/login' errorElement={<ErrorPage />} element={<ProtectedFromAuthUser><LoginForm /></ProtectedFromAuthUser>}></Route>
-					</Routes>
-				</AuthProvider>
-			</BrowserRouter>
-		</Provider>
-	</React.StrictMode>
+	<Provider store={store}>
+		<BrowserRouter>
+			<AuthProvider>
+				<Routes>
+					<Route path='/' errorElement={<ErrorPage />} element={<RequireAuth><App /></RequireAuth>}></Route>
+					<Route path='/login' errorElement={<ErrorPage />} element={<ProtectedFromAuthUser><LoginForm /></ProtectedFromAuthUser>}></Route>
+				</Routes>
+			</AuthProvider>
+		</BrowserRouter>
+	</Provider>
 );
+
+
+// root.render(
+// 	<React.StrictMode>
+// 		<Provider store={store}>
+// 			<BrowserRouter>
+// 				<AuthProvider>
+// 					<Routes>
+// 						<Route path='/' errorElement={<ErrorPage />} element={<RequireAuth><App /></RequireAuth>}></Route>
+// 						<Route path='/login' errorElement={<ErrorPage />} element={<ProtectedFromAuthUser><LoginForm /></ProtectedFromAuthUser>}></Route>
+// 					</Routes>
+// 				</AuthProvider>
+// 			</BrowserRouter>
+// 		</Provider>
+// 	</React.StrictMode>
+// );
