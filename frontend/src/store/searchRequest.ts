@@ -7,7 +7,7 @@ const searchSlice = createSlice({
 		smartSearch: false,
 		fileType: ['all' as fileTypes],
 		query: '',
-		dir: '',
+		dir: [] as string[],
 		disk: ['own'] as diskTypes[],
 	} as SearchParams,
 	reducers: {

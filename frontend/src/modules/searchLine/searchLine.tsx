@@ -10,12 +10,12 @@ import { useDispatch } from 'react-redux';
 import { switchToSearch } from '@store/whatToShow';
 import { SearchBox } from './searchBox/searchBox';
 import { changeDir } from '@store/currentDirectoryAndDisk';
-import {newValues} from '@store/searchRequest';
+import { newValues } from '@store/searchRequest';
 
 import SearchSVG from '@icons/Search.svg';
 import FilterSVG from '@icons/Filter.svg';
 
-interface SearchLineProps {}
+interface SearchLineProps { }
 
 export const SearchLine: FC<SearchLineProps> = () => {
 	const [isBoxOpen, setisBoxOpen] = useState(false);
@@ -23,11 +23,11 @@ export const SearchLine: FC<SearchLineProps> = () => {
 		smartSearch: false,
 		fileType: ['all' as fileTypes],
 		query: '',
-		dir: '',
+		dir: [],
 		disk: ['all'] as diskTypes[],
 	});
 
-	const [search, response] = useSearchMutation({fixedCacheKey: 'search'});
+	const [search, response] = useSearchMutation({ fixedCacheKey: 'search' });
 	const dispatch = useDispatch();
 
 	return (
@@ -43,7 +43,7 @@ export const SearchLine: FC<SearchLineProps> = () => {
 								search(searchValue);
 								dispatch(newValues(searchValue));
 								dispatch(switchToSearch());
-								dispatch(changeDir({ dirs: [], current: '' }));
+								dispatch(changeDir({ dirs: [] }));
 							}
 						}}
 						onChange={(e) =>

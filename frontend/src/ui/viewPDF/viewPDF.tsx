@@ -7,7 +7,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import './viewPDF.scss'
 
-import PdfUrlViewer from './newViewPDF/PdfUrlViewer'
+import PdfUrlViewer from './newViewPDF/pdfUrlViewer'
 
 export interface ViewPDFProps {
 	pdfURL: string;

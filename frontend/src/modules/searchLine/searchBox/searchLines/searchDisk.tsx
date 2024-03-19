@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { MultiValue, SingleValue } from 'react-select';
 import { diskImgSrc } from '../../../../models/disk';
-import { diskTypes, fileTypes } from '../../../../models/searchParams';
+import { SearchParamsLocal, diskTypes, fileTypes } from '../../../../models/searchParams';
 import {
 	Option,
 	SelectorWithImg,
@@ -49,22 +49,10 @@ const diskVal = (
 };
 
 export interface SearchDiskLineProps {
-  changeState: React.Dispatch<
-    React.SetStateAction<{
-      smartSearch: boolean;
-      fileType: fileTypes[];
-      query: string;
-      dir: string;
-      disk: diskTypes[];
-    }>
-  >;
-  state: {
-    smartSearch: boolean;
-    fileType: fileTypes[];
-    query: string;
-    dir: string;
-    disk: diskTypes[];
-  };
+	changeState: React.Dispatch<
+		React.SetStateAction<SearchParamsLocal>
+	>;
+	state: SearchParamsLocal;
 }
 
 export const SearchDiskLine: FC<SearchDiskLineProps> = ({

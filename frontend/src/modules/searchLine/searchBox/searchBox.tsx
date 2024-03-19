@@ -1,56 +1,30 @@
 import React, { FC } from 'react';
-import { diskTypes, fileTypes } from '../../../models/searchParams';
-import { Button, Variants } from '../../../ui/button/Button';
-import { Checkbox } from '../../../ui/checkbox/Checkbox';
+import { SearchParamsLocal, diskTypes, fileTypes } from '@models/searchParams';
+import { Button, Variants } from '@ui/button/Button';
+import { Checkbox } from '@ui/checkbox/Checkbox';
 import './searchBox.scss';
 import { SearchDiskLine } from './searchLines/searchDisk';
 import { SearchFileType } from './searchLines/searchFilteType';
 import { SearchFolderLine } from './searchLines/searchFolder';
 
+// TODO make this type not structs
 interface SearchBoxProps {
-  changeState: React.Dispatch<
-    React.SetStateAction<{
-      smartSearch: boolean;
-      fileType: fileTypes[];
-      query: string;
-      dir: string;
-      disk: diskTypes[];
-    }>
-  >;
-  state: {
-    smartSearch: boolean;
-    fileType: fileTypes[];
-    query: string;
-    dir: string;
-    disk: diskTypes[];
-  };
-  closeDrop: () => void;
-  search: () => void;
+	changeState: React.Dispatch<React.SetStateAction<SearchParamsLocal>>;
+	state: SearchParamsLocal;
+	closeDrop: () => void;
+	search: () => void;
 }
 
 const setToInitial = (
 	changeState: React.Dispatch<
-    React.SetStateAction<{
-      smartSearch: boolean;
-      fileType: fileTypes[];
-      query: string;
-      dir: string;
-      disk: diskTypes[];
-    }>
-  >,
-	state: {
-    smartSearch: boolean;
-    fileType: fileTypes[];
-    query: string;
-    dir: string;
-    disk: diskTypes[];
-  }
+		React.SetStateAction<SearchParamsLocal>>,
+	state: SearchParamsLocal
 ) => {
 	changeState({
 		fileType: ['all' as fileTypes],
 		smartSearch: false,
 		query: state.query,
-		dir: '',
+		dir: [],
 		disk: ['google'] as diskTypes[],
 	});
 };

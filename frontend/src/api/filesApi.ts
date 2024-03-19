@@ -30,7 +30,7 @@ export const filesApi = createApi({
 		}),
 		createDir: builder.mutation<Folder[], string[]>({
 			query: (dirPath: string[]) => ({
-				url: `/dirs/create?dir_path=${dirPath.join('')}`,
+				url: `/dirs/create?dir_path=${ dirPath.join('/')}`,
 				method: 'POST',
 			}),
 		}),

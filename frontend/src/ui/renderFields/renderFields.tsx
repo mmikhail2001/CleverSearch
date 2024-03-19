@@ -15,7 +15,7 @@ export interface RenderFieldsProps {
 	isLoading: boolean,
 	dispatch: Dispatch<UnknownAction>,
 	deleteFile: (fileName: string) => void,
-	openFolder: (dirToShow: string) => void,
+	openFolder: (dirToShow: string[]) => void,
 }
 
 
@@ -43,18 +43,18 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	return (
 		<div>
 			{data.map((file) => {
-
+				let isModalExist = false;
 				let iconSrc = '';
 				let clickHandler: () => void;
 				if (file.is_dir) {
 					iconSrc = folderIconPath;
 					clickHandler = () => {
+						const dirsPath = file.path.split('/')
 						dispatch(
 							changeDir({
-								dirs: file.path.split('/'),
-								current: file.path.split('/')[-1],
+								dirs: dirsPath,
 							}));
-						openFolder(file.path);
+						openFolder(dirsPath);
 					};
 				} else {
 					clickHandler = () => { }
@@ -62,6 +62,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 					if (splits?.length > 0) {
 						switch (splits[1]) {
 							case 'pdf':
+								isModalExist = true;
 								iconSrc = documentIconPath;
 								break;
 							default:
@@ -85,6 +86,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 							pageNumber={0}
 							onClick={clickHandler}
 							onDelete={() => deleteFile(file.path)}
+							isModalExist={isModalExist}
 						></FileShow>
 					</>
 				);

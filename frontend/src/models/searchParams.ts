@@ -19,12 +19,15 @@ export const isFileType = (text: string): boolean => {
 	return false;
 };
 
-export interface SearchParams {
+export interface SearchParamsLocal {
   smartSearch: boolean;
   fileType?: fileTypes[];
   query: string;
-  dir?: string;
+  dir?: string[];
   disk?: diskTypes[];
+}
+
+export interface SearchParams extends SearchParamsLocal{
   limit?: number;
   offset?: number;
 }

@@ -13,6 +13,7 @@ interface FileShowProps {
 	isOpen: boolean;
 	url: string;
 	pageNumber?: number;
+	isModalExist: boolean
 }
 
 export const FileShow: FC<FileShowProps> = ({
@@ -25,6 +26,7 @@ export const FileShow: FC<FileShowProps> = ({
 	onDelete,
 	url,
 	pageNumber,
+	isModalExist
 }) => {
 	const [isOpen, setOpen] = useState(false)
 
@@ -41,7 +43,7 @@ export const FileShow: FC<FileShowProps> = ({
 				<div onClick={() => { onDelete() }}>Delete</div>
 				<div className="size">{size}</div>
 			</div>
-			<ModalWithPDF isOpen={isOpen} close={() => setOpen(false)} pdfURL={url} pageNumber={pageNumber}></ModalWithPDF>
+			{isModalExist ? <ModalWithPDF isOpen={isOpen} close={() => setOpen(false)} pdfURL={url} pageNumber={pageNumber}></ModalWithPDF> : null}
 		</>
 	);
 }

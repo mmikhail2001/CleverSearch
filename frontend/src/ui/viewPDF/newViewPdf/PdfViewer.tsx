@@ -1,10 +1,10 @@
 import CSS from 'csstype';
 import { PDFPageProxy } from "pdfjs-dist";
 import React, { FC, useCallback, useEffect, useRef, useState } from "react";
-import { VariableSizeList } from "react-window";
+import { ListChildComponentProps, VariableSizeList } from "react-window";
 import useResizeObserver from "use-resize-observer";
-import Page from "./Page";
-import PdfPage from "./PdfPage";
+import Page from "./page/page";
+import PdfPage from "./page/pdfPage";
 
 export interface PdfViewerProps {
   itemCount: number,
@@ -43,7 +43,7 @@ const PdfViewer: FC<PdfViewerProps> = ({
             next[index] = page;
             return next;
           });
-          listRef.current.resetAfterIndex(index);
+          listRef?.current?.resetAfterIndex(index);
         });
       }
     },
@@ -63,7 +63,7 @@ const PdfViewer: FC<PdfViewerProps> = ({
   );
 
   const handleListRef = useCallback(
-    (elem: React.MutableRefObject<VariableSizeList>) => {
+    (elem: VariableSizeList<any>) => {
       listRef.current = elem;
       if (windowRef) {
         windowRef.current = elem;
@@ -73,7 +73,7 @@ const PdfViewer: FC<PdfViewerProps> = ({
   );
 
   useEffect(() => {
-    listRef.current.resetAfterIndex(0);
+    listRef?.current?.resetAfterIndex(0);
   }, [scale]);
 
   // TODO replace with class
@@ -84,6 +84,18 @@ const PdfViewer: FC<PdfViewerProps> = ({
     background: "#ddd"
   };
 
+
+  const renderPage: FC<ListChildComponentProps> = ({ index, style }) => {
+    fetchPage(index);
+    return (
+      // @ts-ignore
+      // HACK
+      <Page style={style}>
+        <PdfPage page={pages[index]} scale={scale} />
+      </Page>
+    );
+  }
+
   return (
     <div className="pdf-viewer" ref={ref} style={style}>
       <VariableSizeList
@@ -93,14 +105,7 @@ const PdfViewer: FC<PdfViewerProps> = ({
         itemCount={itemCount}
         itemSize={handleItemSize}
       >
-        {({ index, style }: { index: number, style: CSS.Properties }) => {
-          fetchPage(index);
-          return (
-            <Page style={style}>
-              <PdfPage page={pages[index]} scale={scale} />
-            </Page>
-          );
-        }}
+        {renderPage}
       </VariableSizeList>
     </div>
   );
