@@ -235,10 +235,15 @@ func (r *Repository) GetFileByPath(ctx context.Context, path string) (file.File,
 }
 
 func (r *Repository) Update(ctx context.Context, file file.File) error {
+	log.Println("file.ShareAccess ===== ", file.ShareAccess)
 	update := bson.M{
 		"$set": bson.M{
-			"filename": file.Filename,
-			"status":   file.Status,
+			"filename":     file.Filename,
+			"status":       file.Status,
+			"is_shared":    file.IsShared,
+			"share_access": file.ShareAccess,
+			"share_link":   file.ShareLink,
+			"link":         file.Link,
 		},
 	}
 
@@ -248,5 +253,21 @@ func (r *Repository) Update(ctx context.Context, file file.File) error {
 		return fmt.Errorf("failed to update file: %w", err)
 	}
 
+	return nil
+}
+
+func (r *Repository) AddUserToSharingDir(ctx context.Context, file file.File, userID string, accessType file.AccessType) error {
+	sharedDirs := SharedDirsDTO{
+		FileID:     file.ID,
+		UserID:     userID,
+		AccessType: accessType,
+		Path:       file.Path,
+	}
+	collection := r.mongo.Collection("shared_dirs")
+	_, err := collection.InsertOne(ctx, sharedDirs)
+	if err != nil {
+		log.Println("Failed to insert to mongo 'shared_dirs':", err)
+		return err
+	}
 	return nil
 }

@@ -15,6 +15,7 @@ var (
 	ErrNotFound                    = errors.New("not found")
 	ErrSubdirectoryNotFound        = errors.New("subdirectory does not exist")
 	ErrDirectoryNotSpecified       = errors.New("directory not specified")
+	ErrDirNotSharing               = errors.New("requested dir is not sharing")
 )
 
 type AccessType string
@@ -84,4 +85,11 @@ type FileOptions struct {
 	Query         string
 	Status        StatusType
 	IsSmartSearch bool
+}
+
+type RequestToShare struct {
+	Path        string
+	ShareAccess AccessType
+	ByEmails    bool
+	Emails      []string
 }

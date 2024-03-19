@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/notifier"
 )
@@ -22,6 +23,11 @@ type Repository interface {
 	UploadToStorage(ctx context.Context, fileReader io.Reader, file file.File) (file.File, error)
 	RemoveFromStorage(ctx context.Context, file file.File) error
 	DownloadFile(ctx context.Context, filePath string) (io.ReadCloser, error)
+	AddUserToSharingDir(ctx context.Context, file file.File, userID string, accessType file.AccessType) error
+}
+
+type UserUsecase interface {
+	GetUserByEmail(ctx context.Context, email string) (cleveruser.User, error)
 }
 
 type NotifyUsecase interface {

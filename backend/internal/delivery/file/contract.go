@@ -15,4 +15,5 @@ type Usecase interface {
 	CreateDir(ctx context.Context, file file.File) (file.File, error)
 	DeleteFiles(ctx context.Context, filePaths []string) error
 	DownloadFile(ctx context.Context, filePath string) (io.ReadCloser, error)
+	GetSharingLink(ctx context.Context, reqShare file.RequestToShare) (string, error)
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/repository/file"
 	"github.com/WindowsKonon1337/CleverSearch/internal/repository/notifier"
@@ -18,6 +17,7 @@ import (
 	fileDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/file"
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/middleware"
 	notifyDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/notifier"
+	staticDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/static"
 	userDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/user"
 	fileUsecase "github.com/WindowsKonon1337/CleverSearch/internal/usecase/file"
 	notifyUsecase "github.com/WindowsKonon1337/CleverSearch/internal/usecase/notifier"
@@ -46,6 +46,8 @@ import (
 
 // ручка getFiles - общее количество файлов (limit)
 // ручка поиск - общее количестов + поиск в рамках директории + остальные фильтры
+
+// удалить share_author_id
 
 var staticDir string = "/app/frontend/build"
 var staticDirMinio string = "/app/minio_files"
@@ -89,8 +91,9 @@ func Run() error {
 
 	userUsecase := userUsecase.NewUsecase(userRepo)
 	notifyUsecase := notifyUsecase.NewUsecase(notifyGateway)
-	fileUsecase := fileUsecase.NewUsecase(fileRepo, notifyUsecase)
+	fileUsecase := fileUsecase.NewUsecase(fileRepo, notifyUsecase, userUsecase)
 
+	staticHandler := staticDelivery.NewHandler(staticDir, fileUsecase)
 	userHandler := userDelivery.NewHandler(userUsecase)
 	fileHandler := fileDelivery.NewHandler(fileUsecase)
 	notifyDelivery := notifyDelivery.NewHandler(notifyUsecase)
@@ -119,11 +122,11 @@ func Run() error {
 	apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
 	apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
 	apiAuth.HandleFunc("/dirs/create", fileHandler.CreateDir).Methods("POST")
-	// api.HandleFunc("/dirs/share", fileHandler.CreateDir).Methods("POST")
+
+	apiAuth.HandleFunc("/dirs/share", fileHandler.ShareDir).Methods("POST")
 
 	apiAuth.HandleFunc("/users/profile", userHandler.Profile).Methods("GET")
 	api.HandleFunc("/users/logout", userHandler.Logout).Methods("POST")
-
 	api.HandleFunc("/users/login", userHandler.Login).Methods("POST")
 	api.HandleFunc("/users/register", userHandler.Register).Methods("POST")
 
@@ -131,15 +134,11 @@ func Run() error {
 
 	apiAuth.HandleFunc("/ws", notifyDelivery.ConnectNotifications).Methods("GET")
 
-	fileServer := http.FileServer(http.Dir(staticDir))
-	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("== fileserver: ", r.URL.Path)
-		if _, err := os.Stat(staticDir + r.URL.Path); err != nil {
-			http.ServeFile(w, r, staticDir+"/index.html")
-		} else {
-			fileServer.ServeHTTP(w, r)
-		}
-	})
+	shareLinkRouter := r.Methods("GET").Subrouter()
+	shareLinkRouter.Use(middleware.AuthMiddleware)
+	shareLinkRouter.HandleFunc("/dirs/{dir_uuid}", staticHandler.GetShering).Methods("GET")
+
+	r.PathPrefix("/").HandlerFunc(staticHandler.GetStatic)
 
 	log.Println("listen on :8080")
 

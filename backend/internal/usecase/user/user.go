@@ -84,3 +84,7 @@ func (uc *Usecase) Logout(ctx context.Context, sessionID string) error {
 	delete(uc.userSessions, sessionID)
 	return nil
 }
+
+func (uc *Usecase) GetUserByEmail(ctx context.Context, email string) (cleveruser.User, error) {
+	return uc.repo.GetUserByEmail(ctx, email)
+}
