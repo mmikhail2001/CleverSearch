@@ -22,7 +22,7 @@ export const searchAPi = createApi({
 					`&query=${searchReq.query}`,
 					`&disk=${searchReq.disk ? searchReq.disk : 'all'}`,
 					`&file_type=${searchReq.fileType ? searchReq.fileType : 'all' as fileTypes}`,
-					`&dir=${searchReq.dir ? searchReq.dir.join('/') : ''}`,
+					`&dir=${searchReq.dir && searchReq.dir.length !== 0 ? searchReq.dir.join('/') : '/'}`,
 					`&limit=${searchReq.limit ? searchReq.limit : 10}`,
 					`&offset=${searchReq.offset ? searchReq.offset : 0}`].join(''),
 				method: 'GET',
