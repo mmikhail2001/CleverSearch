@@ -43,9 +43,10 @@ type searchItemDTO struct {
 	FileID string `json:"file_uuid"`
 }
 
-type SharedDirsDTO struct {
-	FileID     string          `bson:"file_id"`
-	UserID     string          `bson:"user_id"`
-	AccessType file.AccessType `bson:"access_type"`
-	Path       string          `bson:"path"`
+type sharedDirDTO struct {
+	ID          string          `json:"id"`
+	FileID      string          `bson:"file_id"`
+	UserID      string          `bson:"user_id"`
+	ShareAccess file.AccessType `bson:"share_access"`
+	Path        string          `bson:"path"`
 }

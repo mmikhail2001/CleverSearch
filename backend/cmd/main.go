@@ -49,6 +49,13 @@ import (
 
 // удалить share_author_id
 
+// /files должен принимать номер вложенности (мол какую вложенность фронт хочет, чтобы ему вернули)
+
+// /dirs/2f871bb9-d261-4745-ac60-8e664dc7ec89?sharing=true
+// sharing=true не рассматриваем
+
+// sharedDirs - дублирование, нужно проверять наличие userID и fileID
+
 var staticDir string = "/app/frontend/build"
 var staticDirMinio string = "/app/minio_files"
 

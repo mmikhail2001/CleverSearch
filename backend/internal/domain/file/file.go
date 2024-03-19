@@ -75,9 +75,12 @@ const (
 )
 
 type FileOptions struct {
-	FileType      FileType
-	OnlyDirs      bool
-	Dir           string
+	FileType FileType
+	OnlyDirs bool
+	// TODO: заменить на path
+	Dir    string
+	UserID string
+	// для поиска в коллекции shared_dirs
 	Shared        bool
 	Disk          DiskType
 	Limit         int

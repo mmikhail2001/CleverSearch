@@ -117,9 +117,9 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	queryValues := r.URL.Query()
 
 	options := file.FileOptions{
-		FileType:      file.FileType(queryValues.Get("file_type")),
-		Dir:           queryValues.Get("dir"),
-		Shared:        queryValues.Get("shared") == "true",
+		FileType: file.FileType(queryValues.Get("file_type")),
+		Dir:      queryValues.Get("dir"),
+		// Shared:        queryValues.Get("shared") == "true",
 		OnlyDirs:      queryValues.Get("only_dirs") == "true",
 		IsSmartSearch: queryValues.Get("is_smart_search") == "true",
 		Disk:          file.DiskType(queryValues.Get("disk")),

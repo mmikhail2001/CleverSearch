@@ -119,6 +119,69 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 		log.Printf("Directory path [%s] does not start with /\n", options.Dir)
 		return []fileDomain.File{}, fileDomain.ErrDirectoryNotStartsWithSlash
 	}
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return []fileDomain.File{}, sharederrors.ErrUserNotFoundInContext
+	}
+
+	// если путь корневой, то нужны (shared папки и все файлы и папки) данного пользователя
+	if options.Dir == "/" {
+		var files []fileDomain.File
+		options.UserID = user.ID
+		// ищем файлы пользователя
+		filesTmp, err := uc.repo.GetFiles(ctx, options)
+		if err != nil && !errors.Is(err, file.ErrNotFound) {
+			log.Println("GetFiles error:", err)
+			return []fileDomain.File{}, err
+		}
+		files = append(files, filesTmp...)
+
+		// ищем директории, которыми с данным пользователем пошарены
+		filesTmp, err = uc.repo.GetSharedDirs(ctx, "", options.UserID)
+		if err != nil && !errors.Is(err, file.ErrNotFound) {
+			log.Println("GetSharedDirs error:", err)
+			return []fileDomain.File{}, err
+		}
+		if !errors.Is(err, file.ErrNotFound) {
+			for _, fileTmp := range filesTmp {
+				// достаем сами эти пошаренные директории
+				dirTmp, err := uc.repo.GetFileByID(ctx, fileTmp.ID)
+				if err != nil && !errors.Is(err, file.ErrNotFound) {
+					log.Println("GetFiles error:", err)
+					return []fileDomain.File{}, err
+				}
+				files = append(files, dirTmp)
+				options.UserID = ""
+				options.Dir = fileTmp.Path
+				// достаем файлы из пошаренных директорий
+				filesTmp, err = uc.repo.GetFiles(ctx, options)
+				if err != nil && !errors.Is(err, file.ErrNotFound) {
+					log.Println("GetFiles error:", err)
+					return []fileDomain.File{}, err
+				}
+				files = append(files, filesTmp...)
+			}
+		}
+		return files, nil
+	}
+
+	// если запрошен не корень, то нужно проверить, корневой каталог является расшаренным данному пользователю
+	rootDir := strings.Split(options.Dir, "/")[1]
+	log.Println(rootDir)
+	_, err := uc.repo.GetSharedDirs(ctx, "/"+rootDir, user.ID)
+	// если нет, то ищем собственные файлы пользователя
+	if errors.Is(err, file.ErrNotFound) {
+		log.Println("errors.Is(err, file.ErrNotFound)")
+		options.UserID = user.ID
+		return uc.repo.GetFiles(ctx, options)
+	}
+	if err != nil {
+		log.Println("GetSharedDir error:", err)
+		return []fileDomain.File{}, err
+	}
+	// если да, то ищем все файлы в рамках данной директории (потому что данному пользователю расшарили папку)
+	options.UserID = ""
 	return uc.repo.GetFiles(ctx, options)
 }
 
