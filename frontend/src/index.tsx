@@ -8,13 +8,18 @@ import './index.scss';
 
 import { LoginForm } from '@modules/login/login';
 
-import {AuthProvider, RequireAuth, ProtectedFromAuthUser} from './authProvider';
+import { AuthProvider, RequireAuth, ProtectedFromAuthUser } from './authProvider';
 import ErrorPage from '@modules/errorPage/errorPage';
 
+// @ts-ignore
+// TODO Not find any types of this 
+import * as pdfjsLib from 'pdfjs-dist/webpack.mjs';
+
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+	document.getElementById('root') as HTMLElement
 );
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
 
 root.render(
 	<React.StrictMode>

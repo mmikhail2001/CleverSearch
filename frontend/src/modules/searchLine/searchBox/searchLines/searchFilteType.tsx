@@ -1,10 +1,10 @@
 import React, { FC } from 'react';
 import { MultiValue, SingleValue } from 'react-select';
-import { diskTypes, fileTypes, isFileType } from '../../../../models/searchParams';
+import { SearchParamsLocal, fileTypes, isFileType } from '@models/searchParams';
 import {
 	Option as MultiOption,
 	SelectorMulti,
-} from '../../../../ui/selectorMulti/selectorMulti';
+} from '@ui/selectorMulti/selectorMulti';
 
 const getFilesTypesToOptions = (): MultiOption[] => {
 	return [
@@ -59,22 +59,10 @@ const fileValues = (
 	return ['all' as fileTypes];
 };
 export interface SearchFileTypeLineProps {
-  changeState: React.Dispatch<
-    React.SetStateAction<{
-      smartSearch: boolean;
-      fileType: fileTypes[];
-      query: string;
-      dir: string;
-      disk: diskTypes[];
-    }>
-  >;
-  state: {
-    smartSearch: boolean;
-    fileType: fileTypes[];
-    query: string;
-    dir: string;
-    disk: diskTypes[];
-  };
+	changeState: React.Dispatch<
+		React.SetStateAction<SearchParamsLocal>
+	>;
+	state: SearchParamsLocal;
 }
 
 export const SearchFileType: FC<SearchFileTypeLineProps> = ({

@@ -15,7 +15,7 @@ import RobotSVG from '@icons/Robot.svg';
 import DownloadSVG from '@icons/Download.svg';
 import CleverSVG from '@icons/disks/Disk.svg';
 
-interface SidebarProps {}
+interface SidebarProps { }
 
 const getTextWithImg = (
 	selected: boolean,
@@ -49,8 +49,8 @@ export const Sidebar: FC<SidebarProps> = () => {
 	const { isSearch, isShow } = useAppSelector((state) => state.whatToShow);
 	const { dirs, currentDisk } = useAppSelector((state) => state.currentDirDisk);
 	const dispatch = useDispatch();
-	const [search] = useSearchMutation({fixedCacheKey: 'search'});
-	const [show] = useShowMutation({fixedCacheKey: 'show'});
+	const [search] = useSearchMutation({ fixedCacheKey: 'search' });
+	const [show] = useShowMutation({ fixedCacheKey: 'show' });
 
 	const allDisks = Array.from(diskImgSrc.keys()).map((key) =>
 		getTextWithImg(
@@ -70,8 +70,8 @@ export const Sidebar: FC<SidebarProps> = () => {
 
 	const [createDir] = useCreateDirMutation();
 
-	const debounce = (func:()=>void, delay:number) => {
-		let debounceHandler: NodeJS.Timeout ;
+	const debounce = (func: () => void, delay: number) => {
+		let debounceHandler: NodeJS.Timeout;
 		return function () {
 			clearTimeout(debounceHandler);
 			debounceHandler = setTimeout(() => {
@@ -79,10 +79,10 @@ export const Sidebar: FC<SidebarProps> = () => {
 			}, delay);
 		};
 	};
-  
-	useEffect(()=> {
+
+	useEffect(() => {
 		if (isShow) {
-			dispatch(changeDir({ dirs: [], current: '' }));
+			dispatch(changeDir({ dirs: [] }));
 			show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
 		}
 	}, [currentDisk]);
@@ -113,7 +113,7 @@ export const Sidebar: FC<SidebarProps> = () => {
 						const formData = new FormData();
 
 						formData.append('file', file, file.name);
-						formData.append('dir', dirs.join(''));
+						formData.append('dir', dirs.join('/'));
 						send(formData);
 						debouncFunc();
 					});
@@ -121,9 +121,9 @@ export const Sidebar: FC<SidebarProps> = () => {
 				disabled={false}
 				variant={Variants.filled}
 			></ButtonWithInput>
-			<Button 
-				buttonText="Добавить папку" 
-				variant={Variants.filled} 
+			<Button
+				buttonText="Добавить папку"
+				variant={Variants.filled}
 				clickHandler={() => {
 					const debounceFunc = debounce(() => {
 						if (isSearch) {

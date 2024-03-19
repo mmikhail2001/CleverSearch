@@ -10,10 +10,11 @@ import Selector, {
 // https://codesandbox.io/p/sandbox/react-select-icon-oxzd3?file=%2Fsrc%2FApp.js%3A13%2C1-18%2C3
 
 export interface Option {
-  label: string;
-  value: string;
-  imgSrc: string;
+	label: string;
+	value: string;
+	imgSrc: string;
 }
+
 
 // HACK any type below
 const OptionComp = (props: any) => (
@@ -24,12 +25,12 @@ const OptionComp = (props: any) => (
 );
 
 interface SelectorWithImgProps {
-  options: Option[];
-  isMulti?: boolean;
-  onChange: (
-    newValue: MultiValue<Option> | SingleValue<Option>,
-    actionMeta: ActionMeta<Option>
-  ) => void;
+	options: Option[];
+	isMulti?: boolean;
+	onChange: (
+		newValue: MultiValue<Option> | SingleValue<Option>,
+		actionMeta: ActionMeta<Option>
+	) => void;
 }
 
 export const SelectorWithImg: FC<SelectorWithImgProps> = ({

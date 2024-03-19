@@ -1,5 +1,5 @@
 import { useGetFoldersMutation } from '@api/filesApi';
-import { diskTypes, fileFile, fileTypes } from '@models/searchParams';
+import { SearchParamsLocal, diskTypes, fileFile, fileTypes } from '@models/searchParams';
 import { Option, SelectorAsync } from '@ui/selectorAsync/selectorAsync';
 import React, { FC } from 'react';
 import { MultiValue, SingleValue } from 'react-select';
@@ -15,32 +15,20 @@ const transformToOptions = (folders: fileFile[]): Option[] => {
 };
 
 export interface SearchFolderLineProps {
-  changeState: React.Dispatch<
-    React.SetStateAction<{
-      smartSearch: boolean;
-      fileType: fileTypes[];
-      query: string;
-      dir: string;
-      disk: diskTypes[];
-    }>
-  >;
-  state: {
-    smartSearch: boolean;
-    fileType: fileTypes[];
-    query: string;
-    dir: string;
-    disk: diskTypes[];
-  };
+	changeState: React.Dispatch<
+		React.SetStateAction<SearchParamsLocal>
+	>;
+	state: SearchParamsLocal;
 }
 
-const transformToString = (
+const transformOptionsToDirs = (
 	newVal: SingleValue<Option> | MultiValue<Option>
-): string => {
+): string[] => {
 	if ('length' in newVal) {
-		return newVal.map((val) => val.value).join(',');
+		return newVal.map((val) => val.value);
 	}
-	if (newVal) return newVal.value;
-	return '';
+	if (newVal) return [newVal.value];
+	return [];
 };
 
 export const SearchFolderLine: FC<SearchFolderLineProps> = ({
@@ -55,7 +43,7 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 			<SelectorAsync
 				cacheOptions={true}
 				onChange={(newVal) =>
-					changeState({ ...state, dir: transformToString(newVal) })
+					changeState({ ...state, dir: transformOptionsToDirs(newVal) })
 				}
 				defaultOptions={true}
 				loadFunction={async (query: string): Promise<Option[]> => {
