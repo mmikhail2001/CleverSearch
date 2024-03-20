@@ -56,6 +56,10 @@ func (uc *Usecase) GetUserBySession(ctx context.Context, sessionID string) (clev
 	return user, nil
 }
 
+func (uc *Usecase) GetUserByID(ctx context.Context, userID string) (cleveruser.User, error) {
+	return uc.repo.GetUserByID(ctx, userID)
+}
+
 func (uc *Usecase) Login(ctx context.Context, authUser cleveruser.User) (string, error) {
 	user, err := uc.repo.GetUserByEmail(ctx, authUser.Email)
 	if err != nil {

@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
@@ -45,6 +46,25 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		ctx := context.WithValue(r.Context(), shared.UserContextName, user)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func (m *Middleware) GetUserIDMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userID := r.URL.Query().Get("user_id")
+		user, err := m.userUsecase.GetUserByID(r.Context(), userID)
+		if err != nil {
+			log.Println("GetUserID:", err)
+			if errors.Is(err, cleveruser.ErrUserNotFound) {
+				w.WriteHeader(http.StatusBadRequest)
+				json.NewEncoder(w).Encode(shared.NewResponse(0, err.Error(), nil))
+				return
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		ctx := context.WithValue(r.Context(), shared.UserContextName, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

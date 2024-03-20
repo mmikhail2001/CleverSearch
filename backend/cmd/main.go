@@ -139,6 +139,10 @@ func Run() error {
 
 	api.HandleFunc("/ml/complete", fileHandler.CompleteProcessingFile).Methods("POST")
 
+	filesMLRouter := api.Methods("GET").Subrouter()
+	filesMLRouter.Use(middleware.GetUserIDMiddleware)
+	filesMLRouter.HandleFunc("/ml/files", fileHandler.GetFiles).Methods("GET")
+
 	apiAuth.HandleFunc("/ws", notifyDelivery.ConnectNotifications).Methods("GET")
 
 	shareLinkRouter := r.Methods("GET").Subrouter()

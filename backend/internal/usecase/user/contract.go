@@ -9,4 +9,5 @@ import (
 type Repository interface {
 	CreateUser(ctx context.Context, user cleveruser.User) (cleveruser.User, error)
 	GetUserByEmail(ctx context.Context, email string) (cleveruser.User, error)
+	GetUserByID(ctx context.Context, userID string) (cleveruser.User, error)
 }

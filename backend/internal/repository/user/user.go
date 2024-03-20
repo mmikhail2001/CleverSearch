@@ -61,3 +61,26 @@ func (r *Repository) GetUserByEmail(ctx context.Context, email string) (cleverus
 
 	return user, nil
 }
+
+func (r *Repository) GetUserByID(ctx context.Context, userID string) (cleveruser.User, error) {
+	collection := r.mongo.Collection("users")
+
+	var userDTO UserDTO
+	err := collection.FindOne(ctx, bson.M{"_id": userID}).Decode(&userDTO)
+	if err != nil {
+		log.Println("GetUserByID: FindOne error")
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return cleveruser.User{}, cleveruser.ErrUserNotFound
+		}
+		return cleveruser.User{}, err
+	}
+
+	user := cleveruser.User{
+		ID:       userDTO.ID,
+		Email:    userDTO.Email,
+		Password: userDTO.Password,
+		Bucket:   userDTO.Bucket,
+	}
+
+	return user, nil
+}
