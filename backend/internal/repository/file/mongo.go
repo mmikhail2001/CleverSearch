@@ -146,6 +146,9 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 	if fileOptions.OnlyDirs {
 		filter["is_dir"] = true
 	}
+	if fileOptions.UserID != "" {
+		filter["user_id"] = fileOptions.UserID
+	}
 	// } else {
 	// 	filter["is_dir"] = false
 	// }
@@ -234,11 +237,63 @@ func (r *Repository) GetFileByPath(ctx context.Context, path string) (file.File,
 	return fileRes, nil
 }
 
+func (r *Repository) GetSharedDirs(ctx context.Context, path string, userID string) ([]file.File, error) {
+	filter := bson.M{}
+
+	if path != "" {
+		filter["path"] = path
+	}
+	if userID != "" {
+		filter["user_id"] = userID
+	}
+
+	cursor, err := r.mongo.Collection("shared_dirs").Find(ctx, filter)
+	if err != nil {
+		log.Println("GetSharedDir: Find:", err)
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var sharedDirs []file.File
+	for cursor.Next(ctx) {
+		var resultDTO sharedDirDTO
+		err := cursor.Decode(&resultDTO)
+		if err != nil {
+			log.Println("GetSharedDir: Decode:", err)
+			return nil, err
+		}
+
+		fileRes := file.File{
+			UserID:      resultDTO.UserID,
+			ID:          resultDTO.FileID,
+			ShareAccess: resultDTO.ShareAccess,
+			Path:        resultDTO.Path,
+		}
+		sharedDirs = append(sharedDirs, fileRes)
+	}
+
+	if err := cursor.Err(); err != nil {
+		log.Println("GetSharedDir: Cursor error:", err)
+		return nil, err
+	}
+
+	if len(sharedDirs) == 0 {
+		return []file.File{}, file.ErrNotFound
+	}
+
+	return sharedDirs, nil
+}
+
 func (r *Repository) Update(ctx context.Context, file file.File) error {
+	log.Println("file.ShareAccess ===== ", file.ShareAccess)
 	update := bson.M{
 		"$set": bson.M{
-			"filename": file.Filename,
-			"status":   file.Status,
+			"filename":     file.Filename,
+			"status":       file.Status,
+			"is_shared":    file.IsShared,
+			"share_access": file.ShareAccess,
+			"share_link":   file.ShareLink,
+			"link":         file.Link,
 		},
 	}
 
@@ -248,5 +303,21 @@ func (r *Repository) Update(ctx context.Context, file file.File) error {
 		return fmt.Errorf("failed to update file: %w", err)
 	}
 
+	return nil
+}
+
+func (r *Repository) AddUserToSharingDir(ctx context.Context, file file.File, userID string, accessType file.AccessType) error {
+	sharedDirs := sharedDirDTO{
+		FileID:      file.ID,
+		UserID:      userID,
+		ShareAccess: accessType,
+		Path:        file.Path,
+	}
+	collection := r.mongo.Collection("shared_dirs")
+	_, err := collection.InsertOne(ctx, sharedDirs)
+	if err != nil {
+		log.Println("Failed to insert to mongo 'shared_dirs':", err)
+		return err
+	}
 	return nil
 }

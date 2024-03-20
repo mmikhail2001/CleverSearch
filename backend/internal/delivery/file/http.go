@@ -117,9 +117,9 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	queryValues := r.URL.Query()
 
 	options := file.FileOptions{
-		FileType:      file.FileType(queryValues.Get("file_type")),
-		Dir:           queryValues.Get("dir"),
-		Shared:        queryValues.Get("shared") == "true",
+		FileType: file.FileType(queryValues.Get("file_type")),
+		Dir:      queryValues.Get("dir"),
+		// Shared:        queryValues.Get("shared") == "true",
 		OnlyDirs:      queryValues.Get("only_dirs") == "true",
 		IsSmartSearch: queryValues.Get("is_smart_search") == "true",
 		Disk:          file.DiskType(queryValues.Get("disk")),
@@ -234,4 +234,31 @@ func (h *Handler) CompleteProcessingFile(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) ShareDir(w http.ResponseWriter, r *http.Request) {
+	req := RequestToShareDTO{}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Println("Failed to decode json request to share", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var reqShare file.RequestToShare
+	dto.Map(&reqShare, &req)
+
+	shareLink, err := h.usecase.GetSharingLink(r.Context(), reqShare)
+	if err != nil {
+		log.Println("Error ShareDir usecase", err)
+		// TODO: cleveruser.ErrUserNotFound, как-то надо сообщать, каких пользователей найти не удалось
+		// не давать доступ всем или только тем, кого не нашли
+		if errors.Is(err, file.ErrNotFound) {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(0, err.Error(), nil))
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(shared.NewResponse(0, "", ResponseShareLinkDTO{ShareLink: shareLink}))
 }

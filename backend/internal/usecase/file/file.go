@@ -23,12 +23,14 @@ var eventChangeStatus = "changeStatus"
 type Usecase struct {
 	repo          Repository
 	notifyUsecase NotifyUsecase
+	userUsecase   UserUsecase
 }
 
-func NewUsecase(repo Repository, notifyUsecase NotifyUsecase) *Usecase {
+func NewUsecase(repo Repository, notifyUsecase NotifyUsecase, userUsecase UserUsecase) *Usecase {
 	return &Usecase{
 		repo:          repo,
 		notifyUsecase: notifyUsecase,
+		userUsecase:   userUsecase,
 	}
 }
 
@@ -117,6 +119,69 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 		log.Printf("Directory path [%s] does not start with /\n", options.Dir)
 		return []fileDomain.File{}, fileDomain.ErrDirectoryNotStartsWithSlash
 	}
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return []fileDomain.File{}, sharederrors.ErrUserNotFoundInContext
+	}
+
+	// если путь корневой, то нужны (shared папки и все файлы и папки) данного пользователя
+	if options.Dir == "/" {
+		var files []fileDomain.File
+		options.UserID = user.ID
+		// ищем файлы пользователя
+		filesTmp, err := uc.repo.GetFiles(ctx, options)
+		if err != nil && !errors.Is(err, file.ErrNotFound) {
+			log.Println("GetFiles error:", err)
+			return []fileDomain.File{}, err
+		}
+		files = append(files, filesTmp...)
+
+		// ищем директории, которыми с данным пользователем пошарены
+		filesTmp, err = uc.repo.GetSharedDirs(ctx, "", options.UserID)
+		if err != nil && !errors.Is(err, file.ErrNotFound) {
+			log.Println("GetSharedDirs error:", err)
+			return []fileDomain.File{}, err
+		}
+		if !errors.Is(err, file.ErrNotFound) {
+			for _, fileTmp := range filesTmp {
+				// достаем сами эти пошаренные директории
+				dirTmp, err := uc.repo.GetFileByID(ctx, fileTmp.ID)
+				if err != nil && !errors.Is(err, file.ErrNotFound) {
+					log.Println("GetFiles error:", err)
+					return []fileDomain.File{}, err
+				}
+				files = append(files, dirTmp)
+				options.UserID = ""
+				options.Dir = fileTmp.Path
+				// достаем файлы из пошаренных директорий
+				filesTmp, err = uc.repo.GetFiles(ctx, options)
+				if err != nil && !errors.Is(err, file.ErrNotFound) {
+					log.Println("GetFiles error:", err)
+					return []fileDomain.File{}, err
+				}
+				files = append(files, filesTmp...)
+			}
+		}
+		return files, nil
+	}
+
+	// если запрошен не корень, то нужно проверить, корневой каталог является расшаренным данному пользователю
+	rootDir := strings.Split(options.Dir, "/")[1]
+	log.Println(rootDir)
+	_, err := uc.repo.GetSharedDirs(ctx, "/"+rootDir, user.ID)
+	// если нет, то ищем собственные файлы пользователя
+	if errors.Is(err, file.ErrNotFound) {
+		log.Println("errors.Is(err, file.ErrNotFound)")
+		options.UserID = user.ID
+		return uc.repo.GetFiles(ctx, options)
+	}
+	if err != nil {
+		log.Println("GetSharedDir error:", err)
+		return []fileDomain.File{}, err
+	}
+	// если да, то ищем все файлы в рамках данной директории (потому что данному пользователю расшарили папку)
+	options.UserID = ""
 	return uc.repo.GetFiles(ctx, options)
 }
 
@@ -155,7 +220,8 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 
 	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
 	if !ok {
-		return file, fmt.Errorf("user not found in context")
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return file, sharederrors.ErrUserNotFoundInContext
 	}
 	file.Bucket = user.Email
 	file.UserID = user.ID
@@ -265,4 +331,49 @@ func (uc *Usecase) CompleteProcessingFile(ctx context.Context, uuidFile string) 
 
 func (uc *Usecase) DownloadFile(ctx context.Context, filePath string) (io.ReadCloser, error) {
 	return uc.repo.DownloadFile(ctx, filePath)
+}
+
+func (uc *Usecase) GetSharingLink(ctx context.Context, reqShare file.RequestToShare) (string, error) {
+	file, err := uc.repo.GetFileByPath(ctx, reqShare.Path)
+	if err != nil {
+		return "", err
+	}
+	if reqShare.ByEmails {
+		for _, email := range reqShare.Emails {
+			user, err := uc.userUsecase.GetUserByEmail(ctx, email)
+			if err != nil {
+				// TODO: если не найден email, нужно сообщать фронту о том, что пользователь не найден
+				if !errors.Is(err, cleveruser.ErrUserNotFound) {
+					return "", err
+				}
+			}
+			err = uc.repo.AddUserToSharingDir(ctx, file, user.ID, reqShare.ShareAccess)
+			if err != nil {
+				return "", err
+			}
+		}
+	}
+	file.IsShared = true
+	file.ShareLink = "/dirs/" + file.ID + "?sharing=true"
+	file.ShareAccess = reqShare.ShareAccess
+	uc.repo.Update(ctx, file)
+	return file.ShareLink, nil
+}
+
+func (uc *Usecase) AddSheringGrant(ctx context.Context, fileID string) error {
+	file, err := uc.repo.GetFileByID(ctx, fileID)
+	if err != nil {
+		log.Println("AddSheringGrant GetFileByID with error:", err)
+		return err
+	}
+	if !file.IsShared {
+		log.Println(fileDomain.ErrDirNotSharing.Error())
+		return fileDomain.ErrDirNotSharing
+	}
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return sharederrors.ErrUserNotFoundInContext
+	}
+	return uc.repo.AddUserToSharingDir(ctx, file, user.ID, file.ShareAccess)
 }

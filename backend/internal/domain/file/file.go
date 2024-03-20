@@ -15,6 +15,7 @@ var (
 	ErrNotFound                    = errors.New("not found")
 	ErrSubdirectoryNotFound        = errors.New("subdirectory does not exist")
 	ErrDirectoryNotSpecified       = errors.New("directory not specified")
+	ErrDirNotSharing               = errors.New("requested dir is not sharing")
 )
 
 type AccessType string
@@ -74,9 +75,12 @@ const (
 )
 
 type FileOptions struct {
-	FileType      FileType
-	OnlyDirs      bool
-	Dir           string
+	FileType FileType
+	OnlyDirs bool
+	// TODO: заменить на path
+	Dir    string
+	UserID string
+	// для поиска в коллекции shared_dirs
 	Shared        bool
 	Disk          DiskType
 	Limit         int
@@ -84,4 +88,11 @@ type FileOptions struct {
 	Query         string
 	Status        StatusType
 	IsSmartSearch bool
+}
+
+type RequestToShare struct {
+	Path        string
+	ShareAccess AccessType
+	ByEmails    bool
+	Emails      []string
 }

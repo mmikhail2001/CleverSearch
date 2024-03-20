@@ -28,10 +28,10 @@ type fileDTO struct {
 }
 
 type fileForQueueDTO struct {
-	ID     string `json:"id"`
-	Path   string `json:"path"`
-	Bucket string `json:"bucket"`
-	Type   string `json:"type"`
+	ID       string `json:"id"`
+	Path     string `json:"path"`
+	Bucket   string `json:"bucket"`
+	FileType string `json:"file_type"`
 }
 
 type searchResponseDTO struct {
@@ -41,4 +41,12 @@ type searchResponseDTO struct {
 type searchItemDTO struct {
 	Index  int    `json:"index"`
 	FileID string `json:"file_uuid"`
+}
+
+type sharedDirDTO struct {
+	ID          string          `bson:"_id"`
+	FileID      string          `bson:"file_id"`
+	UserID      string          `bson:"user_id"`
+	ShareAccess file.AccessType `bson:"share_access"`
+	Path        string          `bson:"path"`
 }

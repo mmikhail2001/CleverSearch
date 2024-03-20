@@ -1,5 +1,7 @@
 package file
 
+import "log"
+
 func (ft FileType) ToDTO() string {
 	return string(ft)
 }
@@ -21,5 +23,7 @@ func (at AccessType) ToDTO() string {
 }
 
 func (at *AccessType) FromDTO(dto string) {
+	log.Println("=====1", dto)
 	*at = AccessType(dto)
+	log.Println("=====2", *at)
 }
