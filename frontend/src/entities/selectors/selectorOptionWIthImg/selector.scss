@@ -1,0 +1,11 @@
+.option-img {
+    width: var(--ft-body);
+    height: var(--ft-body);
+}
+
+.selector-option {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--huge-padding)
+}

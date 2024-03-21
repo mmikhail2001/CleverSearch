@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^8.57.0",
     "@types/node": "^20.11.25",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
@@ -36,6 +37,7 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths-webpack-plugin": "^4.1.0",
     "typescript": "^5.4.2",
+    "typescript-eslint": "^7.3.1",
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.2"
@@ -43,8 +45,10 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.1",
     "@types/react-pdf": "^7.0.0",
+    "npm": "^10.5.0",
     "pdfjs-dist": "^4.0.379",
     "react": "^18.2.0",
+    "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
     "react-pdf": "^7.7.1",
     "react-pdf-highlighter": "^6.1.0",

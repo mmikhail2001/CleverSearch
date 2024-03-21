@@ -1,0 +1,19 @@
+.input {
+    padding: 1rem;
+    border-radius: var(--small-radius);
+    border-width: 0.1rem;
+    transition: scale 0.2s ease-in-out;
+    font-size: var(--ft-small-text);
+    background-color: var(--main-color-100);
+    color: var(--text-color-dark);
+}
+
+.input::placeholder {
+    color: var(--text-color-dark);
+}
+
+.input:focus {
+    scale: 1.01;
+    outline: none
+}
+

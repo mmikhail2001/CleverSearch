@@ -3,13 +3,18 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import App from './App';
 import './index.scss';
 
-import { LoginForm } from '@modules/login/login';
+import { MainPage } from '@pages/mainPage/mainPage';
+import { LoginForm } from '@pages/login/login';
 
 import { AuthProvider, RequireAuth, ProtectedFromAuthUser } from './authProvider';
-import ErrorPage from '@modules/errorPage/errorPage';
+import ErrorPage from '@pages/errorPage/errorPage';
+
+import { ShowShowedFiles } from '@widgets/showResults/showShowedFiles/showShowedFiles'
+import { ShowSearchedFiles } from '@widgets/showResults/showSearchedFiles/showSearchedFiles'
+
+import './App.scss'
 
 // @ts-ignore
 // TODO Not find any types of this 
@@ -27,7 +32,12 @@ root.render(
 			<BrowserRouter>
 				<AuthProvider>
 					<Routes>
-						<Route path='/' errorElement={<ErrorPage />} element={<RequireAuth><App /></RequireAuth>}></Route>
+						<Route path='/' errorElement={<ErrorPage />} element={<RequireAuth><MainPage /></RequireAuth>}>
+							<Route path={'/files'} element={<ShowShowedFiles></ShowShowedFiles>}></Route>
+							<Route path={'/files/search'} element={<ShowSearchedFiles></ShowSearchedFiles>}></Route>
+							<Route index element={<ShowShowedFiles></ShowShowedFiles>}></Route>
+							<Route path='*' element={<ErrorPage />}></Route>
+						</Route>
 						<Route path='/login' errorElement={<ErrorPage />} element={<ProtectedFromAuthUser><LoginForm /></ProtectedFromAuthUser>}></Route>
 					</Routes>
 				</AuthProvider>

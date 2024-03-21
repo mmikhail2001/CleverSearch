@@ -9,15 +9,15 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@ui/*":[
-        "./src/ui/*",
-      ],
       "@models/*":["./src/models/*"],
       "@store/*":["./src/store/*"],
-      "@modules/*":["./src/modules/*"],
       "@api/*":["./src/api/*"],
       "@icons/*":["./public/icons/*"],
       "@pages/*":["./src/pages/*"],
+      "@widgets/*":["./src/widgets/*"],
+      "@feature/*":["./src/feature/*"],
+      "@entities/*":["./src/entities/*"],
+      "@helpers/*":["./src/helpers/*"],
     },
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true

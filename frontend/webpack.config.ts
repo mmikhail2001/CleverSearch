@@ -9,7 +9,7 @@ export default (env: { watch: string; mode: 'production' | 'development'; protoc
 	const isDev = mode === 'development';
 	const PORT = 3000;
 	const isWatch = env.watch === 'true' || false;
-	const adress = env.adress || 'localhost:8080'; 
+	const adress = env.adress || 'localhost:8080';
 	const protocol = env.protocol || 'http';
 
 	const config: webpack.Configuration = {
@@ -19,6 +19,7 @@ export default (env: { watch: string; mode: 'production' | 'development'; protoc
 			filename: '[name][contenthash].js',
 			path: path.resolve(__dirname, 'build'),
 			clean: true,
+			publicPath: '/'
 		},
 		module: {
 			rules: [
