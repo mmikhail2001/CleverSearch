@@ -56,10 +56,10 @@ def setup_search_handler(args):
                     (i, j, cosine_similarity(list_embs[i][j], query_emb))
                 )
         sorted_list = sorted(dists, key=lambda x: x[2], reverse=True)[:number_of_results]
-        file_keys = set(map(lambda x: x[0], sorted_list))
-
+        print(sorted_list)
+        file_keys = sorted(set(map(lambda x: x[0], sorted_list)), key=list(map(lambda x: x[0], sorted_list)).index)
+        print(file_keys)
         files_uuid = [{"index": k, "file_uuid": df.iloc[k]._id} for k in file_keys]
         return {"files": files_uuid}
-        # return {"files": files_uuid, "sentences": sentences}
 
     return search
