@@ -8,7 +8,8 @@ nltk.download('stopwords')
 from nltk.corpus import stopwords
 import logging
 import sys
-sys.path.insert(0, './MLCore/utils')
+sys.path.insert(1, './MLCore/')
+sys.path.insert(2, './MLCore/utils')
 from utils.get_console_logger import get_console_logger
 
 logger = get_console_logger(

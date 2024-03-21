@@ -4,6 +4,7 @@ import logging
 import numpy as np
 from IDataProcessor import IDataProcessor
 from PIL import Image
+import cv2 as cv
 from collections import OrderedDict
 import sys
 from easyocr import Reader
@@ -13,8 +14,8 @@ sys.path.insert(2, '/CRAFT/')
 from CRAFT.craft import CRAFT
 from CRAFT.test import test_net
 
-
-sys.path.insert(0, './MLCore/utils')
+sys.path.insert(3, './MLCore/')
+sys.path.insert(4, './MLCore/utils')
 from utils.get_console_logger import get_console_logger
 
 logger = get_console_logger(
@@ -22,7 +23,7 @@ logger = get_console_logger(
     logging.INFO
 )
 
-
+from tqdm import tqdm
 
 class ImageProcessor(IDataProcessor):
     def __init__(self, craft_weights_path = None, cpu: bool =True):
@@ -33,7 +34,7 @@ class ImageProcessor(IDataProcessor):
         self.craft_instance = CRAFT()
         self.craft_instance.eval()
 
-        self.reader = Reader(['ru'], gpu=not cpu)
+        self.reader = Reader(['ru', 'en'], gpu=not cpu)
 
         if cpu:
             self.craft_instance.load_state_dict(self.__copyStateDict(torch.load(self.craft_weights_path, map_location='cpu')))
@@ -73,10 +74,11 @@ class ImageProcessor(IDataProcessor):
                 e, exc_info=True
             )
             return None
-    
+
     def __get_string_from_crops(self, crops: list)->str:
         result = []
-        for crop in crops:
+        logger.info('decode crops to strings')
+        for crop in tqdm(crops):
             word = self.reader.readtext(np.array(crop), detail=False)
             if len(word):
                 result.append(
@@ -84,7 +86,7 @@ class ImageProcessor(IDataProcessor):
                 )
 
         return ' '.join(result)
-    
+
 
     def __encode_processed_string(self, processed_string):
         embeddings = []
@@ -111,13 +113,41 @@ class ImageProcessor(IDataProcessor):
         bboxes, _, _ = test_net(self.craft_instance, np.array(img), 0.7, 0.4, 0.4, False, False)
         return bboxes
 
+    def __get_right_points(self, points):
+        a = ((points[1][0] - points[0][0]) ** 2 + (points[1][1] - points[0][1]) ** 2) ** 0.5
+        b = ((points[2][0] - points[0][0]) ** 2 + (points[2][1] - points[0][1]) ** 2) ** 0.5
+        c = ((points[3][0] - points[2][0]) ** 2 + (points[3][1] - points[2][1]) ** 2) ** 0.5
+        d = ((points[3][0] - points[1][0]) ** 2 + (points[3][1] - points[1][1]) ** 2) ** 0.5
+        return np.float32([[0, 0], [a, 0], [0, b], [c, d]])
+
     def __crop_image(self, img: Image, bboxes: list[np.ndarray]) -> list:
         result = []
-        for array in bboxes:
-            concat_coords = np.hstack((array[0, :], array[2, :])).astype(np.int32)
+        logger.info(f'cropping file {img.filename}')
+        for array in tqdm(bboxes):
+            init_concat_coords = array.astype(np.float32)
+            init_concat_coords[[2, 3], :] = init_concat_coords[[3, 2], :]
+            processed_concat_coords = self.__get_right_points(
+                init_concat_coords
+            )
+            perspective_matrix = cv.getPerspectiveTransform(
+                init_concat_coords,
+                processed_concat_coords
+            )
             result.append(
-                img.crop(
-                    tuple(concat_coords)
+                cv.warpPerspective(
+                    np.array(img),
+                    perspective_matrix,
+                    tuple(map(int, processed_concat_coords[3]))
                 )
             )
         return result
+
+# if __name__ == '__main__':
+#     proc = ImageProcessor('./MLCore/weights/craft_mlt_25k.pth')
+#     img = Image.open('/home/windowskonon1337/sources/CRAFT-pytorch/test_folder/20220309_163524.JPG')
+#     bboxes = proc.get_text_bboxes(img)
+#     print(
+#         proc.get_string_from_crops(
+#             proc.crop_image(img, bboxes)
+#         )
+#     )

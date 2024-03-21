@@ -1,16 +1,17 @@
 from IDataProcessor import IDataProcessor
 from TextPreprocessor import TextPreprocessor, TextReader
 from transformers import AutoModel, AutoTokenizer
-import logging
+
 import sys
-sys.path.insert(0, './MLCore/utils')
+import logging
+sys.path.insert(3, './MLCore/')
+sys.path.insert(4, './MLCore/utils')
 from utils.get_console_logger import get_console_logger
 
 logger = get_console_logger(
     __name__,
-    logging.INFO
+    logging.DEBUG
 )
-
 
 class TextProcessor(IDataProcessor):
     def __init__(self):
@@ -26,7 +27,7 @@ class TextProcessor(IDataProcessor):
         )
         text = preprocessor.process()
 
-        logger.debug(f'preprocessed text: {text}')
+        logger.info(f'preprocessed text: {text}')
 
         embeddings = []
 
@@ -42,8 +43,10 @@ class TextProcessor(IDataProcessor):
         return embeddings
 
     def process_query_string(self, query_string):
+        logger.info(f'query string: {query_string}')
         text_processor = TextPreprocessor(query_string)
         processed_text = text_processor.process()
+        logger.info(f'processed text: {processed_text}')
         query_tokens = self.tokenizer(
             processed_text,
             return_tensors='pt',

@@ -8,7 +8,8 @@ from Processors.TextProcessor import TextProcessor
 import sys
 import logging
 
-sys.path.insert(0, './MLCore/utils')
+sys.path.insert(0, './MLCore/')
+sys.path.insert(1, './MLCore/utils')
 from utils.get_console_logger import get_console_logger
 
 logger = get_console_logger(
@@ -40,7 +41,7 @@ def setup_search_handler(args):
 
         df = DataFrame(list_cur)
 
-        print(df)
+        # print(df)
 
         list_embs = [list(val.values())[0] for val in df.ml_data]
 

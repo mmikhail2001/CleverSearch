@@ -2,6 +2,7 @@ from pymongo.collection import Collection
 from pymongo import MongoClient
 from service_interfaces import IDataService
 from PIL import Image
+import cv2 as cv
 from minio import Minio
 import os
 
