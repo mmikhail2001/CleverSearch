@@ -34,22 +34,28 @@ func (h *Handler) GetStatic(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetShering(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	if vars["dir_uuid"] == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(shared.NewResponse(0, "dir_uuid in query string is empty", nil))
-		return
-	}
-	err := h.usecase.AddSheringGrant(r.Context(), vars["dir_uuid"])
-	if err != nil {
-		switch {
-		case errors.Is(err, fileDomain.ErrDirNotSharing) || errors.Is(err, fileDomain.ErrNotFound):
+	sharing := r.URL.Query().Get("sharing")
+	if sharing != "" {
+		vars := mux.Vars(r)
+		if vars["dir_uuid"] == "" {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(0, err.Error(), nil))
-		default:
-			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(shared.NewResponse(0, "dir_uuid in query string is empty", nil))
+			return
 		}
-		return
+		err := h.usecase.AddSheringGrant(r.Context(), vars["dir_uuid"])
+		if err != nil {
+			switch {
+			case errors.Is(err, fileDomain.ErrDirNotSharing):
+				w.WriteHeader(http.StatusBadRequest)
+				json.NewEncoder(w).Encode(shared.NewResponse(fileDomain.StatusDirNotSharing, err.Error(), nil))
+			case errors.Is(err, fileDomain.ErrNotFound):
+				w.WriteHeader(http.StatusBadRequest)
+				json.NewEncoder(w).Encode(shared.NewResponse(fileDomain.StatusNotFound, err.Error(), nil))
+			default:
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+			return
+		}
 	}
 	http.ServeFile(w, r, h.basedir+"/index.html")
 }

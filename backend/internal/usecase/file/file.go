@@ -48,9 +48,6 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 		return fileDomain.File{}, fileDomain.ErrDirectoryNotStartsWithSlash
 	}
 	pathComponents := strings.Split(file.Path, "/")
-	fmt.Printf("%#v\n\n", file.Path)
-	fmt.Printf("%#v\n\n", pathComponents)
-
 	// TODO: при условии, что в начале /
 	for i := 1; i < len(pathComponents)-1; i++ {
 		dirPath := strings.Join(pathComponents[:i+1], "/")
@@ -99,14 +96,6 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 		log.Println("CreateFile repo error:", err)
 		return file, err
 	}
-
-	uc.notifyUsecase.Notify(notifier.Notify{
-		Event:    eventChangeStatus,
-		UserID:   user.ID,
-		Path:     file.Path,
-		Status:   string(file.Status),
-		FileType: file.FileType,
-	})
 
 	err = uc.repo.PublishMessage(ctx, file)
 	if err != nil {
@@ -225,10 +214,10 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 	}
 	_, err := uc.repo.GetFileByPath(ctx, file.Path)
 	if err == nil {
-		log.Println("Upload: the file path already exists")
+		log.Println("GetFileByPath: the file path already exists")
 		return file, fileDomain.ErrDirectoryAlreadyExists
 	} else if err != fileDomain.ErrNotFound {
-		log.Println("Upload: err", err)
+		log.Println("GetFileByPath: err", err)
 		return file, err
 	}
 

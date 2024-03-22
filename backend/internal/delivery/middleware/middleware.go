@@ -34,7 +34,7 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 		if err != nil {
 			log.Println("User not auth:", err)
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(0, cleveruser.ErrAuthenticationRequired.Error(), nil))
+			json.NewEncoder(w).Encode(shared.NewResponse(cleveruser.StatusAuthenticationRequired, cleveruser.ErrAuthenticationRequired.Error(), nil))
 			return
 		}
 
@@ -42,7 +42,7 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 		if err != nil {
 			log.Println("Session unvalid:", err)
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(0, cleveruser.ErrSessionNotFound.Error(), nil))
+			json.NewEncoder(w).Encode(shared.NewResponse(cleveruser.StatusSessionNotFound, cleveruser.ErrSessionNotFound.Error(), nil))
 			return
 		}
 
@@ -59,7 +59,7 @@ func (m *Middleware) GetUserIDMiddleware(next http.Handler) http.Handler {
 			log.Println("GetUserID:", err)
 			if errors.Is(err, cleveruser.ErrUserNotFound) {
 				w.WriteHeader(http.StatusBadRequest)
-				json.NewEncoder(w).Encode(shared.NewResponse(0, err.Error(), nil))
+				json.NewEncoder(w).Encode(shared.NewResponse(cleveruser.StatusUserNotFound, err.Error(), nil))
 				return
 			}
 			w.WriteHeader(http.StatusInternalServerError)
