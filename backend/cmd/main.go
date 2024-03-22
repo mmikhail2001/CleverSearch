@@ -26,35 +26,26 @@ import (
 
 // TODO:
 // нужный ws.conn должен выбираться исходя из cookie пользователя (сейчас заглушка userID = 1)
-// repository vs gateway - система рассылки уведомлений
 // не работает ограничение на размер файла
-// в доменную сущность поместился Conn   *websocket.Conn
+// в доменную сущность поместился Conn *websocket.Conn
 // конфиг файл
 // контексты, таймауты
 
-// может статуса в бд числовыми сделать (а не строка?...) и еще нужно статусы синхронизовать с event
-
 // можно ли беку следить, как мл обрабатывает очередь ? нужно ли?
-// если в поле директории указать /dir, то 2024/03/04 21:49:12 Failed to PutObject minio: Object name contains unsupported characters.
-// - проблема в / в начале
+// (не замечал больше) если в поле директории указать /dir, то 2024/03/04 21:49:12 Failed to PutObject minio: Object name contains unsupported characters.
 
 // имеет смысл разделить репозиторий на fileStorage, db....
-
-// файлы с таким же path в s3 заново не загружаются, а в mongo загружаются
-
-// фронт запрашивает папки или файлы? что в начале, что потом? или сортировка по используемым?
 
 // ручка getFiles - общее количество файлов (limit)
 // ручка поиск - общее количестов + поиск в рамках директории + остальные фильтры
 
 // удалить share_author_id
 
-// /files должен принимать номер вложенности (мол какую вложенность фронт хочет, чтобы ему вернули)
+// кривое выделение текста в pdf
 
-// /dirs/2f871bb9-d261-4745-ac60-8e664dc7ec89?sharing=true
-// sharing=true не рассматриваем
+// числовые status назначить
 
-// sharedDirs - дублирование, нужно проверять наличие userID и fileID
+// ava позже
 
 var staticDir string = "/app/frontend/build"
 var staticDirMinio string = "/app/minio_files"
@@ -125,6 +116,7 @@ func Run() error {
 	apiAuth.Use(middleware.AuthMiddleware)
 
 	apiAuth.HandleFunc("/files", fileHandler.GetFiles).Methods("GET")
+	apiAuth.HandleFunc("/files/{file_uuid}", fileHandler.GetFileByID).Methods("GET")
 	apiAuth.HandleFunc("/files/search", fileHandler.GetFiles).Methods("GET")
 	apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
 	apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")

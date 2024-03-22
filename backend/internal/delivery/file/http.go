@@ -13,6 +13,7 @@ import (
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	"github.com/dranikpg/dto-mapper"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -37,9 +38,9 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Failed to parse file file from the body: %v\n", err)
 		if errors.As(err, new(*http.MaxBytesError)) {
-			log.Printf("The size exceeded the maximum size equal to %d mb: %v\n", limitSizeFile, err)
+			log.Printf("The size exceeded the maximum size equal to %d mb: %v\n", limitSizeFile/1024/1024, err)
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(0, file.ErrFileExceedsMaxSize.Error(), nil))
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusFileExceedsMaxSize, file.ErrFileExceedsMaxSize.Error(), nil))
 			return
 		}
 		w.WriteHeader(http.StatusInternalServerError)
@@ -56,7 +57,7 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	} else {
 		log.Println(file.ErrContentTypeNotSet.Error())
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(shared.NewResponse(0, file.ErrContentTypeNotSet.Error(), nil))
+		json.NewEncoder(w).Encode(shared.NewResponse(file.StatusContentTypeNotSet, file.ErrContentTypeNotSet.Error(), nil))
 		return
 	}
 
@@ -65,19 +66,29 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 		fileType = file.Unknown
 	}
 
+	if dir != "/" {
+		dir = dir + "/"
+	}
+
 	fileUpload, err := h.usecase.Upload(r.Context(), f, file.File{
 		Filename:    handler.Filename,
 		Size:        handler.Size,
-		Path:        dir + "/" + handler.Filename,
+		Path:        dir + handler.Filename,
 		ContentType: contentType,
 		FileType:    fileType,
 	})
 	if err != nil {
 		log.Println("Error Upload usecase:", err)
 		switch {
-		case errors.Is(err, file.ErrDirectoryNotStartsWithSlash) || errors.Is(err, file.ErrSubdirectoryNotFound) || errors.Is(err, file.ErrFileAlreadyExists):
+		case errors.Is(err, file.ErrDirectoryNotStartsWithSlash):
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(0, err.Error(), nil))
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusDirectoryNotStartsWithSlash, err.Error(), nil))
+		case errors.Is(err, file.ErrSubdirectoryNotFound):
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusSubdirectoryNotFound, err.Error(), nil))
+		case errors.Is(err, file.ErrFileAlreadyExists):
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusFileAlreadyExists, err.Error(), nil))
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
 		}
@@ -85,7 +96,6 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	var fileDTO FileDTO
 	dto.Map(&fileDTO, &fileUpload)
-
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(shared.NewResponse(0, "", fileDTO))
 }
@@ -102,9 +112,12 @@ func (h *Handler) DeleteFiles(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error DeleteFiles usecase", err)
 		switch {
-		case errors.Is(err, file.ErrDirectoryNotStartsWithSlash) || errors.Is(err, file.ErrNotFound):
+		case errors.Is(err, file.ErrDirectoryNotStartsWithSlash):
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(0, err.Error(), nil))
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusDirectoryNotStartsWithSlash, err.Error(), nil))
+		case errors.Is(err, file.ErrNotFound):
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusNotFound, err.Error(), nil))
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
 		}
@@ -113,18 +126,42 @@ func (h *Handler) DeleteFiles(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func (h *Handler) GetFileByID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	foundFile, err := h.usecase.GetFileByID(r.Context(), vars["file_uuid"])
+	if err != nil {
+		if errors.Is(err, file.ErrNotFound) {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusNotFound, err.Error(), nil))
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	var fileDTO FileDTO
+	dto.Map(&fileDTO, &foundFile)
+	fileDTO, err = setUserEmailToFile(r.Context(), fileDTO)
+	if err != nil {
+		json.NewEncoder(w).Encode(shared.NewResponse(-1, err.Error(), nil))
+		w.WriteHeader(http.StatusBadGateway)
+	}
+	json.NewEncoder(w).Encode(shared.NewResponse(0, "", fileDTO))
+}
+
 func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	queryValues := r.URL.Query()
 
 	options := file.FileOptions{
-		FileType: file.FileType(queryValues.Get("file_type")),
-		Dir:      queryValues.Get("dir"),
-		// Shared:        queryValues.Get("shared") == "true",
-		OnlyDirs:      queryValues.Get("only_dirs") == "true",
-		IsSmartSearch: queryValues.Get("is_smart_search") == "true",
-		Disk:          file.DiskType(queryValues.Get("disk")),
-		Query:         queryValues.Get("query"),
-		Status:        file.StatusType(queryValues.Get("status")),
+		FileType:         file.FileType(queryValues.Get("file_type")),
+		Dir:              queryValues.Get("dir"),
+		FirstNesting:     queryValues.Get("first_nesting") == "true",
+		DirsRequired:     queryValues.Get("dirs_required") == "true" || queryValues.Get("dirs_required") == "",
+		FilesRequired:    queryValues.Get("files_required") == "true" || queryValues.Get("files_required") == "",
+		SharedRequired:   queryValues.Get("shared_required") == "true" || queryValues.Get("shared_required") == "",
+		PersonalRequired: queryValues.Get("personal_required") == "true" || queryValues.Get("personal_required") == "",
+		IsSmartSearch:    queryValues.Get("is_smart_search") == "true",
+		Disk:             file.DiskType(queryValues.Get("disk")),
+		Query:            queryValues.Get("query"),
+		Status:           file.StatusType(queryValues.Get("status")),
 	}
 
 	var err error
@@ -138,6 +175,8 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
+
+	log.Printf("options == %#v\n\n", options)
 
 	var results []file.File
 	if strings.Contains(r.URL.Path, "search") {
@@ -155,9 +194,12 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error Search or GetFiles with:", err)
 		switch {
-		case errors.Is(err, file.ErrDirectoryNotStartsWithSlash) || errors.Is(err, file.ErrNotFound):
+		case errors.Is(err, file.ErrDirectoryNotStartsWithSlash):
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(0, err.Error(), nil))
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusDirectoryNotStartsWithSlash, err.Error(), nil))
+		case errors.Is(err, file.ErrNotFound):
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusNotFound, err.Error(), nil))
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
 		}
@@ -170,6 +212,11 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	for _, file := range results {
 		var fileDTO FileDTO
 		dto.Map(&fileDTO, &file)
+		fileDTO, err = setUserEmailToFile(r.Context(), fileDTO)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(-1, err.Error(), nil))
+		}
 		filesDTO = append(filesDTO, fileDTO)
 	}
 
@@ -185,9 +232,18 @@ func (h *Handler) CreateDir(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error CreateDir:", err)
 		switch {
-		case errors.Is(err, file.ErrDirectoryNotSpecified) || errors.Is(err, file.ErrSubdirectoryNotFound) || errors.Is(err, file.ErrDirectoryNotStartsWithSlash) || errors.Is(err, file.ErrDirectoryAlreadyExists):
+		case errors.Is(err, file.ErrDirectoryNotSpecified):
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(0, err.Error(), nil))
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusDirectoryNotSpecified, err.Error(), nil))
+		case errors.Is(err, file.ErrSubdirectoryNotFound):
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusSubdirectoryNotFound, err.Error(), nil))
+		case errors.Is(err, file.ErrDirectoryNotStartsWithSlash):
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusDirectoryNotStartsWithSlash, err.Error(), nil))
+		case errors.Is(err, file.ErrDirectoryAlreadyExists):
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusDirectoryAlreadyExists, err.Error(), nil))
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
 		}
@@ -254,7 +310,7 @@ func (h *Handler) ShareDir(w http.ResponseWriter, r *http.Request) {
 		// не давать доступ всем или только тем, кого не нашли
 		if errors.Is(err, file.ErrNotFound) {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(0, err.Error(), nil))
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusNotFound, err.Error(), nil))
 		}
 		w.WriteHeader(http.StatusInternalServerError)
 		return
