@@ -13,3 +13,6 @@ scikit-image
 scipy
 scikit-learn
 minio
+pypdf
+pymorphy2
+nltk
