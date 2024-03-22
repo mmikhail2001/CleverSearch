@@ -11,6 +11,7 @@ type FileDTO struct {
 	Filename      string          `json:"filename"`
 	TimeCreated   time.Time       `json:"time_created"`
 	UserID        string          `json:"user_id"`
+	Email         string          `json:"email"`
 	Path          string          `json:"path"`
 	Bucket        string          `json:"bucket"`
 	IsDir         bool            `json:"is_dir"`

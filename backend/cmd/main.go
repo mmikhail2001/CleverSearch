@@ -56,6 +56,12 @@ import (
 
 // sharedDirs - дублирование, нужно проверять наличие userID и fileID
 
+// кривое выделение текста в pdf
+
+// числовые status назначить
+
+// ava позже
+
 var staticDir string = "/app/frontend/build"
 var staticDirMinio string = "/app/minio_files"
 
@@ -125,6 +131,7 @@ func Run() error {
 	apiAuth.Use(middleware.AuthMiddleware)
 
 	apiAuth.HandleFunc("/files", fileHandler.GetFiles).Methods("GET")
+	apiAuth.HandleFunc("/files/{file_uuid}", fileHandler.GetFileByID).Methods("GET")
 	apiAuth.HandleFunc("/files/search", fileHandler.GetFiles).Methods("GET")
 	apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
 	apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")

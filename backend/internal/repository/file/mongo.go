@@ -80,6 +80,9 @@ func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) (
 	if fileOptions.Query != "" {
 		filter["filename"] = bson.M{"$regex": primitive.Regex{Pattern: fileOptions.Query, Options: "i"}}
 	}
+	if fileOptions.OnlyDirs {
+		filter["only_dirs"] = true
+	}
 
 	opts := options.Find().SetSort(bson.D{{Key: "filename", Value: 1}})
 	opts = opts.SetLimit(int64(fileOptions.Limit)).SetSkip(int64(fileOptions.Offset))
@@ -124,34 +127,28 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 	filter := bson.M{}
 
 	if fileOptions.FileType != "" && fileOptions.FileType != file.AllTypes {
-		filter["content_type"] = string(fileOptions.FileType)
+		filter["file_type"] = string(fileOptions.FileType)
 	}
 
 	if fileOptions.Dir != "/" {
 		filter["path"] = bson.M{"$regex": "^" + regexp.QuoteMeta(fileOptions.Dir) + "/"}
 	}
 
-	if fileOptions.Shared {
-		filter["is_shared"] = true
-	}
-
-	if fileOptions.Disk != "" && fileOptions.Disk != "all" {
-		filter["disk"] = fileOptions.Disk
-	}
-
 	if fileOptions.Status != "" && fileOptions.Status != "all" {
 		filter["status"] = string(fileOptions.Status)
 	}
 
-	if fileOptions.OnlyDirs {
+	if fileOptions.FilesRequired && !fileOptions.DirsRequired {
+		filter["is_dir"] = false
+	} else if !fileOptions.FilesRequired && fileOptions.DirsRequired {
 		filter["is_dir"] = true
+	} else if !fileOptions.FilesRequired && !fileOptions.DirsRequired {
+		return []file.File{}, file.ErrNotFound
 	}
+
 	if fileOptions.UserID != "" {
 		filter["user_id"] = fileOptions.UserID
 	}
-	// } else {
-	// 	filter["is_dir"] = false
-	// }
 
 	// TODO: сортировка нужна по дате добавления
 	opts := options.Find().SetSort(bson.D{{Key: "filename", Value: 1}})
@@ -178,7 +175,6 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 	}
 
 	results := make([]file.File, len(resultsDTO))
-	// TODO:
 	err = dto.Map(&results, &resultsDTO)
 	if err != nil {
 		log.Println("Dto Map GetFiles repo error:", err)
@@ -264,8 +260,9 @@ func (r *Repository) GetSharedDirs(ctx context.Context, path string, userID stri
 		}
 
 		fileRes := file.File{
-			UserID:      resultDTO.UserID,
+			// UserID:      resultDTO.UserID,
 			ID:          resultDTO.FileID,
+			IsShared:    true,
 			ShareAccess: resultDTO.ShareAccess,
 			Path:        resultDTO.Path,
 		}
@@ -307,17 +304,29 @@ func (r *Repository) Update(ctx context.Context, file file.File) error {
 }
 
 func (r *Repository) AddUserToSharingDir(ctx context.Context, file file.File, userID string, accessType file.AccessType) error {
-	sharedDirs := sharedDirDTO{
-		FileID:      file.ID,
-		UserID:      userID,
-		ShareAccess: accessType,
-		Path:        file.Path,
-	}
-	collection := r.mongo.Collection("shared_dirs")
-	_, err := collection.InsertOne(ctx, sharedDirs)
-	if err != nil {
-		log.Println("Failed to insert to mongo 'shared_dirs':", err)
+	var existing sharedDirDTO
+	filter := bson.M{"fileID": file.ID, "userID": userID}
+	// TODO: костыль, нужен составной первичный ключ
+	err := r.mongo.Collection("shared_dirs").FindOne(ctx, filter).Decode(&existing)
+	if err == mongo.ErrNoDocuments {
+		sharedDirs := sharedDirDTO{
+			// TODO: UserID - это именно тот, с кем поделились (изменить название поля)
+			// нужен AuthorID
+			FileID:      file.ID,
+			UserID:      userID,
+			ShareAccess: accessType,
+			Path:        file.Path,
+		}
+		_, err := r.mongo.Collection("shared_dirs").InsertOne(ctx, sharedDirs)
+		if err != nil {
+			log.Println("Failed to insert to mongo 'shared_dirs':", err)
+			return err
+		}
+		return nil
+	} else if err != nil {
+		log.Println("Failed to search in mongo 'shared_dirs':", err)
 		return err
 	}
+	log.Println("The user is already added to the sharing directory.")
 	return nil
 }

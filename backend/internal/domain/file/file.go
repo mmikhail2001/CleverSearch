@@ -81,14 +81,26 @@ type FileOptions struct {
 	Dir    string
 	UserID string
 	// для поиска в коллекции shared_dirs
-	Shared        bool
-	Disk          DiskType
-	Limit         int
-	Offset        int
-	Query         string
-	Status        StatusType
+	// Shared bool
+	Disk   DiskType
+	Limit  int
+	Offset int
+	Query  string
+	Status StatusType
+
 	IsSmartSearch bool
+	FirstNesting  bool
+	DirsRequired  bool
+	FilesRequired bool
+
+	SharedRequired   bool
+	PersonalRequired bool
 }
+
+// is_sharing
+// is_nested
+// dirs_required
+// files_required
 
 type RequestToShare struct {
 	Path        string

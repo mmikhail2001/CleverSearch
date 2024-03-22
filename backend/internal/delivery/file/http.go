@@ -13,6 +13,7 @@ import (
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	"github.com/dranikpg/dto-mapper"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -65,10 +66,14 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 		fileType = file.Unknown
 	}
 
+	if dir != "/" {
+		dir = dir + "/"
+	}
+
 	fileUpload, err := h.usecase.Upload(r.Context(), f, file.File{
 		Filename:    handler.Filename,
 		Size:        handler.Size,
-		Path:        dir + "/" + handler.Filename,
+		Path:        dir + handler.Filename,
 		ContentType: contentType,
 		FileType:    fileType,
 	})
@@ -85,7 +90,6 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	var fileDTO FileDTO
 	dto.Map(&fileDTO, &fileUpload)
-
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(shared.NewResponse(0, "", fileDTO))
 }
@@ -113,18 +117,42 @@ func (h *Handler) DeleteFiles(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func (h *Handler) GetFileByID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	foundFile, err := h.usecase.GetFileByID(r.Context(), vars["file_uuid"])
+	if err != nil {
+		if errors.Is(err, file.ErrNotFound) {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(0, err.Error(), nil))
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	var fileDTO FileDTO
+	dto.Map(&fileDTO, &foundFile)
+	fileDTO, err = setUserEmailToFile(r.Context(), fileDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(shared.NewResponse(0, err.Error(), nil))
+	}
+	json.NewEncoder(w).Encode(shared.NewResponse(0, "", fileDTO))
+}
+
 func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	queryValues := r.URL.Query()
 
 	options := file.FileOptions{
-		FileType: file.FileType(queryValues.Get("file_type")),
-		Dir:      queryValues.Get("dir"),
-		// Shared:        queryValues.Get("shared") == "true",
-		OnlyDirs:      queryValues.Get("only_dirs") == "true",
-		IsSmartSearch: queryValues.Get("is_smart_search") == "true",
-		Disk:          file.DiskType(queryValues.Get("disk")),
-		Query:         queryValues.Get("query"),
-		Status:        file.StatusType(queryValues.Get("status")),
+		FileType:         file.FileType(queryValues.Get("file_type")),
+		Dir:              queryValues.Get("dir"),
+		FirstNesting:     queryValues.Get("first_nesting") == "true",
+		DirsRequired:     queryValues.Get("dirs_required") == "true" || queryValues.Get("dirs_required") == "",
+		FilesRequired:    queryValues.Get("files_required") == "true" || queryValues.Get("files_required") == "",
+		SharedRequired:   queryValues.Get("shared_required") == "true" || queryValues.Get("shared_required") == "",
+		PersonalRequired: queryValues.Get("personal_required") == "true" || queryValues.Get("personal_required") == "",
+		IsSmartSearch:    queryValues.Get("is_smart_search") == "true",
+		Disk:             file.DiskType(queryValues.Get("disk")),
+		Query:            queryValues.Get("query"),
+		Status:           file.StatusType(queryValues.Get("status")),
 	}
 
 	var err error
@@ -138,6 +166,8 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
+
+	log.Printf("options == %#v\n\n", options)
 
 	var results []file.File
 	if strings.Contains(r.URL.Path, "search") {
@@ -170,6 +200,11 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	for _, file := range results {
 		var fileDTO FileDTO
 		dto.Map(&fileDTO, &file)
+		fileDTO, err = setUserEmailToFile(r.Context(), fileDTO)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(0, err.Error(), nil))
+		}
 		filesDTO = append(filesDTO, fileDTO)
 	}
 
