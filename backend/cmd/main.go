@@ -39,11 +39,7 @@ import (
 // ручка getFiles - общее количество файлов (limit)
 // ручка поиск - общее количестов + поиск в рамках директории + остальные фильтры
 
-// удалить share_author_id
-
 // кривое выделение текста в pdf
-
-// числовые status назначить
 
 // ava позже
 
@@ -116,10 +112,11 @@ func Run() error {
 	apiAuth.Use(middleware.AuthMiddleware)
 
 	apiAuth.HandleFunc("/files", fileHandler.GetFiles).Methods("GET")
-	apiAuth.HandleFunc("/files/{file_uuid}", fileHandler.GetFileByID).Methods("GET")
 	apiAuth.HandleFunc("/files/search", fileHandler.GetFiles).Methods("GET")
 	apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
 	apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
+	apiAuth.HandleFunc("/files/{file_uuid}", fileHandler.GetFileByID).Methods("GET")
+
 	apiAuth.HandleFunc("/dirs/create", fileHandler.CreateDir).Methods("POST")
 
 	apiAuth.HandleFunc("/dirs/share", fileHandler.ShareDir).Methods("POST")

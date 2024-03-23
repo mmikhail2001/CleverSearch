@@ -134,8 +134,10 @@ func (h *Handler) GetFileByID(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, file.ErrNotFound) {
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusNotFound, err.Error(), nil))
+			return
 		}
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	var fileDTO FileDTO
 	dto.Map(&fileDTO, &foundFile)
@@ -175,8 +177,6 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
-
-	log.Printf("options == %#v\n\n", options)
 
 	var results []file.File
 	if strings.Contains(r.URL.Path, "search") {

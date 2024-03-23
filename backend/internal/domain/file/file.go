@@ -86,23 +86,20 @@ const (
 
 type FileOptions struct {
 	FileType FileType
-	OnlyDirs bool
 	// TODO: заменить на path
 	Dir    string
 	UserID string
 	// для поиска в коллекции shared_dirs
 	// Shared bool
-	Disk   DiskType
-	Limit  int
-	Offset int
-	Query  string
-	Status StatusType
-
-	IsSmartSearch bool
-	FirstNesting  bool
-	DirsRequired  bool
-	FilesRequired bool
-
+	Disk             DiskType
+	Limit            int
+	Offset           int
+	Query            string
+	Status           StatusType
+	IsSmartSearch    bool
+	FirstNesting     bool
+	DirsRequired     bool
+	FilesRequired    bool
 	SharedRequired   bool
 	PersonalRequired bool
 }

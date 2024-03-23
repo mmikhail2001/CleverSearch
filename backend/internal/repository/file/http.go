@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 
@@ -33,18 +34,21 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 
 	resp, err := http.Get(url)
 	if err != nil {
+		log.Println("http.Get error:", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		log.Println("ioutil.ReadAll error:", err)
 		return nil, err
 	}
 
 	var response searchResponseDTO
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
+		log.Println("json.Unmarshal:", string(bodyBytes), ", error:", err)
 		return nil, err
 	}
 
@@ -66,6 +70,7 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 	for _, searchItem := range response.FilesID {
 		file, err := r.GetFileByID(ctx, searchItem.FileID)
 		if err != nil {
+			log.Println("GetFileByID error:", err)
 			return nil, err
 		}
 		files = append(files, file)

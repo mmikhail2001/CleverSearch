@@ -80,12 +80,25 @@ func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) (
 	if fileOptions.Query != "" {
 		filter["filename"] = bson.M{"$regex": primitive.Regex{Pattern: fileOptions.Query, Options: "i"}}
 	}
-	if fileOptions.OnlyDirs {
-		filter["only_dirs"] = true
+
+	if fileOptions.FilesRequired && !fileOptions.DirsRequired {
+		filter["is_dir"] = false
+	} else if !fileOptions.FilesRequired && fileOptions.DirsRequired {
+		filter["is_dir"] = true
+	} else if !fileOptions.FilesRequired && !fileOptions.DirsRequired {
+		return []file.File{}, file.ErrNotFound
+	}
+
+	if fileOptions.UserID != "" {
+		filter["user_id"] = fileOptions.UserID
+	}
+
+	if fileOptions.FileType != "" && fileOptions.FileType != file.AllTypes {
+		filter["file_type"] = string(fileOptions.FileType)
 	}
 
 	opts := options.Find().SetSort(bson.D{{Key: "filename", Value: 1}})
-	opts = opts.SetLimit(int64(fileOptions.Limit)).SetSkip(int64(fileOptions.Offset))
+	// opts = opts.SetLimit(int64(fileOptions.Limit)).SetSkip(int64(fileOptions.Offset))
 
 	cursor, err := r.mongo.Collection("files").Find(ctx, filter, opts)
 	if err != nil {
@@ -152,7 +165,7 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 
 	// TODO: сортировка нужна по дате добавления
 	opts := options.Find().SetSort(bson.D{{Key: "filename", Value: 1}})
-	opts = opts.SetLimit(int64(fileOptions.Limit)).SetSkip(int64(fileOptions.Offset))
+	// opts = opts.SetLimit(int64(fileOptions.Limit)).SetSkip(int64(fileOptions.Offset))
 
 	cursor, err := r.mongo.Collection("files").Find(ctx, filter, opts)
 	if err != nil {
@@ -212,10 +225,10 @@ func (r *Repository) GetFileByID(ctx context.Context, uuidFile string) (file.Fil
 }
 
 // TODO: объединить с GetFileByID
-func (r *Repository) GetFileByPath(ctx context.Context, path string) (file.File, error) {
+func (r *Repository) GetFileByPath(ctx context.Context, path string, userID string) (file.File, error) {
 	var resultDTO fileDTO
 
-	filter := bson.M{"path": path}
+	filter := bson.M{"path": path, "user_id": userID}
 	err := r.mongo.Collection("files").FindOne(ctx, filter).Decode(&resultDTO)
 	if err != nil {
 		log.Println("GetFileByPath: FindOne:", path, err)

@@ -47,11 +47,18 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 		log.Printf("Directory path [%s] does not start with /\n", file.Path)
 		return fileDomain.File{}, fileDomain.ErrDirectoryNotStartsWithSlash
 	}
+
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return fileDomain.File{}, sharederrors.ErrUserNotFoundInContext
+	}
+
 	pathComponents := strings.Split(file.Path, "/")
 	// TODO: при условии, что в начале /
 	for i := 1; i < len(pathComponents)-1; i++ {
 		dirPath := strings.Join(pathComponents[:i+1], "/")
-		_, err := uc.repo.GetFileByPath(ctx, dirPath)
+		_, err := uc.repo.GetFileByPath(ctx, dirPath, user.ID)
 		if err != nil {
 			log.Printf("Error checking directory %s existence: %v\n", dirPath, err)
 			if errors.Is(err, fileDomain.ErrNotFound) {
@@ -61,18 +68,12 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 		}
 	}
 
-	_, err := uc.repo.GetFileByPath(ctx, file.Path)
+	_, err := uc.repo.GetFileByPath(ctx, file.Path, user.ID)
 	if err == nil {
 		log.Println("Upload: the file path already exists")
 		return fileDomain.File{}, fileDomain.ErrFileAlreadyExists
 	} else if err != fileDomain.ErrNotFound {
 		return fileDomain.File{}, err
-	}
-
-	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
-	if !ok {
-		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
-		return file, sharederrors.ErrUserNotFoundInContext
 	}
 
 	file.Link = "/minio" + file.Path
@@ -142,7 +143,6 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 				return []fileDomain.File{}, err
 			}
 			if !errors.Is(err, file.ErrNotFound) {
-				log.Printf(" !errors.Is(err, file.ErrNotFound\n\n")
 				for _, sharedDir := range sharedDirs {
 					// достаем сами эти пошаренные директории
 					// TODO: в GetSharedDirs у файлов нет автора, поэтому нужно отдельно по ID запрашивать
@@ -212,7 +212,14 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 		log.Printf("Directory path [%s] does not start with /\n", file.Path)
 		return file, fileDomain.ErrDirectoryNotStartsWithSlash
 	}
-	_, err := uc.repo.GetFileByPath(ctx, file.Path)
+
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return fileDomain.File{}, sharederrors.ErrUserNotFoundInContext
+	}
+
+	_, err := uc.repo.GetFileByPath(ctx, file.Path, user.ID)
 	if err == nil {
 		log.Println("GetFileByPath: the file path already exists")
 		return file, fileDomain.ErrDirectoryAlreadyExists
@@ -226,7 +233,7 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 	// TODO: при условии, что в начале /
 	for i := 1; i < len(pathComponents)-1; i++ {
 		dirPath := strings.Join(pathComponents[:i+1], "/")
-		_, err := uc.repo.GetFileByPath(ctx, dirPath)
+		_, err := uc.repo.GetFileByPath(ctx, dirPath, user.ID)
 		if err != nil {
 			log.Printf("Error checking directory %s existence: %v\n", dirPath, err)
 			if errors.Is(err, fileDomain.ErrNotFound) {
@@ -236,11 +243,6 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 		}
 	}
 
-	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
-	if !ok {
-		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
-		return file, sharederrors.ErrUserNotFoundInContext
-	}
 	file.Bucket = user.Email
 	file.UserID = user.ID
 	file.TimeCreated = time.Now()
@@ -263,7 +265,23 @@ func (uc *Usecase) Search(ctx context.Context, options fileDomain.FileOptions) (
 	if options.IsSmartSearch {
 		return uc.repo.SmartSearch(ctx, options)
 	}
-	return uc.repo.Search(ctx, options)
+	files, err := uc.GetFiles(ctx, options)
+	if err != nil && !errors.Is(err, file.ErrNotFound) {
+		return []fileDomain.File{}, nil
+	}
+
+	printPaths(files, "before filtered")
+
+	var filteredFiles []fileDomain.File
+
+	for _, file := range files {
+		if strings.Contains(file.Filename, options.Query) {
+			filteredFiles = append(filteredFiles, file)
+		}
+	}
+	printPaths(filteredFiles, "after filtered")
+
+	return filteredFiles, nil
 }
 
 func (uc *Usecase) DeleteFiles(ctx context.Context, filePaths []string) error {
@@ -273,9 +291,16 @@ func (uc *Usecase) DeleteFiles(ctx context.Context, filePaths []string) error {
 			return fileDomain.ErrDirectoryNotStartsWithSlash
 		}
 	}
+
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return sharederrors.ErrUserNotFoundInContext
+	}
+
 	var files []file.File
 	for _, path := range filePaths {
-		file, err := uc.repo.GetFileByPath(ctx, path)
+		file, err := uc.repo.GetFileByPath(ctx, path, user.ID)
 		if err != nil {
 			log.Println("GetFileByPath repo, path:", path, ", error:", err)
 			return err
@@ -286,21 +311,12 @@ func (uc *Usecase) DeleteFiles(ctx context.Context, filePaths []string) error {
 	stack := make([]file.File, 0)
 	stack = append(stack, files...)
 
-	fmt.Printf("%#v\n\n", files)
-
-	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
-	if !ok {
-		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
-		return sharederrors.ErrUserNotFoundInContext
-	}
-
 	for len(stack) > 0 {
-
 		currentFile := stack[len(stack)-1]
 		stack = stack[:len(stack)-1]
 
 		if currentFile.IsDir {
-			dir, err := uc.repo.GetFileByPath(ctx, currentFile.Path)
+			dir, err := uc.repo.GetFileByPath(ctx, currentFile.Path, user.ID)
 			if err != nil {
 				return err
 			}
@@ -309,7 +325,16 @@ func (uc *Usecase) DeleteFiles(ctx context.Context, filePaths []string) error {
 				log.Println("Error deleting file:", currentFile.Path, ", error:", err)
 				return err
 			}
-			retrievedFiles, err := uc.repo.GetFiles(ctx, fileDomain.FileOptions{Dir: currentFile.Path, UserID: user.ID})
+
+			options := fileDomain.FileOptions{
+				Dir:           currentFile.Path,
+				UserID:        user.ID,
+				FirstNesting:  false,
+				DirsRequired:  true,
+				FilesRequired: true,
+			}
+
+			retrievedFiles, err := uc.repo.GetFiles(ctx, options)
 			if err != nil {
 				if errors.Is(err, file.ErrNotFound) {
 					continue
@@ -364,7 +389,13 @@ func (uc *Usecase) DownloadFile(ctx context.Context, filePath string) (io.ReadCl
 }
 
 func (uc *Usecase) GetSharingLink(ctx context.Context, reqShare file.RequestToShare) (string, error) {
-	file, err := uc.repo.GetFileByPath(ctx, reqShare.Path)
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return "", sharederrors.ErrUserNotFoundInContext
+	}
+
+	file, err := uc.repo.GetFileByPath(ctx, reqShare.Path, user.ID)
 	if err != nil {
 		return "", err
 	}

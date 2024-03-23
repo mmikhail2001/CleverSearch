@@ -14,7 +14,7 @@ type Repository interface {
 	GetFiles(ctx context.Context, options file.FileOptions) ([]file.File, error)
 	PublishMessage(ctx context.Context, file file.File) error
 	GetFileByID(ctx context.Context, uuidFile string) (file.File, error)
-	GetFileByPath(ctx context.Context, path string) (file.File, error)
+	GetFileByPath(ctx context.Context, path string, userID string) (file.File, error)
 	GetSharedDirs(ctx context.Context, path string, userID string) ([]file.File, error)
 	SmartSearch(ctx context.Context, options file.FileOptions) ([]file.File, error)
 	Search(ctx context.Context, options file.FileOptions) ([]file.File, error)
