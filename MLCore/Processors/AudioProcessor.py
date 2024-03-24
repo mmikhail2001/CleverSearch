@@ -1,6 +1,6 @@
 import whisper
 from IDataProcessor import IDataProcessor
-from TextPreprocessor import TextPreprocessor
+from TextProcessor import TextProcessor
 
 
 class AudioProcessor(IDataProcessor):
@@ -10,19 +10,14 @@ class AudioProcessor(IDataProcessor):
     def process(self, filename):
         transcript = self.model.transcribe(filename)
 
-        preprocessor = TextPreprocessor(
-            transcript['text']
-        )
-        text = preprocessor.process()
-
         embeddings = []
+        timestamps = []
 
-        for sentence in text:
-            encodes = self.tokenizer(
-                sentence,
-                return_tensors='pt',
-                padding=True)
+        text_processor = TextProcessor()
 
-            embedding = self.model(**encodes).last_hidden_state[:, 0, :]
-            embeddings.append(embedding.tolist())
-        return embeddings
+        for element in transcript['segments']:
+            timestamps.append(element['start'])
+            embedding = text_processor.process_query_string(element['text'])
+            embeddings.append(embedding)
+
+        return embeddings, timestamps

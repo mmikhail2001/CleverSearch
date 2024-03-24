@@ -35,7 +35,7 @@ class AudioService(IDataService):
             local_file_path
         )
 
-        proc_list = self.worker.process(local_file_path)
+        proc_list, timestamps = self.worker.process(local_file_path)
 
         os.remove(local_file_path)
 
@@ -43,7 +43,8 @@ class AudioService(IDataService):
             '$set':
             {
                 'ml_data': {
-                    'text_repr': proc_list
+                    'text_repr': proc_list,
+                    'timestamp': timestamps
                 }
             }
         }
