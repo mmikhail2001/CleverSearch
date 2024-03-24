@@ -122,6 +122,7 @@ func Run() error {
 	apiAuth.HandleFunc("/dirs/share", fileHandler.ShareDir).Methods("POST")
 
 	apiAuth.HandleFunc("/users/profile", userHandler.Profile).Methods("GET")
+
 	api.HandleFunc("/users/logout", userHandler.Logout).Methods("POST")
 	api.HandleFunc("/users/login", userHandler.Login).Methods("POST")
 	api.HandleFunc("/users/register", userHandler.Register).Methods("POST")

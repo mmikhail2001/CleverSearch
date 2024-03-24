@@ -39,6 +39,17 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		switch resp.StatusCode {
+		case http.StatusBadRequest | http.StatusInternalServerError:
+			log.Println("HTTP ML error:", resp.StatusCode)
+			return []file.File{}, file.ErrMLService
+		default:
+			log.Println("HTTP ML Unknown error:", resp.StatusCode)
+			return []file.File{}, file.ErrMLService
+		}
+	}
+
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("ioutil.ReadAll error:", err)
@@ -51,20 +62,6 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		log.Println("json.Unmarshal:", string(bodyBytes), ", error:", err)
 		return nil, err
 	}
-
-	// filesMock, _ := r.GetFiles(ctx, file.FileOptions{
-	// 	Limit: 3,
-	// })
-	// idsMock := []string{}
-	// for _, file := range filesMock {
-	// 	idsMock = append(idsMock, file.ID)
-	// }
-
-	// response := searchResponseDTO{
-	// 	Body: Ids{
-	// 		Ids: idsMock,
-	// 	},
-	// }
 
 	var files []file.File
 	for _, searchItem := range response.FilesID {

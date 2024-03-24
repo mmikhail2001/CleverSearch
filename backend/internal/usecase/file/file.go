@@ -76,7 +76,7 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 		return fileDomain.File{}, err
 	}
 
-	file.Link = "/minio" + file.Path
+	file.Link = "/minio/" + user.Bucket + file.Path
 	file.Bucket = user.Bucket
 	file.Extension = getFileExtension(file.Filename)
 	file.UserID = user.ID
@@ -147,7 +147,6 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 					// достаем сами эти пошаренные директории
 					// TODO: в GetSharedDirs у файлов нет автора, поэтому нужно отдельно по ID запрашивать
 					sharedDirFull, err := uc.repo.GetFileByID(ctx, sharedDir.ID)
-					fmt.Println(sharedDirFull.Path)
 					if err != nil && !errors.Is(err, file.ErrNotFound) {
 						log.Println("GetFiles error:", err)
 						return []fileDomain.File{}, err

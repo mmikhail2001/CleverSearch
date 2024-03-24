@@ -27,6 +27,8 @@ var (
 	StatusDirectoryNotSpecified       = 9
 	ErrDirNotSharing                  = errors.New("requested dir is not sharing")
 	StatusDirNotSharing               = 10
+	ErrMLService                      = errors.New("ml service returns error")
+	StatusMLService                   = 11
 )
 
 type AccessType string
@@ -60,6 +62,7 @@ type File struct {
 	ShareAccess AccessType
 	ShareLink   string
 	Link        string
+	MLData      interface{}
 	// Disk
 }
 

@@ -26,6 +26,11 @@ type FileDTO struct {
 	Link        string          `json:"link"`
 }
 
+type FileForMLDTO struct {
+	FileDTO
+	MLData interface{} `json:"ml_data"`
+}
+
 type DeleteFilesDTO struct {
 	Files []string `json:"files"`
 }

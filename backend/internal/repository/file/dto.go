@@ -23,6 +23,7 @@ type fileDTO struct {
 	ShareAccess file.AccessType `bson:"share_access"`
 	ShareLink   string          `bson:"share_link"`
 	Link        string          `bson:"link"`
+	MLData      interface{}     `bson:"ml_data"`
 	// Disk
 }
 

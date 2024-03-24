@@ -71,6 +71,18 @@ services:
     networks:
       clevernet:
 
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+    volumes:
+      # dd exec -it containerID nginx -s reload
+      - ./config/default.conf:/etc/nginx/conf.d/default.conf
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend:/app/frontend
+    networks:
+      clevernet:
+
 volumes:
   minio_data:
   mongo_data:

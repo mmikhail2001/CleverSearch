@@ -200,6 +200,9 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, file.ErrNotFound):
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusNotFound, err.Error(), nil))
+		case errors.Is(err, file.ErrMLService):
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusMLService, err.Error(), nil))
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
 		}
@@ -208,10 +211,28 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
+	if strings.Contains(r.URL.Path, "ml/files") {
+		filesDTO := []FileForMLDTO{}
+		for _, file := range results {
+			var fileDTO FileForMLDTO
+			err = dto.Map(&fileDTO, &file)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+			filesDTO = append(filesDTO, fileDTO)
+		}
+
+		json.NewEncoder(w).Encode(shared.NewResponse(0, "", filesDTO))
+		return
+	}
+
 	filesDTO := []FileDTO{}
 	for _, file := range results {
 		var fileDTO FileDTO
-		dto.Map(&fileDTO, &file)
+		err = dto.Map(&fileDTO, &file)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		fileDTO, err = setUserEmailToFile(r.Context(), fileDTO)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
