@@ -43,7 +43,6 @@ type searchItemDTO struct {
 }
 
 type sharedDirDTO struct {
-	ID          string          `bson:"_id"`
 	FileID      string          `bson:"file_id"`
 	UserID      string          `bson:"user_id"`
 	ShareAccess file.AccessType `bson:"share_access"`

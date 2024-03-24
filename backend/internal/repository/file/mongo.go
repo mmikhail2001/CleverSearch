@@ -319,6 +319,10 @@ func (r *Repository) Update(ctx context.Context, file file.File) error {
 func (r *Repository) AddUserToSharingDir(ctx context.Context, file file.File, userID string, accessType file.AccessType) error {
 	var existing sharedDirDTO
 	filter := bson.M{"fileID": file.ID, "userID": userID}
+	if file.UserID == userID {
+		log.Println("The author cannot share with himself")
+		return fmt.Errorf("the author cannot share with himself")
+	}
 	// TODO: костыль, нужен составной первичный ключ
 	err := r.mongo.Collection("shared_dirs").FindOne(ctx, filter).Decode(&existing)
 	if err == mongo.ErrNoDocuments {

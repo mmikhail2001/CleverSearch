@@ -174,6 +174,7 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 		if options.FirstNesting {
 			return filterFilesByNesting(files, options.Dir), nil
 		}
+		printPaths(files, "files")
 		return files, nil
 	}
 
