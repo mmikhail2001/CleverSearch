@@ -43,6 +43,9 @@ import (
 
 // ava позже
 
+// конверт png, txt to jpg, pdf
+// response search
+
 var staticDir string = "/app/frontend/build"
 var staticDirMinio string = "/app/minio_files"
 

@@ -64,13 +64,27 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 	}
 
 	var files []file.File
-	for _, searchItem := range response.FilesID {
-		file, err := r.GetFileByID(ctx, searchItem.FileID)
-		if err != nil {
-			log.Println("GetFileByID error:", err)
-			return nil, err
+	if fileOptions.FileType == file.Text {
+		for _, searchItem := range response.Text {
+			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			if err != nil {
+				log.Println("GetFileByID error:", err)
+				return nil, err
+			}
+			files = append(files, file)
 		}
-		files = append(files, file)
+		return files, nil
 	}
-	return files, nil
+	if fileOptions.FileType == file.Image {
+		for _, searchItem := range response.Image {
+			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			if err != nil {
+				log.Println("GetFileByID error:", err)
+				return nil, err
+			}
+			files = append(files, file)
+		}
+		return files, nil
+	}
+	return []file.File{}, fmt.Errorf("file type response from ml not correct")
 }
