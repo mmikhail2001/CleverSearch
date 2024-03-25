@@ -16,8 +16,9 @@ class AudioProcessor(IDataProcessor):
         text_processor = TextProcessor()
 
         for element in transcript['segments']:
-            timestamps.append(element['start'])
             embedding = text_processor.process_query_string(element['text'])
-            embeddings.append(embedding)
+            if embedding:
+                embeddings.append(embedding)
+                timestamps.append(element['start'])
 
         return embeddings, timestamps

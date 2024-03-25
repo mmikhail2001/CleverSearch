@@ -16,4 +16,3 @@ minio
 pypdf
 pymorphy2
 nltk
-moviepy

@@ -1,6 +1,7 @@
+import os
+
 from AudioProcessor import AudioProcessor
 from IDataProcessor import IDataProcessor
-from moviepy.editor import VideoFileClip
 
 
 class VideoProcessor(IDataProcessor):
@@ -10,12 +11,10 @@ class VideoProcessor(IDataProcessor):
     def process(self, video_path):
         audio_path = video_path.split('.')[0] + '.mp3'
 
-        video = VideoFileClip(video_path)
-        audio = video.audio
+        os.system(f'ffmpeg -i {video_path} {audio_path} > /dev/null')
 
-        audio.write_audiofile(audio_path)
+        result = self.audio_processor.process(audio_path)
 
-        audio.close()
-        video.close()
+        os.remove(audio_path)
 
-        return self.audio_processor.process(audio_path)
+        return result
