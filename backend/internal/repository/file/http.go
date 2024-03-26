@@ -39,6 +39,17 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		switch resp.StatusCode {
+		case http.StatusBadRequest | http.StatusInternalServerError:
+			log.Println("HTTP ML error:", resp.StatusCode)
+			return []file.File{}, file.ErrMLService
+		default:
+			log.Println("HTTP ML Unknown error:", resp.StatusCode)
+			return []file.File{}, file.ErrMLService
+		}
+	}
+
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("ioutil.ReadAll error:", err)
@@ -52,28 +63,28 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		return nil, err
 	}
 
-	// filesMock, _ := r.GetFiles(ctx, file.FileOptions{
-	// 	Limit: 3,
-	// })
-	// idsMock := []string{}
-	// for _, file := range filesMock {
-	// 	idsMock = append(idsMock, file.ID)
-	// }
-
-	// response := searchResponseDTO{
-	// 	Body: Ids{
-	// 		Ids: idsMock,
-	// 	},
-	// }
-
 	var files []file.File
-	for _, searchItem := range response.FilesID {
-		file, err := r.GetFileByID(ctx, searchItem.FileID)
-		if err != nil {
-			log.Println("GetFileByID error:", err)
-			return nil, err
+	if fileOptions.FileType == file.Text {
+		for _, searchItem := range response.Text {
+			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			if err != nil {
+				log.Println("GetFileByID error:", err)
+				return nil, err
+			}
+			files = append(files, file)
 		}
-		files = append(files, file)
+		return files, nil
 	}
-	return files, nil
+	if fileOptions.FileType == file.Image {
+		for _, searchItem := range response.Image {
+			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			if err != nil {
+				log.Println("GetFileByID error:", err)
+				return nil, err
+			}
+			files = append(files, file)
+		}
+		return files, nil
+	}
+	return []file.File{}, fmt.Errorf("file type response from ml not correct")
 }

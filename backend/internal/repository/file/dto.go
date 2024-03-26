@@ -23,6 +23,7 @@ type fileDTO struct {
 	ShareAccess file.AccessType `bson:"share_access"`
 	ShareLink   string          `bson:"share_link"`
 	Link        string          `bson:"link"`
+	MLData      interface{}     `bson:"ml_data"`
 	// Disk
 }
 
@@ -34,12 +35,24 @@ type fileForQueueDTO struct {
 }
 
 type searchResponseDTO struct {
-	FilesID []searchItemDTO `json:"files"`
+	Text  []searchTextItemDTO       `json:"text"`
+	Image []searchImageItemDTO      `json:"img"`
+	Audio []searchAudioVideoItemDTO `json:"audio"`
+	Video []searchAudioVideoItemDTO `json:"video"`
 }
 
-type searchItemDTO struct {
-	Index  int    `json:"index"`
+type searchTextItemDTO struct {
 	FileID string `json:"file_uuid"`
+	Page   int    `json:"page"`
+}
+
+type searchImageItemDTO struct {
+	FileID string `json:"file_uuid"`
+}
+
+type searchAudioVideoItemDTO struct {
+	FileID    string `json:"file_uuid"`
+	Timestart string `json:"timestart"`
 }
 
 type sharedDirDTO struct {

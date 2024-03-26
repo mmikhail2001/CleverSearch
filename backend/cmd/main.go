@@ -43,6 +43,9 @@ import (
 
 // ava позже
 
+// конверт png, txt to jpg, pdf
+// response search
+
 var staticDir string = "/app/frontend/build"
 var staticDirMinio string = "/app/minio_files"
 
@@ -95,11 +98,16 @@ func Run() error {
 	middleware := middleware.NewMiddleware(userUsecase)
 
 	r := mux.NewRouter()
-
 	headers := handlers.AllowedHeaders([]string{"Content-Type"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST"})
 	origins := handlers.AllowedOrigins([]string{"*"})
 	r.Use(handlers.CORS(headers, methods, origins))
+	r.Use(middleware.AccessLogMiddleware)
+
+	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("not found URL:", r.URL)
+		w.WriteHeader(http.StatusBadRequest)
+	})
 
 	minioRouter := r.PathPrefix("/minio").Subrouter()
 	minioRouter.Use(middleware.AuthMiddleware)
@@ -122,6 +130,7 @@ func Run() error {
 	apiAuth.HandleFunc("/dirs/share", fileHandler.ShareDir).Methods("POST")
 
 	apiAuth.HandleFunc("/users/profile", userHandler.Profile).Methods("GET")
+
 	api.HandleFunc("/users/logout", userHandler.Logout).Methods("POST")
 	api.HandleFunc("/users/login", userHandler.Login).Methods("POST")
 	api.HandleFunc("/users/register", userHandler.Register).Methods("POST")

@@ -2,6 +2,7 @@ package file
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log"
 
@@ -32,6 +33,12 @@ func (r *Repository) UploadToStorage(ctx context.Context, fileReader io.Reader, 
 		err = r.minio.MakeBucket(ctx, file.Bucket, minio.MakeBucketOptions{})
 		if err != nil {
 			log.Println("Failed to create bucket:", err)
+			return file, err
+		}
+		policy := fmt.Sprintf(`{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":"*"},"Action":["s3:GetObject"],"Resource":["arn:aws:s3:::%s/*"]}]}`, file.Bucket)
+		err = r.minio.SetBucketPolicy(context.Background(), file.Bucket, policy)
+		if err != nil {
+			log.Println("Failed to set bucket policy :", err)
 			return file, err
 		}
 		log.Println("Bucket created successfully:", file.Bucket)
