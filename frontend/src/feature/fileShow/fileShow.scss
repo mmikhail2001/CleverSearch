@@ -1,12 +1,12 @@
-.file-show-line {
+ .file-show-line {
     width: 100%;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 3fr 2fr 1fr;
+    
     justify-content: space-between;
     align-content: center;
     padding: 16px;
-    box-sizing: border-box;
-}
+ }
 
 .icon-placement {
     width: 25px;
@@ -28,4 +28,30 @@
 .icon {
   width: 2rem;
   height: 2rem;
+}
+
+.container-file-info {
+  display: flex;
+  flex-direction: row;
+  
+  gap: var(--big-padding);
+  overflow: hidden;
+  
+}
+
+.additional-functions-file  .size {
+  display: flex;
+  flex-direction: row;
+}
+
+.additional-functions-file {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+
+  gap: var(--big-padding);
+}
+
+.size {
+  justify-content: end;
 }

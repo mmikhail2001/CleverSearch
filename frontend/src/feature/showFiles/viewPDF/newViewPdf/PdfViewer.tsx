@@ -103,6 +103,7 @@ const PdfViewer: FC<PdfViewerProps> = ({
         height={internalHeight}
         itemCount={itemCount}
         itemSize={handleItemSize}
+
       >
         {renderPage}
       </VariableSizeList>

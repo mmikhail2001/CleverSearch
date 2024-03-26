@@ -1,0 +1,23 @@
+.video-player {
+	display: flex;
+	flex-direction: column;
+	
+	max-height: 100%;
+	overflow: hidden;
+}
+
+.fullscreen-player {
+	display: flex;
+	flex-direction: column;
+
+	max-height: 100%;
+	overflow: hidden;
+}
+
+.react-player {
+	max-height: 100%;
+	overflow: hidden;
+
+	background-color: var(--main-color-600);
+}
+

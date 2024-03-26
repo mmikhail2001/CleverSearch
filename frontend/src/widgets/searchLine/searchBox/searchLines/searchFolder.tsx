@@ -1,14 +1,15 @@
 import { useGetFoldersMutation } from '@api/filesApi';
 import { SearchParamsLocal } from '@models/searchParams';
-import { Option, SelectorAsync } from '@entities/selectors/selectorAsync/selectorAsync';
+import { SelectorAsync } from '@entities/selectors/selectorAsync/selectorAsync';
 import React, { FC } from 'react';
+import { Option } from '@models/additional'
 
-import {transformOptionsToDirs, transformToOptions} from '@models/disk'
+import { transformOptionsToDirs, transformToOptions } from '@models/disk'
 
 export interface SearchFolderLineProps {
-	changeState: React.Dispatch<
+	changeState: (React.Dispatch<
 		React.SetStateAction<SearchParamsLocal>
-	>;
+	>);
 	state: SearchParamsLocal;
 }
 
@@ -20,31 +21,43 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 }) => {
 	const [searchFolder] = useGetFoldersMutation();
 
+	const changeDir = (dirs: string[]) => {
+		changeState({ ...state, dir: dirs })
+	}
+
+	const lastDir = state.dir[state.dir.length - 1]
+	const splitFolders = lastDir?.split('/')
+
 	return (
 		<div className="line">
 			<p className="search-box__text">Директория</p>
 			<SelectorAsync
+				selectedValue={lastDir ?
+					{
+						label: splitFolders[splitFolders.length - 1],
+						value: lastDir,
+					} : null
+				}
 				cacheOptions={true}
-				onChange={(newVal) =>
-					changeState({ ...state, dir: transformOptionsToDirs(newVal) })
+				onChange={(newVal) => {
+					changeDir([transformOptionsToDirs(newVal).join('...')])
+				}
 				}
 				defaultOptions={true}
 				loadFunction={async (query: string): Promise<Option[]> => {
 					try {
 						const result = await searchFolder(query).unwrap();
-						return (
-							transformToOptions(result) || [
-								{
-									label: '',
-									value: '',
-									color: 'black',
-								},
-							]
-						);
+						const val = transformToOptions(result) || [
+							{
+								label: '',
+								value: '',
+							},
+						]
+						return val
 					} catch (error) {
 						console.error(error);
 					}
-					return [{ label: '', value: '', color: 'black' }] as Option[];
+					return [{ label: '', value: '' }] as Option[];
 				}}
 			/>
 		</div>

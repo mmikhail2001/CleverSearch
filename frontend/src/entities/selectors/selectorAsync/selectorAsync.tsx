@@ -1,22 +1,18 @@
-import React, { FC } from 'react';
-import { ActionMeta, MultiValue, SingleValue } from 'react-select';
+import React, { FC, useState } from 'react';
+import { MultiValue, SingleValue } from 'react-select';
 import AsyncSelect from 'react-select/async';
 
-export interface Option {
-  label: string;
-  value: string;
-  color: string;
-}
+import { Option } from '@models/additional'
 
 interface SelectorAsyncProps {
-  loadFunction: (inputValue: string) => Promise<Option[]>;
-  isMulti?: boolean;
-  defaultOptions: boolean;
-  cacheOptions: boolean;
-  onChange: (
-    e: SingleValue<Option> | MultiValue<Option>,
-    actionMeta: ActionMeta<Option>
-  ) => void;
+	loadFunction: (inputValue: string) => Promise<Option[]>;
+	isMulti?: boolean;
+	defaultOptions: boolean;
+	cacheOptions: boolean;
+	onChange: (
+		e: SingleValue<Option> | MultiValue<Option>
+	) => void;
+	selectedValue?: Option,
 }
 
 export const SelectorAsync: FC<SelectorAsyncProps> = ({
@@ -25,13 +21,20 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 	defaultOptions,
 	cacheOptions,
 	onChange,
+	selectedValue,
 }) => {
+	const [selVal, setSelectedValue] = useState(selectedValue as SingleValue<Option> | MultiValue<Option>);
+	const handleChange = (newVal: SingleValue<Option> | MultiValue<Option>) => {
+		setSelectedValue(newVal)
+		onChange(newVal)
+	}
 	return (
 		<AsyncSelect
-			onChange={onChange}
+			value={selVal}
+			defaultOptions={defaultOptions}
+			onChange={handleChange}
 			cacheOptions={cacheOptions}
 			loadOptions={loadFunction}
-			defaultOptions={defaultOptions ? true : true}
 			isMulti={isMulti}
 		></AsyncSelect>
 	);

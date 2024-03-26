@@ -12,13 +12,14 @@ import { transformToShowParams } from '@models/searchParams';
 import { transfromToShowRequestString } from '@api/transforms';
 import { useNavigate } from 'react-router-dom';
 import { switchToShow } from '@store/whatToShow';
-
+import '../show.scss'
 
 interface ShowShowedFilesProps { }
 
 const useShowParams = () => {
     const [searchParams] = useSearchParams();
-    const searchParamsToObject = (params) => {
+    const searchParamsToObject = (params: URLSearchParams) => {
+
         const result: Record<string, string> = {};
         params.forEach((value, key) => {
             result[key] = value;
@@ -62,9 +63,8 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     return (
         <div className="data-show">
             <div className="data-show__header">
-                <BreadCrumps dirs={dirs} />
-                <div
-                    style={{ color: 'var(--main-color-500)' }}
+                <BreadCrumps
+                    dirs={['Show', ...dirs]}
                     onClick={() => {
                         const url = transfromToShowRequestString(
                             { ...params, dir: dirs.slice(0, -1) || [] }
@@ -75,11 +75,10 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                             })
                         )
                         navigate(url, { replace: true })
-                    }
-                    }
-                >
-                    Назад
-                </div>
+                    }}
+                    reactOnElements={[]}
+                />
+                <p>Результаты поиска:</p>
             </div>
             <RenderFields
                 data={showResp.data?.body}

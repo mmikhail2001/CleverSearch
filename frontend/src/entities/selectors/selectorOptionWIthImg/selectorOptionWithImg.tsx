@@ -5,19 +5,16 @@ import Selector, {
 	ActionMeta,
 	MultiValue,
 	SingleValue,
+	GroupBase,
+	OptionProps,
 } from 'react-select';
-
+import { OptionWithImg } from '@models/additional'
 // https://codesandbox.io/p/sandbox/react-select-icon-oxzd3?file=%2Fsrc%2FApp.js%3A13%2C1-18%2C3
 
-export interface Option {
-	label: string;
-	value: string;
-	imgSrc: string;
+export interface propsData extends OptionProps<OptionWithImg, boolean, GroupBase<OptionWithImg>> {
 }
 
-
-// HACK any type below
-const OptionComp = (props: any) => (
+const OptionComp = (props: propsData) => (
 	<components.Option {...props} className="selector-option">
 		<img src={props.data.imgSrc} alt="logo" className="option-img" />
 		{props.data.label}
@@ -25,13 +22,13 @@ const OptionComp = (props: any) => (
 );
 
 interface SelectorWithImgProps {
-	options: Option[];
+	options: OptionWithImg[];
 	isMulti?: boolean;
 	onChange: (
-		newValue: MultiValue<Option> | SingleValue<Option>,
-		actionMeta: ActionMeta<Option>
+		newValue: MultiValue<OptionWithImg> | SingleValue<OptionWithImg>,
+		actionMeta: ActionMeta<OptionWithImg>
 	) => void;
-	defaultValue?: Option;
+	defaultValue?: OptionWithImg;
 }
 
 export const SelectorWithImg: FC<SelectorWithImgProps> = ({

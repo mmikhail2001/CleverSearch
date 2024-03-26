@@ -13,7 +13,8 @@ import ErrorPage from '@pages/errorPage/errorPage';
 
 import { ShowShowedFiles } from '@widgets/showResults/showShowedFiles/showShowedFiles'
 import { ShowSearchedFiles } from '@widgets/showResults/showSearchedFiles/showSearchedFiles'
-
+import { ShowSharedFiles } from '@widgets/showResults/showSharedFiles/showSharedFiles'
+import { ShowSharedUUIDFiles } from '@widgets/showResults/showSharedFiles/showSharedUUIDFiles'
 import './App.scss'
 
 // @ts-ignore
@@ -36,6 +37,8 @@ root.render(
 							<Route path={'/files'} element={<ShowShowedFiles></ShowShowedFiles>}></Route>
 							<Route path={'/files/search'} element={<ShowSearchedFiles></ShowSearchedFiles>}></Route>
 							<Route index element={<ShowShowedFiles></ShowShowedFiles>}></Route>
+							<Route path='/dirs/:diruuid' element={<ShowSharedUUIDFiles />}></Route >
+							<Route path='/shared' element={<ShowSharedFiles />}></Route >
 							<Route path='*' element={<ErrorPage />}></Route>
 						</Route>
 						<Route path='/login' errorElement={<ErrorPage />} element={<ProtectedFromAuthUser><LoginForm /></ProtectedFromAuthUser>}></Route>

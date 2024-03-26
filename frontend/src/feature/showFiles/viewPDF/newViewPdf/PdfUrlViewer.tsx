@@ -14,6 +14,7 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
   const windowRef = useRef<VariableSizeList>(null)
   const [itemCount, setItemCount] = useState(0);
   const [isFirstPageLoaded, setFirstPageLoaded] = useState(false);
+  const [settedScale, setsettedScale] = useState(1);
 
   const scrollToItem = () => {
     windowRef?.current && windowRef.current.scrollToItem(page - 1, 'start');
@@ -49,9 +50,14 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
         itemCount={itemCount}
         getPdfPage={handleGetPdfPage}
         onLoad={() => { setFirstPageLoaded(true); }}
-        scale={1}
+        scale={settedScale}
         gap={40}
       />
+      <div>
+        Scale
+        <div onClick={() => setsettedScale(p => p + 0.5)}>+</div>
+        <div onClick={() => setsettedScale(p => p - 0.5)}>-</div>
+      </div>
     </>
   );
 };

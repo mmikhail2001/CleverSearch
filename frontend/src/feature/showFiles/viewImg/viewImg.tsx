@@ -7,8 +7,8 @@ export interface ViewImgProps {
 }
 
 export const ViewImg: FC<ViewImgProps> = React.memo(function viewImg({ imgSrc, altText }: ViewImgProps) {
-	return <div className='view-img'>
-		<img className='modal-img' src={imgSrc} alt={altText} />
+	return <div className='view-img-container'>
+		<img className='view-img' src={imgSrc} alt={altText} />
 	</div >
 });
 

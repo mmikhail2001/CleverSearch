@@ -1,0 +1,24 @@
+.dropdown{
+    height:fit-content;
+    overflow-y:hidden;
+	position:absolute;
+	display:inline-block;
+
+	background-color: var(--Bg-white);
+	border: 1px var(--Bg-dark) solid;
+	padding: var(--small-padding);
+	opacity: 1;
+	transition: opacity ease-in-out 150ms;
+}
+
+.dropdown-down {
+	top:100%
+}
+
+.dropdown-up {
+	bottom: 0;
+}
+
+.dropdown-hide {
+	opacity: 0;
+}

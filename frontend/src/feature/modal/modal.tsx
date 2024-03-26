@@ -8,6 +8,7 @@ interface ModalProps {
     closeModal: () => void;
     children: React.ReactNode;
     className: string;
+    bodyClassName?: string
 }
 
 export const Modal: FC<ModalProps> = ({
@@ -15,6 +16,7 @@ export const Modal: FC<ModalProps> = ({
     closeModal,
     children,
     className,
+    bodyClassName,
 }) => {
     const ref = useRef<HTMLDialogElement>(null)
 
@@ -28,7 +30,9 @@ export const Modal: FC<ModalProps> = ({
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
-            if (ref.current && (ref.current === event.target || !ref.current.contains(event.target as Node & EventTarget))) {
+            if (ref.current && (ref.current === event.target
+                || !ref.current.contains(event.target as Node & EventTarget))
+            ) {
                 closeModal()
             }
         }
@@ -36,6 +40,19 @@ export const Modal: FC<ModalProps> = ({
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [ref]);
+
+    useEffect(() => {
+        function handleEsc(event: KeyboardEvent) {
+            if (event.key.toLowerCase() === 'escape') {
+                closeModal()
+            }
+        }
+        document.addEventListener('keydown', handleEsc);
+
+        return () => {
+            document.removeEventListener('keydown', handleEsc);
         };
     }, [ref]);
 
@@ -50,7 +67,7 @@ export const Modal: FC<ModalProps> = ({
             className={className + ' ' + 'modal-dialog'}
         >
             {isOpen ?
-                <div className='modal-body' onClick={(event) => event.stopPropagation()}>
+                <div className={['modal-body', bodyClassName].join(' ')} onClick={(event) => event.stopPropagation()}>
                     {children}
                     {/* TODO remove classname and set another */}
                     <Button clickHandler={closeModal} buttonText={'Закрыть'} variant={'filled'} className='pdf-viewer'></Button>

@@ -6,6 +6,7 @@
     border-radius: var(--big-radius);
     outline: none;
     border-width: 0.1rem;
+    cursor: pointer;
 }
 
 .filled {
@@ -15,4 +16,19 @@
 
 .disabled-button {
     opacity: 80%;
+    cursor: default;
+}
+
+
+.button-text {
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0;
+    font-size: var(--ft-small-text);
+    color: var(--main-color-600);
+}
+
+.disabled-button-text {
+    color: var(--main-color-300);
 }

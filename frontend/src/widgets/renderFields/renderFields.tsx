@@ -1,16 +1,17 @@
-import { fileFile } from '@models/searchParams';
+import { Modal } from '@feature/modal/modal';
+import { ViewImg } from '@feature/showFiles/viewImg/viewImg';
+import { ViewPDF } from '@feature/showFiles/viewPDF/viewPDF';
+import { VideoPlayer } from '@feature/videoPlayer/videoPlayer';
+import documentIconPath from '@icons/files/Book.svg';
+import folderIconPath from '@icons/files/Folder.svg';
+import imageIconPath from '@icons/files/image.svg';
+import { AccessRights, fileFile, getAccessRights } from '@models/searchParams';
 import { SerializedError, UnknownAction } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { changeDir } from '@store/currentDirectoryAndDisk';
-import { FileShow } from '@feature/fileShow/fileShow';
-import React, { Dispatch, FC, useState } from 'react';
-import folderIconPath from '@icons/files/Folder.svg';
-import documentIconPath from '@icons/files/Book.svg';
-import imageIconPath from '@icons/files/image.svg';
-import { ViewPDF } from '@feature/showFiles/viewPDF/viewPDF';
-import { Modal } from '@feature/modal/modal'
-import { ViewImg } from '@feature/showFiles/viewImg/viewImg';
-import './renderFields.scss'
+import React, { Dispatch, FC } from 'react';
+import { FileWithModal, renderReturns } from './fileWithModal';
+import './renderFields.scss';
 
 export interface RenderFieldsProps {
 	data: fileFile[],
@@ -18,15 +19,10 @@ export interface RenderFieldsProps {
 	isError: boolean,
 	isLoading: boolean,
 	dispatch: Dispatch<UnknownAction>,
-	deleteFile: (fileName: string) => void,
+	deleteFile: (fileName: string, accessRights: AccessRights) => void,
 	openFolder: (dirToShow: string[]) => void,
 }
 
-interface renderReturns {
-	renderModal: () => React.ReactNode | null;
-	clickHandler: () => void;
-	imgSrc: string;
-}
 
 export const RenderFields: FC<RenderFieldsProps> = ({
 	data,
@@ -79,8 +75,29 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	const getPdfProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void): renderReturns => {
 		const renderModal = () => {
 			return (
-				<Modal className={'modal__pdf-show'} isOpen={state} closeModal={() => changeState(false)}>
-					<ViewPDF pdfURL={file.link} openPageInPDF={0} searchString={''}></ViewPDF>
+				<Modal
+					className={'modal__pdf-show'}
+					isOpen={state}
+					closeModal={() => changeState(false)}
+					bodyClassName={'modal-body__pdf'}
+				>
+					<ViewPDF pdfURL={file.link} openPageInPDF={file.page_number || 0} searchString={''}></ViewPDF>
+				</Modal>
+			)
+		}
+		const imgSrc = documentIconPath;
+		return { clickHandler: () => { }, imgSrc, renderModal }
+	};
+
+	const getVideoProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void): renderReturns => {
+		const renderModal = () => {
+			return (
+				<Modal className={'modal__video-show'} isOpen={state} closeModal={() => changeState(false)}>
+					<VideoPlayer
+						url={file.link}
+						duration={file.duration || 0}
+						start_time={file.start_time || 0}
+					></VideoPlayer>
 				</Modal>
 			)
 		}
@@ -89,65 +106,65 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	};
 
 	return (
-		<div>
+		<div key={'rendered-list'} className='show-all-files'>
 			{data.map((file) => {
-				const [isOpen, setOpen] = useState(false)
+				const getFileProps = (file: fileFile, isOpen: boolean, changeState: (isOpen: boolean) => void): renderReturns => {
+					let renderModal: () => React.ReactNode | null = () => null;
+					let clickHandler: () => void;
+					let iconSrc = '';
 
-				let renderModal: () => React.ReactNode | null = () => null;
-				let clickHandler: () => void;
-				let iconSrc = '';
+					if (file.is_dir) {
+						const props: renderReturns = getDirProps(file);
 
-				if (file.is_dir) {
-					const props: renderReturns = getDirProps(file);
-
-					iconSrc = props.imgSrc;
-					clickHandler = props.clickHandler
-					renderModal = props.renderModal
-				} else {
-					const splits = file.filename?.split('.');
-					if (splits?.length > 0) {
+						iconSrc = props.imgSrc;
+						clickHandler = props.clickHandler
+						renderModal = props.renderModal
+					} else {
 						let props: renderReturns;
-						switch (splits[1]) {
-							case 'pdf':
-								props = getPdfProps(file, isOpen, (whatToState) => setOpen(whatToState));
 
-								iconSrc = props.imgSrc
-								clickHandler = props.clickHandler
-								renderModal = props.renderModal
-								break;
-							case 'png':
+						switch (file.file_type) {
 							case 'img':
-							case 'jpg':
-								props = getImageProps(file, isOpen, (whatToState) => setOpen(whatToState));
+								props = getImageProps(file, isOpen, changeState);
 
 								iconSrc = props.imgSrc
 								clickHandler = props.clickHandler
 								renderModal = props.renderModal
 								break;
+							case 'text':
+								props = getPdfProps(file, isOpen, changeState);
+
+								iconSrc = props.imgSrc
+								clickHandler = props.clickHandler
+								renderModal = props.renderModal
+								break;
+							case 'video':
+							case 'audio':
+								props = getVideoProps(file, isOpen, changeState);
+
+								iconSrc = props.imgSrc
+								clickHandler = props.clickHandler
+								renderModal = props.renderModal
+								break;
+
 							default:
 								iconSrc = imageIconPath;
+
+
 						}
+					}
+					return {
+						clickHandler, imgSrc: iconSrc, renderModal
 					}
 				}
 
-
-				return (
-					<>
-						<FileShow
-							key={file.id}
-							iconSrc={iconSrc}
-							altText={file.is_dir ? 'folder' : 'file'}
-							filename={file.is_dir ? file.path.split('/').pop() : file.filename}
-							date={file.date}
-							size={file.size}
-							onDelete={() => deleteFile(file.path)}
-							onClick={() => { setOpen(true); clickHandler() }}
-							dirPath={file.is_dir ? file.path : ''}
-						></FileShow>
-						{renderModal()}
-					</>
-				);
-			})}
+				return <FileWithModal
+					key={file.id}
+					file={file}
+					deleteFile={(filePath) => deleteFile(filePath, getAccessRights(file.share_access))}
+					getFileProps={getFileProps}
+				/>
+			}
+			)}
 		</div>
 	);
 };

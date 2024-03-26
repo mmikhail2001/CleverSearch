@@ -1,12 +1,11 @@
 import { DiskType, diskImgSrc } from '@models/disk';
-import { switchToProcessed, switchToShow } from '@store/whatToShow';
-import { Button } from '@entities/button/Button';
+import { switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import './sidebar.scss';
 import { ButtonWithInput } from '@feature/buttonWithInput/buttonWithInput';
-import { useCreateDirMutation, usePushFileMutation } from '@api/filesApi';
+import { usePushFileMutation } from '@api/filesApi';
 import { useAppSelector } from '@store/store';
 import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
 import { diskTypes, isDiskType } from '@models/searchParams';
@@ -17,6 +16,7 @@ import CleverSVG from '@icons/disks/Disk.svg';
 import { useNavigate } from 'react-router-dom';
 import { transfromToShowRequestString } from '@api/transforms';
 import { debounce } from '@helpers/debounce'
+import { FolderCreation } from './folderCreation/folderCreation'
 
 interface SidebarProps { }
 
@@ -44,12 +44,13 @@ const getTextWithImg = (
 	);
 };
 
+
 export const Sidebar: FC<SidebarProps> = () => {
 	const [selectedField, setSelectedField] = useState(
 		Array.from(diskImgSrc.keys())[4]
 	);
 
-	const { isSearch, isShow, isProccessed } = useAppSelector((state) => state.whatToShow);
+	const { isSearch, isShow, isProccessed, isShared } = useAppSelector((state) => state.whatToShow);
 	const { dirs, currentDisk } = useAppSelector((state) => state.currentDirDisk);
 	const dispatch = useDispatch();
 	const [search] = useSearchMutation({ fixedCacheKey: 'search' });
@@ -76,7 +77,6 @@ export const Sidebar: FC<SidebarProps> = () => {
 	);
 
 	const params = useAppSelector((state) => state.searchRequest);
-	const [createDir] = useCreateDirMutation();
 
 	useEffect(() => {
 		if (isShow) {
@@ -86,6 +86,8 @@ export const Sidebar: FC<SidebarProps> = () => {
 	}, [currentDisk]);
 
 	const [send] = usePushFileMutation();
+
+
 	return (
 		<div className="sidebar">
 			<div className="our-name-place">
@@ -119,19 +121,14 @@ export const Sidebar: FC<SidebarProps> = () => {
 				disabled={false}
 				variant={'filled'}
 			></ButtonWithInput>
-			<Button
-				buttonText="Добавить папку"
-				variant={'filled'}
-				clickHandler={() => {
-					const debounceFunc = debounce(() => {
-						if (isSearch) {
-							search(params);
-						} else {
-							show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
-						}
-					}, 300);
-					createDir(dirs.concat('Папка'));
-					debounceFunc();
+			<FolderCreation
+				dirs={dirs}
+				onFolderCreation={() => {
+					if (isSearch) {
+						search(params);
+					} else {
+						show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
+					}
 				}}
 			/>
 			<div className="disk-show">
@@ -139,12 +136,6 @@ export const Sidebar: FC<SidebarProps> = () => {
 				<div className="disks">{allDisks}</div>
 			</div>
 			<div className="under-disks">
-				<TextWithImg
-					text="Загружаются"
-					className="downloading"
-					imgSrc={DownloadSVG}
-					altImgText="Загрузка"
-				/>
 				<TextWithImg
 					text="Обрабатываются"
 					className={['text-with-img', 'work-in-progress', isProccessed ? 'selected' : ''].join(' ')}
@@ -154,6 +145,17 @@ export const Sidebar: FC<SidebarProps> = () => {
 						dispatch(switchToProcessed());
 						dispatch(changeDisk('all'))
 						navigate('/processed')
+					}}
+				/>
+				<TextWithImg
+					text="Общие"
+					className={['shared', isShared ? 'selected' : ''].join(' ')}
+					imgSrc={DownloadSVG} // TODO
+					altImgText="Картинка с двумя людьми"
+					onClick={() => {
+						dispatch(switchToShared())
+						dispatch(changeDisk('all'))
+						navigate('/shared')
 					}}
 				/>
 			</div>

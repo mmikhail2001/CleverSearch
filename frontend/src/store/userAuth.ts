@@ -1,8 +1,9 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface ActionPayload {
-    isAuthenticated: null | boolean,
+	isAuthenticated: null | boolean,
 }
+
 
 
 const searchSlice = createSlice({
@@ -20,7 +21,7 @@ const searchSlice = createSlice({
 			return {
 				isAuthenticated: false,
 			};
-		}
+		},
 	},
 });
 

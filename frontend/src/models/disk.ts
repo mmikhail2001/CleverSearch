@@ -3,16 +3,13 @@ import GoogleSVG from '@icons/disks/Google.svg';
 import YandexSVG from '@icons/disks/Yandex.svg';
 import MonitorSVG from '@icons/disks/Monitor.svg';
 
-import {
-	Option as MultiOption,
-} from '@entities/selectors/selectorMulti/selectorMulti'
-import { Option as AsyncOption } from '@entities/selectors/selectorAsync/selectorAsync';
+import { Option } from '@models/additional';
 
 import {
-	Option
-} from '@entities/selectors/selectorOptionWIthImg/selectorOptionWithImg';
+	OptionWithImg
+} from '@models/additional';
 import { MultiValue, SingleValue } from 'react-select';
-import { diskTypes, fileFile, fileTypes, isFileType } from './searchParams';
+import { SearchResponse, diskTypes, fileTypes, isFileType } from './searchParams';
 
 export interface DiskType {
 	src: string;
@@ -59,9 +56,9 @@ export const diskImgSrc = new Map([
 
 // TODO maybe another file?
 
-export const getDisksToOptions = () => {
+export const getDisksToOptions = (): OptionWithImg[] => {
 	const keys = Array.from(diskImgSrc.keys());
-	const result: Option[] = Array.from(
+	const result: OptionWithImg[] = Array.from(
 		keys.map((key) => {
 			return { label: key, value: key, imgSrc: diskImgSrc.get(key)?.src || '' };
 		})
@@ -73,7 +70,7 @@ export const getDisksToOptions = () => {
 	return [{ label: '', value: '', imgSrc: '' }];
 };
 
-export const diskValueToOption = (value: diskTypes): Option => {
+export const diskValueToOption = (value: diskTypes): OptionWithImg => {
 	switch (value) {
 		case 'google':
 			return {
@@ -109,7 +106,7 @@ export const diskValueToOption = (value: diskTypes): Option => {
 }
 
 export const diskVal = (
-	newVal: MultiValue<Option> | SingleValue<Option>
+	newVal: MultiValue<OptionWithImg> | SingleValue<OptionWithImg>
 ): diskTypes[] => {
 	if ('length' in newVal) {
 		const diskValuesInString = newVal
@@ -136,7 +133,7 @@ export const diskVal = (
 };
 
 
-export const getFilesTypesToOptions = (): MultiOption[] => {
+export const getFilesTypesToOptions = (): Option[] => {
 	return [
 		{
 			label: 'Изображение',
@@ -157,7 +154,7 @@ export const getFilesTypesToOptions = (): MultiOption[] => {
 	];
 };
 
-export const getFilesOptionFromValue = (value: string): MultiOption => {
+export const getFilesOptionFromValue = (value: string): Option => {
 	switch (value) {
 		case 'img':
 			return {
@@ -183,7 +180,7 @@ export const getFilesOptionFromValue = (value: string): MultiOption => {
 }
 
 export const fileValues = (
-	newVal: MultiValue<MultiOption> | SingleValue<MultiOption> | AsyncOption
+	newVal: MultiValue<Option> | SingleValue<Option> | OptionWithImg
 ): fileTypes[] => {
 	if ('length' in newVal) {
 		// @ts-expect-error Nothing will happen because isFileType 
@@ -223,12 +220,12 @@ export const transformOptionsToDirs = (
 	return [];
 };
 
-export const transformToOptions = (folders: fileFile[]): AsyncOption[] => {
-	return folders.map((folder) => {
+export const transformToOptions = (folders: SearchResponse): Option[] => {
+	return folders.body.map((folder) => {
+		const splitPath = folder.path.split('/')
 		return {
-			label: String(folder.filename),
-			value: String(folder.filename),
-			color: 'black',
+			label: String(splitPath[splitPath.length - 1]),
+			value: String(folder.path),
 		};
 	});
 };

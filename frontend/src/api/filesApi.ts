@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Folder } from '@models/folder';
-import { ShareRequest, ShareResponse, fileFile } from '@models/searchParams';
+import { SearchResponse, ShareRequest, ShareResponse, fileFile } from '@models/searchParams';
 
 export const filesApi = createApi({
 	reducerPath: 'filesApi',
@@ -8,10 +8,10 @@ export const filesApi = createApi({
 		baseUrl: `${process.env.protocol}://${process.env.adress}/api/`,
 	}),
 	endpoints: (builder) => ({
-		getFolders: builder.mutation<fileFile[], string>({
+		getFolders: builder.mutation<SearchResponse, string>({
 			query: (folderSearch: string) => ({
-				url: `/dirs?_query=${folderSearch}`,
-				method: 'POST',
+				url: `files?query=${folderSearch}&dir=/&disk=all&limit=20&offset=0&files_required=false&dirs_required=true`,
+				method: 'GET',
 			}),
 		}),
 		pushFile: builder.mutation<fileFile, FormData>({

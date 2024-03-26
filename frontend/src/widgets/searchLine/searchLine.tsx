@@ -17,21 +17,17 @@ import FilterSVG from '@icons/Filter.svg';
 import { useNavigate } from 'react-router-dom';
 import { transformToSearchRequestString } from '@api/transforms';
 
+export interface searchStateValue {
+	smartSearch: boolean;
+	fileType: fileTypes[];
+	query: string;
+	dir: string[];
+	disk: diskTypes[];
+}
+
 interface SearchLineProps {
-	searchValue: {
-		smartSearch: boolean;
-		fileType: fileTypes[];
-		query: string;
-		dir: string[];
-		disk: diskTypes[];
-	},
-	setSearchValue: React.Dispatch<React.SetStateAction<{
-		smartSearch: boolean;
-		fileType: fileTypes[];
-		query: string;
-		dir: string[];
-		disk: diskTypes[];
-	}>>,
+	searchValue: searchStateValue,
+	setSearchValue: React.Dispatch<React.SetStateAction<searchStateValue>>,
 }
 
 export const SearchLine: FC<SearchLineProps> = ({
@@ -87,7 +83,9 @@ export const SearchLine: FC<SearchLineProps> = ({
 			{isBoxOpen ? (
 				<div className="place-for-search-box">
 					<SearchBox
-						changeState={setSearchValue}
+						changeState={(obj: searchStateValue) => {
+							setSearchValue({ ...obj, dir: obj.dir })
+						}}
 						state={searchValue}
 						closeDrop={() => setisBoxOpen(false)}
 						search={() => {
