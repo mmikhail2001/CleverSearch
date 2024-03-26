@@ -9,6 +9,7 @@ import (
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	"github.com/dranikpg/dto-mapper"
+	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 	"github.com/streadway/amqp"
 	"go.mongodb.org/mongo-driver/bson"
@@ -329,6 +330,7 @@ func (r *Repository) AddUserToSharingDir(ctx context.Context, file file.File, us
 		sharedDirs := sharedDirDTO{
 			// TODO: UserID - это именно тот, с кем поделились (изменить название поля)
 			// нужен AuthorID
+			ID:          uuid.New().String(),
 			FileID:      file.ID,
 			UserID:      userID,
 			ShareAccess: accessType,
