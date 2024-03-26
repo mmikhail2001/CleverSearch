@@ -98,11 +98,16 @@ func Run() error {
 	middleware := middleware.NewMiddleware(userUsecase)
 
 	r := mux.NewRouter()
-
 	headers := handlers.AllowedHeaders([]string{"Content-Type"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST"})
 	origins := handlers.AllowedOrigins([]string{"*"})
 	r.Use(handlers.CORS(headers, methods, origins))
+	r.Use(middleware.AccessLogMiddleware)
+
+	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("not found URL:", r.URL)
+		w.WriteHeader(http.StatusBadRequest)
+	})
 
 	minioRouter := r.PathPrefix("/minio").Subrouter()
 	minioRouter.Use(middleware.AuthMiddleware)
