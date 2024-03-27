@@ -20,5 +20,11 @@ jobs:
     - name: Build backend image
       run: docker build -t windowskonon1337/cleversearch_backend:latest ./backend
 
-    - name: Push Docker image to Docker Hub
+    - name: Push backend image to Docker Hub
       run: docker push windowskonon1337/cleversearch_backend:latest
+
+    - name: Build mlcore image
+      run: docker build -t windowskonon1337/cleversearch_mlcore:latest ./MLCore
+
+    - name: Push mlcore image to Docker Hub
+      run: docker push windowskonon1337/cleversearch_mlcore:latest
