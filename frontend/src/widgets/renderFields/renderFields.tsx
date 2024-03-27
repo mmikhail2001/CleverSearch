@@ -1,6 +1,6 @@
 import { Modal } from '@feature/modal/modal';
 import { ViewImg } from '@feature/showFiles/viewImg/viewImg';
-import { ViewPDF } from '@feature/showFiles/viewPDF/viewPDF';
+import { ViewPDF } from '@feature/showFiles/viewPDF/pdfViewer';
 import { VideoPlayer } from '@feature/videoPlayer/videoPlayer';
 import documentIconPath from '@icons/files/Book.svg';
 import folderIconPath from '@icons/files/Folder.svg';

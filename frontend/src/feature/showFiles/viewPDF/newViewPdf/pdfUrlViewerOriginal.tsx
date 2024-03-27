@@ -2,7 +2,7 @@ import * as pdfjs from 'pdfjs-dist';
 import { PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { VariableSizeList } from 'react-window';
-import PdfViewer from './pdfViewer';
+import PdfViewer from './pdfViewerOriginal';
 
 export interface PdfUrlViewerProps {
   url: string,

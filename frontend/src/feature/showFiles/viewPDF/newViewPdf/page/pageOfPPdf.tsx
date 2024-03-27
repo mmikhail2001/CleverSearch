@@ -1,6 +1,6 @@
 import * as pdfjs from 'pdfjs-dist';
 import React, { FC, useEffect, useRef } from 'react';
-import './PdfPage.css';
+import './pdfPage.scss';
 
 export interface PdfPageProps {
   page: pdfjs.PDFPageProxy,

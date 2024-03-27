@@ -1,10 +1,9 @@
 import React, { FC } from 'react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import './viewPDF.scss'
+import './pdfViewer.scss'
 
-import PdfUrlViewer from './newViewPDF/pdfUrlViewer'
-
+import PdfUrlViewer from './newViewPdf/pdfUrlViewerOriginal'
 export interface ViewPDFProps {
 	pdfURL: string;
 	openPageInPDF?: number;

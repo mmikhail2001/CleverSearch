@@ -2,8 +2,8 @@ import { PDFPageProxy } from 'pdfjs-dist';
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import useResizeObserver from 'use-resize-observer';
-import Page from './page/page';
-import PdfPage from './page/pdfPage';
+import Page from './page/pageWrapper';
+import PdfPage from './page/pageOfPPdf';
 
 export interface PdfViewerProps {
   itemCount: number,
