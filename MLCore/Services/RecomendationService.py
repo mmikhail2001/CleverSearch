@@ -21,6 +21,44 @@ logger = get_console_logger(
 
 app = FastAPI()
 
+class SearchService():
+    def __init__(self):
+        pass
+
+    def search_handler(self, **kwargs):
+        params = {
+            'file_type': kwargs['file_type'],
+            'status': "processed",
+            'dir': "/",
+            'user_id': kwargs['user_id']
+        }
+
+        data_array = self.get_data_array(params)
+
+        list_embs = [[obj['ml_data'][0]['Value']] for obj in data_array]
+
+    def get_data_array(self, params):
+        response = requests.get("http://backend:8080/api/ml/files", params=params)
+
+        if response.status_code != 200:
+            print("Error /api/ml/files:", response.status_code)
+            raise HTTPException(status_code=500, detail=f"Error /api/ml/files: {response.status_code}, body: {response.text}")
+
+        response_data = response.json()
+        data_array = response_data.get('body', [])
+        if len(data_array) == 0:
+            raise HTTPException(status_code=400, detail=f"Files not found")
+        
+        return data_array
+
+
+    def find_text_files(self):
+        pass
+
+    def find_audio_files(self):
+        pass
+    
+
 def setup_search_handler(args):
     @app.get('/search')
     def search(query, file_type, user_id, dir, disk, number_of_results=5):
@@ -60,6 +98,6 @@ def setup_search_handler(args):
         sorted_list = sorted(dists, key=lambda x: x[2], reverse=True)[:number_of_results]
         file_keys = sorted(set(map(lambda x: x[0], sorted_list)), key=list(map(lambda x: x[0], sorted_list)).index)
         files_uuid = [{"index": k, "file_uuid": data_array[k]['id']} for k in file_keys]
-        return {"files": files_uuid}
+        return {params['file_type']: files_uuid}
 
     return search
