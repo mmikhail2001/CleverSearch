@@ -30,7 +30,7 @@ class MLDispatcher:
             mongo_collection: str = 'files'):
         self.ip = rabbit_ip
         self.port = rabbit_port
-        self.client = MongoClient(f'mongodb://{mongo_ip}:{mongo_port}')
+        self.client = MongoClient(f'mongodb://USERNAME:PASSWORD@{mongo_ip}:{mongo_port}')
         self.minio_client = Minio(
             'minio:9000',
             access_key="minioadmin",

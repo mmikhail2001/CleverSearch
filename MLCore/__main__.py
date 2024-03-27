@@ -6,6 +6,8 @@ import uvicorn
 from ML_dispatcher import MLDispatcher
 from Services.ImageService import ImageService
 from Services.TextService import TextService
+from Services.AudioService import AudioService
+from Services.VideoService import VideoService
 from Services.RecomendationService import setup_search_handler, app
 sys.path.insert(1, './MLCore/')
 sys.path.insert(2, './MLCore/Services')
@@ -64,6 +66,8 @@ def main(args):
 
         dispathcer.reg_service(ImageService, 'img')
         dispathcer.reg_service(TextService, 'text')
+        dispathcer.reg_service(VideoService, 'video')
+        dispathcer.reg_service(AudioService, 'audio')
 
         dispathcer.run()
     else:

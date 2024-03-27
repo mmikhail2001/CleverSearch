@@ -38,19 +38,24 @@ class TextProcessor(IDataProcessor):
                 padding=True)
 
             embedding = self.model(**encodes).last_hidden_state[:, 0, :]
-            embeddings.append(embedding.tolist())
-
+            logger.info(embedding.shape)
+            embeddings.append(embedding.squeeze(0).tolist())
         return embeddings
 
     def process_query_string(self, query_string):
         logger.info(f'query string: {query_string}')
         text_processor = TextPreprocessor(query_string)
-        processed_text = text_processor.process()
-        logger.info(f'processed text: {processed_text}')
-        query_tokens = self.tokenizer(
-            processed_text,
-            return_tensors='pt',
-            padding=True)
 
-        query_embedding = self.model(**query_tokens).last_hidden_state[:, 0, :]
-        return query_embedding.tolist()
+        processed_text = list()
+        processed_text.append(' '.join(text_processor.process()))
+        if len(processed_text):
+            logger.info(f'processed text: {processed_text}')
+            query_tokens = self.tokenizer(
+                processed_text,
+                return_tensors='pt',
+                padding=True)
+
+            query_embedding = self.model(**query_tokens).last_hidden_state[:, 0, :]
+            return query_embedding.squeeze(0).tolist()
+        else:
+            return None

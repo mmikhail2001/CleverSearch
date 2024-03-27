@@ -22,6 +22,9 @@ services:
     restart: always
     ports:
       - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: PASSWORD
     volumes:
       - mongo_data:/data/db
     networks:
@@ -72,6 +75,7 @@ services:
       clevernet:
 
   nginx:
+    restart: always
     image: nginx:latest
     ports:
       - 80:80
