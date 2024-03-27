@@ -12,6 +12,7 @@ interface FileShowProps {
 	onClick?: () => void;
 	onDelete: () => void;
 	dirPath?: string
+	author: string,
 	config: { isDelete?: boolean, isShare?: boolean }
 }
 
@@ -19,6 +20,7 @@ export const FileShow: FC<FileShowProps> = ({
 	iconSrc,
 	altText,
 	filename,
+	author,
 	date,
 	size,
 	onClick,
@@ -41,12 +43,13 @@ export const FileShow: FC<FileShowProps> = ({
 						<div className="date">{date}</div>
 					</div>
 				</div>
+				<div>{author}</div>
 				<div className='additional-functions-file'>
 					<DropDown
 						close={() => setOpenDropDown(false)}
 						isOpen={isOpenDropDown}
 						onClick={() => setOpenDropDown(true)}
-						mainElement={<div>ARA</div>}
+						mainElement={<div>More</div>}
 					>
 						{config.isDelete ?
 							<div onClick={(event) => { event.stopPropagation(); onDelete(); }} >Delete</div>

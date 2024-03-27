@@ -1,6 +1,6 @@
 import { useLoginMutation } from '@api/userApi';
 import { login as loginAction } from '@store/userAuth';
-import { Button } from '@entities/button/Button';
+import { Button } from '@entities/button/button';
 import { Input } from '@entities/input/input';
 import { FC, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -14,7 +14,7 @@ export const LoginForm: FC<LoginFormProps> = () => {
 	const [loginField, setLogin] = useState('');
 	const [passwordField, setPassword] = useState('');
 
-	const [login, loginResp] = useLoginMutation({ fixedCacheKey: 'login' });
+	const [login, loginResp] = useLoginMutation();
 	const dispatch = useDispatch();
 
 	const navigate = useNavigate();
@@ -23,7 +23,6 @@ export const LoginForm: FC<LoginFormProps> = () => {
 		dispatch(loginAction());
 		navigate('/');
 	}
-
 
 	return (
 		<div className="login-form">

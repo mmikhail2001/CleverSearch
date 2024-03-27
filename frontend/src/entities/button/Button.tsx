@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import './Button.scss';
+import './button.scss';
 
 export type Variants = 'filled' | 'not-filled' | 'button-text'
 

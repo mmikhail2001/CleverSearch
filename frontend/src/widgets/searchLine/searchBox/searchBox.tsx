@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { SearchParamsLocal, diskTypes, fileTypes } from '@models/searchParams';
-import { Button } from '@entities/button/Button';
+import { Button } from '@entities/button/button';
 import './searchBox.scss';
 import { AllSearchLines } from './allSearchLines'
 

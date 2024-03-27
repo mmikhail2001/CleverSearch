@@ -35,14 +35,14 @@ export const Shared: FC<SharedProps> = ({
 }) => {
     const [currentEmail, setCurrentEmail] = useState('')
     const [emails, setEmail] = useState([] as string[])
-    const [accessType, setAccessType] = useState(null as AccessRights)
+    const [accessType, setAccessType] = useState('writer' as AccessRights)
     const [share, resp] = useGetShareUrlMutation()
     const [isCopied, setCopied] = useCopyState()
 
     return (
         <div className={['text-with-img', className].join(' ')}>
             <Input
-                disabled={false}
+                disabled={resp.isSuccess}
                 onChange={(e) => setCurrentEmail(e.target.value)}
                 onKeyDown={(e) => {
                     if (e.key.toLowerCase() === 'enter') {
@@ -63,8 +63,12 @@ export const Shared: FC<SharedProps> = ({
                 <p>Ссылка:</p>
                 <p onClick={() => {
                     setCopied()
-                    navigator.clipboard.writeText('http://localhost:8080' + resp.data.body.share_link)
-                }}>{resp.data.body.share_link}</p>
+                    navigator.clipboard
+                        .writeText(`${process.env.protocol}://${process.env.adress}` +
+                            resp.data.body.share_link)
+                }}>
+                    {resp.data.body.share_link}
+                </p>
                 {isCopied ? <div style={{ position: 'absolute' }}>Copied!</div> : null}
             </div>
                 : null}
@@ -94,7 +98,7 @@ export const Shared: FC<SharedProps> = ({
                     event.stopPropagation();
                     share({
                         access_type: accessType,
-                        by_emails: emails ? true : false,
+                        by_emails: emails.length > 0 ? true : false,
                         dir: dirPath,
                         emails: emails,
                     })

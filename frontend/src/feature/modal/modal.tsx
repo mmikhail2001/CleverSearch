@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import './modal.scss'
-import { Button } from '@entities/button/Button';
+import { Button } from '@entities/button/button';
 
 interface ModalProps {
     isOpen: boolean;

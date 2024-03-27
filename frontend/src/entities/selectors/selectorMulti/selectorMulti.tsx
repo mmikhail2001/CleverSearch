@@ -15,6 +15,7 @@ interface SelectorMultiProps {
 		newValue: MultiValue<Option> | SingleValue<Option>,
 		actionMeta: ActionMeta<Option>
 	) => void;
+	maxMenuHeight?: number,
 }
 
 export const SelectorMulti: FC<SelectorMultiProps> = ({
@@ -22,9 +23,11 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 	isMulti,
 	onChange,
 	defaultValue,
+	maxMenuHeight
 }) => {
 	return (
 		<Selector
+			maxMenuHeight={maxMenuHeight}
 			options={options}
 			isMulti={isMulti}
 			onChange={onChange}

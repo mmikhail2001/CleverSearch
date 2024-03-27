@@ -2,7 +2,7 @@ import { useProfileQuery } from '@api/userApi';
 import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { useAppSelector } from '@store/store';
-import { login as loginAction, logout as logoutAction } from '@store/userAuth';
+import { login as loginAction, logout as logoutAction, setUserEmail } from '@store/userAuth';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { Navigate, useLocation } from 'react-router';
@@ -35,14 +35,17 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
 	let authState = false;
 	const dispatch = useDispatch();
 
-	const { isError } = useProfileQuery('');
+	const { isError, isSuccess, data } = useProfileQuery(null);
 
 	if (isError) {
 		authState = false;
 		dispatch(logoutAction());
 	} else {
-		authState = true;
-		dispatch(loginAction());
+		if (isSuccess) {
+			authState = true;
+			dispatch(setUserEmail({ email: data.email }))
+			dispatch(loginAction());
+		}
 	}
 
 	const passedContext = {

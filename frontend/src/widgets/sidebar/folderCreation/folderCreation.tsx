@@ -1,5 +1,5 @@
 import { useCreateDirMutation } from '@api/filesApi';
-import { Button } from '@entities/button/Button';
+import { Button } from '@entities/button/button';
 import { Input } from '@entities/input/input';
 import { Modal } from '@feature/modal/modal';
 import React, { FC, useEffect, useState } from 'react';

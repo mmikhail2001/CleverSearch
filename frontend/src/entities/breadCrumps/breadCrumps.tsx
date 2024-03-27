@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import './breadCrumps.scss';
-import { Button } from '@entities/button/Button';
+import { Button } from '@entities/button/button';
 
 
 interface VoidFunc {

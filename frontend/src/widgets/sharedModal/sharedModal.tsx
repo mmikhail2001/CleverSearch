@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import { Modal } from '@feature/modal/modal'
 import { Shared } from '@feature/shared/shared';
+import './sharedModal.scss'
 
 interface SharedModalProps {
 	dirPath: string,
@@ -13,7 +14,9 @@ export const SharedModal: FC<SharedModalProps> = ({ dirPath, close, isOpen }) =>
 		<Modal
 			isOpen={isOpen}
 			closeModal={close}
-			className={'modal-shared'}>
+			className={'modal-shared'}
+			bodyClassName={'modal-body-shared'}
+		>
 			<Shared
 				className=''
 				dirPath={dirPath}

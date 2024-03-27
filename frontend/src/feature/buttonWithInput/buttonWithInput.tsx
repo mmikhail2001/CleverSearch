@@ -1,5 +1,5 @@
 import React, { FC, useRef } from 'react';
-import { Button, Variants } from '@entities/button/Button';
+import { Button, Variants } from '@entities/button/button';
 
 import './buttonWithInput.scss'
 
