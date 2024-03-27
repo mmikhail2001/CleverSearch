@@ -1,0 +1,35 @@
+.controls-container {
+	display: flex;
+	flex-direction: column;
+	background-color: var(--main-color-600);
+}
+
+.controls {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	padding-right: var(--big-padding);
+	padding-left: var(--big-padding);
+	
+}
+
+.contorl-img {
+	height: 20px;
+}
+
+.rewind-container {
+	display: flex;
+	flex-direction: row;
+	gap: var(--big-padding);
+}
+
+.start-stop-container {
+	width: 20px;
+	display: flex;
+	justify-content: center;
+}
+
+.volume-control {
+	transform: rotate(-90deg);
+  	transform-origin: left 0;
+}

@@ -1,0 +1,35 @@
+name: Build and Store Artifact
+
+on:
+  push:
+    branches:
+      - 'dev*'
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - name: install Dependencies
+        run: npm install
+        working-directory: frontend
+
+      - name: npm build
+        run: npm run build:dev
+        working-directory: frontend
+      
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: frontend/build/
+          overwrite: true
+          retention-days: 14
+

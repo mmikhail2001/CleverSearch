@@ -1,0 +1,16 @@
+.document {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.page-number {
+    display: flex;
+    justify-content: center;
+}
+
+.pdf-viewer {
+    display: flex;
+    max-height: 100%;
+    overflow: hidden;
+}
