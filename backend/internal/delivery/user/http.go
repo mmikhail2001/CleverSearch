@@ -127,7 +127,8 @@ func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	email := EmailDTO{
+	email := ProfileDTO{
+		ID:    user.ID,
 		Email: user.Email,
 	}
 	json.NewEncoder(w).Encode(email)

@@ -86,5 +86,27 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		}
 		return files, nil
 	}
+	if fileOptions.FileType == file.Audio {
+		for _, searchItem := range response.Audio {
+			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			if err != nil {
+				log.Println("GetFileByID error:", err)
+				return nil, err
+			}
+			files = append(files, file)
+		}
+		return files, nil
+	}
+	if fileOptions.FileType == file.Video {
+		for _, searchItem := range response.Video {
+			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			if err != nil {
+				log.Println("GetFileByID error:", err)
+				return nil, err
+			}
+			files = append(files, file)
+		}
+		return files, nil
+	}
 	return []file.File{}, fmt.Errorf("file type response from ml not correct")
 }

@@ -5,6 +5,7 @@ type UserDTO struct {
 	Password string `json:"password"`
 }
 
-type EmailDTO struct {
+type ProfileDTO struct {
+	ID    string `json:"id"`
 	Email string `json:"email"`
 }

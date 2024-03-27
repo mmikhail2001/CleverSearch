@@ -75,6 +75,9 @@ services:
     image: nginx:latest
     ports:
       - 80:80
+    restart: always
+    depends_on:
+      - backend
     volumes:
       # dd exec -it containerID nginx -s reload
       - ./config/default.conf:/etc/nginx/conf.d/default.conf
