@@ -41,33 +41,25 @@ def setup_search_handler(args):
         data_array = response_data.get('body', [])
         if len(data_array) == 0:
             raise HTTPException(status_code=400, detail=f"Files not found")
-        list_embs = data_array[0]['ml_data'][0]['Value']
         
-        # list_embs = [
-        #1    [[ 1 2 3 4 5 6 ... 312 ]] 
-        #2    [[ 1 2 3 4 5 6 ... 312 ]] 
-        #3    [[ 1 2 3 4 5 6 ... 312 ]] 
-        #     ...
-        #28   [[ 1 2 3 4 5 6 ... 312 ]] 
-        # ]
-        
-        print("list_embs_uwyefbihrvnu", list_embs)
+        list_embs = [[obj['ml_data'][0]['Value']] for obj in data_array]
+
+        logger.info(len(list_embs), len(list_embs[0]), len(list_embs[0][0][0]))
 
         text_processor = TextProcessor()
-        query_emb = text_processor.process_query_string(query)
+        query_emb = [text_processor.process_query_string(query)]
         
         dists = []
 
         for i in range(len(list_embs)):
-            for j in range(len(list_embs[i])):
+            for j in range(len(list_embs[i][0])):
                 dists.append(
-                    (i, j, cosine_similarity(list_embs[i][j], query_emb))
+                    (i, j, cosine_similarity([list_embs[i][0][j]], query_emb))
                 )
+        logger.info(dists)
         sorted_list = sorted(dists, key=lambda x: x[2], reverse=True)[:number_of_results]
-        print(sorted_list)
         file_keys = sorted(set(map(lambda x: x[0], sorted_list)), key=list(map(lambda x: x[0], sorted_list)).index)
-        print(file_keys)
-        files_uuid = [{"index": k, "file_uuid": df.iloc[k]._id} for k in file_keys]
+        files_uuid = [{"index": k, "file_uuid": data_array[k]['id']} for k in file_keys]
         return {"files": files_uuid}
 
     return search
