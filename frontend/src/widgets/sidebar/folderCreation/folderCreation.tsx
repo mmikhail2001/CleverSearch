@@ -28,7 +28,7 @@ export const FolderCreation: FC<FolderCreationProps> = ({
 		<div>
 			<Button
 				buttonText="Добавить папку"
-				variant={'filled'}
+				variant={'contained'}
 				clickHandler={() => {
 					setisModalOpen(!isModalOpen)
 				}}
@@ -46,12 +46,11 @@ export const FolderCreation: FC<FolderCreationProps> = ({
 						}}
 						disabled={resp.isLoading}
 						placeholder={'Название папки'}
-						className={[]}
 						type={'text'}
 						value={nameOfFolder} />
 					<Button
 						buttonText="Создать"
-						variant={'filled'}
+						variant={'contained'}
 						clickHandler={() => {
 							createDir(dirs.concat(nameOfFolder))
 						}}

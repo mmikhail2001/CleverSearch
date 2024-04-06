@@ -1,12 +1,12 @@
 import React, { FC, useRef } from 'react';
-import { Button, Variants } from '@entities/button/button';
+import { Button, VariantBtn } from '@entities/button/button';
 
 import './buttonWithInput.scss'
 
 interface ButtonWithInputProps {
   onChange: (a: FileList) => void;
   disabled: boolean;
-  variant: Variants;
+  variant: VariantBtn;
   className?: string;
   buttonText: string;
 }

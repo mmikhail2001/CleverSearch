@@ -23,7 +23,12 @@ export const SearchDiskLine: FC<SearchDiskLineProps> = ({
 			<SelectorWithImg
 				options={getDisksToOptions()}
 				isMulti={true}
-				onChange={(newVal) => changeState({ ...state, disk: diskVal(newVal) })}
+				onChange={
+					(newVal) => {
+						console.log("newVal", newVal)
+						changeState({ ...state, disk: diskVal(newVal) })
+					}
+				}
 				defaultValue={state.disk ? diskValueToOption(state.disk[0]) : null}
 			/>
 		</div>

@@ -106,12 +106,16 @@ export const diskValueToOption = (value: diskTypes): OptionWithImg => {
 }
 
 export const diskVal = (
-	newVal: MultiValue<OptionWithImg> | SingleValue<OptionWithImg>
+	newVal: string[] | string
 ): diskTypes[] => {
-	if ('length' in newVal) {
+	console.log("DISK VAL", newVal)
+	if (typeof newVal === 'string') {
+		if (newVal) {
+			return [newVal] as diskTypes[];
+		}
+	}
+	if (newVal && Array.isArray(newVal)) {
 		const diskValuesInString = newVal
-			.map((val) => val.value)
-			.filter((val) => val !== null) as diskTypes[];
 
 		let newDiskValuesInString;
 		if (!Array.isArray(diskValuesInString)) {
@@ -122,12 +126,7 @@ export const diskVal = (
 
 		return newDiskValuesInString as diskTypes[];
 	}
-	if (newVal) {
-		const diskType = newVal.value;
-		if (diskType) {
-			return [diskType] as diskTypes[];
-		}
-	}
+
 
 	return ['all'];
 };
@@ -180,15 +179,15 @@ export const getFilesOptionFromValue = (value: string): Option => {
 }
 
 export const fileValues = (
-	newVal: MultiValue<Option> | SingleValue<Option> | OptionWithImg
+	newVal: string[]
 ): fileTypes[] => {
 	if ('length' in newVal) {
 		// @ts-expect-error Nothing will happen because isFileType 
 		// checks on type of file 
 		const diskValuesInString: fileTypes[] = newVal
-			.filter((val) => isFileType(val.value))
+			.filter((val) => isFileType(val))
 			.filter((val) => val !== null)
-			.map(val => val.value);
+			.map(val => val);
 
 		let newDiskValuesInString;
 		if (!Array.isArray(diskValuesInString)) {
@@ -200,7 +199,7 @@ export const fileValues = (
 		return newDiskValuesInString.map((type) => type);
 	}
 	if (newVal) {
-		if (isFileType(newVal.value)) {
+		if (isFileType(newVal)) {
 			// @ts-expect-error  Nothing will happen because isFileType 
 			// checks on type of file 
 			return [newVal.value];
@@ -211,12 +210,12 @@ export const fileValues = (
 };
 
 export const transformOptionsToDirs = (
-	newVal: SingleValue<Option> | MultiValue<Option>
+	newVal: string[]
 ): string[] => {
 	if ('length' in newVal) {
-		return newVal.map((val) => val.value);
+		return newVal.map((val) => val);
 	}
-	if (newVal) return [newVal.value];
+	if (newVal) return [newVal];
 	return [];
 };
 

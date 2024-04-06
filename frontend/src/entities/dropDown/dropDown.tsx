@@ -1,85 +1,86 @@
 import React, { FC, useEffect, useRef, useState } from 'react';
 import './dropDown.scss';
 import { relative } from 'path';
+import { Menu, PopoverOrigin } from '@mui/material';
+import { MenuItem } from '@mui/material';
+import CSS from 'csstype';
 
 export type WhereToPlace = 'up' | 'down'
-
 interface DropDownProps {
-	children: React.ReactNode
-	isOpen: boolean,
-	close: () => void,
-	onClick: () => void,
+	children: React.ReactNode[]
 	mainElement: React.ReactNode,
-	classForDropdownBody?: string,
 	variants?: WhereToPlace,
 }
 
 export const DropDown: FC<DropDownProps> = ({
 	children,
-	isOpen,
-	close,
-	onClick,
 	mainElement,
-	classForDropdownBody,
 	variants
 }) => {
-	const dropDownRef = useRef<HTMLDivElement>(null)
-	const [displayElements, setdisplayElements] = useState(false);
-	const [closeFunc, setCloseFunc] = useState(null as NodeJS.Timeout);
+	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+	const open = Boolean(anchorEl);
+	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+		event.stopPropagation()
+		setAnchorEl(event.currentTarget);
+	};
+	const handleClose = (event: React.MouseEvent<HTMLElement>) => {
+		event.stopPropagation()
+		setAnchorEl(null);
+	};
 
-	useEffect(() => {
-		function handleClickOutside(event: MouseEvent) {
-			if (dropDownRef.current && (dropDownRef.current === event.target
-				|| !dropDownRef.current.contains(event.target as Node & EventTarget))) {
-				close()
-				return
+	let transformOrigin: PopoverOrigin
+	let anchorOrigin: PopoverOrigin
+
+	// Tranform playground
+	//https://mui.com/material-ui/react-popover/#anchor-playground
+	switch (variants) {
+		case 'up':
+			anchorOrigin = {
+				vertical: 'top',
+				horizontal: 'right',
+
 			}
-		}
+			transformOrigin = {
+				vertical: 'bottom',
+				horizontal: 'right',
 
-		function handleEsc(event: KeyboardEvent) {
-			if (event.key.toLowerCase() === 'escape') {
-				close()
 			}
-		}
+			break;
+		case 'down':
+		default:
+			anchorOrigin = {
+				vertical: 'bottom',
+				horizontal: 'right',
 
-		document.addEventListener('keydown', handleEsc);
-		document.addEventListener('mousedown', handleClickOutside);
+			}
+			transformOrigin = {
+				vertical: 'top',
+				horizontal: 'right',
+			}
 
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-			document.removeEventListener('keydown', handleEsc);
-		};
-	}, [dropDownRef]);
-
-	useEffect(() => {
-		if (!isOpen) {
-			setCloseFunc(setTimeout(() => {
-				setdisplayElements(isOpen)
-			}, 150))
-			return;
-		}
-		clearTimeout(closeFunc)
-		setdisplayElements(isOpen)
-	}, [isOpen])
-
-	if (variants === undefined || variants === null) variants = 'down'
+	}
 
 	return (
-		// TODO remove css inline
-		<div style={{ position: 'relative', height: 'fit-content', cursor: 'pointer' }}>
-			<div className='dropdown-menu'
-				onClick={(e) => {
-					e.stopPropagation();
-					onClick();
-				}}>
-				{mainElement}
-			</div>
-			<div
-				ref={dropDownRef}
-				className={['dropdown', classForDropdownBody, `dropdown-${variants}`, isOpen ? '' : 'dropdown-hide'].join(' ')}
+		<>
+			<div onClick={handleClick}>{mainElement}</div>
+			<Menu
+				anchorEl={anchorEl}
+				open={open}
+				onClose={handleClose}
+				MenuListProps={{
+					'aria-labelledby': 'basic-button',
+				}}
+				transformOrigin={transformOrigin}
+				anchorOrigin={anchorOrigin}
 			>
-				{displayElements ? <div>{children}</div> : null}
-			</div>
-		</div>
+				{
+					children.map(
+						child => <MenuItem onClick={handleClose}>
+							{child}
+						</MenuItem>
+					)
+				}
+			</Menu >
+		</>
 	);
 };

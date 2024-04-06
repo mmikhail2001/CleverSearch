@@ -5,13 +5,15 @@ import { SearchDiskLine } from './searchLines/searchDisk';
 import { SearchFileType } from './searchLines/searchFilteType';
 import { SearchFolderLine } from './searchLines/searchFolder';
 import { Checkbox } from '@entities/checkbox/Checkbox';
-
+import { Switch } from '@entities/switch/switch'
+import { styled } from '@mui/material/styles';
 interface AllSearchLinesProps {
 	changeState: React.Dispatch<React.SetStateAction<SearchParamsLocal>>;
 	state: SearchParamsLocal;
 	closeDrop: () => void;
 	search: () => void;
 }
+
 
 export const AllSearchLines: FC<AllSearchLinesProps> = ({
 	changeState,
@@ -20,13 +22,14 @@ export const AllSearchLines: FC<AllSearchLinesProps> = ({
 	return (
 		<>
 			<div className="line">
-				<p className="search-box__text">Умный поиск</p>
-				<Checkbox
-					isChecked={state.smartSearch}
+				<Switch
+					checked={state.smartSearch}
 					disabled={false}
-					clickHandler={() =>
+					onChange={() =>
 						changeState({ ...state, smartSearch: !state.smartSearch })
 					}
+					label='Умный поиск'
+					labelPlacement='start'
 				/>
 			</div>
 			<SearchFolderLine

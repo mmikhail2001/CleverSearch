@@ -12,11 +12,11 @@ interface SharedProps {
     className: string;
 }
 
-const getValFromOption = (newVal: Option | MultiValue<Option>): string => {
+const getValFromOption = (newVal: string[]): string => {
     if ('length' in newVal) {
-        return newVal.map((val) => val.value).join('');
+        return newVal.map((val) => val).join('');
     }
-    if (newVal) return newVal.value;
+    if (newVal) return newVal;
     return 'reader';
 }
 
@@ -51,7 +51,6 @@ export const Shared: FC<SharedProps> = ({
                 }}
                 placeholder={'Почты для доступа'}
                 type={'email'}
-                className={['']}
                 value={currentEmail}
             ></Input>
             <div>
@@ -79,7 +78,7 @@ export const Shared: FC<SharedProps> = ({
                     { label: 'Читатель', value: 'reader' }
                 ]}
                 defaultValue={{ label: 'Редактор', value: 'writer' }}
-                onChange={(newValue) => {
+                onChange={(newValue: string[]) => {
                     switch (getValFromOption(newValue)) {
                         case 'writer':
                             setAccessType('writer');
@@ -92,7 +91,7 @@ export const Shared: FC<SharedProps> = ({
             />
             <Button
                 buttonText='Поделиться'
-                variant='filled'
+                variant={'contained'}
                 disabled={resp.isLoading}
                 clickHandler={(event) => {
                     event.stopPropagation();

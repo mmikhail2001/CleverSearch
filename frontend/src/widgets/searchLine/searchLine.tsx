@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
 import { useSearchMutation } from '@api/searchApi';
 import { diskTypes, fileTypes } from '@models/searchParams';
-import { Input, InputVariants } from '@entities/input/input';
+import { Input } from '@entities/input/input';
 import './searchLine.scss';
 
 import React from 'react';
@@ -67,9 +67,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 						}
 						disabled={response.isLoading}
 						placeholder={'Найдём любой файл'}
-						variant={InputVariants.default}
 						type={'search'}
-						className={['search-input']}
 						value={searchValue.query}
 					/>
 				</div>

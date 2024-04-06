@@ -38,12 +38,9 @@ export const UserProfile: FC<UserProfileProps> = ({ email }) => {
 
 	return (
 		<DropDown
-			close={() => setOpen(false)}
-			isOpen={isOpenProfile}
 			mainElement={profileMain()}
-			onClick={() => setOpen(true)}
+			children={[<div onClick={() => { logout(null); dispatch(logoutAction()) }}>Logout</div>]}
 		>
-			<div onClick={() => { logout(null); dispatch(logoutAction()) }}>Logout</div>
 		</DropDown>
 	);
 };

@@ -91,6 +91,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 
 	const getVideoProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void): renderReturns => {
 		const renderModal = () => {
+			// TODO видео уезжает, зажать по высоте
 			return (
 				<Modal className={'modal__video-show'} isOpen={state} closeModal={() => changeState(false)}>
 					<VideoPlayer

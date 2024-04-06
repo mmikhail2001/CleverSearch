@@ -22,6 +22,7 @@ export const SearchFileType: FC<SearchFileTypeLineProps> = ({
 		<div className="line">
 			<p className="search-box__text">Тип файла</p>
 			<SelectorMulti
+				placeholder='Любой'
 				options={getFilesTypesToOptions()}
 				isMulti={true}
 				onChange={(newVal) =>

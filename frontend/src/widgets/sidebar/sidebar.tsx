@@ -119,7 +119,7 @@ export const Sidebar: FC<SidebarProps> = () => {
 					});
 				}}
 				disabled={false}
-				variant={'filled'}
+				variant={'contained'}
 			></ButtonWithInput>
 			<FolderCreation
 				dirs={dirs}

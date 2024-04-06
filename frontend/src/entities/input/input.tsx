@@ -1,21 +1,19 @@
 import React, { FC } from 'react';
 import './input.scss';
-
-export enum InputVariants {
-  default = 'default',
-}
+import { TextFieldPropsSizeOverrides, TextFieldVariants, TextField as UIInput } from '@mui/material'
 
 interface InputProps {
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  disabled: boolean;
-  placeholder: string;
-  variant?: InputVariants;
-  className: string[];
-  type: string;
-  value: string;
-  multiple?: boolean;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  ref?: React.MutableRefObject<HTMLInputElement>
+	onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	disabled: boolean;
+	placeholder: string;
+	variant?: TextFieldVariants;
+	type: string;
+	value: string;
+	onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+	ref?: React.MutableRefObject<HTMLInputElement>
+	isError?: boolean;
+	size?: 'medium' | 'small';
+	isFullWidth?: boolean;
 }
 
 export const Input: FC<InputProps> = ({
@@ -24,33 +22,49 @@ export const Input: FC<InputProps> = ({
 	disabled,
 	placeholder,
 	variant,
-	multiple,
 	type,
-	className,
 	value,
 	ref,
+	size,
+	isError,
+	isFullWidth,
 }) => {
 	let changeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	if (!disabled) {
 		changeHandler = onChange;
 	} else {
-		changeHandler = () => {};
+		changeHandler = () => { };
 	}
 
 	return (
-		<input
-		ref={ref}
-			onKeyDown={onKeyDown}
+		<UIInput
+			disabled={disabled}
+			ref={ref}
+			variant={variant}
+			error={isError}
+			size={size}
+			fullWidth={isFullWidth}
 			value={value}
 			type={type}
-			multiple={multiple}
 			placeholder={placeholder}
-			disabled={disabled}
-			className={[
-				...className,
-				disabled ? 'disabled-input input ' : 'input',
-			].join(' ')}
-			onChange={changeHandler}
-		></input>
+			onKeyDown={onKeyDown}
+
+			onChange={onChange}
+		/>
+
+		// <input
+		// 	ref={ref}
+		// 	onKeyDown={onKeyDown}
+		// 	value={value}
+		// 	type={type}
+		// 	multiple={multiple}
+		// 	placeholder={placeholder}
+		// 	disabled={disabled}
+		// 	className={[
+		// 		...className,
+		// 		disabled ? 'disabled-input input ' : 'input',
+		// 	].join(' ')}
+		// 	onChange={changeHandler}
+		// ></input>
 	);
 };

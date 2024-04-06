@@ -37,13 +37,13 @@ export const SearchBox: FC<SearchBoxProps> = ({
 			<AllSearchLines changeState={changeState} closeDrop={closeDrop} search={search} state={state} />
 			<div className="buttons">
 				<Button
-					variant={'not-filled'}
+					variant={'outlined'}
 					buttonText="Сбросить"
 					clickHandler={() => setToInitial(changeState, state)}
 					disabled={false}
 				></Button>
 				<Button
-					variant={'not-filled'}
+					variant={'outlined'}
 					buttonText="Искать"
 					clickHandler={() => {
 						search();

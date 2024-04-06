@@ -32,7 +32,8 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 		<div className="line">
 			<p className="search-box__text">Директория</p>
 			<SelectorAsync
-				selectedValue={lastDir ?
+				placeholder={'Все папки'}
+				defaultOption={lastDir ?
 					{
 						label: splitFolders[splitFolders.length - 1],
 						value: lastDir,
@@ -43,7 +44,6 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 					changeDir([transformOptionsToDirs(newVal).join('...')])
 				}
 				}
-				defaultOptions={true}
 				loadFunction={async (query: string): Promise<Option[]> => {
 					try {
 						const result = await searchFolder(query).unwrap();
