@@ -20,6 +20,7 @@ import './App.scss'
 // @ts-ignore
 // TODO Not find any types of this 
 import * as pdfjsLib from 'pdfjs-dist/webpack.mjs';
+import { MobileProvider } from './mobileProvider';
 
 const root = ReactDOM.createRoot(
 	document.getElementById('root') as HTMLElement
@@ -32,17 +33,19 @@ root.render(
 		<Provider store={store}>
 			<BrowserRouter>
 				<AuthProvider>
-					<Routes>
-						<Route path='/' errorElement={<ErrorPage />} element={<RequireAuth><MainPage /></RequireAuth>}>
-							<Route path={'/files'} element={<ShowShowedFiles></ShowShowedFiles>}></Route>
-							<Route path={'/files/search'} element={<ShowSearchedFiles></ShowSearchedFiles>}></Route>
-							<Route index element={<ShowShowedFiles></ShowShowedFiles>}></Route>
-							<Route path='/dirs/:diruuid' element={<ShowSharedUUIDFiles />}></Route >
-							<Route path='/shared' element={<ShowSharedFiles />}></Route >
-							<Route path='*' element={<ErrorPage />}></Route>
-						</Route>
-						<Route path='/login' errorElement={<ErrorPage />} element={<ProtectedFromAuthUser><LoginForm /></ProtectedFromAuthUser>}></Route>
-					</Routes>
+					<MobileProvider>
+						<Routes>
+							<Route path='/' errorElement={<ErrorPage />} element={<RequireAuth><MainPage /></RequireAuth>}>
+								<Route path={'/files'} element={<ShowShowedFiles></ShowShowedFiles>}></Route>
+								<Route path={'/files/search'} element={<ShowSearchedFiles></ShowSearchedFiles>}></Route>
+								<Route index element={<ShowShowedFiles></ShowShowedFiles>}></Route>
+								<Route path='/dirs/:diruuid' element={<ShowSharedUUIDFiles />}></Route >
+								<Route path='/shared' element={<ShowSharedFiles />}></Route >
+								<Route path='*' element={<ErrorPage />}></Route>
+							</Route>
+							<Route path='/login' errorElement={<ErrorPage />} element={<ProtectedFromAuthUser><LoginForm /></ProtectedFromAuthUser>}></Route>
+						</Routes>
+					</MobileProvider>
 				</AuthProvider>
 			</BrowserRouter>
 		</Provider>

@@ -6,8 +6,11 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import { SearchLine } from '@widgets/searchLine/searchLine';
 import { useAppSelector } from '@store/store';
 import { useDispatch } from 'react-redux';
+import { useMobile } from 'src/mobileProvider';
 
-interface NavbarProps { }
+interface NavbarProps {
+	toggleSidebar?: () => void
+}
 
 const useSearchUrlParams = () => {
 	const [searchParams] = useSearchParams();
@@ -24,11 +27,12 @@ const useSearchUrlParams = () => {
 }
 
 
-export const Navbar: FC<NavbarProps> = () => {
+export const Navbar: FC<NavbarProps> = ({
+	toggleSidebar,
+}) => {
 	const location = useLocation()
 	const { email } = useAppSelector(state => state.userAuth)
-
-	const dispatch = useDispatch()
+	const { whatDisplay } = useMobile()
 
 	const urlParams = useSearchUrlParams()
 	const params = transformToSearchParams(urlParams)
@@ -54,11 +58,15 @@ export const Navbar: FC<NavbarProps> = () => {
 	return (
 		<div className="navbar">
 			<div className="search-bar-place">
-				<SearchLine searchValue={searchState} setSearchValue={setSearchState}></SearchLine>
+				<SearchLine
+					onIconClick={toggleSidebar}
+					searchValue={searchState}
+					setSearchValue={setSearchState}
+				/>
 			</div>
-			<div className="user-profile-place">
+			{whatDisplay === 1 ? <div className="user-profile-place">
 				<UserProfile email={email} />
-			</div>
+			</div> : null}
 		</div>
 	);
 };

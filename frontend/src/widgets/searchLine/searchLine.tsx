@@ -27,11 +27,14 @@ export interface searchStateValue {
 
 interface SearchLineProps {
 	searchValue: searchStateValue,
+	onIconClick?: () => void,
 	setSearchValue: React.Dispatch<React.SetStateAction<searchStateValue>>,
 }
 
 export const SearchLine: FC<SearchLineProps> = ({
-	searchValue, setSearchValue
+	searchValue,
+	setSearchValue,
+	onIconClick,
 }) => {
 	const [isBoxOpen, setisBoxOpen] = useState(false);
 
@@ -52,7 +55,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 	return (
 		<div className="search-line">
 			<div className="icon-with-text">
-				<div className="search-icon-container">
+				<div className="search-icon-container" onClick={onIconClick}>
 					<img alt="search icon" className="search-icon" src={SearchSVG}></img>
 				</div>
 				<div className="search-text">

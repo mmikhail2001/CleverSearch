@@ -4,20 +4,29 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import 'webpack-dev-server';
 
-export default (env: { watch: string; mode: 'production' | 'development'; protocol: string; adress: string }) => {
+export default (env: {
+	watch: string;
+	mode: 'production' | 'development';
+	protocol: string;
+	adress: string;
+	whereToBuild?: string;
+	buildLocalFolder?: string;
+}) => {
 	const mode = env.mode || 'development';
 	const isDev = mode === 'development';
 	const PORT = 3000;
 	const isWatch = env.watch === 'true' || false;
 	const adress = env.adress || 'localhost:8080';
 	const protocol = env.protocol || 'http';
+	const whereToBuild = env.whereToBuild || "build"
+	const buildLocalFolder = env.buildLocalFolder === 'true' || false
 
 	const config: webpack.Configuration = {
 		mode: 'development',
 		entry: './src/index.tsx',
 		output: {
 			filename: '[name][contenthash].js',
-			path: path.resolve(__dirname, 'build'),
+			path: buildLocalFolder ? path.resolve(__dirname, whereToBuild) : whereToBuild,
 			clean: true,
 			publicPath: '/'
 		},
@@ -64,7 +73,6 @@ export default (env: { watch: string; mode: 'production' | 'development'; protoc
 			extensions: ['.js', '.ts', '.tsx'],
 			plugins: [
 				new TsconfigPathsPlugin({
-					/* options: see below */
 				}),
 			],
 		},

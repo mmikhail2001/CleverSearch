@@ -1,4 +1,5 @@
  .file-show-line {
+    gap: var(--normal-padding);
     width: 100%;
     display: grid;
     grid-template-columns: 3fr  0.5fr 2fr 1fr;

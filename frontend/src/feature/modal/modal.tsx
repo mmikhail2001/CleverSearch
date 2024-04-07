@@ -8,8 +8,9 @@ interface ModalProps {
     closeModal: () => void;
     children: React.ReactNode;
     className: string;
-    bodyClassName?: string
-    bottomFrame?: React.ReactNode
+    bodyClassName?: string;
+    bottomFrame?: React.ReactNode;
+    isFullscreen?: boolean;
 }
 
 export const Modal: FC<ModalProps> = ({
@@ -18,7 +19,8 @@ export const Modal: FC<ModalProps> = ({
     children,
     className,
     bodyClassName,
-    bottomFrame
+    bottomFrame,
+    isFullscreen,
 }) => {
     return (
         <UIDialog
@@ -29,6 +31,7 @@ export const Modal: FC<ModalProps> = ({
             maxWidth={'lg'}
             fullWidth={true}
             scroll='paper'
+            fullScreen={isFullscreen}
         >
             <DialogContent>
                 {children}

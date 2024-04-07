@@ -51,20 +51,5 @@ export const Input: FC<InputProps> = ({
 
 			onChange={onChange}
 		/>
-
-		// <input
-		// 	ref={ref}
-		// 	onKeyDown={onKeyDown}
-		// 	value={value}
-		// 	type={type}
-		// 	multiple={multiple}
-		// 	placeholder={placeholder}
-		// 	disabled={disabled}
-		// 	className={[
-		// 		...className,
-		// 		disabled ? 'disabled-input input ' : 'input',
-		// 	].join(' ')}
-		// 	onChange={changeHandler}
-		// ></input>
 	);
 };

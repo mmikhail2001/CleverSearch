@@ -17,8 +17,13 @@ import { useNavigate } from 'react-router-dom';
 import { transfromToShowRequestString } from '@api/transforms';
 import { debounce } from '@helpers/debounce'
 import { FolderCreation } from './folderCreation/folderCreation'
-
-interface SidebarProps { }
+import { Drawer } from '@entities/drawer/drawer';
+import { Modal } from '@feature/modal/modal';
+import { UserProfile } from '@widgets/userProfile/userProfile';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { Typography } from '@mui/material';
+import { useLogout } from '@helpers/hooks/logout';
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 
 const getTextWithImg = (
 	selected: boolean,
@@ -44,8 +49,19 @@ const getTextWithImg = (
 	);
 };
 
+interface SidebarProps {
+	width: string;
+	isMobile?: boolean;
+	toggleShow: (state: boolean) => void;
+	isOpen: boolean;
+}
 
-export const Sidebar: FC<SidebarProps> = () => {
+export const Sidebar: FC<SidebarProps> = ({
+	width,
+	isMobile,
+	toggleShow,
+	isOpen,
+}) => {
 	const [selectedField, setSelectedField] = useState(
 		Array.from(diskImgSrc.keys())[4]
 	);
@@ -86,79 +102,139 @@ export const Sidebar: FC<SidebarProps> = () => {
 	}, [currentDisk]);
 
 	const [send] = usePushFileMutation();
+	const { email } = useAppSelector(state => state.userAuth)
+	const logout = useLogout()
 
+	const renderSidebar = (): React.ReactNode => {
+		return (
+			<>
+				<div className="sidebar" style={{ width: '100%' }}>
+					<div className="our-name-place">
+						{isMobile ?
+							<UserProfile email={email} isDropdownExist={false} />
+							:
+							<TextWithImg
+								onClick={() => dispatch(switchToShow())}
+								text="CleverSearch"
+								className="our-name"
+								imgSrc={CleverSVG}
+								altImgText="our-logo"
+							/>
+						}
+					</div>
+					<ButtonWithInput
+						buttonText="Добавить"
+						onChange={(files: FileList) => {
+							const debouncFunc = debounce(() => {
+								if (isSearch) {
+									search(params);
+								} else if (isShow) {
+									show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
+								}
+							}, 300);
+							Array.from(files).forEach((file) => {
+								const formData = new FormData();
+
+								formData.append('file', file, file.name);
+								formData.append('dir', ['', ...dirs].join('/'));
+								send(formData);
+								debouncFunc();
+							});
+						}}
+						disabled={false}
+						variant={'contained'}
+					></ButtonWithInput>
+					<FolderCreation
+						dirs={dirs}
+						onFolderCreation={() => {
+							if (isSearch) {
+								search(params);
+							} else {
+								show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
+							}
+						}}
+					/>
+					<div className="disk-show">
+						<h2 className="disk-show-label">Ваши диски</h2>
+						<div className="disks">{allDisks}</div>
+					</div>
+					<div className="under-disks">
+						<TextWithImg
+							text="Обрабатываются"
+							className={['text-with-img', 'work-in-progress', isProccessed ? 'selected' : ''].join(' ')}
+							imgSrc={RobotSVG}
+							altImgText="Робот"
+							onClick={() => {
+								dispatch(switchToProcessed());
+								dispatch(changeDisk('all'))
+								navigate('/processed')
+							}}
+						/>
+						<TextWithImg
+							text="Общие"
+							className={['shared', isShared ? 'selected' : ''].join(' ')}
+							imgSrc={DownloadSVG} // TODO
+							altImgText="Картинка с двумя людьми"
+							onClick={() => {
+								dispatch(switchToShared())
+								dispatch(changeDisk('all'))
+								navigate('/shared')
+							}}
+						/>
+					</div>
+					{isMobile
+						? <div style={{
+							display: "flex",
+							justifyContent: 'space-between',
+							marginTop: 'auto',
+							width: '100%',
+							fontSize: '2.4rem',
+						}}>
+							<div onClick={logout} style={{
+								width: '100%',
+								alignItems: 'center',
+								display: "flex",
+								flexDirection: 'column',
+							}}>
+								<LogoutIcon fontSize='inherit' />
+								<Typography variant='h5'>Выйти</Typography>
+							</div>
+							<div onClick={() => toggleShow(!isOpen)} style={{
+								width: '100%',
+								alignItems: 'center',
+								display: "flex",
+								flexDirection: 'column',
+							}}>
+								<KeyboardReturnIcon fontSize='inherit' />
+								<Typography variant='h5'>Вернуться</Typography>
+							</div>
+						</div >
+						: null}
+
+				</div >
+			</>
+		)
+	}
+
+	if (isMobile) {
+		return (
+			<Modal
+				isOpen={isOpen}
+				closeModal={() => toggleShow(false)}
+				isFullscreen={true}
+				children={renderSidebar()} className={''}
+			/>
+		)
+	}
 
 	return (
-		<div className="sidebar">
-			<div className="our-name-place">
-				<TextWithImg
-					onClick={() => dispatch(switchToShow())}
-					text="CleverSearch"
-					className="our-name"
-					imgSrc={CleverSVG}
-					altImgText="our-logo"
-				/>
-			</div>
-			<ButtonWithInput
-				buttonText="Добавить"
-				onChange={(files: FileList) => {
-					const debouncFunc = debounce(() => {
-						if (isSearch) {
-							search(params);
-						} else if (isShow) {
-							show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
-						}
-					}, 300);
-					Array.from(files).forEach((file) => {
-						const formData = new FormData();
-
-						formData.append('file', file, file.name);
-						formData.append('dir', ['', ...dirs].join('/'));
-						send(formData);
-						debouncFunc();
-					});
-				}}
-				disabled={false}
-				variant={'contained'}
-			></ButtonWithInput>
-			<FolderCreation
-				dirs={dirs}
-				onFolderCreation={() => {
-					if (isSearch) {
-						search(params);
-					} else {
-						show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
-					}
-				}}
-			/>
-			<div className="disk-show">
-				<h2 className="disk-show-label">Ваши диски</h2>
-				<div className="disks">{allDisks}</div>
-			</div>
-			<div className="under-disks">
-				<TextWithImg
-					text="Обрабатываются"
-					className={['text-with-img', 'work-in-progress', isProccessed ? 'selected' : ''].join(' ')}
-					imgSrc={RobotSVG}
-					altImgText="Робот"
-					onClick={() => {
-						dispatch(switchToProcessed());
-						dispatch(changeDisk('all'))
-						navigate('/processed')
-					}}
-				/>
-				<TextWithImg
-					text="Общие"
-					className={['shared', isShared ? 'selected' : ''].join(' ')}
-					imgSrc={DownloadSVG} // TODO
-					altImgText="Картинка с двумя людьми"
-					onClick={() => {
-						dispatch(switchToShared())
-						dispatch(changeDisk('all'))
-						navigate('/shared')
-					}}
-				/>
-			</div>
-		</div>
+		<Drawer
+			width={width}
+			isPermanent={!isMobile}
+			open={isOpen}
+			toggleDrawer={toggleShow}
+		>
+			{renderSidebar()}
+		</Drawer>
 	);
 };
