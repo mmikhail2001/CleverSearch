@@ -77,12 +77,11 @@ def setup_search_handler(args):
 
         response_data = response.json()
         data_array = response_data.get('body', [])
+        logger.info(data_array)
         if len(data_array) == 0:
             raise HTTPException(status_code=400, detail=f"Files not found")
         
         list_embs = [[obj['ml_data'][0]['Value']] for obj in data_array]
-
-        logger.info(len(list_embs), len(list_embs[0]), len(list_embs[0][0][0]))
 
         text_processor = TextProcessor()
         query_emb = [text_processor.process_query_string(query)]
@@ -96,8 +95,11 @@ def setup_search_handler(args):
                 )
         logger.info(dists)
         sorted_list = sorted(dists, key=lambda x: x[2], reverse=True)[:number_of_results]
-        file_keys = sorted(set(map(lambda x: x[0], sorted_list)), key=list(map(lambda x: x[0], sorted_list)).index)
-        files_uuid = [{"index": k, "file_uuid": data_array[k]['id']} for k in file_keys]
+        result = {}
+        for elem in sorted_list:
+            if elem[0] not in result:
+                result[elem[0]] = elem[1]
+        files_uuid = [{"file_uuid": data_array[k]['id'], 'timestamp': data_array[k]['ml_data'][1]['Value'][result[k]]} for k in list(result.keys())]
         return {params['file_type']: files_uuid}
 
     return search
