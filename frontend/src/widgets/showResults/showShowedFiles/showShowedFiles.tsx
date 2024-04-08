@@ -7,32 +7,19 @@ import { useDeleteFileMutation } from '@api/filesApi';
 import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
 import { RenderFields } from '@widgets/renderFields/renderFields';
-import { useSearchParams } from 'react-router-dom';
 import { transformToShowParams } from '@models/searchParams';
 import { transfromToShowRequestString } from '@api/transforms';
 import { useNavigate } from 'react-router-dom';
 import { switchToShow } from '@store/whatToShow';
 import '../show.scss'
+import { useParamsFromURL } from '@helpers/hooks/useParamsFromURL';
 
 interface ShowShowedFilesProps { }
 
-const useShowParams = () => {
-    const [searchParams] = useSearchParams();
-    const searchParamsToObject = (params: URLSearchParams) => {
-
-        const result: Record<string, string> = {};
-        params.forEach((value, key) => {
-            result[key] = value;
-        });
-        return result;
-    };
-
-    return searchParamsToObject(searchParams)
-}
-
-
 export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const navigate = useNavigate();
+    const urlParams = useParamsFromURL()
+    const [params] = useState(transformToShowParams(urlParams))
 
     const [show, showResp] = useShowMutation({ fixedCacheKey: 'show' });
     const { currentDisk, dirs } = useAppSelector(
@@ -44,8 +31,6 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const [deleteFile] = useDeleteFileMutation();
     const dispatch = useDispatch();
 
-    const urlParams = useShowParams()
-    const [params] = useState(transformToShowParams(urlParams))
 
     useEffect(() => {
         dispatch(changeDir({ dirs: params.dir }))

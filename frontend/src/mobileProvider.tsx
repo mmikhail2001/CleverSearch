@@ -21,8 +21,8 @@ const MobileContext = React.createContext<MobileContextType>(null!);
 
 export const MobileProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
     const [screenDimensions, setScreenDimensions] = React.useState({
-        width: window.screen.width,
-        height: window.screen.height
+        width: window.innerWidth,
+        height: window.innerHeight
     });
 
     const getScreenDimensions = () => {

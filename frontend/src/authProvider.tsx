@@ -1,4 +1,5 @@
 import { useProfileQuery } from '@api/userApi';
+import { LoadingPage } from '@pages/loadingPage/loadingPage';
 import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { useAppSelector } from '@store/store';
@@ -9,18 +10,8 @@ import { Navigate, useLocation } from 'react-router';
 
 export interface AuthContextType {
 	state: boolean,
+	isLoading: boolean,
 }
-
-export const RequireAuth: FC<{ children: React.ReactNode }> = ({ children }) => {
-	const auth = useAppSelector(state => state.userAuth.isAuthenticated);
-	const location = useLocation();
-
-	if (!auth) {
-		return <Navigate to="/login" state={{ from: location }} replace />;
-	}
-
-	return children;
-};
 
 const AuthContext = React.createContext<AuthContextType>(null!);
 
@@ -35,7 +26,7 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
 	let authState = false;
 	const dispatch = useDispatch();
 
-	const { isError, isSuccess, data } = useProfileQuery(null);
+	const { isError, isSuccess, isLoading, data } = useProfileQuery(null);
 
 	if (isError) {
 		authState = false;
@@ -50,15 +41,23 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
 
 	const passedContext = {
 		state: authState,
+		isLoading: isLoading,
 	} as AuthContextType;
 
 	return <AuthContext.Provider value={passedContext}>{children}</AuthContext.Provider>;
 };
 
+export function useAuth(): AuthContextType {
+	return React.useContext(AuthContext);
+}
+
+
 export const ProtectedFromAuthUser: FC<{ children: React.ReactNode }> = ({ children }) => {
+	const authState = useAuth()
 	const auth = useAppSelector(state => state.userAuth.isAuthenticated);
 	const location = useLocation();
 
+	if (authState.isLoading) return <LoadingPage />
 	if (auth) {
 		return <Navigate to="/" state={{ from: location }} replace />;
 	}
@@ -66,6 +65,17 @@ export const ProtectedFromAuthUser: FC<{ children: React.ReactNode }> = ({ child
 	return children;
 };
 
-export function useAuth(): AuthContextType {
-	return React.useContext(AuthContext);
-}
+export const RequireAuth: FC<{ children: React.ReactNode }> = ({ children }) => {
+	const auth = useAppSelector(state => state.userAuth.isAuthenticated);
+	const location = useLocation();
+	const authState = useAuth()
+
+	if (authState.isLoading) return <LoadingPage />
+
+	if (!auth) {
+		return <Navigate to="/login" state={{ from: location }} replace />;
+	}
+
+	return children;
+};
+

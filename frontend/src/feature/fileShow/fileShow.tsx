@@ -3,6 +3,7 @@ import './fileShow.scss';
 import { SharedModal } from '@widgets/sharedModal/sharedModal'
 import { DropDown } from '@entities/dropDown/dropDown'
 import { Typography } from '@mui/material';
+import { useMobile } from 'src/mobileProvider';
 
 interface FileShowProps {
 	iconSrc: string;

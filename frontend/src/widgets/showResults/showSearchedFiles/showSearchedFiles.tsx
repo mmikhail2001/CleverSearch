@@ -6,27 +6,15 @@ import { useDeleteFileMutation } from '@api/filesApi';
 import { useSearchMutation } from '@api/searchApi';
 import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
 import { RenderFields } from '@widgets/renderFields/renderFields';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { switchToSearch, switchToShow } from '@store/whatToShow';
 import { transfromToShowRequestString } from '@api/transforms';
 import { transformToSearchParams } from '@models/searchParams'
 import '../show.scss'
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
+import { useParamsFromURL } from '@helpers/hooks/useParamsFromURL';
 
 interface ShowSearchedFilesProps { }
-
-const useSearchUrlParams = () => {
-    const [searchParams] = useSearchParams();
-    const searchParamsToObject = (params: URLSearchParams) => {
-        const result: Record<string, string> = {};
-        params.forEach((value, key) => {
-            result[key] = value;
-        });
-        return result;
-    };
-
-    return searchParamsToObject(searchParams)
-}
 
 
 export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
@@ -35,7 +23,7 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     const dispatch = useDispatch();
 
     const navigate = useNavigate()
-    const urlParams = useSearchUrlParams()
+    const urlParams = useParamsFromURL()
 
     useEffect(() => {
         dispatch(switchToSearch())

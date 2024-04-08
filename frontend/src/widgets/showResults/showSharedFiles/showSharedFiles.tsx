@@ -11,22 +11,9 @@ import { switchToShared } from '@store/whatToShow';
 import { RenderFields } from '@widgets/renderFields/renderFields';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import '../show.scss';
+import { useParamsFromURL } from '@helpers/hooks/useParamsFromURL';
 
 interface ShowSharedFilesProps { }
-
-const getParamsFromURL = () => {
-	const [searchParams] = useSearchParams();
-
-	const searchParamsToObject = (params: URLSearchParams) => {
-		const result: Record<string, string> = {};
-		params.forEach((value, key) => {
-			result[key] = value;
-		});
-		return result;
-	};
-
-	return searchParamsToObject(searchParams)
-}
 
 
 export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
@@ -41,7 +28,7 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 	const [valueToShow, setvalueToShow] = useState(data?.body);
 
 	const navigate = useNavigate()
-	const urlParams = getParamsFromURL()
+	const urlParams = useParamsFromURL()
 	const [params] = useState(transformToShowParams(urlParams))
 
 	useEffect(() => {

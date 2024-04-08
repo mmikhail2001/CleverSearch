@@ -15,6 +15,7 @@ import { ShowShowedFiles } from '@widgets/showResults/showShowedFiles/showShowed
 import { ShowSearchedFiles } from '@widgets/showResults/showSearchedFiles/showSearchedFiles'
 import { ShowSharedFiles } from '@widgets/showResults/showSharedFiles/showSharedFiles'
 import { ShowSharedUUIDFiles } from '@widgets/showResults/showSharedFiles/showSharedUUIDFiles'
+
 import './App.scss'
 
 // @ts-ignore
