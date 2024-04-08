@@ -36,7 +36,7 @@ const getTextWithImg = (
 	return (
 		<TextWithImg
 			key={text + src}
-			className={selected ? 'selected' : ''}
+			className={[selected ? 'selected' : '', 'text-with-img-row'].join(' ')}
 			text={text}
 			imgSrc={src}
 			altImgText={altText}
@@ -108,7 +108,7 @@ export const Sidebar: FC<SidebarProps> = ({
 	const renderSidebar = (): React.ReactNode => {
 		return (
 			<>
-				<div className="sidebar" style={{ width: '100%' }}>
+				<div className="sidebar" style={{ width: width }}>
 					<div className="our-name-place">
 						{isMobile ?
 							<UserProfile email={email} isDropdownExist={false} />
@@ -116,7 +116,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							<TextWithImg
 								onClick={() => dispatch(switchToShow())}
 								text="CleverSearch"
-								className="our-name"
+								className={["our-name", 'text-with-img-row'].join(' ')}
 								imgSrc={CleverSVG}
 								altImgText="our-logo"
 							/>
@@ -161,7 +161,7 @@ export const Sidebar: FC<SidebarProps> = ({
 					<div className="under-disks">
 						<TextWithImg
 							text="Обрабатываются"
-							className={['text-with-img', 'work-in-progress', isProccessed ? 'selected' : ''].join(' ')}
+							className={['text-with-img', 'work-in-progress', isProccessed ? 'selected' : '', 'text-with-img-row'].join(' ')}
 							imgSrc={RobotSVG}
 							altImgText="Робот"
 							onClick={() => {
@@ -172,7 +172,7 @@ export const Sidebar: FC<SidebarProps> = ({
 						/>
 						<TextWithImg
 							text="Общие"
-							className={['shared', isShared ? 'selected' : ''].join(' ')}
+							className={['shared', isShared ? 'selected' : '', 'text-with-img-row'].join(' ')}
 							imgSrc={DownloadSVG} // TODO
 							altImgText="Картинка с двумя людьми"
 							onClick={() => {
@@ -197,7 +197,7 @@ export const Sidebar: FC<SidebarProps> = ({
 								flexDirection: 'column',
 							}}>
 								<LogoutIcon fontSize='inherit' />
-								<Typography variant='h5'>Выйти</Typography>
+								<Typography fontSize={'var(--ft-body)'}>Выйти</Typography>
 							</div>
 							<div onClick={() => toggleShow(!isOpen)} style={{
 								width: '100%',
@@ -206,7 +206,7 @@ export const Sidebar: FC<SidebarProps> = ({
 								flexDirection: 'column',
 							}}>
 								<KeyboardReturnIcon fontSize='inherit' />
-								<Typography variant='h5'>Вернуться</Typography>
+								<Typography fontSize={'var(--ft-body)'}>Вернуться</Typography>
 							</div>
 						</div >
 						: null}
@@ -219,6 +219,7 @@ export const Sidebar: FC<SidebarProps> = ({
 	if (isMobile) {
 		return (
 			<Modal
+				isFullWidth={true}
 				isOpen={isOpen}
 				closeModal={() => toggleShow(false)}
 				isFullscreen={true}

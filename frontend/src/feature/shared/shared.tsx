@@ -3,9 +3,10 @@ import { Input } from '@entities/input/input';
 import { Button } from '@entities/button/button'
 import { useGetShareUrlMutation } from '@api/filesApi';
 import { SelectorMulti } from '@entities/selectors/selectorMulti/selectorMulti';
-import { Option } from '@models/additional'
 import { AccessRights } from '@models/searchParams';
-import { MultiValue } from 'react-select';
+import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import './shared.scss'
+import { Typography } from '@mui/material';
 
 interface SharedProps {
     dirPath: string,
@@ -40,8 +41,9 @@ export const Shared: FC<SharedProps> = ({
     const [isCopied, setCopied] = useCopyState()
 
     return (
-        <div className={['text-with-img', className].join(' ')} >
+        <div className={['shared-modal', className].join(' ')} >
             <Input
+                fontSize='var(--ft-body)'
                 disabled={resp.isSuccess}
                 onChange={(e) => setCurrentEmail(e.target.value)}
                 onKeyDown={(e) => {
@@ -53,10 +55,26 @@ export const Shared: FC<SharedProps> = ({
                 type={'email'}
                 value={currentEmail}
             ></Input>
-            <div>
-                {emails.map((val) => {
-                    return <div key={val}>{val}</div>
-                })}
+            <div style={{ width: '100%' }}>
+                {emails?.length > 0
+                    ?
+                    <>
+                        <Typography fontSize={'var(--ft-body)'}>Доступ дан:</Typography>
+                        <TextareaAutosize
+                            style={{
+                                background: 'var(--main-color-50)',
+                                outlineStyle: 'none',
+                                fontSize: 'var(--ft-body)',
+                                width: '100%',
+                            }}
+                            disabled
+                            maxRows={3}
+                            aria-label="maximum height"
+                            value={emails.join('\n')}
+                        />
+                    </>
+                    : null
+                }
             </div>
             {resp.data ? <div>
                 <p>Ссылка:</p>
@@ -72,6 +90,7 @@ export const Shared: FC<SharedProps> = ({
             </div>
                 : null}
             <SelectorMulti
+                fontSize='var(--ft-body)'
                 isMulti={false}
                 options={[
                     { label: 'Редактор', value: 'writer' },
@@ -90,6 +109,7 @@ export const Shared: FC<SharedProps> = ({
                 }
             />
             <Button
+                fontSize='var(--ft-body)'
                 buttonText='Поделиться'
                 variant={'contained'}
                 disabled={resp.isLoading}

@@ -3,7 +3,7 @@ import './fileShow.scss';
 import { SharedModal } from '@widgets/sharedModal/sharedModal'
 import { DropDown } from '@entities/dropDown/dropDown'
 import { Typography } from '@mui/material';
-import { useMobile } from 'src/mobileProvider';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 interface FileShowProps {
 	iconSrc: string;
@@ -47,18 +47,26 @@ export const FileShow: FC<FileShowProps> = ({
 						<img className="icon" src={iconSrc} alt={altText ? altText : ''}></img>
 					</div>
 					<div className="filename-with-date">
-						<div className="filename">{filename}</div>
-						<div className="date">{date}</div>
+						<Typography fontSize={'var(--ft-body)'} className="filename">{filename}</Typography>
+						<Typography fontSize={'var(--ft-body)'} className="date">{date}</Typography>
 					</div>
 				</div>
-				<div>{author}</div>
+				<Typography fontSize={'var(--ft-body)'}>{author}</Typography>
 				<div className='additional-functions-file'>
 					<DropDown
+						variants='down-center'
 						open={isOpenDropDown}
 						toggleOpen={(val) => {
 							setOpenDropDown(val);
 						}}
-						mainElement={<div>More</div>}
+						mainElement={
+							<div style={{
+								display: 'flex',
+								alignItems: 'center',
+								fontSize: 'var(--ft-paragraph)',
+							}}>
+								<MoreVertIcon fontSize={'inherit'}></MoreVertIcon>
+							</div>}
 					>
 						{config.isDelete ?
 							<div onClick={(event) => {
@@ -91,7 +99,7 @@ export const FileShow: FC<FileShowProps> = ({
 					/>
 					: null}
 
-				<div className="size">{size}</div>
+				<Typography fontSize={'var(--ft-body)'} className="size">{size}</Typography>
 			</div>
 		</>
 	);

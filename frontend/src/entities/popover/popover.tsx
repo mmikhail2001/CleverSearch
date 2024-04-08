@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useRef } from 'react';
-import { FormControlLabel, PopoverOrigin, TextFieldPropsSizeOverrides, TextFieldVariants, TextField as UIInput } from '@mui/material'
+import { FormControlLabel, Paper, PopoverOrigin, TextFieldPropsSizeOverrides, TextFieldVariants, TextField as UIInput, createTheme } from '@mui/material'
 import { Popover as UIPopover } from '@mui/material'
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
@@ -12,6 +12,7 @@ interface PopOverProps {
     isCloseOnSelect?: boolean,
     open: boolean;
     toggleOpen: (state: boolean) => void;
+    // left-top right-top left-bottom right-bottom
 }
 
 export const PopOver: FC<PopOverProps> = ({
@@ -75,7 +76,7 @@ export const PopOver: FC<PopOverProps> = ({
 
     return (
         <>
-            <div onClick={handleClick} ref={ref}>{mainElement}</div>
+            <div onClick={handleClick} ref={ref} style={{ width: 'fit-content' }}>{mainElement}</div>
             <UIPopover
                 disableAutoFocus
                 anchorEl={anchorEl}

@@ -53,7 +53,12 @@ export const Button: FC<ButtonProps> = ({
 			disabled={disabled}
 			onClick={clkHandler}
 			startIcon={startIconSrc ? <img src={startIconSrc} /> : null}
-			sx={{ textTransform: 'none', fontSize: fontSize }}
+			sx={{
+				textTransform: 'none',
+				fontSize: fontSize,
+				justifyContent: variant === 'text' ? 'start' : null,
+				padding: variant === 'text' ? '0' : null,
+			}}
 		>
 			<p>{buttonText}</p>
 		</UIButton>

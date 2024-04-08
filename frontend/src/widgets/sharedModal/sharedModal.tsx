@@ -12,6 +12,7 @@ interface SharedModalProps {
 export const SharedModal: FC<SharedModalProps> = ({ dirPath, close, isOpen }) => {
 	return (
 		<Modal
+			isFullWidth={false}
 			isOpen={isOpen}
 			closeModal={close}
 			className={'modal-shared'}

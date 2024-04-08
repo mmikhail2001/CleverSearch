@@ -26,6 +26,7 @@ export const ButtonWithInput: FC<ButtonWithInputProps> = ({
   return (
     <div className={className || ''}>
       <Button
+        fontSize='var(--ft-body)'
         variant={variant}
         buttonText={buttonText}
         clickHandler={handleClick}

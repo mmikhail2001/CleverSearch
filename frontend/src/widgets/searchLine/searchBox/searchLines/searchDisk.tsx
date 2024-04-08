@@ -5,6 +5,7 @@ import {
 } from '@entities/selectors/selectorOptionWIthImg/selectorOptionWithImg';
 
 import { getDisksToOptions, diskVal, diskValueToOption } from '@models/disk'
+import { Typography } from '@mui/material';
 
 export interface SearchDiskLineProps {
 	changeState: React.Dispatch<
@@ -21,7 +22,7 @@ export const SearchDiskLine: FC<SearchDiskLineProps> = ({
 }) => {
 	return (
 		<div className="line">
-			<p className="search-box__text">Диск</p>
+			<Typography fontSize={'var(--ft-body)'}>Диск</Typography>
 			<SelectorWithImg
 				fontSize={fontSize}
 				options={getDisksToOptions()}

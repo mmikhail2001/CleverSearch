@@ -11,6 +11,7 @@ interface ModalProps {
     bodyClassName?: string;
     bottomFrame?: React.ReactNode;
     isFullscreen?: boolean;
+    isFullWidth?: boolean;
 }
 
 export const Modal: FC<ModalProps> = ({
@@ -21,6 +22,7 @@ export const Modal: FC<ModalProps> = ({
     bodyClassName,
     bottomFrame,
     isFullscreen,
+    isFullWidth,
 }) => {
     const handleClose = (event: React.MouseEvent<HTMLElement>) => {
         event.preventDefault();
@@ -34,7 +36,7 @@ export const Modal: FC<ModalProps> = ({
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
             maxWidth={'lg'}
-            fullWidth={true}
+            fullWidth={isFullWidth}
             scroll='paper'
             fullScreen={isFullscreen}
         >

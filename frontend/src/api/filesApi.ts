@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { Folder } from '@models/folder';
+import { Folder, FolderResp } from '@models/folder';
 import { SearchResponse, ShareRequest, ShareResponse, fileFile } from '@models/searchParams';
 
 export const filesApi = createApi({
@@ -28,7 +28,7 @@ export const filesApi = createApi({
 				body: { 'files': files },
 			}),
 		}),
-		createDir: builder.mutation<Folder[], string[]>({
+		createDir: builder.mutation<FolderResp, string[]>({
 			query: (dirPath: string[]) => ({
 				url: `/dirs/create?dir_path=${['', ...dirPath].join('/')}`,
 				method: 'POST',

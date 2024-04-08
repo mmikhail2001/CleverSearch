@@ -5,6 +5,7 @@ import AsyncSelect from 'react-select/async';
 import { Option } from '@models/additional'
 import { debounce } from '@helpers/debounce';
 import { Autocomplete, CircularProgress, TextField } from '@mui/material';
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
 interface SelectorAsyncProps {
 	loadFunction: (inputValue: string) => Promise<Option[]>;
@@ -86,7 +87,12 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 			renderInput={(params) => (
 				<TextField
 					{...params}
-					InputProps={{ ...params.InputProps, style: { fontSize: fontSize } }}
+					InputProps={{
+						...params.InputProps,
+						style: {
+							fontSize: fontSize,
+						}
+					}}
 					placeholder={placeholder}
 					variant="outlined"
 				/>

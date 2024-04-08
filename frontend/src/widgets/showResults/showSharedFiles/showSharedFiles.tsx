@@ -12,6 +12,7 @@ import { RenderFields } from '@widgets/renderFields/renderFields';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import '../show.scss';
 import { useParamsFromURL } from '@helpers/hooks/useParamsFromURL';
+import { Typography } from '@mui/material';
 
 interface ShowSharedFilesProps { }
 
@@ -59,20 +60,20 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 
 	return (
 		<div className="data-show" >
-			<BreadCrumps
-				dirs={['Shared', ...dirs]}
-				onClick={() => {
-					if (dirs.length !== 0) {
-						dispatch(changeDir({ dirs: dirs.slice(0, -1) }))
-						navigate(-1)
-
-						return
-					}
-				}}
-				reactOnElements={[]}
-			/>
 			<div className="data-show__header">
-				<p>Результаты поиска:</p>
+				<BreadCrumps
+					dirs={['Shared', ...dirs]}
+					onClick={() => {
+						if (dirs.length !== 0) {
+							dispatch(changeDir({ dirs: dirs.slice(0, -1) }))
+							navigate(-1)
+
+							return
+						}
+					}}
+					reactOnElements={[]}
+				/>
+				<Typography fontSize={'var(--ft-body)'}>Результаты поиска:</Typography>
 			</div>
 			<RenderFields
 				data={valueToShow}

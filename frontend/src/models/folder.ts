@@ -4,3 +4,9 @@ export interface Folder {
   title: string;
   body: string;
 }
+
+export interface FolderResp {
+  body: string,
+  message: string,
+  status: number,
+}

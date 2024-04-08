@@ -5,6 +5,7 @@ import {
 } from '@entities/selectors/selectorMulti/selectorMulti';
 
 import { fileValues, getFilesOptionFromValue, getFilesTypesToOptions, } from '@models/disk'
+import { Typography } from '@mui/material';
 
 
 export interface SearchFileTypeLineProps {
@@ -22,7 +23,7 @@ export const SearchFileType: FC<SearchFileTypeLineProps> = ({
 }) => {
 	return (
 		<div className="line">
-			<p className="search-box__text">Тип файла</p>
+			<Typography fontSize={'var(--ft-body)'}>Тип файла</Typography>
 			<SelectorMulti
 				fontSize={fontSize}
 				placeholder='Любой'

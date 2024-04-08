@@ -12,7 +12,7 @@ interface SearchBoxProps {
 	onClick: () => void;
 	search: () => void;
 	fontSize?: string
-	style?: CSS.Properties
+	style?: CSS.Properties,
 }
 
 const setToInitial = (

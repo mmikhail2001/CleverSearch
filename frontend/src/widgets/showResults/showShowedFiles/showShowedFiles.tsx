@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { switchToShow } from '@store/whatToShow';
 import '../show.scss'
 import { useParamsFromURL } from '@helpers/hooks/useParamsFromURL';
+import { Typography } from '@mui/material';
 
 interface ShowShowedFilesProps { }
 
@@ -63,7 +64,7 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                     }}
                     reactOnElements={[]}
                 />
-                <p>Результаты поиска:</p>
+                <Typography fontSize={'var(--ft-body)'}>Результаты поиска:</Typography>
             </div>
             <RenderFields
                 data={showResp.data?.body}

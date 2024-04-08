@@ -54,6 +54,7 @@ export const Input: FC<InputProps> = ({
 			type={type}
 			placeholder={placeholder}
 			onKeyDown={onKeyDown}
+			sx={{ fontSize: fontSize }}
 			inputProps={{ style: { fontSize: fontSize } }}
 			onChange={onChange}
 		/>

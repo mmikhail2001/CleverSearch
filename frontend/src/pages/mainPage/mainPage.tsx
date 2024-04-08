@@ -20,15 +20,22 @@ export const MainPage: FC = () => {
 	const dispatch = useDispatch()
 
 	const isMobile = whatDisplay === 2
+	const widthToSet = isMobile ? '0px' : drawerWidth
 
 	return <div className="App">
 		<Sidebar
-			width={drawerWidth}
+			width={isMobile ? '100%' : drawerWidth}
 			isMobile={isMobile}
 			isOpen={openSidebar}
 			toggleShow={setOpenSidebar}
 		/>
-		<div className="main-app" style={{ marginLeft: isMobile ? 0 : drawerWidth }} >
+		<div
+			className="main-app"
+			style={{
+				marginLeft: isMobile ? 0 : drawerWidth,
+				maxWidth: `calc(100% - ${widthToSet})`,
+			}}
+		>
 			<Navbar
 				toggleSidebar={() =>
 					setOpenSidebar(!openSidebar)

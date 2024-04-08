@@ -12,6 +12,7 @@ import { changeDir } from '@store/currentDirectoryAndDisk';
 import React, { Dispatch, FC } from 'react';
 import { FileWithModal, renderReturns } from './fileWithModal';
 import './renderFields.scss';
+import { Typography } from '@mui/material';
 
 export interface RenderFieldsProps {
 	data: fileFile[],
@@ -76,6 +77,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 		const renderModal = () => {
 			return (
 				<Modal
+					isFullWidth={true}
 					className={'modal__pdf-show'}
 					isOpen={state}
 					closeModal={() => changeState(false)}
@@ -108,6 +110,12 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 
 	return (
 		<div key={'rendered-list'} className='show-all-files'>
+			<div className='file-show-line'>
+				<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>Название</Typography>
+				<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>Автор</Typography>
+				<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}></Typography>
+				<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>Размер</Typography>
+			</div>
 			{data.map((file) => {
 				const getFileProps = (file: fileFile, isOpen: boolean, changeState: (isOpen: boolean) => void): renderReturns => {
 					let renderModal: () => React.ReactNode | null = () => null;

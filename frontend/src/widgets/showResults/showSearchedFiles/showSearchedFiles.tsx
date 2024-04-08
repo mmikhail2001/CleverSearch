@@ -12,6 +12,7 @@ import { transfromToShowRequestString } from '@api/transforms';
 import { transformToSearchParams } from '@models/searchParams'
 import '../show.scss'
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
+import { Typography } from '@mui/material';
 import { useParamsFromURL } from '@helpers/hooks/useParamsFromURL';
 
 interface ShowSearchedFilesProps { }
@@ -35,15 +36,15 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
 
     return (
         <div className="data-show" >
-            <BreadCrumps
-                dirs={['Search']}
-                onClick={() => {
-                    navigate(-1)
-                }}
-                reactOnElements={[]}
-            />
             <div className="data-show__header">
-                <p>Результаты поиска:</p>
+                <BreadCrumps
+                    dirs={['Search']}
+                    onClick={() => {
+                        navigate(-1)
+                    }}
+                    reactOnElements={[]}
+                />
+                <Typography fontSize={'var(--ft-body)'}>Результаты поиска:</Typography>
             </div>
             <RenderFields
                 data={data?.body}

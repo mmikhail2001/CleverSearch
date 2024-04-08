@@ -18,6 +18,8 @@ import { transformToSearchRequestString } from '@api/transforms';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { PopOver } from '@entities/popover/popover';
+import { useMobile } from 'src/mobileProvider';
+import DehazeIcon from '@mui/icons-material/Dehaze';
 
 export interface searchStateValue {
 	smartSearch: boolean;
@@ -44,6 +46,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 	const [search, response] = useSearchMutation({ fixedCacheKey: 'search' });
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+	const { whatDisplay } = useMobile();
 
 	function mySearch(): void {
 		search(searchValue);
@@ -59,7 +62,10 @@ export const SearchLine: FC<SearchLineProps> = ({
 		return (
 			<SearchBox
 				fontSize={'var(--ft-body)'}
-				style={{ width: width }}
+				style={{
+					width: width,
+					background: 'var(--main-color-100)'
+				}}
 				changeState={(obj: searchStateValue) => {
 					setSearchValue({ ...obj, dir: obj.dir })
 				}}
@@ -80,12 +86,18 @@ export const SearchLine: FC<SearchLineProps> = ({
 			isCloseOnSelect={false}
 			children={[renderOpenBox()]}
 			mainElement={
-				<div className="search-line" style={{ width: width }}>
+				<div className={["search-line", isBoxOpen ? 'open-search-line' : ''].join(' ')}
+					style={{ width: width }
+					}
+				>
 					<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
 						<div className="search-icon-container"
 							onClick={onIconClick}
 							style={{ fontSize: 'var(--ft-title)' }}>
-							<SearchIcon fontSize='inherit' />
+							{whatDisplay === 1 ?
+								<SearchIcon fontSize='inherit' />
+								: <DehazeIcon fontSize='inherit' />
+							}
 						</div>
 						<div className="search-text">
 							<Input

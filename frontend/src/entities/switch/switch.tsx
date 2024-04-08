@@ -23,9 +23,9 @@ export const Switch: FC<SwitchProps> = ({
 }) => {
     return (
         <FormControlLabel
-            style={{ marginLeft: "0", fontSize: fontSize }}
+            style={{ marginLeft: "0" }}
             label={label}
-            slotProps={{ typography: { fontSize: "1.6rem" } }}
+            slotProps={{ typography: { fontSize: fontSize } }}
             labelPlacement={labelPlacement}
             control={
                 <UISwitch

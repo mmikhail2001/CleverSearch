@@ -17,14 +17,14 @@ export const BreadCrumps: FC<BreadCrumpsProps> = ({ dirs, reactOnElements, onCli
     // TODO подумать над тем, чтобы внедрить тут работу над ссылками, не onclick
     return <>
         <Breadcrumbs
-            separator={<Typography fontSize={'var(--ft-small-text)'}>/</Typography>}
+            separator={<Typography fontSize={'var(--ft-body)'}>/</Typography>}
         >
             {
                 dirs.map((value, index) => {
                     if (value === '') return null
 
                     return <Typography
-                        fontSize={'var(--ft-small-text)'}
+                        fontSize={'var(--ft-body)'}
                         key={value}
                         onClick={reactOnElements ? reactOnElements[index] : () => { }}
                     >

@@ -5,6 +5,7 @@ import React, { FC } from 'react';
 import { Option } from '@models/additional'
 
 import { transformOptionsToDirs, transformToOptions } from '@models/disk'
+import { Typography } from '@mui/material';
 
 export interface SearchFolderLineProps {
 	changeState: (React.Dispatch<
@@ -32,7 +33,7 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 
 	return (
 		<div className="line">
-			<p className="search-box__text">Директория</p>
+			<Typography fontSize={'var(--ft-body)'}>Директория</Typography>
 			<SelectorAsync
 				fontSize={fontSize}
 				placeholder={'Все папки'}

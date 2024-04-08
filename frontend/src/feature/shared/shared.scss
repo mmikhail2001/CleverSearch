@@ -1,0 +1,12 @@
+.shared-modal {
+    display: flex;
+    flex-direction: column;
+    gap: var(--big-padding);
+    border-radius: var(--big-radius);
+    padding-left: var(--big-padding);
+    padding-right: var(--big-padding);
+    padding-top: var(--normal-padding);
+    padding-bottom: var(--normal-padding);
+
+    align-items: center;
+}

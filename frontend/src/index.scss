@@ -137,9 +137,9 @@ body {
 :root{
     @media screen and (max-width: $tablet-width) {
         --ft-small-text: 1.2rem;
-        --ft-body: 1.6rem;
-        --ft-paragraph: 2.2rem;
-        --ft-title: 3rem;
+        --ft-body: 1.4rem;
+        --ft-paragraph: 2.0rem;
+        --ft-title: 2.8rem;
     }
     @media screen and (min-width: $pc-width) {
         --ft-small-text: 1.4rem;

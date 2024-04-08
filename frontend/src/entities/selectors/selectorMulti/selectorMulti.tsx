@@ -31,7 +31,7 @@ const MenuProps = {
 	PaperProps: {
 		style: {
 			maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-			width: 250,
+			width: 'auto',
 		},
 	},
 };
@@ -56,7 +56,6 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 	fontSize,
 }) => {
 	const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
-
 
 	const handleChange = (e: SelectChangeEvent<Element>): void => {
 		const {

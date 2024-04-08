@@ -6,6 +6,7 @@ import { useLazyProfileQuery } from '@api/userApi'
 import { setUserEmail } from '@store/userAuth';
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 import { useLogout } from '@helpers/hooks/logout';
+import { Typography } from '@mui/material';
 
 interface UserProfileProps {
 	email: string;
@@ -34,13 +35,19 @@ export const UserProfile: FC<UserProfileProps> = ({
 
 	const profileMain = (): React.ReactNode => {
 		return (
-			<div className='profile'>
+			<Typography
+				className='profile'
+				fontSize={'var(--ft-body)'}
+				sx={{ borderRadius: 'var( --big-radius)' }}
+			>
 				{email}
-			</div>
+			</Typography>
 		)
 	}
 	const renderDropDown = (): React.ReactNode => {
 		return (<DropDown
+			styleOnMain={{ height: '100%' }}
+			variants='down-center'
 			open={isOpenProfile}
 			toggleOpen={setOpen}
 			mainElement={profileMain()}

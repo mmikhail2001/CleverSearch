@@ -6,7 +6,7 @@ import { MenuItem } from '@mui/material';
 import CSS from 'csstype';
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
-export type WhereToPlace = 'up' | 'down'
+export type WhereToPlace = 'up' | 'down' | 'down-center' | 'up-center'
 interface DropDownProps {
 	children: React.ReactNode[]
 	mainElement: React.ReactNode,
@@ -14,15 +14,19 @@ interface DropDownProps {
 	isCloseOnSelect?: boolean,
 	open: boolean;
 	toggleOpen: (state: boolean) => void;
+	className?: string;
+	styleOnMain?: CSS.Properties;
 }
 
 export const DropDown: FC<DropDownProps> = ({
+	className,
 	children,
 	mainElement,
 	variants,
 	isCloseOnSelect,
 	open,
 	toggleOpen,
+	styleOnMain,
 }) => {
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 	const ref = useRef<HTMLDivElement>(null)
@@ -55,6 +59,28 @@ export const DropDown: FC<DropDownProps> = ({
 
 			}
 			break;
+		case 'down-center':
+			anchorOrigin = {
+				vertical: 'bottom',
+				horizontal: 'center',
+
+			}
+			transformOrigin = {
+				vertical: 'top',
+				horizontal: 'center',
+			}
+			break;
+		case 'up-center':
+			anchorOrigin = {
+				vertical: 'top',
+				horizontal: 'center',
+			}
+
+			transformOrigin = {
+				vertical: 'bottom',
+				horizontal: 'center',
+			}
+			break;
 		case 'down':
 		default:
 			anchorOrigin = {
@@ -79,7 +105,14 @@ export const DropDown: FC<DropDownProps> = ({
 
 	return (
 		<>
-			<div onClick={handleClick} ref={ref}>{mainElement}</div>
+			<div
+				className={className}
+				onClick={handleClick}
+				ref={ref}
+				style={styleOnMain}
+			>
+				{mainElement}
+			</div>
 			<Menu
 				disableAutoFocusItem
 				disableAutoFocus
@@ -94,7 +127,12 @@ export const DropDown: FC<DropDownProps> = ({
 			>
 				{
 					children.filter((val) => !isNullOrUndefined(val)).map(
-						child => <MenuItem onClick={isNeedCloseOnSelect ? handleClose : null}>
+						child => <MenuItem
+							onClick={isNeedCloseOnSelect ? handleClose : null}
+							sx={{
+								fontSize: 'var(--ft-small-text)',
+							}}
+						>
 							{child}
 						</MenuItem>
 					)
