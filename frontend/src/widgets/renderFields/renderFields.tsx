@@ -83,7 +83,10 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 					closeModal={() => changeState(false)}
 					bodyClassName={'modal-body__pdf'}
 				>
-					<ViewPDF pdfURL={file.link} openPageInPDF={file.page_number || 0} searchString={''}></ViewPDF>
+					<ViewPDF
+						pdfURL={file.link}
+						openPageInPDF={file.page_number || 0}
+						searchString={''} />
 				</Modal>
 			)
 		}
