@@ -28,7 +28,6 @@ export const SearchDiskLine: FC<SearchDiskLineProps> = ({
 				isMulti={true}
 				onChange={
 					(newVal) => {
-						console.log("newVal", newVal)
 						changeState({ ...state, disk: diskVal(newVal) })
 					}
 				}

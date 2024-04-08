@@ -26,13 +26,10 @@ export const PopOver: FC<PopOverProps> = ({
     const ref = useRef<HTMLDivElement>(null)
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-        // event.stopPropagation()
         toggleOpen(true)
     };
 
     const handleClose = (event: React.MouseEvent<HTMLElement>) => {
-        // event.stopPropagation()
-        console.log("HADNEL CLAO",)
         toggleOpen(false)
     };
 

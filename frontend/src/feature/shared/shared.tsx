@@ -33,14 +33,14 @@ export const Shared: FC<SharedProps> = ({
     dirPath,
     className,
 }) => {
-    const [currentEmail, setCurrentEmail] = useState('')
+    const [currentEmail, setCurrentEmail] = useState<string>('')
     const [emails, setEmail] = useState([] as string[])
-    const [accessType, setAccessType] = useState('writer' as AccessRights)
+    const [accessType, setAccessType] = useState<AccessRights>('writer' as AccessRights)
     const [share, resp] = useGetShareUrlMutation()
     const [isCopied, setCopied] = useCopyState()
 
     return (
-        <div className={['text-with-img', className].join(' ')}>
+        <div className={['text-with-img', className].join(' ')} >
             <Input
                 disabled={resp.isSuccess}
                 onChange={(e) => setCurrentEmail(e.target.value)}

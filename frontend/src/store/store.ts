@@ -8,7 +8,6 @@ import { reducer as reducerPath } from './currentDirectoryAndDisk';
 import { reducer as reducerUser } from './userAuth';
 import reducer from './whatToShow';
 
-
 export const store = configureStore({
 	reducer: {
 		[userApi.reducerPath]: userApi.reducer,

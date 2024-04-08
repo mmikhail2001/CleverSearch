@@ -83,7 +83,7 @@ export const DropDown: FC<DropDownProps> = ({
 			<Menu
 				anchorEl={anchorEl}
 				open={open}
-				onClose={() => handleClose}
+				onClose={handleClose}
 				MenuListProps={{
 					'aria-labelledby': 'basic-button',
 				}}

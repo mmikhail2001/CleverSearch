@@ -22,10 +22,15 @@ export const Modal: FC<ModalProps> = ({
     bottomFrame,
     isFullscreen,
 }) => {
+    const handleClose = (event: React.MouseEvent<HTMLElement>) => {
+        event.preventDefault();
+        closeModal();
+    }
+
     return (
         <UIDialog
             open={isOpen}
-            onClose={closeModal}
+            onClose={handleClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
             maxWidth={'lg'}
@@ -37,7 +42,7 @@ export const Modal: FC<ModalProps> = ({
                 {children}
             </DialogContent>
             {bottomFrame ?
-                <DialogActions>
+                <DialogActions onClick={(e) => e.preventDefault()}>
                     {bottomFrame}
                 </DialogActions>
                 :

@@ -41,11 +41,6 @@ const changeFromValueToLabel = (value: string[], options: Option[]): string[] =>
 }
 
 const changeFromLabelToValue = (label: string[], options: Option[]): string[] => {
-	label.forEach(element => {
-		console.log("ELEMENT", element)
-		console.log('OPTIONS', options)
-		console.log("RESULT", options.find((pred) => pred.label === element))
-	});
 	return label.map(val => options.find((pred) => pred.label === val).value)
 }
 

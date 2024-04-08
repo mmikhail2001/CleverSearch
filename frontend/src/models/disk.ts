@@ -108,7 +108,6 @@ export const diskValueToOption = (value: diskTypes): OptionWithImg => {
 export const diskVal = (
 	newVal: string[] | string
 ): diskTypes[] => {
-	console.log("DISK VAL", newVal)
 	if (typeof newVal === 'string') {
 		if (newVal) {
 			return [newVal] as diskTypes[];

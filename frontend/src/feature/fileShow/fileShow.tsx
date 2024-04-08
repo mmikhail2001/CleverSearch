@@ -1,7 +1,8 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useRef, useState } from 'react';
 import './fileShow.scss';
 import { SharedModal } from '@widgets/sharedModal/sharedModal'
 import { DropDown } from '@entities/dropDown/dropDown'
+import { Typography } from '@mui/material';
 
 interface FileShowProps {
 	iconSrc: string;
@@ -31,9 +32,15 @@ export const FileShow: FC<FileShowProps> = ({
 	const [isOpen, setOpen] = useState(false)
 	const [isOpenDropDown, setOpenDropDown] = useState(false)
 
+	const handleClickFile = (e: React.MouseEvent<HTMLElement>): void => {
+		if (ref?.current && ref.current.contains(e.target as Node))
+			onClick();
+	}
+	const ref = useRef<HTMLDivElement>(null)
+
 	return (
 		<>
-			<div className="file-show-line" onClick={onClick} >
+			<div className="file-show-line" ref={ref} onClick={handleClickFile} >
 				<div className='container-file-info'>
 					<div className="icon-placement">
 						<img className="icon" src={iconSrc} alt={altText ? altText : ''}></img>
@@ -47,15 +54,25 @@ export const FileShow: FC<FileShowProps> = ({
 				<div className='additional-functions-file'>
 					<DropDown
 						open={isOpenDropDown}
-						toggleOpen={setOpenDropDown}
+						toggleOpen={(val) => {
+							setOpenDropDown(val);
+						}}
 						mainElement={<div>More</div>}
 					>
 						{config.isDelete ?
-							<div onClick={(event) => { event.stopPropagation(); onDelete(); }} >Delete</div>
+							<div onClick={(event) => {
+								event.stopPropagation();
+								onDelete();
+								setOpenDropDown(false)
+							}} >Delete</div>
 							: null}
 						{config.isShare ?
 							<div
-								onClick={(event) => { event.stopPropagation(); setOpen(true); }}
+								onClick={(event) => {
+									event.stopPropagation();
+									setOpen(true);
+									setOpenDropDown(false)
+								}}
 							>
 								Share
 							</div>
@@ -65,7 +82,10 @@ export const FileShow: FC<FileShowProps> = ({
 				{config.isShare ?
 					<SharedModal
 						isOpen={isOpen}
-						close={() => setOpen(false)}
+						close={() => {
+							setOpen(false);
+							setOpenDropDown(false);
+						}}
 						dirPath={dirPath}
 					/>
 					: null}

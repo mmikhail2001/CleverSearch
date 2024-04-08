@@ -40,7 +40,6 @@ export const MobileProvider: FC<{ children: React.ReactNode }> = ({ children }) 
         };
     });
 
-    console.log(screenDimensions)
     const passedContext = {
         currentWidth: screenDimensions.width,
         currentHeight: screenDimensions.height,

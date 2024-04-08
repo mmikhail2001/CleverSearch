@@ -2,7 +2,7 @@
     gap: var(--normal-padding);
     width: 100%;
     display: grid;
-    grid-template-columns: 3fr  0.5fr 2fr 1fr;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 0.5fr) minmax(0, 2fr) minmax(0, 1fr);
     
     justify-content: space-between;
     align-content: center;
@@ -15,9 +15,11 @@
 }
 
 .filename-with-date {
-    display: flex;
-    gap: 12px;
-    flex-direction: row;
+  overflow: hidden;
+  max-width: 100%;
+  display: flex;
+  gap: 12px;
+  flex-direction: row;
 }
 
 @media screen and (max-width: 1201px) {
@@ -55,4 +57,11 @@
 
 .size {
   justify-content: end;
+}
+
+.filename {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 100%;
 }

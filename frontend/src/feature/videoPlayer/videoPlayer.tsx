@@ -57,8 +57,6 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 	const [firstTime, setFirstTime] = useState(true);
 	const fullScreen = useFullScreenHandle();
 
-
-
 	const handleOnPlaybackRateChange = (speed: string) => {
 		setState({ ...state, playbackRate: parseFloat(speed) })
 	}
