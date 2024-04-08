@@ -81,6 +81,8 @@ export const DropDown: FC<DropDownProps> = ({
 		<>
 			<div onClick={handleClick} ref={ref}>{mainElement}</div>
 			<Menu
+				disableAutoFocusItem
+				disableAutoFocus
 				anchorEl={anchorEl}
 				open={open}
 				onClose={handleClose}
@@ -91,7 +93,7 @@ export const DropDown: FC<DropDownProps> = ({
 				anchorOrigin={anchorOrigin}
 			>
 				{
-					children.map(
+					children.filter((val) => !isNullOrUndefined(val)).map(
 						child => <MenuItem onClick={isNeedCloseOnSelect ? handleClose : null}>
 							{child}
 						</MenuItem>

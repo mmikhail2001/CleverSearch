@@ -1,18 +1,23 @@
 import { Sidebar } from '@widgets/sidebar/sidebar';
 import React, { FC, useState } from 'react';
 
+import { useDispatch } from 'react-redux';
+import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
+import { switchToShow } from '@store/whatToShow';
+
 import { Navbar } from '@widgets/navbar/navbar';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import './mainPage.scss';
 import { useMobile } from 'src/mobileProvider';
 import { Button } from '@entities/button/button';
-import DehazeIcon from '@mui/icons-material/Dehaze';
 
 const drawerWidth = `240px`
 
 export const MainPage: FC = () => {
 	const { whatDisplay } = useMobile()
 	const [openSidebar, setOpenSidebar] = useState<boolean>(false)
+	const navigate = useNavigate()
+	const dispatch = useDispatch()
 
 	const isMobile = whatDisplay === 2
 
@@ -23,7 +28,7 @@ export const MainPage: FC = () => {
 			isOpen={openSidebar}
 			toggleShow={setOpenSidebar}
 		/>
-		<div className="main-app" >
+		<div className="main-app" style={{ marginLeft: isMobile ? 0 : drawerWidth }} >
 			<Navbar
 				toggleSidebar={() =>
 					setOpenSidebar(!openSidebar)
@@ -31,5 +36,38 @@ export const MainPage: FC = () => {
 			/>
 			<Outlet></Outlet>
 		</div>
+		{whatDisplay === 2
+			// TODO make icons
+			? <div className='bottom-buttons'>
+				<Button
+					buttonText='Домашняя'
+					clickHandler={() => {
+						dispatch(switchToShow())
+						dispatch(changeDisk('all'))
+						dispatch(changeDir({ dirs: [] }))
+						navigate('/files')
+					}}
+					variant='outlined'
+					fontSize='var(--ft-body)'
+				/>
+				<Button
+					buttonText='Доступные'
+					clickHandler={() => {
+						dispatch(switchToShow())
+						dispatch(changeDisk('all'))
+						navigate('/shared')
+					}}
+					variant='outlined'
+					fontSize='var(--ft-body)'
+				/>
+				<Button
+					buttonText='Избранные'
+					clickHandler={() => console.log('сделать избранные')} // TODO 
+					variant='outlined'
+					fontSize='var(--ft-body)'
+				/>
+			</div>
+			: null
+		}
 	</div>
 };
