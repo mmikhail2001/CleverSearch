@@ -22,6 +22,7 @@ interface SelectorMultiProps {
 	placeholder?: string,
 	notOptions?: string;
 	isError?: boolean;
+	fontSize?: string;
 }
 
 const ITEM_HEIGHT = 48;
@@ -56,7 +57,8 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 	maxMenuHeight,
 	placeholder,
 	notOptions,
-	isError
+	isError,
+	fontSize,
 }) => {
 	const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
 
@@ -96,6 +98,7 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 	return (
 		<FormControl sx={{ width: '100%' }}>
 			<Select
+				sx={{ fontSize: fontSize }}
 				displayEmpty
 				error={isError}
 				maxMenuHeight={maxMenuHeight}
@@ -111,6 +114,7 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 				{options ?
 					options.map((val) =>
 						<MenuItem
+							sx={{ fontSize: fontSize }}
 							key={val.value}
 							value={val.value}
 						>

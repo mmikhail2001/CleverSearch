@@ -12,12 +12,14 @@ interface AllSearchLinesProps {
 	state: SearchParamsLocal;
 	closeDrop: () => void;
 	search: () => void;
+	fontSize?: string;
 }
 
 
 export const AllSearchLines: FC<AllSearchLinesProps> = ({
 	changeState,
 	state,
+	fontSize,
 }) => {
 	return (
 		<>
@@ -28,16 +30,24 @@ export const AllSearchLines: FC<AllSearchLinesProps> = ({
 					onChange={() =>
 						changeState({ ...state, smartSearch: !state.smartSearch })
 					}
+					fontSize={fontSize}
 					label='Умный поиск'
 					labelPlacement='start'
 				/>
 			</div>
 			<SearchFolderLine
+				fontSize={fontSize}
 				changeState={changeState}
 				state={state}
 			></SearchFolderLine>
-			<SearchDiskLine changeState={changeState} state={state}></SearchDiskLine>
-			<SearchFileType changeState={changeState} state={state}></SearchFileType>
+			<SearchDiskLine
+				fontSize={fontSize}
+				changeState={changeState}
+				state={state} />
+			<SearchFileType
+				fontSize={fontSize}
+				changeState={changeState}
+				state={state} />
 		</>
 	)
 };

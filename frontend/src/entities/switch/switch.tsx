@@ -9,6 +9,7 @@ interface SwitchProps {
     label?: string;
     labelPlacement?: 'top' | 'bottom' | 'start' | 'end';
     disabled?: boolean;
+    fontSize?: string;
 }
 
 export const Switch: FC<SwitchProps> = ({
@@ -18,10 +19,11 @@ export const Switch: FC<SwitchProps> = ({
     label,
     labelPlacement,
     disabled,
+    fontSize,
 }) => {
     return (
         <FormControlLabel
-            style={{ marginLeft: "0" }}
+            style={{ marginLeft: "0", fontSize: fontSize }}
             label={label}
             slotProps={{ typography: { fontSize: "1.6rem" } }}
             labelPlacement={labelPlacement}

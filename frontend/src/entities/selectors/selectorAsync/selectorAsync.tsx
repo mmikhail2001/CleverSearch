@@ -17,6 +17,7 @@ interface SelectorAsyncProps {
 	debounceTime?: number,
 	noOptionsText?: string,
 	placeholder?: string,
+	fontSize?: string,
 }
 
 export const SelectorAsync: FC<SelectorAsyncProps> = ({
@@ -28,6 +29,7 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 	debounceTime,
 	noOptionsText,
 	placeholder,
+	fontSize,
 }) => {
 	const [open, setOpen] = useState<boolean>(false)
 	const [loading, setLoading] = useState<boolean>(false)
@@ -42,7 +44,6 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 	}
 
 	const debouncedOnInputChange = debounce((query: string) => {
-		console.log("Load", query)
 		setLoading(true)
 		loadFunction(query).then((val) => {
 			setOptions(val)
@@ -85,12 +86,13 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 			renderInput={(params) => (
 				<TextField
 					{...params}
+					InputProps={{ ...params.InputProps, style: { fontSize: fontSize } }}
 					placeholder={placeholder}
 					variant="outlined"
 				/>
-			)}
+			)
+			}
 		>
-
 		</Autocomplete >
 	);
 };

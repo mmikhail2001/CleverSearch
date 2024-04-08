@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import './button.scss';
 import { Button as UIButton } from '@mui/material';
+import CSS from 'csstype'
 
 export type VariantBtn = 'contained' | 'outlined' | 'text'
 export type SizeBtn = 'small' | 'medium' | 'large'
@@ -13,6 +14,7 @@ interface ButtonProps {
 	className?: string;
 	size?: SizeBtn;
 	startIconSrc?: string;
+	fontSize?: string
 }
 
 function getClassForButton(disabled: boolean, variant: VariantBtn): string {
@@ -34,6 +36,7 @@ export const Button: FC<ButtonProps> = ({
 	className,
 	size,
 	startIconSrc,
+	fontSize
 }) => {
 	if (disabled === undefined || disabled === null) disabled = false;
 	let clkHandler: (e: React.MouseEvent<HTMLButtonElement>) => void;
@@ -50,7 +53,7 @@ export const Button: FC<ButtonProps> = ({
 			disabled={disabled}
 			onClick={clkHandler}
 			startIcon={startIconSrc ? <img src={startIconSrc} /> : null}
-			sx={{ textTransform: 'none' }}
+			sx={{ textTransform: 'none', fontSize: fontSize }}
 		>
 			<p>{buttonText}</p>
 		</UIButton>

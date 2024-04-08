@@ -14,6 +14,7 @@ interface SelectorWithImgProps {
 		newValue: string[],
 	) => void;
 	defaultValue?: OptionWithImg;
+	fontSize?: string,
 }
 
 export const SelectorWithImg: FC<SelectorWithImgProps> = ({
@@ -21,6 +22,7 @@ export const SelectorWithImg: FC<SelectorWithImgProps> = ({
 	isMulti,
 	onChange,
 	defaultValue,
+	fontSize,
 }) => {
 	const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
 
@@ -48,6 +50,8 @@ export const SelectorWithImg: FC<SelectorWithImgProps> = ({
 	return (
 		<FormControl sx={{ width: '100%' }}>
 			<Select
+				inputProps={{ style: { fontSize: fontSize } }}
+				sx={{ fontSize: fontSize }}
 				multiple={isMulti}
 				displayEmpty
 				onChange={handleChange}
@@ -68,6 +72,7 @@ export const SelectorWithImg: FC<SelectorWithImgProps> = ({
 			>
 				{options ? options.map((val) =>
 					<MenuItem
+						sx={{ fontSize: fontSize }}
 						key={val.value}
 						value={val.value}
 					>

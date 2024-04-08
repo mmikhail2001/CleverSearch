@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import './input.scss';
 import { TextFieldPropsSizeOverrides, TextFieldVariants, TextField as UIInput } from '@mui/material'
+import CSS from 'csstype';
 
 interface InputProps {
 	onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -14,6 +15,8 @@ interface InputProps {
 	isError?: boolean;
 	size?: 'medium' | 'small';
 	isFullWidth?: boolean;
+	fontSize?: string;
+	style?: CSS.Properties
 }
 
 export const Input: FC<InputProps> = ({
@@ -28,6 +31,8 @@ export const Input: FC<InputProps> = ({
 	size,
 	isError,
 	isFullWidth,
+	fontSize,
+	style,
 }) => {
 	let changeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	if (!disabled) {
@@ -38,6 +43,7 @@ export const Input: FC<InputProps> = ({
 
 	return (
 		<UIInput
+			style={style}
 			disabled={disabled}
 			ref={ref}
 			variant={variant}
@@ -48,7 +54,7 @@ export const Input: FC<InputProps> = ({
 			type={type}
 			placeholder={placeholder}
 			onKeyDown={onKeyDown}
-
+			inputProps={{ style: { fontSize: fontSize } }}
 			onChange={onChange}
 		/>
 	);

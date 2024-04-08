@@ -29,6 +29,7 @@ export const FileShow: FC<FileShowProps> = ({
 	config
 }) => {
 	const [isOpen, setOpen] = useState(false)
+	const [isOpenDropDown, setOpenDropDown] = useState(false)
 
 	return (
 		<>
@@ -45,6 +46,8 @@ export const FileShow: FC<FileShowProps> = ({
 				<div>{author}</div>
 				<div className='additional-functions-file'>
 					<DropDown
+						open={isOpenDropDown}
+						toggleOpen={setOpenDropDown}
 						mainElement={<div>More</div>}
 					>
 						{config.isDelete ?

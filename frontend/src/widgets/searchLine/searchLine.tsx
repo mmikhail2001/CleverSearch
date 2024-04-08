@@ -12,10 +12,12 @@ import { SearchBox } from './searchBox/searchBox';
 import { changeDir } from '@store/currentDirectoryAndDisk';
 import { newValues } from '@store/searchRequest';
 
-import SearchSVG from '@icons/Search.svg';
-import FilterSVG from '@icons/Filter.svg';
 import { useNavigate } from 'react-router-dom';
 import { transformToSearchRequestString } from '@api/transforms';
+
+import SearchIcon from '@mui/icons-material/Search';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { PopOver } from '@entities/popover/popover';
 
 export interface searchStateValue {
 	smartSearch: boolean;
@@ -29,15 +31,16 @@ interface SearchLineProps {
 	searchValue: searchStateValue,
 	onIconClick?: () => void,
 	setSearchValue: React.Dispatch<React.SetStateAction<searchStateValue>>,
+	width: string,
 }
 
 export const SearchLine: FC<SearchLineProps> = ({
 	searchValue,
 	setSearchValue,
 	onIconClick,
+	width
 }) => {
 	const [isBoxOpen, setisBoxOpen] = useState(false);
-
 	const [search, response] = useSearchMutation({ fixedCacheKey: 'search' });
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -52,51 +55,67 @@ export const SearchLine: FC<SearchLineProps> = ({
 		navigate(url)
 	}
 
+	const renderOpenBox = (): React.ReactNode => {
+		return (
+			<SearchBox
+				fontSize={'var(--ft-body)'}
+				style={{ width: width }}
+				changeState={(obj: searchStateValue) => {
+					setSearchValue({ ...obj, dir: obj.dir })
+				}}
+				state={searchValue}
+				onClick={() => setisBoxOpen(false)}
+				search={() => {
+					mySearch()
+				}}
+			></SearchBox>
+		)
+	}
+
+
 	return (
-		<div className="search-line">
-			<div className="icon-with-text">
-				<div className="search-icon-container" onClick={onIconClick}>
-					<img alt="search icon" className="search-icon" src={SearchSVG}></img>
-				</div>
-				<div className="search-text">
-					<Input
-						onKeyDown={(e) => {
-							if (e.key.toLowerCase() === 'enter') {
-								mySearch()
-							}
-						}}
-						onChange={(e) =>
-							setSearchValue({ ...searchValue, query: e.target.value })
-						}
-						disabled={response.isLoading}
-						placeholder={'Найдём любой файл'}
-						type={'search'}
-						value={searchValue.query}
-					/>
-				</div>
-			</div>
-			<div
-				className="filter-icon-container"
-				onClick={() => setisBoxOpen(!isBoxOpen)}
-			>
-				<img alt="filter icon" className="filter-icon" src={FilterSVG}></img>
-			</div>
-			{isBoxOpen ? (
-				<div className="place-for-search-box">
-					<SearchBox
-						changeState={(obj: searchStateValue) => {
-							setSearchValue({ ...obj, dir: obj.dir })
-						}}
-						state={searchValue}
-						closeDrop={() => setisBoxOpen(false)}
-						search={() => {
-							mySearch()
-						}}
-					></SearchBox>
-				</div>
-			) : (
-				''
-			)}
-		</div>
+		<PopOver
+			open={isBoxOpen}
+			toggleOpen={setisBoxOpen}
+			isCloseOnSelect={false}
+			children={[renderOpenBox()]}
+			mainElement={
+				<div className="search-line" style={{ width: width }}>
+					<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
+						<div className="search-icon-container"
+							onClick={onIconClick}
+							style={{ fontSize: 'var(--ft-title)' }}>
+							<SearchIcon fontSize='inherit' />
+						</div>
+						<div className="search-text">
+							<Input
+								fontSize={'var(--ft-body)'}
+								isFullWidth
+								variant='standard'
+								onKeyDown={(e) => {
+									if (e.key.toLowerCase() === 'enter') {
+										mySearch()
+									}
+								}}
+								onChange={(e) =>
+									setSearchValue({ ...searchValue, query: e.target.value })
+								}
+								disabled={response.isLoading}
+								placeholder={'Найдём любой файл'}
+								type={'search'}
+								value={searchValue.query}
+							/>
+						</div>
+					</div>
+					<div
+						className="filter-icon-container"
+						onClick={() => setisBoxOpen(!isBoxOpen)}
+						style={{ fontSize: 'var(--ft-title)' }}
+					>
+						<FilterAltIcon fontSize='inherit' />
+					</div>
+				</div >
+			}
+		/>
 	);
 };

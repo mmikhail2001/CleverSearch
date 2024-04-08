@@ -39,9 +39,10 @@ export const UserProfile: FC<UserProfileProps> = ({
 			</div>
 		)
 	}
-
 	const renderDropDown = (): React.ReactNode => {
 		return (<DropDown
+			open={isOpenProfile}
+			toggleOpen={setOpen}
 			mainElement={profileMain()}
 			children={[<div onClick={logout}>Logout</div>]}
 		>

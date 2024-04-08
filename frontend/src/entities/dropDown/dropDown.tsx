@@ -4,28 +4,37 @@ import { relative } from 'path';
 import { Menu, PopoverOrigin } from '@mui/material';
 import { MenuItem } from '@mui/material';
 import CSS from 'csstype';
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
 export type WhereToPlace = 'up' | 'down'
 interface DropDownProps {
 	children: React.ReactNode[]
 	mainElement: React.ReactNode,
 	variants?: WhereToPlace,
+	isCloseOnSelect?: boolean,
+	open: boolean;
+	toggleOpen: (state: boolean) => void;
 }
 
 export const DropDown: FC<DropDownProps> = ({
 	children,
 	mainElement,
-	variants
+	variants,
+	isCloseOnSelect,
+	open,
+	toggleOpen,
 }) => {
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-	const open = Boolean(anchorEl);
+	const ref = useRef<HTMLDivElement>(null)
+
 	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
 		event.stopPropagation()
-		setAnchorEl(event.currentTarget);
+		toggleOpen(true)
 	};
+
 	const handleClose = (event: React.MouseEvent<HTMLElement>) => {
 		event.stopPropagation()
-		setAnchorEl(null);
+		toggleOpen(false)
 	};
 
 	let transformOrigin: PopoverOrigin
@@ -60,13 +69,21 @@ export const DropDown: FC<DropDownProps> = ({
 
 	}
 
+	useEffect(() => {
+		if (ref) {
+			setAnchorEl(ref.current)
+		}
+	}, [ref])
+
+	const isNeedCloseOnSelect = isNullOrUndefined(isCloseOnSelect) || isCloseOnSelect
+
 	return (
 		<>
-			<div onClick={handleClick}>{mainElement}</div>
+			<div onClick={handleClick} ref={ref}>{mainElement}</div>
 			<Menu
 				anchorEl={anchorEl}
 				open={open}
-				onClose={handleClose}
+				onClose={() => handleClose}
 				MenuListProps={{
 					'aria-labelledby': 'basic-button',
 				}}
@@ -75,7 +92,7 @@ export const DropDown: FC<DropDownProps> = ({
 			>
 				{
 					children.map(
-						child => <MenuItem onClick={handleClose}>
+						child => <MenuItem onClick={isNeedCloseOnSelect ? handleClose : null}>
 							{child}
 						</MenuItem>
 					)

@@ -52,7 +52,8 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 		return 0
 	}
 
-	console.log('currentVolume', currentVolume)
+	const [isOpenVolume, setOpenVolume] = useState(false)
+
 	return (
 		<div className='controls-container'>
 			<div className='progress-bar-container' style={{ position: 'relative' }}>
@@ -100,6 +101,8 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 				<div className='volume-container'>
 					{/* TODO think about children */}
 					<DropDown
+						open={isOpenVolume}
+						toggleOpen={setOpenVolume}
 						variants='up'
 						mainElement={
 							< img className='volume-img contorl-img'

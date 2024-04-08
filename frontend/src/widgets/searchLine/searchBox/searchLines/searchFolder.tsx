@@ -11,6 +11,7 @@ export interface SearchFolderLineProps {
 		React.SetStateAction<SearchParamsLocal>
 	>);
 	state: SearchParamsLocal;
+	fontSize: string,
 }
 
 
@@ -18,6 +19,7 @@ export interface SearchFolderLineProps {
 export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 	changeState,
 	state,
+	fontSize,
 }) => {
 	const [searchFolder] = useGetFoldersMutation();
 
@@ -32,6 +34,7 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 		<div className="line">
 			<p className="search-box__text">Директория</p>
 			<SelectorAsync
+				fontSize={fontSize}
 				placeholder={'Все папки'}
 				defaultOption={lastDir ?
 					{

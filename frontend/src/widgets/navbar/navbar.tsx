@@ -32,7 +32,7 @@ export const Navbar: FC<NavbarProps> = ({
 }) => {
 	const location = useLocation()
 	const { email } = useAppSelector(state => state.userAuth)
-	const { whatDisplay } = useMobile()
+	const { whatDisplay, currentWidth } = useMobile()
 
 	const urlParams = useSearchUrlParams()
 	const params = transformToSearchParams(urlParams)
@@ -55,10 +55,13 @@ export const Navbar: FC<NavbarProps> = ({
 		})
 	}, [location])
 
+	const widthToSet = whatDisplay === 1 ? '600px' : `calc(${currentWidth}px - 2*var(--big-padding))`
+
 	return (
 		<div className="navbar">
-			<div className="search-bar-place">
+			<div className="search-bar-place" style={{ width: '100%' }}>
 				<SearchLine
+					width={widthToSet}
 					onIconClick={toggleSidebar}
 					searchValue={searchState}
 					setSearchValue={setSearchState}

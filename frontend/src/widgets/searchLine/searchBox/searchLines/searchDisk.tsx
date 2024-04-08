@@ -11,16 +11,19 @@ export interface SearchDiskLineProps {
 		React.SetStateAction<SearchParamsLocal>
 	>;
 	state: SearchParamsLocal;
+	fontSize?: string,
 }
 
 export const SearchDiskLine: FC<SearchDiskLineProps> = ({
 	changeState,
 	state,
+	fontSize,
 }) => {
 	return (
 		<div className="line">
 			<p className="search-box__text">Диск</p>
 			<SelectorWithImg
+				fontSize={fontSize}
 				options={getDisksToOptions()}
 				isMulti={true}
 				onChange={
