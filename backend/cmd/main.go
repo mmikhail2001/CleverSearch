@@ -14,11 +14,13 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
+	cloudDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/cloud"
 	fileDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/file"
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/middleware"
 	notifyDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/notifier"
 	staticDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/static"
 	userDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/user"
+	cloudUsecase "github.com/WindowsKonon1337/CleverSearch/internal/usecase/cloud"
 	fileUsecase "github.com/WindowsKonon1337/CleverSearch/internal/usecase/file"
 	notifyUsecase "github.com/WindowsKonon1337/CleverSearch/internal/usecase/notifier"
 	userUsecase "github.com/WindowsKonon1337/CleverSearch/internal/usecase/user"
@@ -45,6 +47,14 @@ import (
 
 // конверт png, txt to jpg, pdf
 // response search
+
+// что, если токен доступа истечет? где в коде перезапрос?
+// profile отдавать список доступный
+// прямая ссылка на скачивание с гугл диска
+// profile
+// refresh
+
+// {file}
 
 var staticDir string = "/app/frontend/build"
 var staticDirMinio string = "/app/minio_files"
@@ -82,6 +92,11 @@ func Run() error {
 
 	log.Println("rabbitMQ connected")
 
+	oauthConfig, err := cloudDelivery.NewDriveClient()
+	if err != nil {
+		return err
+	}
+
 	userRepo := user.NewRepository(mongoDB)
 	fileRepo := file.NewRepository(minio, mongoDB, channelRabbitMQ)
 	notifyGateway := notifier.NewGateway()
@@ -89,11 +104,13 @@ func Run() error {
 	userUsecase := userUsecase.NewUsecase(userRepo)
 	notifyUsecase := notifyUsecase.NewUsecase(notifyGateway)
 	fileUsecase := fileUsecase.NewUsecase(fileRepo, notifyUsecase, userUsecase)
+	cloudUsecase := cloudUsecase.NewUsecase(oauthConfig, fileRepo, fileUsecase, userRepo)
 
 	staticHandler := staticDelivery.NewHandler(staticDir, fileUsecase)
 	userHandler := userDelivery.NewHandler(userUsecase)
 	fileHandler := fileDelivery.NewHandler(fileUsecase)
-	notifyDelivery := notifyDelivery.NewHandler(notifyUsecase)
+	notifyHandler := notifyDelivery.NewHandler(notifyUsecase)
+	cloudHandler := cloudDelivery.NewHandler(oauthConfig, staticHandler, cloudUsecase)
 
 	middleware := middleware.NewMiddleware(userUsecase)
 
@@ -111,6 +128,9 @@ func Run() error {
 
 	minioRouter := r.PathPrefix("/minio").Subrouter()
 	minioRouter.Use(middleware.AuthMiddleware)
+
+	// запрос на скачиваение файлы
+	// TODO: nginx выполняет
 	minioRouter.HandleFunc("/{path:.*}", fileHandler.DownloadFile).Methods("GET")
 
 	api := r.PathPrefix("/api").Subrouter()
@@ -125,12 +145,14 @@ func Run() error {
 	apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
 	apiAuth.HandleFunc("/files/{file_uuid}", fileHandler.GetFileByID).Methods("GET")
 
-	apiAuth.HandleFunc("/dirs/create", fileHandler.CreateDir).Methods("POST")
+	apiAuth.HandleFunc("/clouds/connect", cloudHandler.ConnectCloud).Methods("POST")
+	apiAuth.HandleFunc("/clouds/callback", cloudHandler.AuthProviderCallback).Methods("GET")
+	apiAuth.HandleFunc("/clouds/refresh", cloudHandler.RefreshCloud).Methods("POST")
 
+	apiAuth.HandleFunc("/dirs/create", fileHandler.CreateDir).Methods("POST")
 	apiAuth.HandleFunc("/dirs/share", fileHandler.ShareDir).Methods("POST")
 
 	apiAuth.HandleFunc("/users/profile", userHandler.Profile).Methods("GET")
-
 	api.HandleFunc("/users/logout", userHandler.Logout).Methods("POST")
 	api.HandleFunc("/users/login", userHandler.Login).Methods("POST")
 	api.HandleFunc("/users/register", userHandler.Register).Methods("POST")
@@ -141,7 +163,7 @@ func Run() error {
 	filesMLRouter.Use(middleware.GetUserIDMiddleware)
 	filesMLRouter.HandleFunc("/ml/files", fileHandler.GetFiles).Methods("GET")
 
-	apiAuth.HandleFunc("/ws", notifyDelivery.ConnectNotifications).Methods("GET")
+	apiAuth.HandleFunc("/ws", notifyHandler.ConnectNotifications).Methods("GET")
 
 	shareLinkRouter := r.Methods("GET").Subrouter()
 	shareLinkRouter.Use(middleware.AuthMiddleware)

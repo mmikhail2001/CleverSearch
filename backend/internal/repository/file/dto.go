@@ -24,7 +24,8 @@ type fileDTO struct {
 	ShareLink   string          `bson:"share_link"`
 	Link        string          `bson:"link"`
 	MLData      interface{}     `bson:"ml_data"`
-	// Disk
+	CloudID     string          `bson:"cloud_id"`
+	Disk        file.DiskType   `bson:"disk"`
 }
 
 type fileForQueueDTO struct {

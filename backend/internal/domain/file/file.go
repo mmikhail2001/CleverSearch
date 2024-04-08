@@ -62,8 +62,9 @@ type File struct {
 	ShareAccess AccessType
 	ShareLink   string
 	Link        string
+	CloudID     string
 	MLData      interface{}
-	// Disk
+	Disk        DiskType
 }
 
 type FileType string
@@ -80,11 +81,11 @@ const (
 type DiskType string
 
 const (
-	AllStorages  FileType = "all"
-	Own          FileType = "own"
-	GoogleDrive  FileType = "google_drive"
-	YandexDisc   FileType = "yandex_disc"
-	LocalStorage FileType = "local_storage"
+	AllStorages  DiskType = "all"
+	Own          DiskType = "own"
+	GoogleDrive  DiskType = "google"
+	YandexDisk   DiskType = "yandex"
+	LocalStorage DiskType = "local"
 )
 
 type FileOptions struct {

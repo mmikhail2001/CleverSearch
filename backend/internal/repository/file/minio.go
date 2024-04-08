@@ -21,9 +21,10 @@ import (
 
 // можно не отвечать фронту, пока не загрузим файл PutObject
 func (r *Repository) UploadToStorage(ctx context.Context, fileReader io.Reader, file file.File) (file.File, error) {
+
 	exists, err := r.minio.BucketExists(ctx, file.Bucket)
 	if err != nil {
-		log.Println("Failed to check bucket existence:", err)
+		log.Println("Failed to check bucket [", file.Bucket, "] existence:", err)
 		return file, err
 	}
 

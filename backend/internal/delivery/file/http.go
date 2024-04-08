@@ -61,10 +61,7 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileType, ok := fileTypeMap[contentType]
-	if !ok {
-		fileType = file.Unknown
-	}
+	fileType := h.usecase.GetFileTypeByContentType(contentType)
 
 	if dir != "/" {
 		dir = dir + "/"

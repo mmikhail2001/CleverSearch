@@ -24,6 +24,7 @@ type FileDTO struct {
 	ShareAccess file.AccessType `json:"share_access"`
 	ShareLink   string          `json:"share_link"`
 	Link        string          `json:"link"`
+	Disk        file.DiskType   `json:"disk"`
 }
 
 type FileForMLDTO struct {

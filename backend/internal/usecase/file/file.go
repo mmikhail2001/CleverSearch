@@ -42,6 +42,15 @@ func getFileExtension(filename string) string {
 	return ""
 }
 
+func (uc *Usecase) GetFileTypeByContentType(contentType string) fileDomain.FileType {
+	fileType, exists := fileTypeMap[contentType]
+	if !exists {
+		log.Println("file type not found")
+		return ""
+	}
+	return fileType
+}
+
 func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDomain.File) (fileDomain.File, error) {
 	if !strings.HasPrefix(file.Path, "/") {
 		log.Printf("Directory path [%s] does not start with /\n", file.Path)
