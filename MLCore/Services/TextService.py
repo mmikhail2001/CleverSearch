@@ -57,7 +57,7 @@ class TextService(IDataService):
             {
                 'ml_data': {
                     'text_repr': proc_list,
-                    'pages': pages
+                    'page_number': pages
                 }
             }
         }
