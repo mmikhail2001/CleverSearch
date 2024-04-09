@@ -28,7 +28,7 @@ type FileDTO struct {
 	CloudEmail  string          `json:"cloud_email"`
 	Disk        file.DiskType   `json:"disk"`
 	PageNumber  int             `json:"page_number"`
-	Timestart   string          `json:"timestart"`
+	Timestart   int             `json:"timestart"`
 	Duration    time.Duration   `json:"duration"`
 }
 

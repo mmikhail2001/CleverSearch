@@ -67,7 +67,7 @@ type File struct {
 	MLData      interface{}
 	Disk        DiskType
 	PageNumber  int
-	Timestart   string
+	Timestart   int
 	Duration    time.Duration
 }
 

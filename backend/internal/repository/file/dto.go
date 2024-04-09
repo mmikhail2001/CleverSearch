@@ -54,7 +54,7 @@ type searchImageItemDTO struct {
 
 type searchAudioVideoItemDTO struct {
 	FileID    string `json:"file_uuid"`
-	Timestart string `json:"timestart"`
+	Timestart int    `json:"timestart"`
 }
 
 type sharedDirDTO struct {
