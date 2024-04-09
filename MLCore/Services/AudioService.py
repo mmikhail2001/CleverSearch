@@ -44,7 +44,7 @@ class AudioService(IDataService):
             {
                 'ml_data': {
                     'text_repr': proc_list,
-                    'timestart': timestamps
+                    'timestart': list(map(lambda x: int(x), timestamps))
                 }
             }
         }
