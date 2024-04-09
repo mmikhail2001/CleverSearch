@@ -27,19 +27,21 @@ class TextProcessor(IDataProcessor):
         )
         text = preprocessor.process()
 
-        logger.info(f'preprocessed text: {text}')
-
         embeddings = []
 
-        for sentence in text:
-            encodes = self.tokenizer(
-                sentence,
-                return_tensors='pt',
-                padding=True)
+        for i, text_page in text:
+            logger.info(f'preprocessed text: {text_page}')
 
-            embedding = self.model(**encodes).last_hidden_state[:, 0, :]
-            logger.info(embedding.shape)
-            embeddings.append(embedding.squeeze(0).tolist())
+            for sentence in text_page:
+                encodes = self.tokenizer(
+                    sentence,
+                    return_tensors='pt',
+                    padding=True)
+
+                embedding = self.model(**encodes).last_hidden_state[:, 0, :]
+                logger.info(embedding.shape)
+                embeddings.append((i, embedding.squeeze(0).tolist()))
+
         return embeddings
 
     def process_query_string(self, query_string):

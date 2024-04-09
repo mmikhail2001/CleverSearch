@@ -20,9 +20,9 @@ logger = get_console_logger(
 class TextReader:
     def __init__(self, filename) -> None:
         self.reader = PdfReader(filename)
-        self.text = ''
-        for page in self.reader.pages:
-            self.text += page.extract_text()
+        self.text = []
+        for i, page in enumerate(self.reader.pages):
+            self.text.append((i, page.extract_text()))
 
     def read(self):
         return self.text
@@ -39,22 +39,27 @@ class TextPreprocessor:
         logger.debug(self.text)
 
     def process(self):
-        cleaned_text = self.__clean_string(self.text)
-        cleaned_text = ' '.join(cleaned_text.split())
+        result = []
+        for i, page in self.text:
+            cleaned_text = self.__clean_string(page)
+            cleaned_text = ' '.join(cleaned_text.split())
 
-        sentences = cleaned_text.split('.')
+            sentences = cleaned_text.split('.')
 
-        sentences = list(map(self.__remove_nonexistent_words, sentences))
+            sentences = list(map(self.__remove_nonexistent_words, sentences))
 
-        filtered_list = [string for string in sentences if len(string) > 2]
+            filtered_list = [string for string in sentences if len(string) > 2]
 
-        lemmatized_list = list(map(self.__lemmatize, filtered_list))
+            lemmatized_list = list(map(self.__lemmatize, filtered_list))
 
-        filtered_strings = list(map(self.__delete_stopwords, lemmatized_list))
+            filtered_strings = list(map(self.__delete_stopwords, lemmatized_list))
 
-        joined_string = [' '.join(string) for string in filtered_strings]
+            joined_string = [' '.join(string) for string in filtered_strings]
 
-        return joined_string
+            if len(joined_string) > 0:
+                result.append((i, joined_string))
+
+        return result
 
     def __clean_string(self, input_string):
         cleaned_string = re.sub(r'[^a-zA-Zа-яА-Я.,!? ]', '', input_string)
