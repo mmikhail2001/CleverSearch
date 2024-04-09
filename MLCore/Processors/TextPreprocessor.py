@@ -84,8 +84,3 @@ class TextPreprocessor:
         filtered_sentence = [w for w in input_string
                             if not w.lower() in self.stopwords_ru]
         return filtered_sentence
-
-if __name__ == '__main__':
-    reader = TextReader('./Task3.pdf')
-    proc = TextPreprocessor(reader)
-    print(proc.process())
