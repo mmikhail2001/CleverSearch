@@ -67,7 +67,11 @@ class SearchService():
         for elem in sorted_list:
             if elem[0] not in result:
                 result[elem[0]] = elem[1]
-        files_uuid = [{"file_uuid": data_array[k]['id'], 'page': data_array[k]['ml_data'][1]['Value'][result[k]]} for k in list(result.keys())]
+        files_uuid = [
+            {
+                "file_uuid": data_array[k]['id'],
+                'page': data_array[k]['ml_data'][1]['Value'][result[k]]
+            } for k in list(result.keys())]
         return {file_type: files_uuid}
 
     def find_audio_files(self, data_array, sorted_list, file_type):
@@ -75,7 +79,11 @@ class SearchService():
         for elem in sorted_list:
             if elem[0] not in result:
                 result[elem[0]] = elem[1]
-        files_uuid = [{"file_uuid": data_array[k]['id'], 'timestamp': data_array[k]['ml_data'][1]['Value'][result[k]]} for k in list(result.keys())]
+        files_uuid = [
+            {
+                "file_uuid": data_array[k]['id'],
+                'timestamp': data_array[k]['ml_data'][1]['Value'][result[k]]
+            } for k in list(result.keys())]
         return {file_type: files_uuid}
 
 
