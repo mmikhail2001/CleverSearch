@@ -1,10 +1,5 @@
-import numpy as np
-import pandas as pd
 import requests
 from fastapi import FastAPI, HTTPException
-from pandas import DataFrame
-from pymongo import MongoClient
-from pymongo.collection import Collection
 from sklearn.metrics.pairwise import cosine_similarity
 from Processors.TextProcessor import TextProcessor
 import sys
