@@ -48,8 +48,8 @@ class TextProcessor(IDataProcessor):
         logger.info(f'query string: {query_string}')
         text_processor = TextPreprocessor(query_string)
 
-        processed_text = list()
-        processed_text.append(' '.join(text_processor.process()))
+        processed_text = text_processor.process()[0][1]
+
         if len(processed_text):
             logger.info(f'processed text: {processed_text}')
             query_tokens = self.tokenizer(

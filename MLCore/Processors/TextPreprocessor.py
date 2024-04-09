@@ -33,7 +33,7 @@ class TextPreprocessor:
         self.morph = pymorphy2.MorphAnalyzer()
         self.stopwords_ru = stopwords.words("russian")
         if isinstance(readable, str):
-            self.text = readable
+            self.text = [(0, readable)]
         else:
             self.text = readable.read()
         logger.debug(self.text)
