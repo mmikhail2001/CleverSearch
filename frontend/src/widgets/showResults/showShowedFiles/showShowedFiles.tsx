@@ -64,7 +64,6 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                     }}
                     reactOnElements={[]}
                 />
-                <Typography fontSize={'var(--ft-body)'}>Результаты поиска:</Typography>
             </div>
             <RenderFields
                 data={showResp.data?.body}

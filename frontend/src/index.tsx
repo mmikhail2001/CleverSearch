@@ -22,6 +22,7 @@ import './App.scss'
 // TODO Not find any types of this 
 import * as pdfjsLib from 'pdfjs-dist/webpack.mjs';
 import { MobileProvider } from './mobileProvider';
+import { SettingsPage } from '@pages/settingsPage/settingsPage'
 
 const root = ReactDOM.createRoot(
 	document.getElementById('root') as HTMLElement
@@ -44,6 +45,7 @@ root.render(
 								<Route path='/shared' element={<ShowSharedFiles />}></Route >
 								<Route path='*' element={<ErrorPage />}></Route>
 							</Route>
+							<Route path='/settings' element={<RequireAuth><SettingsPage /></RequireAuth>} ></Route>
 							<Route path='/login' errorElement={<ErrorPage />} element={<ProtectedFromAuthUser><LoginForm /></ProtectedFromAuthUser>}></Route>
 						</Routes>
 					</MobileProvider>

@@ -9,11 +9,12 @@
     padding-bottom: var(--normal-padding);
 
     align-items: center;
+    cursor: pointer;
 }
 
 .text-image {
-    width: calc(var(--ft-body) * 2);
-    height: calc(var(--ft-body) * 2);
+    width: calc(var(--ft-paragraph));
+    height: calc(var(--ft-paragraph));
 }
 
 .text-with-img-row {

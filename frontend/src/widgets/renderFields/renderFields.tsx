@@ -43,7 +43,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	}
 
 	if (!data || data.length === 0) {
-		return <div>Ничего нет</div>;
+		return <div>Нет никаких файлов :(</div>;
 	}
 
 	const getDirProps = (file: fileFile): renderReturns => {

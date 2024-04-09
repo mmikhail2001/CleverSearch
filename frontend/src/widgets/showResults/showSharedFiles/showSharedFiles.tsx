@@ -73,7 +73,6 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 					}}
 					reactOnElements={[]}
 				/>
-				<Typography fontSize={'var(--ft-body)'}>Результаты поиска:</Typography>
 			</div>
 			<RenderFields
 				data={valueToShow}

@@ -23,7 +23,7 @@ export const TextWithImg: FC<TextWithImgProps> = ({
 		<div className={['text-with-img', className].join(' ')} onClick={onClick}>
 			<img className="text-image" src={imgSrc} alt={altImgText}></img>
 			<div>
-				<Typography fontSize={'var(--ft-body)'}>{text}</Typography>
+				<Typography fontSize={'var(--ft-paragraph)'}>{text}</Typography>
 				{subText ? <p className="subText">{subText}</p> : null}
 			</div>
 		</div>

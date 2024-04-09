@@ -1,9 +1,10 @@
 import React, { FC } from 'react';
-import { SearchParamsLocal, diskTypes, fileTypes } from '@models/searchParams';
+import { SearchParamsLocal, fileTypes } from '@models/searchParams';
 import { Button } from '@entities/button/button';
 import './searchBox.scss';
 import { AllSearchLines } from './allSearchLines'
 import CSS from 'csstype';
+import { diskTypes } from '@models/disk';
 
 // TODO make this type not structs
 interface SearchBoxProps {

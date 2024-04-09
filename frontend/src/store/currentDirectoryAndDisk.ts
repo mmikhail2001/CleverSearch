@@ -1,4 +1,4 @@
-import { diskTypes } from '@models/searchParams';
+import { diskTypes } from '@models/disk';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { changeDirAction } from '@models/actions';
 

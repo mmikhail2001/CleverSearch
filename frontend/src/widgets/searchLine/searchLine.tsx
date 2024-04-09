@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import { useSearchMutation } from '@api/searchApi';
-import { diskTypes, fileTypes } from '@models/searchParams';
+import { fileTypes } from '@models/searchParams';
 import { Input } from '@entities/input/input';
 import './searchLine.scss';
 
@@ -20,6 +20,7 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { PopOver } from '@entities/popover/popover';
 import { useMobile } from 'src/mobileProvider';
 import DehazeIcon from '@mui/icons-material/Dehaze';
+import { diskTypes } from '@models/disk';
 
 export interface searchStateValue {
 	smartSearch: boolean;
@@ -96,7 +97,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 							style={{ fontSize: 'var(--ft-title)' }}>
 							{whatDisplay === 1 ?
 								<SearchIcon fontSize='inherit' />
-								: <DehazeIcon fontSize='inherit' />
+								: <DehazeIcon sx={{ cursor: 'pointer' }} fontSize='inherit' />
 							}
 						</div>
 						<div className="search-text">

@@ -26,7 +26,7 @@
 .disk-show-label {
     font-size: var(--ft-paragraph);
     display: flex;
-    justify-content: center;
+    justify-content: start;
 }
 
 .disks {
@@ -59,4 +59,10 @@
 .our-name {
     background-color: var(--main-color-300);
     border-radius: var(--big-radius);
+    cursor: default;
+}
+
+.not-done {
+    opacity: 0.7;
+    cursor: default;
 }

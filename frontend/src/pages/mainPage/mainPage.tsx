@@ -68,6 +68,7 @@ export const MainPage: FC = () => {
 					fontSize='var(--ft-body)'
 				/>
 				<Button
+					disabled={true}
 					buttonText='Избранные'
 					clickHandler={() => console.log('сделать избранные')} // TODO 
 					variant='outlined'

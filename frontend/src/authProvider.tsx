@@ -4,6 +4,7 @@ import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { useAppSelector } from '@store/store';
 import { login as loginAction, logout as logoutAction, setUserEmail } from '@store/userAuth';
+import { addDisk } from '@store/userDisks';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { Navigate, useLocation } from 'react-router';
@@ -36,6 +37,12 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
 			authState = true;
 			dispatch(setUserEmail({ email: data.email }))
 			dispatch(loginAction());
+
+			if (data.connected_clouds) {
+				data.connected_clouds.forEach(element => {
+					dispatch(addDisk(element))
+				});
+			}
 		}
 	}
 

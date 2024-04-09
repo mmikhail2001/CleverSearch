@@ -1,12 +1,13 @@
 import React, { FC, useEffect, useState } from 'react';
 import './navbar.scss';
 import { UserProfile } from '@widgets/userProfile/userProfile'
-import { diskTypes, fileTypes, transformToSearchParams } from '@models/searchParams';
+import { fileTypes, transformToSearchParams } from '@models/searchParams';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { SearchLine } from '@widgets/searchLine/searchLine';
 import { useAppSelector } from '@store/store';
 import { useDispatch } from 'react-redux';
 import { useMobile } from 'src/mobileProvider';
+import { diskTypes } from '@models/disk';
 
 interface NavbarProps {
 	toggleSidebar?: () => void

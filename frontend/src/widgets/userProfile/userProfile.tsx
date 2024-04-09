@@ -7,6 +7,8 @@ import { setUserEmail } from '@store/userAuth';
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 import { useLogout } from '@helpers/hooks/logout';
 import { Typography } from '@mui/material';
+import { useMobile } from 'src/mobileProvider';
+import { useNavigate } from 'react-router-dom';
 
 interface UserProfileProps {
 	email: string;
@@ -20,6 +22,9 @@ export const UserProfile: FC<UserProfileProps> = ({
 	const [isOpenProfile, setOpen] = useState(false)
 	const dispatch = useDispatch()
 	const logout = useLogout()
+	const { whatDisplay } = useMobile()
+
+	const navigate = useNavigate()
 
 	const [profile, profileResp] = useLazyProfileQuery()
 
@@ -46,12 +51,15 @@ export const UserProfile: FC<UserProfileProps> = ({
 	}
 	const renderDropDown = (): React.ReactNode => {
 		return (<DropDown
-			styleOnMain={{ height: '100%' }}
+			styleOnMain={{ height: '100%', cursor: whatDisplay === 3 ? 'default' : 'pointer' }}
 			variants='down-center'
 			open={isOpenProfile}
 			toggleOpen={setOpen}
 			mainElement={profileMain()}
-			children={[<div onClick={logout}>Logout</div>]}
+			children={[
+				<div onClick={() => navigate('/settings')}>Настройки</div>,
+				<div onClick={logout}>Выйти</div>,
+			]}
 		>
 		</DropDown >)
 	}

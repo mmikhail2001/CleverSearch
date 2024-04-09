@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { SearchParams, diskTypes, fileTypes } from '@models/searchParams';
+import { SearchParams, fileTypes } from '@models/searchParams';
+import { diskTypes } from '@models/disk';
 
 const searchSlice = createSlice({
 	name: 'whatToShow',

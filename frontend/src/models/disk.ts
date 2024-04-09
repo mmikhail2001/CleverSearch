@@ -8,10 +8,27 @@ import { Option } from '@models/additional';
 import {
 	OptionWithImg
 } from '@models/additional';
-import { MultiValue, SingleValue } from 'react-select';
-import { SearchResponse, diskTypes, fileTypes, isFileType } from './searchParams';
+import { SearchResponse, fileTypes, isFileType } from './searchParams';
+
+export type diskTypes = 'google' | 'yandex' | 'own' | 'all';
+
+/** if text of diskType return true */
+export const isDiskType = (text: string): boolean => {
+	if (['google', 'yandex', 'own', 'all'].includes(text)) return true;
+	return false;
+};
+
+// not check, if not correct return all
+export const toDiskType = (text: string): diskTypes => {
+	const diskTypeFound: diskTypes =
+		['google', 'yandex', 'own', 'all']
+			.find(val => val === text) as diskTypes
+	if (diskTypeFound) return diskTypeFound;
+	return 'all';
+}
 
 export interface DiskType {
+	diskName: string,
 	src: string;
 	altText: string;
 }
@@ -20,6 +37,7 @@ export const diskImgSrc = new Map([
 	[
 		'google',
 		{
+			diskName: 'google',
 			src: GoogleSVG,
 			altText: 'text',
 		},
@@ -27,6 +45,7 @@ export const diskImgSrc = new Map([
 	[
 		'yandex',
 		{
+			diskName: 'yandex',
 			src: YandexSVG,
 			altText: 'text',
 		},
@@ -34,20 +53,15 @@ export const diskImgSrc = new Map([
 	[
 		'own',
 		{
+			diskName: 'own',
 			src: DiskSVG,
-			altText: 'text',
-		},
-	],
-	[
-		'local',
-		{
-			src: MonitorSVG,
 			altText: 'text',
 		},
 	],
 	[
 		'all',
 		{
+			diskName: 'all',
 			src: MonitorSVG,
 			altText: 'text',
 		}
@@ -89,12 +103,6 @@ export const diskValueToOption = (value: diskTypes): OptionWithImg => {
 				label: 'own',
 				value: 'own',
 				imgSrc: DiskSVG,
-			}
-		case 'local':
-			return {
-				label: 'local',
-				value: 'local',
-				imgSrc: MonitorSVG,
 			}
 		case 'all':
 			return {

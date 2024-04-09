@@ -1,10 +1,4 @@
-export type diskTypes = 'google' | 'yandex' | 'own' | 'local' | 'all';
-
-/** if text of diskType return true */
-export const isDiskType = (text: string): boolean => {
-  if (['google', 'yandex', 'own', 'local', 'all'].includes(text)) return true;
-  return false;
-};
+import { diskTypes } from "./disk";
 
 export const sharedType = {
   reader: 'reader',

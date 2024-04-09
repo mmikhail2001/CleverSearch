@@ -7,7 +7,7 @@ interface ModalProps {
     isOpen: boolean;
     closeModal: () => void;
     children: React.ReactNode;
-    className: string;
+    className?: string;
     bodyClassName?: string;
     bottomFrame?: React.ReactNode;
     isFullscreen?: boolean;

@@ -1,4 +1,4 @@
-import { DiskType, diskImgSrc } from '@models/disk';
+import { diskImgSrc } from '@models/disk';
 import { switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
 import React, { FC, useEffect, useState } from 'react';
@@ -8,13 +8,11 @@ import { ButtonWithInput } from '@feature/buttonWithInput/buttonWithInput';
 import { usePushFileMutation } from '@api/filesApi';
 import { useAppSelector } from '@store/store';
 import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
-import { diskTypes, isDiskType } from '@models/searchParams';
 import { useSearchMutation, useShowMutation } from '@api/searchApi';
 import RobotSVG from '@icons/Robot.svg';
 import DownloadSVG from '@icons/Download.svg';
 import CleverSVG from '@icons/disks/Disk.svg';
 import { useNavigate } from 'react-router-dom';
-import { transfromToShowRequestString } from '@api/transforms';
 import { debounce } from '@helpers/debounce'
 import { FolderCreation } from './folderCreation/folderCreation'
 import { Drawer } from '@entities/drawer/drawer';
@@ -24,30 +22,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { Typography } from '@mui/material';
 import { useLogout } from '@helpers/hooks/logout';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
-
-const getTextWithImg = (
-	selected: boolean,
-	disk: DiskType,
-	text: string,
-	setState: (text: diskTypes) => void,
-) => {
-	const { src, altText } = disk;
-
-	return (
-		<TextWithImg
-			key={text + src}
-			className={[selected ? 'selected' : '', 'text-with-img-row'].join(' ')}
-			text={text}
-			imgSrc={src}
-			altImgText={altText}
-			onClick={() => {
-				if (isDiskType(text)) {
-					setState(text as diskTypes);
-				}
-			}}
-		/>
-	);
-};
+import { DiskView } from './diskView/diskView'
 
 interface SidebarProps {
 	width: string;
@@ -62,37 +37,20 @@ export const Sidebar: FC<SidebarProps> = ({
 	toggleShow,
 	isOpen,
 }) => {
-	const [selectedField, setSelectedField] = useState(
-		Array.from(diskImgSrc.keys())[4]
-	);
-
 	const { isSearch, isShow, isProccessed, isShared } = useAppSelector((state) => state.whatToShow);
 	const { dirs, currentDisk } = useAppSelector((state) => state.currentDirDisk);
+
 	const dispatch = useDispatch();
+	const navigate = useNavigate()
+
 	const [search] = useSearchMutation({ fixedCacheKey: 'search' });
 	const [show] = useShowMutation({ fixedCacheKey: 'show' });
 
-	const navigate = useNavigate()
-
-	const allDisks = Array.from(diskImgSrc.keys()).map((key) =>
-		getTextWithImg(
-			selectedField === key && isShow,
-			diskImgSrc.get(key)!,
-			key,
-			(text) => {
-				setSelectedField(text);
-				if (!isShow) {
-					dispatch(switchToShow());
-					const url = transfromToShowRequestString({ limit: 10, offset: 0, disk: text })
-					navigate(url)
-				}
-
-				dispatch(changeDisk(text));
-			}
-		)
-	);
-
 	const params = useAppSelector((state) => state.searchRequest);
+
+	const [send] = usePushFileMutation();
+	const { email } = useAppSelector(state => state.userAuth)
+	const logout = useLogout()
 
 	useEffect(() => {
 		if (isShow) {
@@ -100,10 +58,6 @@ export const Sidebar: FC<SidebarProps> = ({
 			show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
 		}
 	}, [currentDisk]);
-
-	const [send] = usePushFileMutation();
-	const { email } = useAppSelector(state => state.userAuth)
-	const logout = useLogout()
 
 	const renderSidebar = (): React.ReactNode => {
 		return (
@@ -154,14 +108,19 @@ export const Sidebar: FC<SidebarProps> = ({
 							}
 						}}
 					/>
-					<div className="disk-show">
-						<h2 className="disk-show-label">Ваши диски</h2>
-						<div className="disks">{allDisks}</div>
-					</div>
+					<DiskView
+						needSelect={isShow}
+						setSelectedState={(disk) => {
+							if (!isShow) dispatch(switchToShow())
+							navigate(`/files?disk=${disk}`)
+							dispatch(changeDisk(disk))
+						}}
+						nameOfSelectedDisk={currentDisk}
+					/>
 					<div className="under-disks">
 						<TextWithImg
 							text="Обрабатываются"
-							className={['text-with-img', 'work-in-progress', isProccessed ? 'selected' : '', 'text-with-img-row'].join(' ')}
+							className={['text-with-img', 'work-in-progress', 'not-done', isProccessed ? 'selected' : '', 'text-with-img-row'].join(' ')}
 							imgSrc={RobotSVG}
 							altImgText="Робот"
 							onClick={() => {
@@ -209,8 +168,8 @@ export const Sidebar: FC<SidebarProps> = ({
 								<Typography fontSize={'var(--ft-body)'}>Вернуться</Typography>
 							</div>
 						</div >
-						: null}
-
+						: null
+					}
 				</div >
 			</>
 		)

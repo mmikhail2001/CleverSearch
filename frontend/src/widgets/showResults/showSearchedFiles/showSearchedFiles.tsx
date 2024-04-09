@@ -44,7 +44,6 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
                     }}
                     reactOnElements={[]}
                 />
-                <Typography fontSize={'var(--ft-body)'}>Результаты поиска:</Typography>
             </div>
             <RenderFields
                 data={data?.body}
