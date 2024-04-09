@@ -2,6 +2,7 @@ package cloud
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
@@ -91,6 +92,26 @@ func (uc *Usecase) CloudConnect(ctx context.Context, token *oauth2.Token) error 
 	return nil
 }
 
+func (uc *Usecase) UpdateAllTokens(ctx context.Context, user *cleveruser.User) error {
+	for i, cloud := range user.ConnectedClouds {
+		tokenSource := uc.oauthConfig.TokenSource(ctx, cloud.Token)
+		newToken, err := tokenSource.Token()
+		if err != nil {
+			log.Println("Failed to refresh token for cloud", cloud.Cloud, "and email", cloud.CloudEmail, ":", err)
+			return err
+		}
+
+		user.ConnectedClouds[i].Token = newToken
+
+		err = uc.userRepo.UpdateUser(ctx, *user)
+		if err != nil {
+			log.Println("Failed to update user with refreshed token for cloud", cloud.Cloud, "and email", cloud.CloudEmail, ":", err)
+			return err
+		}
+	}
+	return nil
+}
+
 func (uc *Usecase) RefreshConnect(ctx context.Context, disk file.DiskType, cloudEmail string) (string, error) {
 	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
 	if !ok {
@@ -98,9 +119,23 @@ func (uc *Usecase) RefreshConnect(ctx context.Context, disk file.DiskType, cloud
 		return "", sharederrors.ErrUserNotFoundInContext
 	}
 
-	token, err := uc.getToken(ctx, cloudEmail, disk, user)
+	err := uc.UpdateAllTokens(ctx, &user)
 	if err != nil {
-		log.Println("RefreshConnect: getToken: err", err)
+		log.Println("UpdateAllTokens, err:", err)
+		return "", err
+	}
+
+	var token *oauth2.Token = nil
+	for _, cloud := range user.ConnectedClouds {
+		if cloud.CloudEmail == cloudEmail && cloud.Cloud == disk {
+			token = cloud.Token
+			break
+		}
+	}
+
+	if token == nil {
+		log.Println("requested disk and cloudEmail not found: token nil")
+		return "", fmt.Errorf("requested disk and cloudEmail not found: token nil")
 	}
 
 	client := uc.oauthConfig.Client(context.Background(), token)

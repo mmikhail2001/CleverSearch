@@ -11,12 +11,14 @@ import (
 )
 
 type Handler struct {
-	usecase Usecase
+	usecase      Usecase
+	cloudUsecase CloudUsecase
 }
 
-func NewHandler(usecase Usecase) *Handler {
+func NewHandler(usecase Usecase, cloudUsecase CloudUsecase) *Handler {
 	return &Handler{
-		usecase: usecase,
+		usecase:      usecase,
+		cloudUsecase: cloudUsecase,
 	}
 }
 
@@ -127,9 +129,26 @@ func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	email := ProfileDTO{
+
+	err := h.cloudUsecase.UpdateAllTokens(r.Context(), &user)
+	if err != nil {
+		log.Println("UpdateAllTokens err:", err)
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	profile := ProfileDTO{
 		ID:    user.ID,
 		Email: user.Email,
 	}
-	json.NewEncoder(w).Encode(email)
+
+	for _, cloud := range user.ConnectedClouds {
+		connectedCloud := ConnectedCloud{
+			CloudEmail:  cloud.CloudEmail,
+			Disk:        cloud.Cloud,
+			AccessToken: cloud.Token.AccessToken,
+		}
+		profile.ConnectedClouds = append(profile.ConnectedClouds, connectedCloud)
+	}
+
+	json.NewEncoder(w).Encode(profile)
 }

@@ -158,7 +158,7 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 		SharedRequired:   queryValues.Get("shared_required") == "true" || queryValues.Get("shared_required") == "",
 		PersonalRequired: queryValues.Get("personal_required") == "true" || queryValues.Get("personal_required") == "",
 		IsSmartSearch:    queryValues.Get("is_smart_search") == "true",
-		Disk:             file.DiskType(queryValues.Get("disk")),
+		CloudEmail:       queryValues.Get("cloud_email"),
 		Query:            queryValues.Get("query"),
 		Status:           file.StatusType(queryValues.Get("status")),
 	}
@@ -229,12 +229,14 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 		err = dto.Map(&fileDTO, &file)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
-		fileDTO, err = setUserEmailToFile(r.Context(), fileDTO)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(-1, err.Error(), nil))
-		}
+		// fileDTO, err = setUserEmailToFile(r.Context(), fileDTO)
+		// if err != nil {
+		// 	w.WriteHeader(http.StatusBadRequest)
+		// 	json.NewEncoder(w).Encode(shared.NewResponse(-1, err.Error(), nil))
+
+		// }
 		filesDTO = append(filesDTO, fileDTO)
 	}
 

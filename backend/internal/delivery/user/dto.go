@@ -14,6 +14,7 @@ type ProfileDTO struct {
 }
 
 type ConnectedCloud struct {
-	CloudEmail string        `json:"cloud_email"`
-	Disk       file.DiskType `json:"disk"`
+	CloudEmail  string        `json:"cloud_email"`
+	Disk        file.DiskType `json:"disk"`
+	AccessToken string        `json:"access_token"`
 }

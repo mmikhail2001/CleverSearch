@@ -24,7 +24,12 @@ type FileDTO struct {
 	ShareAccess file.AccessType `json:"share_access"`
 	ShareLink   string          `json:"share_link"`
 	Link        string          `json:"link"`
+	CloudID     string          `bson:"cloud_id"`
+	CloudEmail  string          `bson:"cloud_email"`
 	Disk        file.DiskType   `json:"disk"`
+	PageNumber  int             `json:"page_number"`
+	Timestart   string          `json:"timestart"`
+	Duration    time.Duration   `json:"duration"`
 }
 
 type FileForMLDTO struct {

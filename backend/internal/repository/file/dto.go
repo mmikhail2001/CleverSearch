@@ -25,6 +25,7 @@ type fileDTO struct {
 	Link        string          `bson:"link"`
 	MLData      interface{}     `bson:"ml_data"`
 	CloudID     string          `bson:"cloud_id"`
+	CloudEmail  string          `bson:"cloud_email"`
 	Disk        file.DiskType   `bson:"disk"`
 }
 
@@ -43,8 +44,8 @@ type searchResponseDTO struct {
 }
 
 type searchTextItemDTO struct {
-	FileID string `json:"file_uuid"`
-	Page   int    `json:"page"`
+	FileID     string `json:"file_uuid"`
+	PageNumber int    `json:"page_number"`
 }
 
 type searchImageItemDTO struct {

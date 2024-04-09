@@ -164,6 +164,10 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 		filter["user_id"] = fileOptions.UserID
 	}
 
+	if fileOptions.CloudEmail != "" {
+		filter["cloud_email"] = fileOptions.CloudEmail
+	}
+
 	// TODO: сортировка нужна по дате добавления
 	opts := options.Find().SetSort(bson.D{{Key: "filename", Value: 1}})
 	// opts = opts.SetLimit(int64(fileOptions.Limit)).SetSkip(int64(fileOptions.Offset))
@@ -194,6 +198,8 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 		log.Println("Dto Map GetFiles repo error:", err)
 		return nil, err
 	}
+
+	log.Println("files = ", results)
 
 	if err := cursor.Err(); err != nil {
 		log.Println("Cursor error:", err)
@@ -296,7 +302,6 @@ func (r *Repository) GetSharedDirs(ctx context.Context, path string, userID stri
 }
 
 func (r *Repository) Update(ctx context.Context, file file.File) error {
-	log.Println("file.ShareAccess ===== ", file.ShareAccess)
 	update := bson.M{
 		"$set": bson.M{
 			"filename":     file.Filename,

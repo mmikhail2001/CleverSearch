@@ -63,8 +63,12 @@ type File struct {
 	ShareLink   string
 	Link        string
 	CloudID     string
+	CloudEmail  string
 	MLData      interface{}
 	Disk        DiskType
+	PageNumber  int
+	Timestart   string
+	Duration    time.Duration
 }
 
 type FileType string
@@ -95,7 +99,7 @@ type FileOptions struct {
 	UserID string
 	// для поиска в коллекции shared_dirs
 	// Shared bool
-	Disk             DiskType
+	CloudEmail       string
 	Limit            int
 	Offset           int
 	Query            string

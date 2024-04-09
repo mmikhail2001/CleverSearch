@@ -130,6 +130,10 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 		options.Dir = "/"
 	}
 
+	if options.CloudEmail != "" {
+		return uc.repo.GetFiles(ctx, options)
+	}
+
 	// если путь корневой, то нужны (shared папки и все файлы и папки) данного пользователя
 	if options.Dir == "/" {
 		var files []fileDomain.File

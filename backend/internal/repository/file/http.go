@@ -26,7 +26,6 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 	queryParams.Set("query", fileOptions.Query)
 	queryParams.Set("file_type", string(fileOptions.FileType))
 	queryParams.Set("dir", fileOptions.Dir)
-	queryParams.Set("disk", string(fileOptions.Disk))
 	queryParams.Set("user_id", user.ID)
 	url := APIServiceMLSearch + "?" + queryParams.Encode()
 
@@ -71,6 +70,7 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 				log.Println("GetFileByID error:", err)
 				return nil, err
 			}
+			file.PageNumber = searchItem.PageNumber
 			files = append(files, file)
 		}
 		return files, nil
@@ -93,6 +93,7 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 				log.Println("GetFileByID error:", err)
 				return nil, err
 			}
+			file.Timestart = searchItem.Timestart
 			files = append(files, file)
 		}
 		return files, nil
@@ -104,6 +105,7 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 				log.Println("GetFileByID error:", err)
 				return nil, err
 			}
+			file.Timestart = searchItem.Timestart
 			files = append(files, file)
 		}
 		return files, nil

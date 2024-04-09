@@ -8,10 +8,8 @@ import (
 	"time"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
-	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	fileDomain "github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	"github.com/google/uuid"
-	"golang.org/x/oauth2"
 	"google.golang.org/api/drive/v3"
 )
 
@@ -31,6 +29,12 @@ func (uc *Usecase) downloadAndUploadFiles(ctx context.Context, srv *drive.Servic
 			log.Printf("Failed to upload file %s to MinIO: %v", file.Path, err)
 			continue
 		}
+
+		err = uc.fileRepo.PublishMessage(ctx, file)
+		if err != nil {
+			log.Println("PublishMessage repo error:", err)
+			continue
+		}
 	}
 }
 
@@ -47,6 +51,7 @@ func (uc *Usecase) fillFilesRecursively(ctx context.Context, srv *drive.Service,
 		fileInfo := fileDomain.File{
 			ID:          uuid.New().String(),
 			CloudID:     file.Id,
+			CloudEmail:  cloudUserEmail,
 			Filename:    file.Name,
 			Extension:   file.Name[strings.LastIndex(file.Name, ".")+1:],
 			ContentType: contentType,
@@ -75,46 +80,4 @@ func (uc *Usecase) fillFilesRecursively(ctx context.Context, srv *drive.Service,
 			uc.fillFilesRecursively(ctx, srv, subFiles.Files, fileInfo.Path, user, cloudUserEmail, fileList)
 		}
 	}
-}
-
-func (uc *Usecase) getToken(ctx context.Context, cloudEmail string, disk file.DiskType, user cleveruser.User) (*oauth2.Token, error) {
-	var token *oauth2.Token = nil
-	for i, cloud := range user.ConnectedClouds {
-		if cloud.CloudEmail == cloudEmail && cloud.Cloud == disk {
-			token = &oauth2.Token{
-				AccessToken:  cloud.Token.AccessToken,
-				RefreshToken: cloud.Token.RefreshToken,
-				TokenType:    cloud.Token.TokenType,
-				Expiry:       cloud.Token.Expiry,
-			}
-			if token.Valid() {
-				break
-			}
-			log.Println("Access token is invalid.")
-			tokenSource := uc.oauthConfig.TokenSource(ctx, token)
-			newToken, err := tokenSource.Token()
-			if err != nil {
-				log.Println("Failed to refresh token:", err)
-				return nil, err
-			}
-
-			token = &oauth2.Token{
-				AccessToken:  newToken.AccessToken,
-				RefreshToken: newToken.RefreshToken,
-				TokenType:    newToken.TokenType,
-				Expiry:       newToken.Expiry,
-			}
-			user.ConnectedClouds[i].Token = token
-			err = uc.userRepo.UpdateUser(ctx, user)
-			if err != nil {
-				log.Println("CreateUser with updated access token failed:", err)
-				return nil, err
-			}
-			break
-		}
-	}
-	if token == nil {
-		return nil, fmt.Errorf("requested disk and cloudEmail not found")
-	}
-	return token, nil
 }

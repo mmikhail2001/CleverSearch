@@ -54,8 +54,6 @@ import (
 // profile
 // refresh
 
-// {file}
-
 var staticDir string = "/app/frontend/build"
 var staticDirMinio string = "/app/minio_files"
 
@@ -107,7 +105,7 @@ func Run() error {
 	cloudUsecase := cloudUsecase.NewUsecase(oauthConfig, fileRepo, fileUsecase, userRepo)
 
 	staticHandler := staticDelivery.NewHandler(staticDir, fileUsecase)
-	userHandler := userDelivery.NewHandler(userUsecase)
+	userHandler := userDelivery.NewHandler(userUsecase, cloudUsecase)
 	fileHandler := fileDelivery.NewHandler(fileUsecase)
 	notifyHandler := notifyDelivery.NewHandler(notifyUsecase)
 	cloudHandler := cloudDelivery.NewHandler(oauthConfig, staticHandler, cloudUsecase)
