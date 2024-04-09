@@ -28,6 +28,7 @@ class TextProcessor(IDataProcessor):
         text = preprocessor.process()
 
         embeddings = []
+        pages = []
 
         for i, text_page in text:
             logger.info(f'preprocessed text: {text_page}')
@@ -40,9 +41,10 @@ class TextProcessor(IDataProcessor):
 
                 embedding = self.model(**encodes).last_hidden_state[:, 0, :]
                 logger.info(embedding.shape)
-                embeddings.append((i, embedding.squeeze(0).tolist()))
+                embeddings.append(embedding.squeeze(0).tolist())
+                pages.append(i)
 
-        return embeddings
+        return embeddings, pages
 
     def process_query_string(self, query_string):
         logger.info(f'query string: {query_string}')
