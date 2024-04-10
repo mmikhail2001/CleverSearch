@@ -199,8 +199,6 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 		return nil, err
 	}
 
-	log.Println("files = ", results)
-
 	if err := cursor.Err(); err != nil {
 		log.Println("Cursor error:", err)
 		return nil, err

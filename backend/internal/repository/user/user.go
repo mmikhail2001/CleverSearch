@@ -133,7 +133,7 @@ func (r *Repository) AddTokenToUser(ctx context.Context, token *oauth2.Token, cl
 		Expiry:       token.Expiry,
 	}
 
-	connectedCloud := UserCloudDTO{
+	connectedCloud := UserCloud{
 		Cloud:      disk,
 		CloudEmail: cloudEmail,
 		Token:      tokenDTO,

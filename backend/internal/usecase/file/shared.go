@@ -37,7 +37,6 @@ var fileTypeMap = map[string]file.FileType{
 }
 
 func filterFilesByNesting(files []fileDomain.File, dir string) []fileDomain.File {
-	printPaths(files, "1 filterFilesByNesting")
 	filteredFiles := make([]fileDomain.File, 0)
 
 	if dir != "/" {
@@ -50,7 +49,6 @@ func filterFilesByNesting(files []fileDomain.File, dir string) []fileDomain.File
 			filteredFiles = append(filteredFiles, file)
 		}
 	}
-	printPaths(files, "2 filterFilesByNesting")
 	return filteredFiles
 }
 

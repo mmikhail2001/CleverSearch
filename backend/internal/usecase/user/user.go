@@ -13,13 +13,13 @@ import (
 
 type Usecase struct {
 	repo         Repository
-	userSessions map[string]cleveruser.User
+	userSessions map[string]string
 }
 
 func NewUsecase(repo Repository) *Usecase {
 	return &Usecase{
 		repo:         repo,
-		userSessions: make(map[string]cleveruser.User),
+		userSessions: make(map[string]string),
 	}
 }
 
@@ -48,16 +48,25 @@ func (uc *Usecase) Register(ctx context.Context, user cleveruser.User) (cleverus
 }
 
 func (uc *Usecase) GetUserBySession(ctx context.Context, sessionID string) (cleveruser.User, error) {
-	user, ok := uc.userSessions[sessionID]
+	userID, ok := uc.userSessions[sessionID]
 	if !ok {
 		log.Println("GetUserBySession: session not found")
 		return cleveruser.User{}, cleveruser.ErrSessionNotFound
+	}
+	user, err := uc.repo.GetUserByID(ctx, userID)
+	if err != nil {
+		log.Println("GetUserByID err:", err)
+		return cleveruser.User{}, err
 	}
 	return user, nil
 }
 
 func (uc *Usecase) GetUserByID(ctx context.Context, userID string) (cleveruser.User, error) {
 	return uc.repo.GetUserByID(ctx, userID)
+}
+
+func (uc *Usecase) GetUserByEmail(ctx context.Context, email string) (cleveruser.User, error) {
+	return uc.repo.GetUserByEmail(ctx, email)
 }
 
 func (uc *Usecase) Login(ctx context.Context, authUser cleveruser.User) (string, error) {
@@ -74,7 +83,7 @@ func (uc *Usecase) Login(ctx context.Context, authUser cleveruser.User) (string,
 	}
 
 	sessionID := uuid.New().String()
-	uc.userSessions[sessionID] = user
+	uc.userSessions[sessionID] = user.ID
 
 	return sessionID, nil
 }
@@ -87,8 +96,4 @@ func (uc *Usecase) Logout(ctx context.Context, sessionID string) error {
 	}
 	delete(uc.userSessions, sessionID)
 	return nil
-}
-
-func (uc *Usecase) GetUserByEmail(ctx context.Context, email string) (cleveruser.User, error) {
-	return uc.repo.GetUserByEmail(ctx, email)
 }

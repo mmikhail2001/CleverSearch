@@ -94,10 +94,7 @@ func (h *Handler) AuthProviderCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.usecase.CloudConnect(r.Context(), token)
-	h.staticHandler.GetStatic(w, r)
-
-	// TODO: http.Redirect(w, r, "http://localhost/index.html", http.StatusTemporaryRedirect)
-	// браузер не редиректит, отправляет тот же запрос: /api/clouds/callback
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
 
 func (h *Handler) RefreshCloud(w http.ResponseWriter, r *http.Request) {
