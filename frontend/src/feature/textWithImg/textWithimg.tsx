@@ -9,6 +9,8 @@ interface TextWithImgProps {
 	altImgText: string;
 	className: string;
 	onClick?: (e: React.MouseEvent<HTMLParagraphElement>) => void;
+	leftIconProp?: React.ReactNode,
+	rightIconProp?: React.ReactNode,
 }
 
 export const TextWithImg: FC<TextWithImgProps> = ({
@@ -18,14 +20,18 @@ export const TextWithImg: FC<TextWithImgProps> = ({
 	className,
 	onClick,
 	altImgText,
+	leftIconProp,
+	rightIconProp,
 }) => {
 	return (
 		<div className={['text-with-img', className].join(' ')} onClick={onClick}>
+			{leftIconProp}
 			<img className="text-image" src={imgSrc} alt={altImgText}></img>
 			<div>
 				<Typography fontSize={'var(--ft-paragraph)'}>{text}</Typography>
 				{subText ? <p className="subText">{subText}</p> : null}
 			</div>
+			{rightIconProp}
 		</div>
 	);
 };

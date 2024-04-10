@@ -235,3 +235,7 @@ export const transformToOptions = (folders: SearchResponse): Option[] => {
 		};
 	});
 };
+
+export interface DiskConnectResp {
+	redirect: string;
+}

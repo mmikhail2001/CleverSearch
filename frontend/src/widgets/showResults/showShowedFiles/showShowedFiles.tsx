@@ -14,6 +14,7 @@ import { switchToShow } from '@store/whatToShow';
 import '../show.scss'
 import { useParamsFromURL } from '@helpers/hooks/useParamsFromURL';
 import { Typography } from '@mui/material';
+import { useShowParams } from '@helpers/hooks/useShowParams'
 
 interface ShowShowedFilesProps { }
 

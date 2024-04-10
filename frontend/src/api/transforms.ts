@@ -1,9 +1,21 @@
 import { SearchParams, ShowParams, fileTypes } from '@models/searchParams';
+import { ConnectedClouds } from '@models/user';
 
 export const transfromToShowRequestString = (showReq: ShowParams): string => {
+	let diskToShow: string;
+	if (showReq.disk) {
+		if (typeof showReq.disk === 'string') {
+			diskToShow = showReq.disk
+		} else {
+			diskToShow = showReq.disk.cloud_email
+		}
+	} else {
+		diskToShow = 'all'
+	}
+
 	return [`/files?limit=${showReq.limit}`,
 	`&offset=${showReq.offset}`,
-	`&disk=${showReq.disk ? showReq.disk : 'all'}`,
+	`&disk=${diskToShow}`,
 	`&file_type=${showReq.fileType ? showReq.fileType.join(',') : 'all' as fileTypes}`,
 	`&dir=${showReq.dir && showReq.dir.length !== 0 ? ['', ...showReq.dir].join('/') : '/'}`,
 	`&first_nesting=${showReq.nestingReq === undefined ? true : showReq.nestingReq}`,
@@ -14,9 +26,20 @@ export const transfromToShowRequestString = (showReq: ShowParams): string => {
 }
 
 export const transformToSearchRequestString = (searchReq: SearchParams): string => {
+	let diskToShow: string;
+	if (searchReq.disk) {
+		if (typeof searchReq.disk[0] === 'string') {
+			diskToShow = searchReq.disk[0]
+		} else {
+			diskToShow = searchReq.disk[0].cloud_email
+		}
+	} else {
+		diskToShow = 'all'
+	}
+
 	return [`files/search?is_smart_search=${searchReq.smartSearch}`,
 	`&query=${searchReq.query}`,
-	`&disk=${searchReq.disk ? searchReq.disk : 'all'}`,
+	`&disk=${diskToShow}`,
 	`&file_type=${searchReq.fileType ? searchReq.fileType.join(',') : 'all' as fileTypes}`,
 	`&dir=${searchReq.dir && searchReq.dir.length !== 0 ? ['', ...searchReq.dir].join('/') : '/'}`,
 	`&limit=${searchReq.limit ? searchReq.limit : 10}`,

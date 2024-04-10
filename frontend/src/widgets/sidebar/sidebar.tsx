@@ -1,4 +1,4 @@
-import { diskImgSrc } from '@models/disk';
+import { diskImgSrc, diskTypes } from '@models/disk';
 import { switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
 import React, { FC, useEffect, useState } from 'react';
@@ -23,6 +23,7 @@ import { Typography } from '@mui/material';
 import { useLogout } from '@helpers/hooks/logout';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import { DiskView } from './diskView/diskView'
+import { ConnectedClouds } from '@models/user';
 
 interface SidebarProps {
 	width: string;
@@ -46,7 +47,7 @@ export const Sidebar: FC<SidebarProps> = ({
 	const [search] = useSearchMutation({ fixedCacheKey: 'search' });
 	const [show] = useShowMutation({ fixedCacheKey: 'show' });
 
-	const params = useAppSelector((state) => state.searchRequest);
+	const param = useAppSelector((state) => state.searchRequest);
 
 	const [send] = usePushFileMutation();
 	const { email } = useAppSelector(state => state.userAuth)
@@ -58,6 +59,13 @@ export const Sidebar: FC<SidebarProps> = ({
 			show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
 		}
 	}, [currentDisk]);
+
+	let nameOfDisk: diskTypes;
+	if (typeof currentDisk === 'string') {
+		nameOfDisk = currentDisk
+	} else {
+		nameOfDisk = currentDisk.disk
+	}
 
 	const renderSidebar = (): React.ReactNode => {
 		return (
@@ -81,7 +89,7 @@ export const Sidebar: FC<SidebarProps> = ({
 						onChange={(files: FileList) => {
 							const debouncFunc = debounce(() => {
 								if (isSearch) {
-									search(params);
+									search(param);
 								} else if (isShow) {
 									show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
 								}
@@ -102,7 +110,7 @@ export const Sidebar: FC<SidebarProps> = ({
 						dirs={dirs}
 						onFolderCreation={() => {
 							if (isSearch) {
-								search(params);
+								search(param);
 							} else {
 								show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
 							}
@@ -110,12 +118,13 @@ export const Sidebar: FC<SidebarProps> = ({
 					/>
 					<DiskView
 						needSelect={isShow}
-						setSelectedState={(disk) => {
+						setSelectedState={(disk: diskTypes | ConnectedClouds
+						) => {
 							if (!isShow) dispatch(switchToShow())
 							navigate(`/files?disk=${disk}`)
 							dispatch(changeDisk(disk))
 						}}
-						nameOfSelectedDisk={currentDisk}
+						nameOfSelectedDisk={nameOfDisk}
 					/>
 					<div className="under-disks">
 						<TextWithImg

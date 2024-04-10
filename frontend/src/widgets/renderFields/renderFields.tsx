@@ -102,7 +102,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 					<VideoPlayer
 						url={file.link}
 						duration={file.duration || 0}
-						start_time={file.start_time || 0}
+						start_time={file.timestart || 0}
 					></VideoPlayer>
 				</Modal>
 			)

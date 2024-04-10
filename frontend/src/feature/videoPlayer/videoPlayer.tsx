@@ -102,7 +102,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 					// TODO make pip
 					onPause={handlePause}
 					onPlaybackRateChange={handleOnPlaybackRateChange}
-					onError={e => console.log('onError', e)}
+					onError={e => console.info('onError', e)}
 					onProgress={handleProgress}
 					onDuration={handleDuration}
 					onReady={(pl) => {

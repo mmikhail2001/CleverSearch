@@ -3,7 +3,7 @@ import { SearchParams, fileTypes } from '@models/searchParams';
 import { diskTypes } from '@models/disk';
 
 const searchSlice = createSlice({
-	name: 'whatToShow',
+	name: 'searchReq',
 	initialState: {
 		smartSearch: false,
 		fileType: ['all' as fileTypes],

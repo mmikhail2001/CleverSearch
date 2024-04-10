@@ -46,13 +46,12 @@ export const SettingsPage: FC = () => {
 	const navigate = useNavigate()
 
 	useEffect(() => {
-		console.log(diskToConnect, resp)
 		if (diskToConnect !== 'all' && !resp.isLoading) {
 			setOpenModal(true)
+			window.location.href = resp.data.redirect;
 		}
 	}, [resp])
 
-	console.log(resp)
 	return <div className="settings">
 		<div className='disk-show disks disk-connect-settings'>
 			<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>

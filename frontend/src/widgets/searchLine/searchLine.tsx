@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import { useSearchMutation } from '@api/searchApi';
-import { fileTypes } from '@models/searchParams';
+import { SearchParams, fileTypes, transformToSearchParams } from '@models/searchParams';
 import { Input } from '@entities/input/input';
 import './searchLine.scss';
 
@@ -12,7 +12,7 @@ import { SearchBox } from './searchBox/searchBox';
 import { changeDir } from '@store/currentDirectoryAndDisk';
 import { newValues } from '@store/searchRequest';
 
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { transformToSearchRequestString } from '@api/transforms';
 
 import SearchIcon from '@mui/icons-material/Search';
@@ -21,25 +21,25 @@ import { PopOver } from '@entities/popover/popover';
 import { useMobile } from 'src/mobileProvider';
 import DehazeIcon from '@mui/icons-material/Dehaze';
 import { diskTypes } from '@models/disk';
+import { ConnectedClouds } from '@models/user';
+
+import { useSearchParams } from '@helpers/hooks/useSearchParams'
+import { useAppSelector } from '@store/store';
 
 export interface searchStateValue {
 	smartSearch: boolean;
 	fileType: fileTypes[];
 	query: string;
 	dir: string[];
-	disk: diskTypes[];
+	disk: diskTypes[] | ConnectedClouds[];
 }
 
 interface SearchLineProps {
-	searchValue: searchStateValue,
 	onIconClick?: () => void,
-	setSearchValue: React.Dispatch<React.SetStateAction<searchStateValue>>,
 	width: string,
 }
 
 export const SearchLine: FC<SearchLineProps> = ({
-	searchValue,
-	setSearchValue,
 	onIconClick,
 	width
 }) => {
@@ -49,7 +49,17 @@ export const SearchLine: FC<SearchLineProps> = ({
 	const navigate = useNavigate();
 	const { whatDisplay } = useMobile();
 
+	const [searchValue, setSearchValue] = useState<SearchParams>()
+	const searchParams = useAppSelector(state => state.searchRequest)
+
 	function mySearch(): void {
+		setSearchValue({
+			smartSearch: searchParams.smartSearch,
+			fileType: searchParams.fileType,
+			query: searchParams.query,
+			dir: searchParams.dir,
+			disk: searchParams.disk,
+		})
 		search(searchValue);
 		dispatch(newValues(searchValue));
 		dispatch(switchToSearch());
@@ -62,6 +72,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 	const renderOpenBox = (): React.ReactNode => {
 		return (
 			<SearchBox
+				key={'searchbox'}
 				fontSize={'var(--ft-body)'}
 				style={{
 					width: width,
@@ -82,6 +93,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 
 	return (
 		<PopOver
+			key={'search-popover-with-box'}
 			open={isBoxOpen}
 			toggleOpen={setisBoxOpen}
 			isCloseOnSelect={false}
@@ -116,7 +128,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 								disabled={response.isLoading}
 								placeholder={'Найдём любой файл'}
 								type={'search'}
-								value={searchValue.query}
+								value={searchValue?.query || ""}
 							/>
 						</div>
 					</div>

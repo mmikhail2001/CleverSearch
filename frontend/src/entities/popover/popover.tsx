@@ -87,7 +87,7 @@ export const PopOver: FC<PopOverProps> = ({
             >
                 {
                     children.map(
-                        child => <div onClick={isNeedCloseOnSelect ? handleClose : null}>
+                        child => <div key={child.toString().slice(-5, -9)} onClick={isNeedCloseOnSelect ? handleClose : null}>
                             {child}
                         </div>
                     )

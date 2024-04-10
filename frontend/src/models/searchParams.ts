@@ -1,4 +1,5 @@
 import { diskTypes } from "./disk";
+import { ConnectedClouds } from "./user";
 
 export const sharedType = {
   reader: 'reader',
@@ -19,7 +20,7 @@ export interface SearchParamsLocal {
   fileType?: fileTypes[];
   query: string;
   dir?: string[];
-  disk?: diskTypes[];
+  disk?: diskTypes[] | ConnectedClouds[];
   sharedReq?: boolean,
   dirsReq?: boolean,
   filesReq?: boolean,
@@ -30,9 +31,9 @@ export interface SearchParamsLocal {
 export const transformToSearchParams = (obj: {
   query?: string, smartSearch?: boolean, limit?: number, offset?: number, file_type?: string, dir?: string, disk?: string
 }) => {
-  let fileType: fileTypes[];
+  let fileType: fileTypes[] | string[];
   if (obj.file_type) {
-    fileType = obj.file_type.split(',')?.filter(val => isFileType(val)) as fileTypes[] || ['all']
+    fileType = obj.file_type.split(',')?.filter(val => isFileType(val)) || ['all']
   } else {
     fileType = ['all']
   }
@@ -79,7 +80,7 @@ export interface fileFile {
     is_owner: boolean;
   };
   duration?: number,
-  start_time?: number,
+  timestart?: number,
   page_number?: number,
 }
 
@@ -90,7 +91,11 @@ export interface SearchResponse {
 }
 
 export const transformToShowParams = (obj: {
-  limit?: number, offset?: number, file_type?: string, dir?: string, disk?: string
+  limit?: number,
+  offset?: number,
+  file_type?: string,
+  dir?: string,
+  disk?: string,
 }) => {
   let fileType: fileTypes[];
   if (obj.file_type) {
@@ -113,7 +118,7 @@ export interface ShowParams {
   offset: number;
   fileType?: fileTypes[];
   dir?: string[];
-  disk?: diskTypes;
+  disk?: diskTypes | ConnectedClouds;
   sharedReq?: boolean,
   dirsReq?: boolean,
   filesReq?: boolean,

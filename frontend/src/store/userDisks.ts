@@ -17,6 +17,13 @@ const userDiskSlice = createSlice({
     reducers: {
         addDisk(state, action: PayloadAction<ConnectedClouds>) {
             const val = action.payload
+
+            if (state.clouds.find(cloudVal =>
+                cloudVal.cloud_email === val.cloud_email
+                && cloudVal.disk === val.disk)
+            )
+                return { ...state }
+
             return {
                 ...state,
                 clouds: [...state.clouds, val],

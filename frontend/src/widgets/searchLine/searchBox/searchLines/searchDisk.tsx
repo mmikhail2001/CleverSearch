@@ -20,6 +20,10 @@ export const SearchDiskLine: FC<SearchDiskLineProps> = ({
 	state,
 	fontSize,
 }) => {
+	const defaultValue = typeof state.disk[0] === 'string'
+		? state.disk[0]
+		: state.disk[0].disk
+
 	return (
 		<div className="line">
 			<Typography fontSize={'var(--ft-body)'}>Диск</Typography>
@@ -32,7 +36,7 @@ export const SearchDiskLine: FC<SearchDiskLineProps> = ({
 						changeState({ ...state, disk: diskVal(newVal) })
 					}
 				}
-				defaultValue={state.disk ? diskValueToOption(state.disk[0]) : null}
+				defaultValue={state.disk ? diskValueToOption(defaultValue) : null}
 			/>
 		</div>
 	);

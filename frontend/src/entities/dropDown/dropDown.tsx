@@ -128,6 +128,7 @@ export const DropDown: FC<DropDownProps> = ({
 				{
 					children.filter((val) => !isNullOrUndefined(val)).map(
 						child => <MenuItem
+							key={child.toString().slice(-5, -9)}
 							onClick={isNeedCloseOnSelect ? handleClose : null}
 							sx={{
 								fontSize: 'var(--ft-small-text)',
