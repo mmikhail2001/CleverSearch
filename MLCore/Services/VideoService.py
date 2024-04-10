@@ -1,5 +1,3 @@
-import os
-
 from minio import Minio
 from Processors import IDataProcessor
 from Processors.VideoProcessor import VideoProcessor

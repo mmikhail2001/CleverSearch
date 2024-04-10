@@ -9,7 +9,6 @@ sys.path.insert(5, './MLCore/')
 sys.path.insert(6, './MLCore/Services')
 sys.path.insert(7, './MLCore/utils')
 from utils.get_console_logger import get_console_logger
-from Services.ImageService import ImageService
 from Services.service_interfaces import IDataService
 
 
