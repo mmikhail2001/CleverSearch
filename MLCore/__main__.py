@@ -70,7 +70,6 @@ def main(args):
 
         dispathcer.run()
     else:
-
         setup_search_handler(args)
 
         uvicorn.run(

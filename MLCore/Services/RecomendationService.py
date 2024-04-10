@@ -70,7 +70,7 @@ class SearchService():
         files_uuid = [
             {
                 "file_uuid": data_array[k]['id'],
-                'page': data_array[k]['ml_data'][1]['Value'][result[k]]
+                'page_number': data_array[k]['ml_data'][1]['Value'][result[k]]
             } for k in list(result.keys())]
         return {file_type: files_uuid}
 
@@ -91,6 +91,7 @@ def setup_search_handler(args):
     search_service = SearchService()
     @app.get('/search')
     def search(query, file_type, user_id, dir, disk, number_of_results=5):
+        
         params = {
             'file_type': file_type,
             'status': "processed",

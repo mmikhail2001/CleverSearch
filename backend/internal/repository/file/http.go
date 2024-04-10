@@ -27,6 +27,7 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 	queryParams.Set("file_type", string(fileOptions.FileType))
 	queryParams.Set("dir", fileOptions.Dir)
 	queryParams.Set("user_id", user.ID)
+	queryParams.Set("disk", "")
 	url := APIServiceMLSearch + "?" + queryParams.Encode()
 
 	// http://mlcore:8081/search?query=serer&file_type=img&dir=/&user_id=user_id
@@ -54,6 +55,8 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		log.Println("ioutil.ReadAll error:", err)
 		return nil, err
 	}
+
+	log.Println("from ML :", string(bodyBytes))
 
 	var response searchResponseDTO
 	err = json.Unmarshal(bodyBytes, &response)
