@@ -13,6 +13,7 @@ import React, { Dispatch, FC } from 'react';
 import { FileWithModal, renderReturns } from './fileWithModal';
 import './renderFields.scss';
 import { Typography } from '@mui/material';
+import { useAppSelector } from '@store/store';
 
 export interface RenderFieldsProps {
 	data: fileFile[],
@@ -34,6 +35,8 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	deleteFile,
 	openFolder,
 }) => {
+	const disks = useAppSelector(state => state.disks)
+
 	if (isLoading) {
 		return <h1>Подождите, загружаем файлы...</h1>;
 	}
@@ -73,7 +76,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 		return { clickHandler, imgSrc, renderModal }
 	};
 
-	const getPdfProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void): renderReturns => {
+	const getPdfProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void, authToken?: string): renderReturns => {
 		const renderModal = () => {
 			return (
 				<Modal
@@ -84,9 +87,10 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 					bodyClassName={'modal-body__pdf'}
 				>
 					<ViewPDF
+						authToken={authToken}
 						pdfURL={file.link}
 						openPageInPDF={file.page_number || 0}
-						searchString={''} />
+					/>
 				</Modal>
 			)
 		}
@@ -143,7 +147,12 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 								renderModal = props.renderModal
 								break;
 							case 'text':
-								props = getPdfProps(file, isOpen, changeState);
+								let authToken: string = ''
+
+								const disktmp = disks.clouds.find(val => val.cloud_email === file.cloud_email)
+								authToken = disktmp?.access_token || null;
+
+								props = getPdfProps(file, isOpen, changeState, authToken);
 
 								iconSrc = props.imgSrc
 								clickHandler = props.clickHandler

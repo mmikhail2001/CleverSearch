@@ -1,5 +1,4 @@
 import { SearchParams, ShowParams, fileTypes } from '@models/searchParams';
-import { ConnectedClouds } from '@models/user';
 
 export const transfromToShowRequestString = (showReq: ShowParams): string => {
 	let diskToShow: string;

@@ -1,5 +1,5 @@
 import * as pdfjs from 'pdfjs-dist';
-import { PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
+import { DocumentInitParameters, PDFDocumentLoadingTask, PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { VariableSizeList } from 'react-window';
 import PdfViewer from './pdfViewerOriginal';
@@ -10,9 +10,10 @@ import RemoveIcon from '@mui/icons-material/Remove';
 export interface PdfUrlViewerProps {
   url: string,
   page: number,
+  authToken?: string,
 }
 
-const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
+const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, authToken, page }) => {
   const pdfRef = useRef<PDFDocumentProxy>();
   const windowRef = useRef<VariableSizeList>(null)
   const [itemCount, setItemCount] = useState(0);
@@ -24,7 +25,18 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
   };
 
   useEffect(() => {
-    const loadingTask = pdfjs.getDocument(url);
+    let loadingTask: PDFDocumentLoadingTask;
+
+    if (authToken !== '' || authToken !== null) {
+      const docInitParams = new Object() as DocumentInitParameters;
+      docInitParams.url = url;
+      docInitParams.httpHeaders = { 'Authorization': `Bearer ${authToken}` };
+
+      loadingTask = pdfjs.getDocument(docInitParams);
+    } else {
+      loadingTask = pdfjs.getDocument(url);
+    }
+
     loadingTask.promise.then(
       pdf => {
         pdfRef.current = pdf;

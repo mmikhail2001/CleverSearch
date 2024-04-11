@@ -1,5 +1,5 @@
-import { diskTypes } from "./disk";
-import { ConnectedClouds } from "./user";
+import { diskTypes } from './disk';
+import { ConnectedClouds } from './user';
 
 export const sharedType = {
   reader: 'reader',
@@ -74,6 +74,8 @@ export interface fileFile {
   share_link: string,
   date: string;
   link: string,
+  cloud_email: string,
+  disk: diskTypes,
   shared: {
     author_id: string;
     access: typeof sharedType;
@@ -104,11 +106,20 @@ export const transformToShowParams = (obj: {
     fileType = ['all']
   }
 
+  let dir = obj.dir?.split('/').filter(val => val !== '');
+  if (dir) {
+    if (dir.length === 0) {
+      dir = []
+    }
+  } else {
+    dir = []
+  }
+
   return {
     limit: obj.limit || 10,
     offset: obj.offset || 0,
     fileType: fileType || 'all',
-    dir: obj.dir ? obj.dir.split('/').filter(val => val !== '') : [],
+    dir: dir,
     disk: obj.disk || 'all',
   } as ShowParams
 }

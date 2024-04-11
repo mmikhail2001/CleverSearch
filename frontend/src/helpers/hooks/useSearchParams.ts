@@ -28,7 +28,6 @@ export const useSearchParams = () => {
     const params = transformToSearchParams(urlParams)
     const disks = useAppSelector(state => state.disks)
 
-    console.log(urlParams)
     useEffect(() => {
         const settedDisk = isNullOrUndefined(params.disk)
             && params.disk === ['all'] as diskTypes[]
@@ -38,7 +37,6 @@ export const useSearchParams = () => {
                     val =>
                         params.disk
                             .find(paramVal => paramVal === val.cloud_email))];
-        console.log(urlParams, settedDisk)
         setSearchState({
             smartSearch: params.smartSearch || false,
             fileType: params.fileType || ['all'],

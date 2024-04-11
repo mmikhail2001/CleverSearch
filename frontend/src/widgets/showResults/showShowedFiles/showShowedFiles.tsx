@@ -4,44 +4,37 @@ import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useDeleteFileMutation } from '@api/filesApi';
-import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
+import { changeDir } from '@store/currentDirectoryAndDisk';
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
 import { RenderFields } from '@widgets/renderFields/renderFields';
-import { transformToShowParams } from '@models/searchParams';
 import { transfromToShowRequestString } from '@api/transforms';
 import { useNavigate } from 'react-router-dom';
 import { switchToShow } from '@store/whatToShow';
 import '../show.scss'
-import { useParamsFromURL } from '@helpers/hooks/useParamsFromURL';
-import { Typography } from '@mui/material';
-import { useShowParams } from '@helpers/hooks/useShowParams'
+import { compareArrays, isDiskEqual, useShowParams } from '@helpers/hooks/useShowParams'
+import { dir } from 'console';
 
 interface ShowShowedFilesProps { }
 
 export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const navigate = useNavigate();
-    const urlParams = useParamsFromURL()
-    const [params] = useState(transformToShowParams(urlParams))
-
+    const { showState } = useShowParams()
     const [show, showResp] = useShowMutation({ fixedCacheKey: 'show' });
+
     const { currentDisk, dirs } = useAppSelector(
         (state) => state.currentDirDisk
     );
-
     const { isShow } = useAppSelector(state => state.whatToShow)
 
     const [deleteFile] = useDeleteFileMutation();
     const dispatch = useDispatch();
 
-
     useEffect(() => {
-        dispatch(changeDir({ dirs: params.dir }))
-        dispatch(changeDisk(params.disk))
-    }, [params])
+        if (isShow) {
+            show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
+        }
 
-    useEffect(() => {
-        show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
-    }, [dirs, currentDisk])
+    }, [currentDisk, dirs, isShow])
 
     if (!isShow) {
         dispatch(switchToShow())
@@ -54,7 +47,13 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                     dirs={['Show', ...dirs]}
                     onClick={() => {
                         const url = transfromToShowRequestString(
-                            { ...params, dir: dirs.slice(0, -1) || [] }
+                            {
+                                fileType: showState.fileType,
+                                disk: showState.disk[0],
+                                dir: dirs.slice(0, -1) || [],
+                                limit: 10,
+                                offset: 0,
+                            }
                         )
                         dispatch(
                             changeDir({
@@ -82,7 +81,13 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                     }}
                 openFolder={(path) => {
                     const url = transfromToShowRequestString(
-                        { ...params, dir: path || [] }
+                        {
+                            fileType: showState.fileType,
+                            disk: showState.disk[0],
+                            limit: 10,
+                            offset: 0,
+                            dir: path || [],
+                        }
                     )
                     navigate(url, { replace: true })
                 }}

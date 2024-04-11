@@ -49,7 +49,10 @@ export const SearchLine: FC<SearchLineProps> = ({
 	const navigate = useNavigate();
 	const { whatDisplay } = useMobile();
 
-	const [searchValue, setSearchValue] = useState<SearchParams>()
+	const [searchValue, setSearchValue] = useState<SearchParams>({
+		query: '',
+		smartSearch: false,
+	})
 	const searchParams = useAppSelector(state => state.searchRequest)
 
 	function mySearch(): void {
@@ -60,7 +63,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 			dir: searchParams.dir,
 			disk: searchParams.disk,
 		})
-		search(searchValue);
+		// search(searchValue);
 		dispatch(newValues(searchValue));
 		dispatch(switchToSearch());
 		dispatch(changeDir({ dirs: [] }));
@@ -99,7 +102,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 			isCloseOnSelect={false}
 			children={[renderOpenBox()]}
 			mainElement={
-				<div className={["search-line", isBoxOpen ? 'open-search-line' : ''].join(' ')}
+				<div className={['search-line', isBoxOpen ? 'open-search-line' : ''].join(' ')}
 					style={{ width: width }
 					}
 				>
@@ -128,7 +131,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 								disabled={response.isLoading}
 								placeholder={'Найдём любой файл'}
 								type={'search'}
-								value={searchValue?.query || ""}
+								value={searchValue?.query || ''}
 							/>
 						</div>
 					</div>

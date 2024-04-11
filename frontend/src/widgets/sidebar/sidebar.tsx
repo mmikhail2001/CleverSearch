@@ -24,6 +24,7 @@ import { useLogout } from '@helpers/hooks/logout';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import { DiskView } from './diskView/diskView'
 import { ConnectedClouds } from '@models/user';
+import { transfromToShowRequestString } from '@api/transforms';
 
 interface SidebarProps {
 	width: string;
@@ -53,13 +54,6 @@ export const Sidebar: FC<SidebarProps> = ({
 	const { email } = useAppSelector(state => state.userAuth)
 	const logout = useLogout()
 
-	useEffect(() => {
-		if (isShow) {
-			dispatch(changeDir({ dirs: [] }));
-			show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
-		}
-	}, [currentDisk]);
-
 	let nameOfDisk: diskTypes;
 	if (typeof currentDisk === 'string') {
 		nameOfDisk = currentDisk
@@ -78,7 +72,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							<TextWithImg
 								onClick={() => dispatch(switchToShow())}
 								text="CleverSearch"
-								className={["our-name", 'text-with-img-row'].join(' ')}
+								className={['our-name', 'text-with-img-row'].join(' ')}
 								imgSrc={CleverSVG}
 								altImgText="our-logo"
 							/>
@@ -121,7 +115,13 @@ export const Sidebar: FC<SidebarProps> = ({
 						setSelectedState={(disk: diskTypes | ConnectedClouds
 						) => {
 							if (!isShow) dispatch(switchToShow())
-							navigate(`/files?disk=${disk}`)
+							const url = transfromToShowRequestString({
+								dir: dirs,
+								disk: disk,
+								limit: 10,
+								offset: 0,
+							})
+							navigate(url)
 							dispatch(changeDisk(disk))
 						}}
 						nameOfSelectedDisk={nameOfDisk}
@@ -152,7 +152,7 @@ export const Sidebar: FC<SidebarProps> = ({
 					</div>
 					{isMobile
 						? <div style={{
-							display: "flex",
+							display: 'flex',
 							justifyContent: 'space-between',
 							marginTop: 'auto',
 							width: '100%',
@@ -161,7 +161,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							<div onClick={logout} style={{
 								width: '100%',
 								alignItems: 'center',
-								display: "flex",
+								display: 'flex',
 								flexDirection: 'column',
 							}}>
 								<LogoutIcon fontSize='inherit' />
@@ -170,7 +170,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							<div onClick={() => toggleShow(!isOpen)} style={{
 								width: '100%',
 								alignItems: 'center',
-								display: "flex",
+								display: 'flex',
 								flexDirection: 'column',
 							}}>
 								<KeyboardReturnIcon fontSize='inherit' />
