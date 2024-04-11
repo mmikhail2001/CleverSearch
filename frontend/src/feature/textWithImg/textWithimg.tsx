@@ -27,11 +27,16 @@ export const TextWithImg: FC<TextWithImgProps> = ({
 		<div className={['text-with-img', className].join(' ')} onClick={onClick}>
 			{leftIconProp}
 			<img className="text-image" src={imgSrc} alt={altImgText}></img>
-			<div>
+			<div className="text-option">
 				<Typography fontSize={'var(--ft-paragraph)'}>{text}</Typography>
-				{subText ? <p className="subText">{subText}</p> : null}
+				{subText ? <Typography sx={{
+					textOverflow: 'ellipsis',
+					maxWidth: '100%',
+					overflow: 'hidden'
+				}}
+					fontSize={'var(--ft-body)'}>{subText}</Typography> : null}
 			</div>
 			{rightIconProp}
-		</div>
+		</div >
 	);
 };

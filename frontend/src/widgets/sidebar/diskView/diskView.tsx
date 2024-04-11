@@ -21,6 +21,7 @@ export const DiskView: FC<DiskViewProps> = ({
 }) => {
     const dispatch = useDispatch();
     const disks = useAppSelector(state => state.disks)
+    const { currentDisk } = useAppSelector(state => state.currentDirDisk)
 
     const disksToShow = disks.clouds
         .map(
@@ -35,6 +36,7 @@ export const DiskView: FC<DiskViewProps> = ({
                     selectCloud={(cloud) => {
                         dispatch(selectCloud(cloud))
                     }}
+                    currentSelectedDisk={typeof currentDisk === 'string' ? currentDisk : currentDisk.disk}
                     refreshDisk={() => console.log("MAKE REFRESH")} //TODO
                 />
             }

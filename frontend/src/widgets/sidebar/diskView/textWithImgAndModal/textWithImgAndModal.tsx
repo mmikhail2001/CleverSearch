@@ -24,6 +24,7 @@ export interface TextWithImgProps {
     selectedCloud: ConnectedClouds[],
     selectCloud: (cloud: ConnectedClouds) => void,
     refreshDisk: (cloud: ConnectedClouds) => void,
+    currentSelectedDisk: string,
 }
 
 export const TextWithImgAndModal: FC<TextWithImgProps> = (
@@ -35,6 +36,7 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
         selectedCloud,
         selectCloud,
         refreshDisk,
+        currentSelectedDisk,
     }
 ): React.ReactNode => {
     const [isOpen, setOpen] = useState<boolean>(false)
@@ -47,9 +49,11 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
         }
     }
 
-    const currentDiskSelected = selectedCloud
+    const currentDiskSelected: ConnectedClouds[] = selectedCloud
         .filter(val => isSelectedDisk(val, selectedCloud))
         .filter(val => val.disk === diskName)
+
+    const emailSelectCloud = currentDiskSelected?.filter(val => val.cloud_email !== '')
 
     return (
         <>
@@ -60,24 +64,33 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
                 imgSrc={src}
                 altImgText={altText}
                 onClick={() => {
-                    setState(diskName as diskTypes);
+                    if (emailSelectCloud.length > 0) {
+                        setState(
+                            {
+                                disk: diskName,
+                                access_token: emailSelectCloud[0].access_token,
+                                cloud_email: emailSelectCloud[0].cloud_email,
+                            } as ConnectedClouds);
+                    }
+                    if (currentSelectedDisk === emailSelectCloud[0].disk)
+                        setOpen(true)
                 }}
+                subText={currentDiskSelected.map(val => val.cloud_email).join(', ')}
+                rightIconProp={<RefreshIcon onClick={() => refreshDisk(currentDiskSelected[0])} />}
             />
-            <InfoIcon onClick={() => setOpen(true)} />
-            <RefreshIcon onClick={() => refreshDisk(currentDiskSelected[0])} />
-            <Typography fontSize={'var(--ft-small-text)'}>
-                {currentDiskSelected.map(val => val.cloud_email)}
-            </Typography>
             <Modal
                 isOpen={isOpen}
                 closeModal={() => setOpen(false)}
-                children={<div>
+                children={<div style={{ width: '250px' }}>
                     <SelectorMulti
+                        defaultValue={emailSelectCloud[0] ? transformToOption(emailSelectCloud[0].cloud_email) : null}
                         isMulti={false}
                         options={cloudValues
                             .map(val => transformToOption(val.cloud_email))
                         }
+                        fontSize="var(--ft-body)"
                         onChange={(newValues): void => {
+                            console.log("CHANGE")
                             setState(cloudValues
                                 .find(val => val.cloud_email === newValues[0]));
                             selectCloud(

@@ -1,5 +1,5 @@
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
-import { diskTypes } from '@models/disk';
+import { diskTypes, isDiskType } from '@models/disk';
 import { fileTypes, transformToSearchParams, transformToShowParams } from '@models/searchParams';
 import { ConnectedClouds } from '@models/user';
 import { useEffect, useState } from 'react';
@@ -7,6 +7,7 @@ import { useParamsFromURL } from './useParamsFromURL';
 import { useAppSelector } from '@store/store';
 import { useDispatch } from 'react-redux';
 import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
+import { selectCloud } from '@store/userDisks';
 
 export interface searchStateValue {
     smartSearch: boolean;
@@ -60,8 +61,7 @@ export const useShowParams = () => {
         ? 'all' as diskTypes
         : disks.clouds
             .find(
-                val =>
-                    params.disk === val.cloud_email
+                val => params.disk === val.cloud_email
             )
 
     let settedDir: string[];
@@ -81,6 +81,8 @@ export const useShowParams = () => {
 
         if (!isDiskEuqal) {
             dispatch(changeDisk(settedDisk))
+            if (typeof settedDisk !== 'string')
+                dispatch(selectCloud(settedDisk))
         }
 
     }, [])
