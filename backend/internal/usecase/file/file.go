@@ -428,11 +428,9 @@ func (uc *Usecase) CompleteProcessingFile(ctx context.Context, uuidFile string) 
 	}
 
 	uc.notifyUsecase.Notify(notifier.Notify{
-		Event:    eventChangeStatus,
-		UserID:   file.UserID,
-		Path:     file.Path,
-		Status:   string(file.Status),
-		FileType: file.FileType,
+		Event:  eventChangeStatus,
+		File:   file,
+		UserID: file.UserID,
 	})
 	return nil
 }
@@ -489,6 +487,10 @@ func (uc *Usecase) AddSheringGrant(ctx context.Context, fileID string) error {
 		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
 		return sharederrors.ErrUserNotFoundInContext
 	}
+
+	// если по email, то проверка, есть ли уже в shared_dirs этот пользователь
+	// если не по email, то нижняя строка (добавление пользователя в shared_dirs)
+
 	return uc.repo.AddUserToSharingDir(ctx, file, user.ID, file.ShareAccess)
 }
 

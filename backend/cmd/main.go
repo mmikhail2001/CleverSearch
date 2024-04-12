@@ -54,6 +54,23 @@ import (
 // profile
 // refresh
 
+// --- emails sharing
+// нужно в БД записывать, как пошерились
+// потому что если по email, то нужно сразу добавлять пользователя в shared_dirs, а далее при запросе ссылки смотреть
+// если директория была пошерена только для определенных пользователей (sharing_by_emails=true), то нужно проверять пользователя
+// если директория была пошерена для всех (sharing_by_emails=false), то нужно сразу добавлять пользователя в shared_dirs
+
+// --- writer sharing
+// проверять директорию, в которую upload (delete)
+// если она shared_dirs для данного пользователя (значит ее нет в files у данного пользователя)
+// то проверять в shared_dirs, какие права у пользователя на нее (writer или reader)
+// apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
+// apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
+
+// ручка на запрос статики
+
+// нельзя добавлять в файлы, которые из интеграции внешней
+
 var staticDir string = "/app/frontend/build"
 var staticDirMinio string = "/app/minio_files"
 
@@ -139,8 +156,10 @@ func Run() error {
 
 	apiAuth.HandleFunc("/files", fileHandler.GetFiles).Methods("GET")
 	apiAuth.HandleFunc("/files/search", fileHandler.GetFiles).Methods("GET")
+
 	apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
 	apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
+
 	apiAuth.HandleFunc("/files/{file_uuid}", fileHandler.GetFileByID).Methods("GET")
 
 	apiAuth.HandleFunc("/clouds/connect", cloudHandler.ConnectCloud).Methods("POST")

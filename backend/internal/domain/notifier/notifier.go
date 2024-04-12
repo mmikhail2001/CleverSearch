@@ -6,11 +6,9 @@ import (
 )
 
 type Notify struct {
-	Event    string
-	UserID   string
-	Path     string
-	Status   string
-	FileType file.FileType
+	Event  string
+	File   file.File
+	UserID string
 }
 
 type Client struct {

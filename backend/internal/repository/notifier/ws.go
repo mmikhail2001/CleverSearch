@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/notifier"
+	"github.com/dranikpg/dto-mapper"
 	"github.com/gorilla/websocket"
 )
 
@@ -25,11 +26,12 @@ func (gw *Gateway) WriteLoop(client *notifier.Client) {
 			break
 		}
 
+		var fileDTO FileDTO
+		dto.Map(&fileDTO, message.File)
+
 		messageDTO := NotifyDTO{
-			Event:  message.Event,
-			UserID: message.UserID,
-			Path:   message.Path,
-			Status: message.Status,
+			Event: message.Event,
+			File:  fileDTO,
 		}
 
 		jsonMsg, err := json.Marshal(messageDTO)
