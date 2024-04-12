@@ -29,7 +29,13 @@ export interface SearchParamsLocal {
 }
 
 export const transformToSearchParams = (obj: {
-  query?: string, smartSearch?: boolean, limit?: number, offset?: number, file_type?: string, dir?: string, disk?: string
+  query?: string,
+  smartSearch?: boolean,
+  limit?: number,
+  offset?: number,
+  file_type?: string,
+  dir?: string,
+  cloud_email?: string
 }) => {
   let fileType: fileTypes[] | string[];
   if (obj.file_type) {
@@ -43,7 +49,7 @@ export const transformToSearchParams = (obj: {
     offset: obj.offset || 0,
     fileType: fileType || 'all',
     dir: obj.dir ? obj.dir.split('/').filter(val => val !== '') : [],
-    disk: obj.disk?.split(',') || ['all'],
+    disk: obj.cloud_email?.split(',') || ['all'],
     query: obj.query || '',
     smartSearch: obj.smartSearch || false,
   } as SearchParams
@@ -97,7 +103,7 @@ export const transformToShowParams = (obj: {
   offset?: number,
   file_type?: string,
   dir?: string,
-  disk?: string,
+  cloud_email?: string,
 }) => {
   let fileType: fileTypes[];
   if (obj.file_type) {
@@ -120,7 +126,7 @@ export const transformToShowParams = (obj: {
     offset: obj.offset || 0,
     fileType: fileType || 'all',
     dir: dir,
-    disk: obj.disk || 'all',
+    disk: obj.cloud_email || 'all',
   } as ShowParams
 }
 

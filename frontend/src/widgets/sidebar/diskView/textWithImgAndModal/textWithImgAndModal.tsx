@@ -48,7 +48,6 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
             value: cloudEmail,
         }
     }
-
     const currentDiskSelected: ConnectedClouds[] = selectedCloud
         .filter(val => isSelectedDisk(val, selectedCloud))
         .filter(val => val.disk === diskName)
@@ -72,7 +71,12 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
                                 cloud_email: emailSelectCloud[0].cloud_email,
                             } as ConnectedClouds);
                     }
-                    if (currentSelectedDisk === emailSelectCloud[0].disk)
+
+                    if (currentDiskSelected.length === 0) {
+                        setOpen(true)
+                    }
+
+                    if (emailSelectCloud[0] && currentSelectedDisk === emailSelectCloud[0].disk)
                         setOpen(true)
                 }}
                 subText={currentDiskSelected.map(val => val.cloud_email).join(', ')}
@@ -90,7 +94,6 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
                         }
                         fontSize="var(--ft-body)"
                         onChange={(newValues): void => {
-                            console.log("CHANGE")
                             setState(cloudValues
                                 .find(val => val.cloud_email === newValues[0]));
                             selectCloud(

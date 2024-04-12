@@ -7,7 +7,7 @@ import './sidebar.scss';
 import { ButtonWithInput } from '@feature/buttonWithInput/buttonWithInput';
 import { usePushFileMutation } from '@api/filesApi';
 import { useAppSelector } from '@store/store';
-import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
+import { changeDisk } from '@store/currentDirectoryAndDisk';
 import { useSearchMutation, useShowMutation } from '@api/searchApi';
 import RobotSVG from '@icons/Robot.svg';
 import DownloadSVG from '@icons/Download.svg';

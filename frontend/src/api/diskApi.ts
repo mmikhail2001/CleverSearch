@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { fileFile } from '@models/searchParams';
 import { DiskConnectResp, diskTypes } from '@models/disk';
 
 export const diskApi = createApi({

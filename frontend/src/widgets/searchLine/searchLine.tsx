@@ -16,7 +16,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { transformToSearchRequestString } from '@api/transforms';
 
 import SearchIcon from '@mui/icons-material/Search';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import TuneIcon from '@mui/icons-material/Tune';
 import { PopOver } from '@entities/popover/popover';
 import { useMobile } from 'src/mobileProvider';
 import DehazeIcon from '@mui/icons-material/Dehaze';
@@ -140,7 +140,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 						onClick={() => setisBoxOpen(!isBoxOpen)}
 						style={{ fontSize: 'var(--ft-title)' }}
 					>
-						<FilterAltIcon fontSize='inherit' />
+						<TuneIcon fontSize='inherit' />
 					</div>
 				</div >
 			}
