@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sort"
+	"strings"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
@@ -112,17 +114,17 @@ func (uc *Usecase) UpdateAllTokens(ctx context.Context, user *cleveruser.User) e
 	return nil
 }
 
-func (uc *Usecase) RefreshConnect(ctx context.Context, disk file.DiskType, cloudEmail string) (string, error) {
+func (uc *Usecase) RefreshConnect(ctx context.Context, disk file.DiskType, cloudEmail string) error {
 	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
 	if !ok {
 		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
-		return "", sharederrors.ErrUserNotFoundInContext
+		return sharederrors.ErrUserNotFoundInContext
 	}
 
 	err := uc.UpdateAllTokens(ctx, &user)
 	if err != nil {
 		log.Println("UpdateAllTokens, err:", err)
-		return "", err
+		return err
 	}
 
 	var token *oauth2.Token = nil
@@ -135,21 +137,124 @@ func (uc *Usecase) RefreshConnect(ctx context.Context, disk file.DiskType, cloud
 
 	if token == nil {
 		log.Println("requested disk and cloudEmail not found: token nil")
-		return "", fmt.Errorf("requested disk and cloudEmail not found: token nil")
+		return fmt.Errorf("requested disk and cloudEmail not found: token nil")
 	}
 
 	client := uc.oauthConfig.Client(context.Background(), token)
 	srv, err := drive.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
 		log.Println("Unable to create Drive service", err)
-		return "", err
+		return err
 	}
 
-	about, err := srv.About.Get().Fields("user(emailAddress)").Do()
+	rootFolderID := "root"
+
+	files, err := srv.Files.List().Q("'" + rootFolderID + "' in parents").Fields("files(id, name, mimeType, createdTime, size)").Do()
 	if err != nil {
-		log.Println("Unable to retrieve user info", err)
-		return "", err
+		log.Fatalf("Unable to retrieve files: %v", err)
 	}
 
-	return about.User.EmailAddress, nil
+	var fileList []fileDomain.File
+
+	uc.fillFilesRecursively(ctx, srv, files.Files, "", user, cloudEmail, &fileList)
+
+	printPaths(fileList, "fileList 1")
+
+	currentFiles, err := uc.fileUsecase.GetFiles(ctx, fileDomain.FileOptions{
+		UserID:                user.ID,
+		CloudEmail:            cloudEmail,
+		Disk:                  string(disk),
+		FirstNesting:          false,
+		DirsRequired:          true,
+		FilesRequired:         true,
+		SharedRequired:        true,
+		PersonalRequired:      true,
+		ExternalDisklRequired: true,
+		InternalDisklRequired: false,
+	})
+	if err != nil {
+		log.Println("Failed to retrieve current files from repository:", err)
+		return err
+	}
+
+	printPaths(currentFiles, "currentFiles 1")
+
+	currentFileMap := make(map[string]fileDomain.File)
+	for _, f := range currentFiles {
+		currentFileMap[f.CloudID] = f
+	}
+
+	cloudFileMap := make(map[string]fileDomain.File)
+	for _, f := range fileList {
+		cloudFileMap[f.CloudID] = f
+	}
+
+	var filesToDelete []string
+	var filesToAdd []fileDomain.File
+	for id, f := range currentFileMap {
+		if _, exists := cloudFileMap[id]; !exists {
+			filesToDelete = append(filesToDelete, f.Path)
+		}
+	}
+	for id, f := range cloudFileMap {
+		if _, exists := currentFileMap[id]; !exists {
+			filesToAdd = append(filesToAdd, f)
+		}
+	}
+
+	if err := uc.fileUsecase.DeleteFiles(ctx, filesToDelete); err != nil {
+		log.Println("Failed to delete files:", err)
+		return err
+	}
+
+	sort.Slice(filesToAdd, func(i, j int) bool {
+		countI := strings.Count(filesToAdd[i].Path, "/")
+		countJ := strings.Count(filesToAdd[j].Path, "/")
+		if countI == countJ {
+			return filesToAdd[i].IsDir && !filesToAdd[j].IsDir
+		}
+		return countI < countJ
+	})
+
+	for _, f := range filesToAdd {
+		if f.IsDir {
+			log.Println("create dir:", f.Path)
+			_, err := uc.fileUsecase.CreateDir(ctx, f)
+			if err != nil {
+				log.Println("Failed to create directory:", err)
+				return err
+			}
+		} else {
+			fileReader, err := srv.Files.Get(f.CloudID).Download()
+			if err != nil {
+				log.Printf("Unable to download file %s: %v", f.Path, err)
+				continue
+			}
+			_, err = uc.fileUsecase.Upload(ctx, fileReader.Body, f)
+			if err != nil {
+				log.Println("Failed to upload file:", err)
+				continue
+			}
+		}
+	}
+
+	return nil
+
+	// TODO: нужно обновить файлы (сделать refresh с облачным хранилищем)
+	// нужно удалить те, которые были удалены в облаке
+	// создать и скачать те, которые были добавлены в облаке
+	// то же самое с папками
+	// можно создать множества cloudID существующих файлов и множество cloudID файлов на внешнем диске
+	// найти разницу для удаления и создания
+	// вот функции uc.fileRepo
 }
+
+// about, err := srv.About.Get().Fields("user(emailAddress)").Do()
+// if err != nil {
+// 	log.Println("Unable to retrieve user info", err)
+// 	return "", err
+// }
+
+// return about.User.EmailAddress, nil
+// }
+//

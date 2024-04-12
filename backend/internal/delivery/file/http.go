@@ -167,10 +167,6 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 		Status:                file.StatusType(queryValues.Get("status")),
 	}
 
-	log.Println("1 options.ExternalDisklRequired = ", options.ExternalDisklRequired)
-	log.Println("1 options.InternalDisklRequired = ", options.InternalDisklRequired)
-	log.Println("1 options.CloudEmail = ", options.CloudEmail)
-
 	var err error
 	options.Limit, err = setLimitOffset(queryValues.Get("limit"), defaultLimit)
 	if err != nil {

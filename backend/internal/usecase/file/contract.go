@@ -25,6 +25,7 @@ type Repository interface {
 	RemoveFromStorage(ctx context.Context, file file.File) error
 	DownloadFile(ctx context.Context, filePath string) (io.ReadCloser, error)
 	AddUserToSharingDir(ctx context.Context, file file.File, userID string, accessType file.AccessType) error
+	IsBucketEmpty(ctx context.Context, bucketName string) (bool, error)
 }
 
 type UserUsecase interface {

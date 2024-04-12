@@ -105,11 +105,10 @@ func (h *Handler) RefreshCloud(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	email, err := h.usecase.RefreshConnect(r.Context(), disk, cloudEmail)
+	err := h.usecase.RefreshConnect(r.Context(), disk, cloudEmail)
 	if err != nil {
 		log.Println("RefreshConnect error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	log.Println("email:", email)
 	w.WriteHeader(http.StatusOK)
 }

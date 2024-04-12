@@ -139,7 +139,11 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 			log.Println("external requered, but cloud email is empty")
 			return []fileDomain.File{}, err
 		}
-		files = append(files, filesExternal...)
+		if options.FirstNesting {
+			files = append(files, filterFilesByNesting(filesExternal, options.Dir)...)
+		} else {
+			files = append(files, filesExternal...)
+		}
 	}
 
 	if options.InternalDisklRequired {
@@ -200,7 +204,6 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 		if options.FirstNesting {
 			return filterFilesByNesting(files, options.Dir), nil
 		}
-		printPaths(files, "files")
 		return files, nil
 	}
 
@@ -415,6 +418,13 @@ func (uc *Usecase) CompleteProcessingFile(ctx context.Context, uuidFile string) 
 	if err != nil {
 		log.Println("Update repo error:", err)
 		return err
+	}
+
+	if string(file.Disk) != "" {
+		err = uc.repo.RemoveFromStorage(ctx, file)
+		if err != nil {
+			return err
+		}
 	}
 
 	uc.notifyUsecase.Notify(notifier.Notify{

@@ -95,12 +95,9 @@ const (
 )
 
 type FileOptions struct {
-	FileType FileType
-	// TODO: заменить на path
-	Dir    string
-	UserID string
-	// для поиска в коллекции shared_dirs
-	// Shared bool
+	FileType              FileType
+	Dir                   string
+	UserID                string
 	CloudEmail            string
 	Disk                  string
 	Limit                 int

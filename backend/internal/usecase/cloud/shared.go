@@ -13,6 +13,14 @@ import (
 	"google.golang.org/api/drive/v3"
 )
 
+func printPaths(files []fileDomain.File, message string) {
+	fmt.Println(message)
+	for _, file := range files {
+		fmt.Printf("%v\n", file.Path)
+	}
+	fmt.Printf("\n\n")
+}
+
 func (uc *Usecase) downloadAndUploadFiles(ctx context.Context, srv *drive.Service, files []fileDomain.File) {
 	for _, file := range files {
 		if file.IsDir {

@@ -60,7 +60,34 @@ func (r *Repository) RemoveFromStorage(ctx context.Context, file file.File) erro
 		log.Println("Failed to RemoveObject from MinIO:", err)
 		return err
 	}
+	isEmpty, err := r.IsBucketEmpty(ctx, file.Bucket)
+	if err != nil {
+		log.Println("Failed to check if bucket is empty:", err)
+		return err
+	}
+
+	if isEmpty {
+		err := r.minio.RemoveBucket(ctx, file.Bucket)
+		if err != nil {
+			log.Println("Failed to remove empty bucket from MinIO:", err)
+			return err
+		}
+	}
+
 	return nil
+}
+
+func (r *Repository) IsBucketEmpty(ctx context.Context, bucketName string) (bool, error) {
+	objects := r.minio.ListObjects(ctx, bucketName, minio.ListObjectsOptions{Recursive: false})
+
+	for object := range objects {
+		if object.Err != nil {
+			log.Println("Failed to list object:", object.Err)
+			return false, object.Err
+		}
+		return false, nil
+	}
+	return true, nil
 }
 
 func (r *Repository) DownloadFile(ctx context.Context, filePath string) (io.ReadCloser, error) {
