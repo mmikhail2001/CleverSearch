@@ -40,10 +40,10 @@ export const AllSearchLines: FC<AllSearchLinesProps> = ({
 				changeState={changeState}
 				state={state}
 			/>
-			{/* <SearchDiskLine
+			<SearchDiskLine
 				fontSize={fontSize}
 				changeState={changeState}
-				state={state} /> */}
+				state={state} />
 			<SearchFileType
 				fontSize={fontSize}
 				changeState={changeState}

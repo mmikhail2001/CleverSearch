@@ -14,16 +14,6 @@ const searchSlice = createSlice({
 	} as SearchParams,
 	reducers: {
 		newSearchValues(state, action: PayloadAction<SearchParams>) {
-			if (compareArrays(state.dir, action.payload.dir)
-				&& state.disk 
-				&& action.payload.disk 
-				&& isDiskEqual(state.disk[0], action.payload.disk[0])
-				&& compareArrays(state.fileType, action.payload.fileType)
-				&& state.smartSearch === action.payload.smartSearch
-				&& state.query === action.payload.query
-			)
-				return state
-
 			return {
 				...state,
 				...action.payload
