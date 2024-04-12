@@ -36,7 +36,7 @@ jobs:
           retention-days: 14
 
   build_and_test_dev:
-    if: github.ref == 'refs/heads/*FRONT-CLEVER*'
+    if: contains(github.ref, 'FRONT-CLEVER')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
