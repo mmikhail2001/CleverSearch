@@ -14,7 +14,7 @@ import { OutlinedInput } from '@mui/material';
 interface SelectorMultiProps {
 	options: Option[];
 	isMulti?: boolean;
-	defaultValue?: Option;
+	defaultValue?: Option[];
 	onChange: (
 		values: string[]
 	) => void;
@@ -82,10 +82,10 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 	useEffect(() => {
 		if (defaultValue && (
 			!selectedValues
-			|| !selectedValues.find((val) => defaultValue.value === val)
+			|| defaultValue.filter((val) => selectedValues.find(defVal => defVal === val.value)).length !== defaultValue.length
 		)
 		) {
-			setSelectedValues([defaultValue.value])
+			setSelectedValues(defaultValue.filter(val => val).map(val => val.value))
 		}
 	}, [defaultValue])
 

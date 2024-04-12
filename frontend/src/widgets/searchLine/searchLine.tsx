@@ -24,6 +24,7 @@ import { diskTypes } from '@models/disk';
 import { ConnectedClouds } from '@models/user';
 
 import { useAppSelector } from '@store/store';
+import { compareArrays } from '@helpers/hooks/useShowParams';
 
 export interface searchStateValue {
 	smartSearch: boolean;
@@ -49,6 +50,8 @@ export const SearchLine: FC<SearchLineProps> = ({
 	const { whatDisplay } = useMobile();
 	const { dirs } = useAppSelector(state => state.currentDirDisk)
 
+	const {isShow} = useAppSelector(state => state.whatToShow)
+
 	const searchParams = useAppSelector(state => state.searchRequest)
 	const [searchValue, setSearchValue] = useState<SearchParams>({
 		query: '',
@@ -65,9 +68,13 @@ export const SearchLine: FC<SearchLineProps> = ({
 		})
 	}, [searchParams])
 
-	useEffect(() => {
+	if (isShow && !compareArrays(dirs, searchValue.dir)){
 		setSearchValue({ ...searchValue, dir: dirs })
-	}, [dirs, dirs.length])
+	}
+
+	useEffect(() => {
+		setSearchValue({...searchValue, dir: searchParams.dir})
+	}, [])
 
 	function mySearch(): void {
 		dispatch(switchToSearch());
@@ -77,7 +84,6 @@ export const SearchLine: FC<SearchLineProps> = ({
 		const url = transformToSearchRequestString({ ...searchValue, limit: 10, offset: 0 })
 		navigate(url)
 	}
-
 	const renderOpenBox = (): React.ReactNode => {
 		return (
 			<SearchBox

@@ -32,7 +32,7 @@ export const SearchFileType: FC<SearchFileTypeLineProps> = ({
 				onChange={(newVal) =>
 					changeState({ ...state, fileType: fileValues(newVal) })
 				}
-				defaultValue={state.fileType ? getFilesOptionFromValue(state.fileType[0]) : null}
+				defaultValue={state.fileType ? state.fileType.map(val => getFilesOptionFromValue(val)) : null}
 			/>
 		</div>
 	);

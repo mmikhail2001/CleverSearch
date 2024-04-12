@@ -87,7 +87,7 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
                 closeModal={() => setOpen(false)}
                 children={<div style={{ width: '250px' }}>
                     <SelectorMulti
-                        defaultValue={emailSelectCloud[0] ? transformToOption(emailSelectCloud[0].cloud_email) : null}
+                        defaultValue={emailSelectCloud[0] ? [transformToOption(emailSelectCloud[0].cloud_email)] : null}
                         isMulti={false}
                         options={cloudValues
                             .map(val => transformToOption(val.cloud_email))

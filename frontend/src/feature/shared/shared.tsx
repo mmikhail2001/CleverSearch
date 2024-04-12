@@ -96,7 +96,7 @@ export const Shared: FC<SharedProps> = ({
                     { label: 'Редактор', value: 'writer' },
                     { label: 'Читатель', value: 'reader' }
                 ]}
-                defaultValue={{ label: 'Редактор', value: 'writer' }}
+                defaultValue={[{ label: 'Редактор', value: 'writer' }]}
                 onChange={(newValue: string[]) => {
                     switch (getValFromOption(newValue)) {
                         case 'writer':
