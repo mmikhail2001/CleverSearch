@@ -62,7 +62,7 @@ func (uc *Usecase) fillFilesRecursively(ctx context.Context, srv *drive.Service,
 			Path:        currentPath + "/" + file.Name,
 			Bucket:      strings.Split(cloudUserEmail, "@")[0] + "---" + user.Bucket,
 			IsDir:       file.MimeType == "application/vnd.google-apps.folder",
-			Size:        file.Size,
+			Size:        fileDomain.SizeType(file.Size),
 		}
 
 		if !fileInfo.IsDir {

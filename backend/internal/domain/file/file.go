@@ -45,6 +45,8 @@ const (
 	Processed StatusType = "processed"
 )
 
+type SizeType int64
+
 type File struct {
 	ID          string
 	Filename    string
@@ -54,7 +56,7 @@ type File struct {
 	Bucket      string
 	IsDir       bool
 	FileType    FileType
-	Size        int64
+	Size        SizeType
 	ContentType string
 	Extension   string
 	Status      StatusType
@@ -99,17 +101,20 @@ type FileOptions struct {
 	UserID string
 	// для поиска в коллекции shared_dirs
 	// Shared bool
-	CloudEmail       string
-	Limit            int
-	Offset           int
-	Query            string
-	Status           StatusType
-	IsSmartSearch    bool
-	FirstNesting     bool
-	DirsRequired     bool
-	FilesRequired    bool
-	SharedRequired   bool
-	PersonalRequired bool
+	CloudEmail            string
+	Disk                  string
+	Limit                 int
+	Offset                int
+	Query                 string
+	Status                StatusType
+	IsSmartSearch         bool
+	FirstNesting          bool
+	DirsRequired          bool
+	FilesRequired         bool
+	SharedRequired        bool
+	PersonalRequired      bool
+	ExternalDisklRequired bool
+	InternalDisklRequired bool
 }
 
 type RequestToShare struct {

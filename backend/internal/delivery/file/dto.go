@@ -16,7 +16,7 @@ type FileDTO struct {
 	Bucket      string          `json:"bucket"`
 	IsDir       bool            `json:"is_dir"`
 	FileType    file.FileType   `json:"file_type"`
-	Size        int64           `json:"size"`
+	Size        string          `json:"size"`
 	ContentType string          `json:"content_type"`
 	Extension   string          `json:"extension"`
 	Status      file.StatusType `json:"status"`

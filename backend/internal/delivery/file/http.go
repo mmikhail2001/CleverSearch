@@ -69,7 +69,7 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	fileUpload, err := h.usecase.Upload(r.Context(), f, file.File{
 		Filename:    handler.Filename,
-		Size:        handler.Size,
+		Size:        file.SizeType(handler.Size),
 		Path:        dir + handler.Filename,
 		ContentType: contentType,
 		FileType:    fileType,
@@ -93,6 +93,7 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	var fileDTO FileDTO
 	dto.Map(&fileDTO, &fileUpload)
+	fileDTO.Size = fileUpload.Size.ToDTO()
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(shared.NewResponse(0, "", fileDTO))
 }
@@ -138,11 +139,12 @@ func (h *Handler) GetFileByID(w http.ResponseWriter, r *http.Request) {
 	}
 	var fileDTO FileDTO
 	dto.Map(&fileDTO, &foundFile)
-	fileDTO, err = setUserEmailToFile(r.Context(), fileDTO)
-	if err != nil {
-		json.NewEncoder(w).Encode(shared.NewResponse(-1, err.Error(), nil))
-		w.WriteHeader(http.StatusBadGateway)
-	}
+	fileDTO.Size = foundFile.Size.ToDTO()
+	// fileDTO, err = setUserEmailToFile(r.Context(), fileDTO)
+	// if err != nil {
+	// 	json.NewEncoder(w).Encode(shared.NewResponse(-1, err.Error(), nil))
+	// 	w.WriteHeader(http.StatusBadGateway)
+	// }
 	json.NewEncoder(w).Encode(shared.NewResponse(0, "", fileDTO))
 }
 
@@ -150,18 +152,24 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	queryValues := r.URL.Query()
 
 	options := file.FileOptions{
-		FileType:         file.FileType(queryValues.Get("file_type")),
-		Dir:              queryValues.Get("dir"),
-		FirstNesting:     queryValues.Get("first_nesting") == "true",
-		DirsRequired:     queryValues.Get("dirs_required") == "true" || queryValues.Get("dirs_required") == "",
-		FilesRequired:    queryValues.Get("files_required") == "true" || queryValues.Get("files_required") == "",
-		SharedRequired:   queryValues.Get("shared_required") == "true" || queryValues.Get("shared_required") == "",
-		PersonalRequired: queryValues.Get("personal_required") == "true" || queryValues.Get("personal_required") == "",
-		IsSmartSearch:    queryValues.Get("is_smart_search") == "true",
-		CloudEmail:       queryValues.Get("cloud_email"),
-		Query:            queryValues.Get("query"),
-		Status:           file.StatusType(queryValues.Get("status")),
+		FileType:              file.FileType(queryValues.Get("file_type")),
+		Dir:                   queryValues.Get("dir"),
+		FirstNesting:          queryValues.Get("first_nesting") == "true",
+		DirsRequired:          queryValues.Get("dirs_required") == "true" || queryValues.Get("dirs_required") == "",
+		FilesRequired:         queryValues.Get("files_required") == "true" || queryValues.Get("files_required") == "",
+		SharedRequired:        queryValues.Get("shared_required") == "true" || queryValues.Get("shared_required") == "",
+		PersonalRequired:      queryValues.Get("personal_required") == "true" || queryValues.Get("personal_required") == "",
+		IsSmartSearch:         queryValues.Get("is_smart_search") == "true",
+		CloudEmail:            queryValues.Get("cloud_email"),
+		InternalDisklRequired: queryValues.Get("internal_disk_required") == "true" || queryValues.Get("internal_disk_required") == "",
+		ExternalDisklRequired: queryValues.Get("external_disk_required") == "true" || queryValues.Get("external_disk_required") == "",
+		Query:                 queryValues.Get("query"),
+		Status:                file.StatusType(queryValues.Get("status")),
 	}
+
+	log.Println("1 options.ExternalDisklRequired = ", options.ExternalDisklRequired)
+	log.Println("1 options.InternalDisklRequired = ", options.InternalDisklRequired)
+	log.Println("1 options.CloudEmail = ", options.CloudEmail)
 
 	var err error
 	options.Limit, err = setLimitOffset(queryValues.Get("limit"), defaultLimit)
@@ -213,6 +221,7 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 		for _, file := range results {
 			var fileDTO FileForMLDTO
 			err = dto.Map(&fileDTO, &file)
+			fileDTO.Size = file.Size.ToDTO()
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 			}
@@ -227,16 +236,11 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	for _, file := range results {
 		var fileDTO FileDTO
 		err = dto.Map(&fileDTO, &file)
+		fileDTO.Size = file.Size.ToDTO()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		// fileDTO, err = setUserEmailToFile(r.Context(), fileDTO)
-		// if err != nil {
-		// 	w.WriteHeader(http.StatusBadRequest)
-		// 	json.NewEncoder(w).Encode(shared.NewResponse(-1, err.Error(), nil))
-
-		// }
 		filesDTO = append(filesDTO, fileDTO)
 	}
 

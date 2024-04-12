@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"regexp"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	"github.com/dranikpg/dto-mapper"
@@ -77,25 +76,13 @@ func (r *Repository) CreateDir(ctx context.Context, file file.File) error {
 
 func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) ([]file.File, error) {
 	// TODO: Поиск не в рамках директории
-	filter := bson.M{}
+	filter, err := getFilter(fileOptions)
+	if err != nil {
+		return []file.File{}, err
+	}
+
 	if fileOptions.Query != "" {
 		filter["filename"] = bson.M{"$regex": primitive.Regex{Pattern: fileOptions.Query, Options: "i"}}
-	}
-
-	if fileOptions.FilesRequired && !fileOptions.DirsRequired {
-		filter["is_dir"] = false
-	} else if !fileOptions.FilesRequired && fileOptions.DirsRequired {
-		filter["is_dir"] = true
-	} else if !fileOptions.FilesRequired && !fileOptions.DirsRequired {
-		return []file.File{}, file.ErrNotFound
-	}
-
-	if fileOptions.UserID != "" {
-		filter["user_id"] = fileOptions.UserID
-	}
-
-	if fileOptions.FileType != "" && fileOptions.FileType != file.AllTypes {
-		filter["file_type"] = string(fileOptions.FileType)
 	}
 
 	opts := options.Find().SetSort(bson.D{{Key: "filename", Value: 1}})
@@ -138,34 +125,9 @@ func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) (
 }
 
 func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions) ([]file.File, error) {
-	filter := bson.M{}
-
-	if fileOptions.FileType != "" && fileOptions.FileType != file.AllTypes {
-		filter["file_type"] = string(fileOptions.FileType)
-	}
-
-	if fileOptions.Dir != "/" {
-		filter["path"] = bson.M{"$regex": "^" + regexp.QuoteMeta(fileOptions.Dir) + "/"}
-	}
-
-	if fileOptions.Status != "" && fileOptions.Status != "all" {
-		filter["status"] = string(fileOptions.Status)
-	}
-
-	if fileOptions.FilesRequired && !fileOptions.DirsRequired {
-		filter["is_dir"] = false
-	} else if !fileOptions.FilesRequired && fileOptions.DirsRequired {
-		filter["is_dir"] = true
-	} else if !fileOptions.FilesRequired && !fileOptions.DirsRequired {
-		return []file.File{}, file.ErrNotFound
-	}
-
-	if fileOptions.UserID != "" {
-		filter["user_id"] = fileOptions.UserID
-	}
-
-	if fileOptions.CloudEmail != "" {
-		filter["cloud_email"] = fileOptions.CloudEmail
+	filter, err := getFilter(fileOptions)
+	if err != nil {
+		return []file.File{}, err
 	}
 
 	// TODO: сортировка нужна по дате добавления

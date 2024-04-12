@@ -45,7 +45,7 @@ func (r *Repository) UploadToStorage(ctx context.Context, fileReader io.Reader, 
 		log.Println("Bucket created successfully:", file.Bucket)
 	}
 
-	_, err = r.minio.PutObject(ctx, file.Bucket, file.Path, fileReader, file.Size, minio.PutObjectOptions{ContentType: file.ContentType})
+	_, err = r.minio.PutObject(ctx, file.Bucket, file.Path, fileReader, int64(file.Size), minio.PutObjectOptions{ContentType: file.ContentType})
 	if err != nil {
 		log.Println("Failed to PutObject minio:", err)
 		return file, err

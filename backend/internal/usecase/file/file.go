@@ -130,13 +130,27 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 		options.Dir = "/"
 	}
 
-	if options.CloudEmail != "" {
-		return uc.repo.GetFiles(ctx, options)
+	var files []fileDomain.File
+
+	// если запрос на внешние, то обязательно нужно указать диск
+	if options.ExternalDisklRequired && options.CloudEmail != "" {
+		filesExternal, err := uc.repo.GetFiles(ctx, options)
+		if err != nil {
+			log.Println("external requered, but cloud email is empty")
+			return []fileDomain.File{}, err
+		}
+		files = append(files, filesExternal...)
+	}
+
+	if options.InternalDisklRequired {
+		options.CloudEmail = ""
+		options.ExternalDisklRequired = false
+	} else {
+		return files, nil
 	}
 
 	// если путь корневой, то нужны (shared папки и все файлы и папки) данного пользователя
 	if options.Dir == "/" {
-		var files []fileDomain.File
 		options.UserID = user.ID
 		// ищем файлы пользователя
 		if options.PersonalRequired {
@@ -197,7 +211,6 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 		log.Println("GetSharedDir error:", err)
 		return []fileDomain.File{}, err
 	}
-	var files []fileDomain.File
 	if options.PersonalRequired && errors.Is(err, file.ErrNotFound) {
 		options.UserID = user.ID
 		files, err = uc.repo.GetFiles(ctx, options)
@@ -256,6 +269,7 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 		}
 	}
 
+	file.Filename = pathComponents[len(pathComponents)-1]
 	file.Bucket = user.Email
 	file.UserID = user.ID
 	file.TimeCreated = time.Now()
@@ -275,15 +289,32 @@ func (uc *Usecase) Search(ctx context.Context, options fileDomain.FileOptions) (
 		log.Printf("Directory path [%s] does not start with /\n", options.Dir)
 		return []fileDomain.File{}, fmt.Errorf("directory path [%s] does not start with /", options.Dir)
 	}
+
 	if options.IsSmartSearch {
 		return uc.repo.SmartSearch(ctx, options)
 	}
-	files, err := uc.GetFiles(ctx, options)
-	if err != nil && !errors.Is(err, file.ErrNotFound) {
-		return []fileDomain.File{}, nil
+
+	var files []fileDomain.File
+
+	if options.ExternalDisklRequired && options.CloudEmail != "" {
+		filesExternal, err := uc.repo.GetFiles(ctx, options)
+		if err != nil {
+			log.Println("external requered, but cloud email is empty")
+			return []fileDomain.File{}, err
+		}
+		files = append(files, filesExternal...)
 	}
 
-	printPaths(files, "before filtered")
+	if options.InternalDisklRequired {
+		options.CloudEmail = ""
+		options.ExternalDisklRequired = false
+		filesTmp, err := uc.GetFiles(ctx, options)
+		if err != nil && !errors.Is(err, file.ErrNotFound) {
+			return []fileDomain.File{}, nil
+		}
+
+		files = append(files, filesTmp...)
+	}
 
 	var filteredFiles []fileDomain.File
 
@@ -292,7 +323,6 @@ func (uc *Usecase) Search(ctx context.Context, options fileDomain.FileOptions) (
 			filteredFiles = append(filteredFiles, file)
 		}
 	}
-	printPaths(filteredFiles, "after filtered")
 
 	return filteredFiles, nil
 }
