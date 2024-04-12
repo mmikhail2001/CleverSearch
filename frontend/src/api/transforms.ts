@@ -11,7 +11,7 @@ export const transfromToShowRequestString = (showReq: ShowParams): string => {
 	} else {
 		diskToShow = 'all'
 	}
-
+	if (diskToShow === 'all') diskToShow = ''
 	return [`/files?limit=${showReq.limit}`,
 	`&offset=${showReq.offset}`,
 	`&cloud_email=${diskToShow}`,
@@ -36,6 +36,7 @@ export const transformToSearchRequestString = (searchReq: SearchParams): string 
 		diskToShow = 'all'
 	}
 
+	if (diskToShow === 'all') diskToShow = ''
 	return [`files/search?is_smart_search=${searchReq.smartSearch}`,
 	`&query=${searchReq.query}`,
 	`&cloud_email=${diskToShow}`,

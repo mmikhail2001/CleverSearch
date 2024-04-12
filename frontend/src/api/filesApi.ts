@@ -10,7 +10,8 @@ export const filesApi = createApi({
 	endpoints: (builder) => ({
 		getFolders: builder.mutation<SearchResponse, string>({
 			query: (folderSearch: string) => ({
-				url: `files?query=${folderSearch}&dir=/&disk=all&limit=20&offset=0&files_required=false&dirs_required=true`,
+				// HACK cloud email
+				url: `files?query=${folderSearch}&dir=/&cloud_email&limit=20&offset=0&files_required=false&dirs_required=true`,
 				method: 'GET',
 			}),
 		}),

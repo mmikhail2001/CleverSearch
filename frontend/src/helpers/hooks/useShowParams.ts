@@ -1,6 +1,6 @@
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 import { diskTypes, isDiskType } from '@models/disk';
-import { fileTypes, transformToSearchParams, transformToShowParams } from '@models/searchParams';
+import { fileTypes, transformToShowParams } from '@models/searchParams';
 import { ConnectedClouds } from '@models/user';
 import { useEffect, useState } from 'react';
 import { useParamsFromURL } from './useParamsFromURL';
@@ -10,7 +10,6 @@ import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
 import { selectCloud } from '@store/userDisks';
 
 export interface searchStateValue {
-    smartSearch: boolean;
     fileType: fileTypes[];
     query: string;
     dir: string[];

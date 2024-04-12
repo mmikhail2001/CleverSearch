@@ -66,6 +66,14 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 		debouncedOnInputChange(value)
 	}
 
+	useEffect(() => {
+		setLoading(true)
+		loadFunction('').then((val) => {
+			setOptions(val)
+			setLoading(false)
+		})
+	}, [])
+
 	return (
 		<Autocomplete
 			fullWidth

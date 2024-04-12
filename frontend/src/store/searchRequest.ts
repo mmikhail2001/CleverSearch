@@ -1,6 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { SearchParams, fileTypes } from '@models/searchParams';
 import { diskTypes } from '@models/disk';
+import { compareArrays, isDiskEqual } from '@helpers/hooks/useShowParams';
 
 const searchSlice = createSlice({
 	name: 'searchReq',
@@ -9,10 +10,18 @@ const searchSlice = createSlice({
 		fileType: ['all' as fileTypes],
 		query: '',
 		dir: [] as string[],
-		disk: ['own'] as diskTypes[],
+		disk: ['all'] as diskTypes[],
 	} as SearchParams,
 	reducers: {
 		newValues(state, action: PayloadAction<SearchParams>) {
+			if (compareArrays(state.dir, action.payload.dir)
+				&& isDiskEqual(state.disk[0], action.payload.disk[0])
+				&& compareArrays(state.fileType, action.payload.fileType)
+				&& state.smartSearch === action.payload.smartSearch
+				&& state.query === action.payload.query
+			)
+				return state
+
 			return {
 				...state,
 				...action.payload

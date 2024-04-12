@@ -1,6 +1,6 @@
 import { useShowMutation } from '@api/searchApi';
 import { useAppSelector } from '@store/store';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useDeleteFileMutation } from '@api/filesApi';
@@ -11,8 +11,7 @@ import { transfromToShowRequestString } from '@api/transforms';
 import { useNavigate } from 'react-router-dom';
 import { switchToShow } from '@store/whatToShow';
 import '../show.scss'
-import { compareArrays, isDiskEqual, useShowParams } from '@helpers/hooks/useShowParams'
-import { dir } from 'console';
+import { useShowParams } from '@helpers/hooks/useShowParams'
 
 interface ShowShowedFilesProps { }
 
@@ -49,7 +48,7 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                         const url = transfromToShowRequestString(
                             {
                                 fileType: showState.fileType,
-                                disk: showState.disk[0],
+                                disk: currentDisk,
                                 dir: dirs.slice(0, -1) || [],
                                 limit: 10,
                                 offset: 0,

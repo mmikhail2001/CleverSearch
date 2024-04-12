@@ -35,11 +35,11 @@ export const AllSearchLines: FC<AllSearchLinesProps> = ({
 					labelPlacement='start'
 				/>
 			</div>
-			{/* <SearchFolderLine
+			<SearchFolderLine
 				fontSize={fontSize}
 				changeState={changeState}
 				state={state}
-			></SearchFolderLine> */}
+			/>
 			{/* <SearchDiskLine
 				fontSize={fontSize}
 				changeState={changeState}

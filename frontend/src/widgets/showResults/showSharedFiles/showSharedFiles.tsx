@@ -9,10 +9,9 @@ import { transformToShowParams } from '@models/searchParams';
 import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
 import { switchToShared } from '@store/whatToShow';
 import { RenderFields } from '@widgets/renderFields/renderFields';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import '../show.scss';
 import { useParamsFromURL } from '@helpers/hooks/useParamsFromURL';
-import { Typography } from '@mui/material';
 
 interface ShowSharedFilesProps { }
 

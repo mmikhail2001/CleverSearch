@@ -9,11 +9,9 @@ import { RenderFields } from '@widgets/renderFields/renderFields';
 import { useNavigate } from 'react-router-dom';
 import { switchToSearch, switchToShow } from '@store/whatToShow';
 import { transfromToShowRequestString } from '@api/transforms';
-import { transformToSearchParams } from '@models/searchParams'
 import '../show.scss'
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
-import { Typography } from '@mui/material';
-import { useParamsFromURL } from '@helpers/hooks/useParamsFromURL';
+import { useSearchParams } from '@helpers/hooks/useSearchParams';
 
 interface ShowSearchedFilesProps { }
 
@@ -24,13 +22,19 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     const dispatch = useDispatch();
 
     const navigate = useNavigate()
-    const urlParams = useParamsFromURL()
+    useSearchParams()
+
+    const searchParams = useAppSelector(state => state.searchRequest)
+    const { isSearch } = useAppSelector(state => state.whatToShow)
 
     useEffect(() => {
+        if (searchParams.limit)
+            search(searchParams)
+    }, [searchParams])
+
+    if (!isSearch) {
         dispatch(switchToSearch())
-        const params = transformToSearchParams(urlParams)
-        search(params)
-    }, [])
+    }
 
     const paramsSearch = useAppSelector((state) => state.searchRequest);
 

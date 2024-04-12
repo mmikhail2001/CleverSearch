@@ -1,6 +1,6 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useSearchMutation } from '@api/searchApi';
-import { SearchParams, fileTypes, transformToSearchParams } from '@models/searchParams';
+import { SearchParams, fileTypes } from '@models/searchParams';
 import { Input } from '@entities/input/input';
 import './searchLine.scss';
 
@@ -23,7 +23,6 @@ import DehazeIcon from '@mui/icons-material/Dehaze';
 import { diskTypes } from '@models/disk';
 import { ConnectedClouds } from '@models/user';
 
-import { useSearchParams } from '@helpers/hooks/useSearchParams'
 import { useAppSelector } from '@store/store';
 
 export interface searchStateValue {
@@ -48,24 +47,31 @@ export const SearchLine: FC<SearchLineProps> = ({
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const { whatDisplay } = useMobile();
+	const { dirs } = useAppSelector(state => state.currentDirDisk)
 
+	const searchParams = useAppSelector(state => state.searchRequest)
 	const [searchValue, setSearchValue] = useState<SearchParams>({
 		query: '',
 		smartSearch: false,
 	})
-	const searchParams = useAppSelector(state => state.searchRequest)
-
-	function mySearch(): void {
+	
+	useEffect(() => {
 		setSearchValue({
-			smartSearch: searchParams.smartSearch,
-			fileType: searchParams.fileType,
 			query: searchParams.query,
+			smartSearch: searchParams.smartSearch,
 			dir: searchParams.dir,
 			disk: searchParams.disk,
+			fileType: searchParams.fileType,
 		})
-		// search(searchValue);
-		dispatch(newValues(searchValue));
+	}, [searchParams])
+
+	useEffect(() => {
+		setSearchValue({ ...searchValue, dir: dirs })
+	}, [dirs, dirs.length])
+
+	function mySearch(): void {
 		dispatch(switchToSearch());
+		dispatch(newValues(searchValue));
 		dispatch(changeDir({ dirs: [] }));
 
 		const url = transformToSearchRequestString({ ...searchValue, limit: 10, offset: 0 })

@@ -222,6 +222,7 @@ export const transformOptionsToDirs = (
 	if ('length' in newVal) {
 		return newVal.map((val) => val);
 	}
+	if (newVal === '/') return []
 	if (newVal) return [newVal];
 	return [];
 };

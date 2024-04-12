@@ -2,10 +2,11 @@ import { isNullOrUndefined } from "@helpers/isNullOrUndefined";
 import { diskTypes } from "@models/disk";
 import { fileTypes, transformToSearchParams } from "@models/searchParams";
 import { ConnectedClouds } from "@models/user";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParamsFromURL } from "./useParamsFromURL";
-import { useLocation } from "react-router-dom";
 import { useAppSelector } from "@store/store";
+import { useDispatch } from "react-redux";
+import { newValues } from "@store/searchRequest";
 
 export interface searchStateValue {
     smartSearch: boolean;
@@ -16,35 +17,60 @@ export interface searchStateValue {
 }
 
 export const useSearchParams = () => {
-    const [searchState, setSearchState] = useState({} as {
+    const searchState = {} as {
         smartSearch: boolean;
         fileType: fileTypes[];
         query: string;
         dir: string[];
         disk: diskTypes[] | ConnectedClouds[];
-    })
-    const location = useLocation()
-    const urlParams = useParamsFromURL()
-    const params = transformToSearchParams(urlParams)
+    }
+
     const disks = useAppSelector(state => state.disks)
 
-    useEffect(() => {
-        const settedDisk = isNullOrUndefined(params.disk)
-            && params.disk === ['all'] as diskTypes[]
-            ? ['all'] as diskTypes[]
-            : [disks.clouds
-                .find(
-                    val =>
-                        params.disk
-                            .find(paramVal => paramVal === val.cloud_email))];
-        setSearchState({
-            smartSearch: params.smartSearch || false,
-            fileType: params.fileType || ['all'],
-            query: params.query || '',
-            dir: params.dir || ['/'],
-            disk: settedDisk,
-        })
-    }, [location])
+    const urlParams = useParamsFromURL()
+    const params = transformToSearchParams(urlParams)
 
-    return { searchState, setSearchState }
+    const dispatch = useDispatch()
+
+    let settedDisk = isNullOrUndefined(params.disk)
+        || params.disk[0] === 'all' as diskTypes
+        ? 'all' as diskTypes
+        : disks.clouds
+            .find(
+                val => params.disk[0] === val.cloud_email
+            )
+
+    if (typeof settedDisk !== 'string' && !settedDisk) {
+        settedDisk = 'all' as diskTypes
+    }
+
+    let settedDir: string[];
+    if (params.dir.length === 0) {
+        settedDir = []
+    } else {
+        settedDir = params.dir
+    }
+
+    searchState.disk = typeof settedDisk === 'string'
+        ? [settedDisk]
+        : [settedDisk]
+
+    searchState.dir = settedDir
+    searchState.fileType = params.fileType
+    searchState.query = params.query
+    searchState.smartSearch = params.smartSearch
+
+    useEffect(() => {
+        dispatch(newValues({
+            query: searchState.query,
+            smartSearch: searchState.smartSearch,
+            dir: searchState.dir,
+            disk: searchState.disk,
+            fileType: params.fileType,
+            limit: params.limit,
+            offset: params.offset,
+        }))
+    }, [])
+
+    return { searchState }
 }
