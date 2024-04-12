@@ -1,8 +1,7 @@
 import { Sidebar } from '@widgets/sidebar/sidebar';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 
 import { useDispatch } from 'react-redux';
-import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
 import { switchToShow } from '@store/whatToShow';
 
 import { Navbar } from '@widgets/navbar/navbar';
@@ -10,6 +9,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import './mainPage.scss';
 import { useMobile } from 'src/mobileProvider';
 import { Button } from '@entities/button/button';
+import { changeDir, changeDisk } from '@store/showRequest';
 
 const drawerWidth = '240px'
 
@@ -21,7 +21,6 @@ export const MainPage: FC = () => {
 
 	const isMobile = whatDisplay === 2
 	const widthToSet = isMobile ? '0px' : drawerWidth
-
 
 	return <div className="App">
 		<Sidebar
@@ -52,7 +51,7 @@ export const MainPage: FC = () => {
 					clickHandler={() => {
 						dispatch(switchToShow())
 						dispatch(changeDisk('all'))
-						dispatch(changeDir({ dirs: [] }))
+						dispatch(changeDir( [] ))
 						navigate('/files')
 					}}
 					variant='outlined'

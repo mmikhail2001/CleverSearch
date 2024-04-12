@@ -7,7 +7,6 @@ import './sidebar.scss';
 import { ButtonWithInput } from '@feature/buttonWithInput/buttonWithInput';
 import { usePushFileMutation } from '@api/filesApi';
 import { useAppSelector } from '@store/store';
-import { changeDisk } from '@store/currentDirectoryAndDisk';
 import { useSearchMutation, useShowMutation } from '@api/searchApi';
 import RobotSVG from '@icons/Robot.svg';
 import DownloadSVG from '@icons/Download.svg';
@@ -25,6 +24,7 @@ import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import { DiskView } from './diskView/diskView'
 import { ConnectedClouds } from '@models/user';
 import { transfromToShowRequestString } from '@api/transforms';
+import { changeDir, newValues } from '@store/showRequest';
 
 interface SidebarProps {
 	width: string;
@@ -40,13 +40,14 @@ export const Sidebar: FC<SidebarProps> = ({
 	isOpen,
 }) => {
 	const { isSearch, isShow, isProccessed, isShared } = useAppSelector((state) => state.whatToShow);
-	const { dirs, currentDisk } = useAppSelector((state) => state.currentDirDisk);
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate()
 
 	const [search] = useSearchMutation({ fixedCacheKey: 'search' });
 	const [show] = useShowMutation({ fixedCacheKey: 'show' });
+	const showParam = useAppSelector(state => state.showRequest)
+	const showReq = useAppSelector(state => state.showRequest)
 
 	const param = useAppSelector((state) => state.searchRequest);
 
@@ -55,10 +56,10 @@ export const Sidebar: FC<SidebarProps> = ({
 	const logout = useLogout()
 
 	let nameOfDisk: diskTypes;
-	if (typeof currentDisk === 'string') {
-		nameOfDisk = currentDisk
+	if (typeof showReq.disk === 'string') {
+		nameOfDisk = showReq.disk
 	} else {
-		nameOfDisk = currentDisk.disk
+		nameOfDisk = showReq.disk.disk
 	}
 
 	const renderSidebar = (): React.ReactNode => {
@@ -85,14 +86,15 @@ export const Sidebar: FC<SidebarProps> = ({
 								if (isSearch) {
 									search(param);
 								} else if (isShow) {
-									show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
+									show({...showParam, disk: showReq.disk, dir: showReq.dir });
+									dispatch(newValues({...showParam, disk: showReq.disk, dir: showReq.dir}))
 								}
 							}, 300);
 							Array.from(files).forEach((file) => {
 								const formData = new FormData();
 
 								formData.append('file', file, file.name);
-								formData.append('dir', ['', ...dirs].join('/'));
+								formData.append('dir', ['', ...showReq.dir].join('/'));
 								send(formData);
 								debouncFunc();
 							});
@@ -101,12 +103,13 @@ export const Sidebar: FC<SidebarProps> = ({
 						variant={'contained'}
 					></ButtonWithInput>
 					<FolderCreation
-						dirs={dirs}
+						dirs={showReq.dir}
 						onFolderCreation={() => {
 							if (isSearch) {
 								search(param);
 							} else {
-								show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
+								show({...showParam, disk: showReq.disk, dir: showReq.dir });
+								dispatch(newValues({...showParam, disk: showReq.disk, dir: showReq.dir}))
 							}
 						}}
 					/>
@@ -114,15 +117,27 @@ export const Sidebar: FC<SidebarProps> = ({
 						needSelect={isShow}
 						setSelectedState={(disk: diskTypes | ConnectedClouds
 						) => {
+							let internal = false;
+							let external = false;
+							if (typeof disk === 'string') {
+								internal = true
+								external = false
+							} else {
+								internal = false
+								external = true
+							}
+
 							if (!isShow) dispatch(switchToShow())
-							const url = transfromToShowRequestString({
-								dir: dirs,
+								const url = transfromToShowRequestString({
+								dir: [],
 								disk: disk,
 								limit: 10,
 								offset: 0,
+								externalDiskRequired: external,
+								internalDiskRequired: internal,
 							})
 							navigate(url)
-							dispatch(changeDisk(disk))
+							dispatch(newValues({...showReq,dir:[], disk: disk}))
 						}}
 						nameOfSelectedDisk={nameOfDisk}
 					/>
@@ -134,7 +149,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							altImgText="Робот"
 							onClick={() => {
 								dispatch(switchToProcessed());
-								dispatch(changeDisk('all'))
+								dispatch(newValues({...showReq, disk: 'all'}))
 								navigate('/processed')
 							}}
 						/>
@@ -145,7 +160,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							altImgText="Картинка с двумя людьми"
 							onClick={() => {
 								dispatch(switchToShared())
-								dispatch(changeDisk('all'))
+								dispatch(newValues({...showReq, disk: 'all'}))
 								navigate('/shared')
 							}}
 						/>

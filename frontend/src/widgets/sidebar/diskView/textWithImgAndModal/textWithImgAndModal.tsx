@@ -1,7 +1,7 @@
 import { TextWithImg } from "@feature/textWithImg/textWithimg";
 import { DiskType, diskTypes, isDiskType } from "@models/disk";
 import { ConnectedClouds } from "@models/user";
-import { FC, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { Modal } from '@feature/modal/modal';
 import InfoIcon from '@mui/icons-material/Info';
 import { SelectorMulti } from '@entities/selectors/selectorMulti/selectorMulti';
@@ -41,6 +41,7 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
 ): React.ReactNode => {
     const [isOpen, setOpen] = useState<boolean>(false)
     const { src, altText, diskName } = disk;
+    const ref = useRef(null)
 
     const transformToOption = (cloudEmail: string): Option => {
         return {
@@ -52,8 +53,11 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
         .filter(val => isSelectedDisk(val, selectedCloud))
         .filter(val => val.disk === diskName)
 
+    const emailsInDisk = cloudValues.filter(val => val.disk === disk.diskName).map(val => val.cloud_email)
+
     const emailSelectCloud = currentDiskSelected?.filter(val => val.cloud_email !== '')
 
+    const subText = emailsInDisk.length === 1 ? emailsInDisk[0] : currentDiskSelected.map(val => val.cloud_email).join(', ')
     return (
         <>
             <TextWithImg
@@ -62,7 +66,8 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
                 text={diskName}
                 imgSrc={src}
                 altImgText={altText}
-                onClick={() => {
+                onClick={(e) => {
+                    if (e.target === ref.current) return
                     if (emailSelectCloud.length > 0) {
                         setState(
                             {
@@ -72,6 +77,16 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
                             } as ConnectedClouds);
                     }
 
+                    if (emailsInDisk.length === 1) {
+                        setState(cloudValues
+                            .find(val => val.cloud_email === emailsInDisk[0]));
+                        selectCloud(
+                            cloudValues
+                                .find(val => val.cloud_email === emailsInDisk[0])
+                        )
+                        return
+                    }
+
                     if (currentDiskSelected.length === 0) {
                         setOpen(true)
                     }
@@ -79,8 +94,11 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
                     if (emailSelectCloud[0] && currentSelectedDisk === emailSelectCloud[0].disk)
                         setOpen(true)
                 }}
-                subText={currentDiskSelected.map(val => val.cloud_email).join(', ')}
-                rightIconProp={<RefreshIcon onClick={() => refreshDisk(currentDiskSelected[0])} />}
+                subText={subText}
+                rightIconProp={<RefreshIcon ref={ref}  onClick={(e) => {
+                    e.preventDefault()
+                    refreshDisk(currentDiskSelected[0])
+                } }/>}
             />
             <Modal
                 isOpen={isOpen}

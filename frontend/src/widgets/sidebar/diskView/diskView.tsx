@@ -2,9 +2,13 @@ import { TextWithImg } from '@feature/textWithImg/textWithimg';
 import { diskImgSrc, diskTypes, isDiskType } from '@models/disk';
 import { useAppSelector } from '@store/store';
 import { selectCloud } from '@store/userDisks';
-import React, { FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { TextWithImgAndModal } from './textWithImgAndModal/textWithImgAndModal';
+import { useUpdateDiskMutation } from '@api/diskApi';
+import { ConnectedClouds } from '@models/user';
+import { isDiskEqual } from '@helpers/hooks/useShowParams';
+import { newValues } from '@store/showRequest';
 
 
 
@@ -21,7 +25,15 @@ export const DiskView: FC<DiskViewProps> = ({
 }) => {
     const dispatch = useDispatch();
     const disks = useAppSelector(state => state.disks)
-    const { currentDisk } = useAppSelector(state => state.currentDirDisk)
+    const showReq = useAppSelector(state => state.showRequest)
+    const [refresh, refreshResp] = useUpdateDiskMutation()
+    
+    useEffect(() => {
+        if (refreshResp.isSuccess &&  typeof showReq.disk !== 'string' && showReq.disk.disk === nameOfSelectedDisk) {
+            dispatch(newValues({...showReq, disk: showReq.disk}))
+        }
+
+    }, [refreshResp])
 
     const disksToShow = disks.clouds
         .map(
@@ -36,11 +48,14 @@ export const DiskView: FC<DiskViewProps> = ({
                     selectCloud={(cloud) => {
                         dispatch(selectCloud(cloud))
                     }}
-                    currentSelectedDisk={typeof currentDisk === 'string' ? currentDisk : currentDisk.disk}
-                    refreshDisk={() => console.log("MAKE REFRESH")} //TODO
+                    currentSelectedDisk={typeof showReq.disk === 'string' ? showReq.disk : showReq.disk.disk}
+                    refreshDisk={(disk) => {
+                            refresh(disk)
+                    }}
                 />
             }
         )
+
     const allDiskInfo = diskImgSrc.get('all')
     disksToShow.push(
         <TextWithImg

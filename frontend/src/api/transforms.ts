@@ -21,7 +21,9 @@ export const transfromToShowRequestString = (showReq: ShowParams): string => {
 	`&dirs_required=${showReq.dirsReq === undefined ? true : showReq.dirsReq}`,
 	`&files_required=${showReq.filesReq === undefined ? true : showReq.filesReq}`,
 	`&shared_required=${showReq.sharedReq === undefined ? true : showReq.sharedReq}`,
-	`&personal_required=${showReq.personalReq === undefined ? true : showReq.personalReq}`].join('')
+	`&personal_required=${showReq.personalReq === undefined ? true : showReq.personalReq}`,
+	`&external_disk_required=${showReq.externalDiskRequired}`,
+	`&internal_disk_required=${showReq.internalDiskRequired}`].join('')
 }
 
 export const transformToSearchRequestString = (searchReq: SearchParams): string => {

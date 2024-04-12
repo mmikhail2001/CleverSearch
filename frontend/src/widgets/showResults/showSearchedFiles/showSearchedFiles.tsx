@@ -4,7 +4,6 @@ import { useDispatch } from 'react-redux';
 
 import { useDeleteFileMutation } from '@api/filesApi';
 import { useSearchMutation } from '@api/searchApi';
-import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
 import { RenderFields } from '@widgets/renderFields/renderFields';
 import { useNavigate } from 'react-router-dom';
 import { switchToSearch, switchToShow } from '@store/whatToShow';
@@ -12,6 +11,7 @@ import { transfromToShowRequestString } from '@api/transforms';
 import '../show.scss'
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
 import { useSearchParams } from '@helpers/hooks/useSearchParams';
+import { newValues } from '@store/showRequest';
 
 interface ShowSearchedFilesProps { }
 
@@ -24,6 +24,7 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     const navigate = useNavigate()
     useSearchParams()
 
+    const showReq = useAppSelector(state => state.showRequest)
     const searchParams = useAppSelector(state => state.searchRequest)
     const { isSearch } = useAppSelector(state => state.whatToShow)
 
@@ -63,8 +64,7 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
                             100);
                     }}
                 openFolder={(path) => {
-                    dispatch(changeDir({ dirs: path }))
-                    dispatch(changeDisk('all'));
+                    dispatch(newValues({...showReq, dir: path, disk: 'all'}))
                     dispatch(switchToShow());
 
                     const url = transfromToShowRequestString({ limit: 10, offset: 0, dir: path });

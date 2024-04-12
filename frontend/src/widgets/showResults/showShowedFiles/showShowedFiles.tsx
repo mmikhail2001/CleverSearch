@@ -4,7 +4,6 @@ import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useDeleteFileMutation } from '@api/filesApi';
-import { changeDir } from '@store/currentDirectoryAndDisk';
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
 import { RenderFields } from '@widgets/renderFields/renderFields';
 import { transfromToShowRequestString } from '@api/transforms';
@@ -12,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { switchToShow } from '@store/whatToShow';
 import '../show.scss'
 import { useShowParams } from '@helpers/hooks/useShowParams'
+import { newValues } from '@store/showRequest';
 
 interface ShowShowedFilesProps { }
 
@@ -20,20 +20,29 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const { showState } = useShowParams()
     const [show, showResp] = useShowMutation({ fixedCacheKey: 'show' });
 
-    const { currentDisk, dirs } = useAppSelector(
-        (state) => state.currentDirDisk
-    );
+    const showReq = useAppSelector(state => state.showRequest)
+    const showParam = useAppSelector(state => state.showRequest)
+    
     const { isShow } = useAppSelector(state => state.whatToShow)
 
     const [deleteFile] = useDeleteFileMutation();
     const dispatch = useDispatch();
 
+    const isPersonal = typeof showReq.disk === 'string'
+
     useEffect(() => {
         if (isShow) {
-            show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
+            console.log('showParam',showParam,showReq)
+            show({
+                ...showParam,
+                disk: showReq.disk,
+                dir: showReq.dir,
+                externalDiskRequired: !isPersonal,
+                internalDiskRequired: isPersonal,
+                });
         }
 
-    }, [currentDisk, dirs, isShow])
+    }, [showReq, isShow])
 
     if (!isShow) {
         dispatch(switchToShow())
@@ -43,21 +52,21 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
         <div className="data-show">
             <div className="data-show__header">
                 <BreadCrumps
-                    dirs={['Show', ...dirs]}
+                    dirs={['Show', ...showReq.dir]}
                     onClick={() => {
                         const url = transfromToShowRequestString(
                             {
                                 fileType: showState.fileType,
-                                disk: currentDisk,
-                                dir: dirs.slice(0, -1) || [],
+                                disk: showReq.disk,
+                                dir: showReq.dir.slice(0, -1) || [],
                                 limit: 10,
                                 offset: 0,
+                                externalDiskRequired: showState.externalDiskRequired,
+                                internalDiskRequired: showState.internalDiskRequired,
                             }
                         )
                         dispatch(
-                            changeDir({
-                                dirs: dirs.slice(0, -1) || [],
-                            })
+                            dispatch(newValues({...showReq, dir: showReq.dir.slice(0, -1) || []}))
                         )
                         navigate(url, { replace: true })
                     }}
@@ -73,11 +82,25 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                 deleteFile={
                     (fileName: string): void => {
                         deleteFile([fileName]);
-                        setTimeout(() =>
-                            show(
-                                { limit: 10, offset: 0, disk: currentDisk, dir: dirs }),
-                            100);
-                    }}
+                        setTimeout(() =>{
+                            show({
+                                ...showParam, 
+                                disk: showReq.disk, 
+                                dir: showReq.dir,
+                                externalDiskRequired: !isPersonal,
+                                internalDiskRequired: isPersonal,
+                            });
+                            dispatch(newValues({
+                                ...showParam,
+                                 disk: showReq.disk,
+                                  dir: showReq.dir,
+                                  externalDiskRequired: !isPersonal,
+                                  internalDiskRequired: isPersonal,
+                                }))
+                        },
+                            100)
+                        }
+                    }
                 openFolder={(path) => {
                     const url = transfromToShowRequestString(
                         {
@@ -86,6 +109,8 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                             limit: 10,
                             offset: 0,
                             dir: path || [],
+                            externalDiskRequired: showState.externalDiskRequired,
+                            internalDiskRequired: showState.internalDiskRequired,
                         }
                     )
                     navigate(url, { replace: true })

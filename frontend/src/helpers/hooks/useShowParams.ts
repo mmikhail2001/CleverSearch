@@ -6,14 +6,16 @@ import { useEffect, useState } from 'react';
 import { useParamsFromURL } from './useParamsFromURL';
 import { useAppSelector } from '@store/store';
 import { useDispatch } from 'react-redux';
-import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
 import { selectCloud } from '@store/userDisks';
+import { newValues } from '@store/showRequest';
 
 export interface searchStateValue {
     fileType: fileTypes[];
     query: string;
     dir: string[];
     disk: diskTypes[] | ConnectedClouds[];
+    externalDiskRequired: boolean;
+    internalDiskRequired: boolean;
 }
 
 // HACK происходит магия 200 ререндеров
@@ -30,6 +32,7 @@ export const isDiskEqual = (prevDisk: ConnectedClouds | string, currentDisk: Con
 
     if (!!!prevDisk && !!currentDisk) return false
     if (!!prevDisk && !!!currentDisk) return false
+    if (!prevDisk && !currentDisk) return true
 
     return (prevDisk as ConnectedClouds).cloud_email === (currentDisk as ConnectedClouds).cloud_email
         && (prevDisk as ConnectedClouds).disk === (currentDisk as ConnectedClouds).disk
@@ -43,11 +46,14 @@ export const compareArrays = (a: any[], b: any[]): boolean =>
 
 export const useShowParams = () => {
     const disks = useAppSelector(state => state.disks)
-    const whatToShow = useAppSelector(state => state.currentDirDisk)
+    const showRequest = useAppSelector(state => state.showRequest)
+
     const showState = {} as {
         fileType: fileTypes[];
         dir: string[];
         disk: diskTypes[] | ConnectedClouds[];
+        externalDiskRequired?: boolean;
+        internalDiskRequired?: boolean;
     }
 
     const urlParams = useParamsFromURL()
@@ -63,27 +69,38 @@ export const useShowParams = () => {
                 val => params.disk === val.cloud_email
             )
 
+    showState.externalDiskRequired = params.externalDiskRequired
+    showState.internalDiskRequired = params.internalDiskRequired
+
     let settedDir: string[];
     if (params.dir.length === 0) {
         settedDir = []
     } else {
         settedDir = params.dir
     }
-
-    const isDirEqual = compareArrays(whatToShow.dirs, settedDir)
-    const isDiskEuqal = isDiskEqual(whatToShow.currentDisk, settedDir[0])
-
+    
     useEffect(() => {
-        if (!isDirEqual) {
-            dispatch(changeDir({ dirs: settedDir }))
+        if (!
+            (
+                compareArrays(showRequest.dir,settedDir) 
+                &&isDiskEqual(showRequest.disk, settedDisk)
+                && showRequest.limit === Number(params.limit)
+                && showRequest.offset === Number(params.offset) 
+                && showRequest.externalDiskRequired === params.externalDiskRequired
+                && showRequest.internalDiskRequired === params.internalDiskRequired
+            )
+        ){
+            dispatch(
+                newValues({
+                    limit: Number(params.limit),
+                    offset: Number(params.offset),
+                    dir: settedDir,
+                    disk: settedDisk,
+                    externalDiskRequired: params.externalDiskRequired,
+                    internalDiskRequired: params.internalDiskRequired,
+                })
+            )
         }
-
-        if (!isDiskEuqal) {
-            dispatch(changeDisk(settedDisk))
-            if (typeof settedDisk !== 'string')
-                dispatch(selectCloud(settedDisk))
-        }
-
     }, [])
     showState.disk = typeof settedDisk === 'string'
         ? [settedDisk]

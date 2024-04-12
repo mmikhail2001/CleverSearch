@@ -8,12 +8,12 @@ import imageIconPath from '@icons/files/image.svg';
 import { AccessRights, fileFile, getAccessRights } from '@models/searchParams';
 import { SerializedError, UnknownAction } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { changeDir } from '@store/currentDirectoryAndDisk';
 import React, { Dispatch, FC } from 'react';
 import { FileWithModal, renderReturns } from './fileWithModal';
 import './renderFields.scss';
 import { Typography } from '@mui/material';
 import { useAppSelector } from '@store/store';
+import { newValues } from '@store/showRequest';
 
 export interface RenderFieldsProps {
 	data: fileFile[],
@@ -36,6 +36,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	openFolder,
 }) => {
 	const disks = useAppSelector(state => state.disks)
+	const showReq = useAppSelector(state => state.showRequest)
 
 	if (isLoading) {
 		return <h1>Подождите, загружаем файлы...</h1>;
@@ -53,21 +54,18 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 		const imgSrc = folderIconPath;
 		const clickHandler = () => {
 			const dirsPath = file.path.split('/')
-			dispatch(
-				changeDir({
-					dirs: dirsPath,
-				}));
+			dispatch(newValues({...showReq, dir: dirsPath}))
 			openFolder(dirsPath);
 		};
 		const renderModal = (): null => null
 		return { imgSrc, clickHandler, renderModal }
 	};
 
-	const getImageProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void): renderReturns => {
+	const getImageProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void,authToken?: string): renderReturns => {
 		const renderModal = () => {
 			return (
 				<Modal className={'modal__img-show'} isOpen={state} closeModal={() => changeState(false)}>
-					<ViewImg imgSrc={file.link} altText={''} />
+					<ViewImg imgSrc={file.link} altText={''} authToken={authToken} />
 				</Modal>
 			)
 		}
@@ -98,7 +96,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 		return { clickHandler: () => { }, imgSrc, renderModal }
 	};
 
-	const getVideoProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void): renderReturns => {
+	const getVideoProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void,authToken?: string): renderReturns => {
 		const renderModal = () => {
 			// TODO видео уезжает, зажать по высоте
 			return (
@@ -107,6 +105,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 						url={file.link}
 						duration={file.duration || 0}
 						start_time={file.timestart || 0}
+						authToken={authToken}
 					></VideoPlayer>
 				</Modal>
 			)
@@ -137,20 +136,21 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 						renderModal = props.renderModal
 					} else {
 						let props: renderReturns;
+						let authToken = '';
 
+						const disktmp = disks.clouds.find(val => val.cloud_email === file.cloud_email)
+						authToken = disktmp?.access_token || null;
+						
 						switch (file.file_type) {
 							case 'img':
-								props = getImageProps(file, isOpen, changeState);
+								props = getImageProps(file, isOpen, changeState,authToken);
 
 								iconSrc = props.imgSrc
 								clickHandler = props.clickHandler
 								renderModal = props.renderModal
 								break;
 							case 'text':
-								let authToken: string = ''
-
-								const disktmp = disks.clouds.find(val => val.cloud_email === file.cloud_email)
-								authToken = disktmp?.access_token || null;
+								
 
 								props = getPdfProps(file, isOpen, changeState, authToken);
 
@@ -160,7 +160,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 								break;
 							case 'video':
 							case 'audio':
-								props = getVideoProps(file, isOpen, changeState);
+								props = getVideoProps(file, isOpen, changeState,authToken);
 
 								iconSrc = props.imgSrc
 								clickHandler = props.clickHandler
@@ -169,8 +169,6 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 
 							default:
 								iconSrc = imageIconPath;
-
-
 						}
 					}
 					return {

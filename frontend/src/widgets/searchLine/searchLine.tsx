@@ -9,10 +9,9 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { switchToSearch } from '@store/whatToShow';
 import { SearchBox } from './searchBox/searchBox';
-import { changeDir } from '@store/currentDirectoryAndDisk';
-import { newValues } from '@store/searchRequest';
+import { newSearchValues } from '@store/searchRequest';
 
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { transformToSearchRequestString } from '@api/transforms';
 
 import SearchIcon from '@mui/icons-material/Search';
@@ -25,6 +24,7 @@ import { ConnectedClouds } from '@models/user';
 
 import { useAppSelector } from '@store/store';
 import { compareArrays } from '@helpers/hooks/useShowParams';
+import { newValues } from '@store/showRequest';
 
 export interface searchStateValue {
 	smartSearch: boolean;
@@ -47,12 +47,13 @@ export const SearchLine: FC<SearchLineProps> = ({
 	const [search, response] = useSearchMutation({ fixedCacheKey: 'search' });
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+
 	const { whatDisplay } = useMobile();
-	const { dirs } = useAppSelector(state => state.currentDirDisk)
 
 	const {isShow} = useAppSelector(state => state.whatToShow)
 
-	const searchParams = useAppSelector(state => state.searchRequest)
+	const searchReq = useAppSelector(state => state.searchRequest)
+	const showReq = useAppSelector(state => state.showRequest)
 	const [searchValue, setSearchValue] = useState<SearchParams>({
 		query: '',
 		smartSearch: false,
@@ -60,26 +61,26 @@ export const SearchLine: FC<SearchLineProps> = ({
 	
 	useEffect(() => {
 		setSearchValue({
-			query: searchParams.query,
-			smartSearch: searchParams.smartSearch,
-			dir: searchParams.dir,
-			disk: searchParams.disk,
-			fileType: searchParams.fileType,
+			query: searchReq.query,
+			smartSearch: searchReq.smartSearch,
+			dir: searchReq.dir,
+			disk: searchReq.disk,
+			fileType: searchReq.fileType,
 		})
-	}, [searchParams])
+	}, [searchReq])
 
-	if (isShow && !compareArrays(dirs, searchValue.dir)){
-		setSearchValue({ ...searchValue, dir: dirs })
+	if (isShow && !compareArrays(showReq.dir, searchValue.dir)){
+		setSearchValue({ ...searchValue, dir: showReq.dir })
 	}
 
 	useEffect(() => {
-		setSearchValue({...searchValue, dir: searchParams.dir})
+		setSearchValue({...searchValue, dir: searchReq.dir})
 	}, [])
 
 	function mySearch(): void {
 		dispatch(switchToSearch());
-		dispatch(newValues(searchValue));
-		dispatch(changeDir({ dirs: [] }));
+		dispatch(newSearchValues(searchValue));
+		dispatch(newValues({...showReq, dir: []}))
 
 		const url = transformToSearchRequestString({ ...searchValue, limit: 10, offset: 0 })
 		navigate(url)

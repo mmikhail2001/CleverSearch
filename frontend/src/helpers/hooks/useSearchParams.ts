@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useParamsFromURL } from "./useParamsFromURL";
 import { useAppSelector } from "@store/store";
 import { useDispatch } from "react-redux";
-import { newValues } from "@store/searchRequest";
+import { newSearchValues } from "@store/searchRequest";
 
 export interface searchStateValue {
     smartSearch: boolean;
@@ -61,7 +61,7 @@ export const useSearchParams = () => {
     searchState.smartSearch = params.smartSearch
 
     useEffect(() => {
-        dispatch(newValues({
+        dispatch(newSearchValues({
             query: searchState.query,
             smartSearch: searchState.smartSearch,
             dir: searchState.dir,

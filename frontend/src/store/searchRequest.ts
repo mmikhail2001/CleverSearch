@@ -13,7 +13,7 @@ const searchSlice = createSlice({
 		disk: ['all'] as diskTypes[],
 	} as SearchParams,
 	reducers: {
-		newValues(state, action: PayloadAction<SearchParams>) {
+		newSearchValues(state, action: PayloadAction<SearchParams>) {
 			if (compareArrays(state.dir, action.payload.dir)
 				&& state.disk 
 				&& action.payload.disk 
@@ -33,4 +33,4 @@ const searchSlice = createSlice({
 });
 
 export const { actions, reducer } = searchSlice;
-export const { newValues } = actions;
+export const { newSearchValues } = actions;

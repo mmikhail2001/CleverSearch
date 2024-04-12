@@ -35,7 +35,9 @@ export const transformToSearchParams = (obj: {
   offset?: string,
   file_type?: string,
   dir?: string,
-  cloud_email?: string
+  cloud_email?: string,
+  external_disk_required?: string,
+  internal_disk_required?: string,
 }) => {
   let fileType: fileTypes[] | string[];
   if (obj.file_type) {
@@ -52,6 +54,8 @@ export const transformToSearchParams = (obj: {
     disk: obj.cloud_email?.split(',') || ['all'],
     query: obj.query || '',
     smartSearch: obj.is_smart_search === 'true' ? true : false,
+    externalDiskRequired: obj.external_disk_required === 'true',
+    internalDiskRequired: obj.internal_disk_required === 'true',
   } as SearchParams
 }
 
@@ -60,6 +64,8 @@ export const transformToSearchParams = (obj: {
 export interface SearchParams extends SearchParamsLocal {
   limit?: number;
   offset?: number;
+  externalDiskRequired?: boolean;
+  internalDiskRequired?: boolean;
 }
 
 export interface fileFile {
@@ -104,6 +110,8 @@ export const transformToShowParams = (obj: {
   file_type?: string,
   dir?: string,
   cloud_email?: string,
+  external_disk_required?: string,
+  internal_disk_required?: string,
 }) => {
   let fileType: fileTypes[];
   if (obj.file_type) {
@@ -127,6 +135,8 @@ export const transformToShowParams = (obj: {
     fileType: fileType || 'all',
     dir: dir,
     disk: obj.cloud_email || 'all',
+    externalDiskRequired: obj.external_disk_required === 'true',
+    internalDiskRequired: obj.internal_disk_required === 'true',
   } as ShowParams
 }
 
@@ -141,6 +151,8 @@ export interface ShowParams {
   filesReq?: boolean,
   nestingReq?: boolean,
   personalReq?: boolean,
+  externalDiskRequired?: boolean,
+  internalDiskRequired?: boolean,
 }
 
 export interface ShowResponse {

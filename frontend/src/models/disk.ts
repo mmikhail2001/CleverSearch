@@ -220,9 +220,10 @@ export const transformOptionsToDirs = (
 	newVal: string[]
 ): string[] => {
 	if ('length' in newVal) {
-		return newVal.map((val) => val);
+		return newVal.length === 1 && newVal[0] === '/' 
+		? [] 
+		: newVal.map((val) => val)
 	}
-	if (newVal === '/') return []
 	if (newVal) return [newVal];
 	return [];
 };

@@ -7,7 +7,7 @@ import { searchAPi } from '@api/searchApi';
 import { diskApi } from '@api/diskApi';
 
 import { reducer as reducerSearch } from './searchRequest';
-import { reducer as reducerPath } from './currentDirectoryAndDisk';
+import { reducer as reducerShow } from './showRequest';
 import { reducer as reducerUser } from './userAuth';
 import reducer from './whatToShow';
 import { reducer as reducerDisks } from './userDisks'
@@ -19,8 +19,8 @@ export const store = configureStore({
 		[searchAPi.reducerPath]: searchAPi.reducer,
 		[diskApi.reducerPath]: diskApi.reducer,
 		whatToShow: reducer,
-		currentDirDisk: reducerPath,
 		searchRequest: reducerSearch,
+		showRequest: reducerShow,
 		userAuth: reducerUser,
 		disks: reducerDisks,
 	},

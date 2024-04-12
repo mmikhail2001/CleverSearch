@@ -41,13 +41,11 @@ const getTextWithImg = (
 export const SettingsPage: FC = () => {
 	const [connect, resp] = useDiskLinkConnectMutation()
 	const [diskToConnect, setDiskToConnect] = useState<diskTypes>('all')
-	const [isOpenModal, setOpenModal] = useState<boolean>(false)
 
 	const navigate = useNavigate()
 
 	useEffect(() => {
 		if (diskToConnect !== 'all' && !resp.isLoading) {
-			setOpenModal(true)
 			window.location.href = resp.data.redirect;
 		}
 	}, [resp])
@@ -58,8 +56,6 @@ export const SettingsPage: FC = () => {
 				Подключить
 			</Typography>
 			{
-				// TODO make link to get url
-				// Maybe open modal with link copied
 				Array.from(diskImgSrc)
 					.filter(val => val[1].diskName !== 'all'
 						&& val[1].diskName !== 'own')
@@ -92,45 +88,6 @@ export const SettingsPage: FC = () => {
 				<Typography fontSize={'var(--ft-body)'}>Вернуться</Typography>
 			</div>
 		</div >
-
-		<Modal
-			children={
-				<div style={{
-					display: 'flex',
-					gap: 'var(--big-padding)',
-					flexDirection: 'column',
-				}}>
-					<Typography
-						fontSize={'var(--ft-body)'}
-						style={{
-							display: 'flex',
-							flexDirection: 'row',
-							gap: 'var(--normal-padding)',
-						}}
-					>
-						<Typography
-							fontSize={'inherit'}
-							fontWeight={600}
-						>Диск:
-						</Typography>
-						{diskToConnect}
-					</Typography>
-					{resp.isError ?
-						<Typography
-							fontSize={'var(--ft-body)'}
-						>
-							Произошла ошибка
-						</Typography>
-						: <Typography
-							fontSize={'var(--ft-body)'}
-						>
-							{JSON.stringify(resp.data)}
-						</Typography>
-					}
-				</div>
-			}
-			closeModal={() => setOpenModal(false)}
-			isOpen={isOpenModal}
-		/>
+		
 	</div >
 };
