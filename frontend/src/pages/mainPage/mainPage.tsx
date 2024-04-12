@@ -4,6 +4,7 @@ import React, { FC, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { switchToShow } from '@store/whatToShow';
 
+import { useWebsoket} from "@helpers/hooks/useWebsocket"
 import { Navbar } from '@widgets/navbar/navbar';
 import { Outlet, useNavigate } from 'react-router-dom';
 import './mainPage.scss';
@@ -18,6 +19,8 @@ export const MainPage: FC = () => {
 	const [openSidebar, setOpenSidebar] = useState<boolean>(false)
 	const navigate = useNavigate()
 	const dispatch = useDispatch()
+
+	useWebsoket()
 
 	const isMobile = whatDisplay === 2
 	const widthToSet = isMobile ? '0px' : drawerWidth

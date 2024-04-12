@@ -3,11 +3,11 @@ import { diskTypes, isDiskType } from '@models/disk';
 import { fileTypes, transformToShowParams } from '@models/searchParams';
 import { ConnectedClouds } from '@models/user';
 import { useEffect, useState } from 'react';
-import { useParamsFromURL } from './useParamsFromURL';
 import { useAppSelector } from '@store/store';
 import { useDispatch } from 'react-redux';
 import { selectCloud } from '@store/userDisks';
 import { newValues } from '@store/showRequest';
+import { useParamsFromURL } from './useParamsFromURL';
 
 export interface searchStateValue {
     fileType: fileTypes[];

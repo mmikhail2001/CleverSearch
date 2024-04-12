@@ -25,6 +25,7 @@ import { DiskView } from './diskView/diskView'
 import { ConnectedClouds } from '@models/user';
 import { transfromToShowRequestString } from '@api/transforms';
 import { changeDir, newValues } from '@store/showRequest';
+import {FileUploadNotification} from '@feature/fileUploadNotification/fileUploadNotification'
 
 interface SidebarProps {
 	width: string;
@@ -194,6 +195,8 @@ export const Sidebar: FC<SidebarProps> = ({
 						</div >
 						: null
 					}
+					<FileUploadNotification
+					/>
 				</div >
 			</>
 		)

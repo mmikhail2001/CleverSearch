@@ -3,10 +3,10 @@ import { diskTypes } from "@models/disk";
 import { fileTypes, transformToSearchParams } from "@models/searchParams";
 import { ConnectedClouds } from "@models/user";
 import { useEffect } from "react";
-import { useParamsFromURL } from "./useParamsFromURL";
 import { useAppSelector } from "@store/store";
 import { useDispatch } from "react-redux";
 import { newSearchValues } from "@store/searchRequest";
+import { useParamsFromURL } from "./useParamsFromURL";
 
 export interface searchStateValue {
     smartSearch: boolean;

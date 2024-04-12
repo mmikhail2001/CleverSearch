@@ -1,71 +1,67 @@
-import { useShowMutation } from '@api/searchApi';
 import { useAppSelector } from '@store/store';
 import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useDeleteFileMutation } from '@api/filesApi';
-import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
+import { useSearchMutation, useShowMutation, useShowProcessedMutation } from '@api/searchApi';
 import { RenderFields } from '@widgets/renderFields/renderFields';
-import { transfromToShowRequestString } from '@api/transforms';
 import { useNavigate } from 'react-router-dom';
-import { switchToShow } from '@store/whatToShow';
+import {  switchToProcessed, switchToShow } from '@store/whatToShow';
+import { transfromToShowRequestString } from '@api/transforms';
 import '../show.scss'
-import { useShowParams } from '@helpers/hooks/useShowParams'
+import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
+import { useSearchParams } from '@helpers/hooks/useSearchParams';
 import { newValues } from '@store/showRequest';
+import { useShowParams } from '@helpers/hooks/useShowParams';
+import { removeFiles } from '@store/fileProcess';
 
-interface ShowShowedFilesProps { }
+interface ShowProcessedFilesProps { }
 
-export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
+
+export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
+    const { isProccessed } = useAppSelector(state => state.whatToShow)
     const navigate = useNavigate();
     const { showState } = useShowParams()
-    const [show, showResp] = useShowMutation({ fixedCacheKey: 'show' });
-
-    const showReq = useAppSelector(state => state.showRequest)
-    const showParam = useAppSelector(state => state.showRequest)
-    
-    const { isShow } = useAppSelector(state => state.whatToShow)
+    const [show, showResp] = useShowProcessedMutation({ fixedCacheKey: 'processed' });
 
     const [deleteFile] = useDeleteFileMutation();
     const dispatch = useDispatch();
 
-    const isPersonal = typeof showReq.disk === 'string'
+    const filesProcessed = useAppSelector(state => state.fileProcess)
 
     useEffect(() => {
-        if (isShow) {
+        if (isProccessed) {
             show({
-                ...showParam,
-                disk: showReq.disk,
-                dir: showReq.dir,
-                externalDiskRequired: !isPersonal,
-                internalDiskRequired: isPersonal,
+                limit: 10,
+                offset: 0,
                 });
         }
 
-    }, [showReq, isShow])
+        if (filesProcessed.fileOnProcess && filesProcessed.fileOnProcess.length > 1) {
+            dispatch(removeFiles(filesProcessed.fileOnProcess))
+        }
+    }, [isProccessed,filesProcessed.fileOnProcess])
 
-    if (!isShow) {
-        dispatch(switchToShow())
+    if (!isProccessed) {
+        dispatch(switchToProcessed())
     }
 
     return (
         <div className="data-show">
             <div className="data-show__header">
                 <BreadCrumps
-                    dirs={['Show', ...showReq.dir]}
+                    dirs={['Processed']}
                     onClick={() => {
                         const url = transfromToShowRequestString(
                             {
                                 fileType: showState.fileType,
-                                disk: showReq.disk,
-                                dir: showReq.dir.slice(0, -1) || [],
+                                disk: 'all',
+                                dir: [],
                                 limit: 10,
                                 offset: 0,
                                 externalDiskRequired: showState.externalDiskRequired,
                                 internalDiskRequired: showState.internalDiskRequired,
                             }
-                        )
-                        dispatch(
-                            dispatch(newValues({...showReq, dir: showReq.dir.slice(0, -1) || []}))
                         )
                         navigate(url, { replace: true })
                     }}
@@ -83,19 +79,9 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                         deleteFile([fileName]);
                         setTimeout(() =>{
                             show({
-                                ...showParam, 
-                                disk: showReq.disk, 
-                                dir: showReq.dir,
-                                externalDiskRequired: !isPersonal,
-                                internalDiskRequired: isPersonal,
+                                limit: 10,
+                                offset: 0,
                             });
-                            dispatch(newValues({
-                                ...showParam,
-                                 disk: showReq.disk,
-                                  dir: showReq.dir,
-                                  externalDiskRequired: !isPersonal,
-                                  internalDiskRequired: isPersonal,
-                                }))
                         },
                             100)
                         }

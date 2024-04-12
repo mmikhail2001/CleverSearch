@@ -14,6 +14,7 @@ import ErrorPage from '@pages/errorPage/errorPage';
 import { ShowShowedFiles } from '@widgets/showResults/showShowedFiles/showShowedFiles'
 import { ShowSearchedFiles } from '@widgets/showResults/showSearchedFiles/showSearchedFiles'
 import { ShowSharedFiles } from '@widgets/showResults/showSharedFiles/showSharedFiles'
+import { ShowProcessedFiles } from '@widgets/showResults/showProcessed/showProcessed'
 import { ShowSharedUUIDFiles } from '@widgets/showResults/showSharedFiles/showSharedUUIDFiles'
 
 import './App.scss'
@@ -43,6 +44,7 @@ root.render(
 								<Route index element={<ShowShowedFiles></ShowShowedFiles>}></Route>
 								<Route path='/dirs/:diruuid' element={<ShowSharedUUIDFiles />}></Route >
 								<Route path='/shared' element={<ShowSharedFiles />}></Route >
+								<Route path='/processed' element={<ShowProcessedFiles />}></Route >
 								<Route path='*' element={<ErrorPage />}></Route>
 							</Route>
 							<Route path='/settings' element={<RequireAuth><SettingsPage /></RequireAuth>} ></Route>

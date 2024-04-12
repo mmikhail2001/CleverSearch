@@ -11,6 +11,7 @@ export default (env: {
 	adress: string;
 	whereToBuild?: string;
 	buildLocalFolder?: string;
+	wsAdress?: string;
 }) => {
 	const mode = env.mode || 'development';
 	const isDev = mode === 'development';
@@ -20,6 +21,7 @@ export default (env: {
 	const protocol = env.protocol || 'http';
 	const whereToBuild = env.whereToBuild || "build"
 	const buildLocalFolder = env.buildLocalFolder === 'true' || false
+	const wsAdress = env.wsAdress === '' || env.wsAdress === undefined ? adress : env.wsAdress
 
 	const config: webpack.Configuration = {
 		mode: 'development',
@@ -60,7 +62,8 @@ export default (env: {
 			}),
 			new webpack.DefinePlugin({
 				'process.env.adress': JSON.stringify(adress),
-				'process.env.protocol': JSON.stringify(protocol)
+				'process.env.protocol': JSON.stringify(protocol),
+				'process.env.wsAdress': JSON.stringify(wsAdress)
 			})
 		],
 		devtool: 'inline-source-map',

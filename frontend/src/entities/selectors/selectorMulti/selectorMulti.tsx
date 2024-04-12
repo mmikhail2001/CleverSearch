@@ -6,6 +6,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { OutlinedInput } from '@mui/material';
+import { render } from 'react-dom';
 
 // https://react-select.com/components
 // https://www.youtube.com/watch?v=3u_ulMvTYZI&t=269s&ab_channel=MonsterlessonsAcademy
@@ -68,26 +69,31 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 			setSelectedValues(typeof value === 'string' ? value.split(',') : value)
 		}
 	}
-
 	const handlerRenderValues = (renderOptions: Element): React.ReactNode => {
+
 		if (renderOptions === null || renderOptions === undefined) {
 			return <em>{placeholder}</em>
 		}
+		if (Array.isArray(renderOptions) && renderOptions.filter(val => val !== '').length === 0) {
+			return <em>{placeholder}</em>
+		}
+
 		if (Array.isArray(renderOptions) && renderOptions.length !== 0) {
 			return changeFromValueToLabel(renderOptions, options).join(', ')
 		}
 		return <em>{placeholder}</em>
 	}
-
+	
 	useEffect(() => {
 		if (defaultValue && (
 			!selectedValues
 			|| defaultValue.filter((val) => selectedValues.find(defVal => defVal === val.value)).length !== defaultValue.length
 		)
 		) {
-			setSelectedValues(defaultValue.filter(val => val).map(val => val.value))
+			setSelectedValues(defaultValue.filter(val => val).map(val => val.value))	
 		}
 	}, [defaultValue])
+
 
 	return (
 		<FormControl sx={{ width: '100%' }}>

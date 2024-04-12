@@ -22,13 +22,6 @@ const showSlice = createSlice({
 	} as ShowParams,
 	reducers: {
 		newValues(state, action: PayloadAction<ShowParams>) {
-			// if (compareArrays(state.dir, action.payload.dir)
-			// 	&& state.disk 
-			// 	&& action.payload.disk 
-			// 	&& isDiskEqual(state.disk, action.payload.disk)
-			// 	&& compareArrays(state.fileType, action.payload.fileType)
-			// )
-				// return state
 			const dirToSet = action.payload.dir?.filter(val => val !== '')
 
 			return {

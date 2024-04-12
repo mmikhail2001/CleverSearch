@@ -66,3 +66,15 @@ export const transfromToSharedRequestParams = (showReq: ShowParams): string => {
 		'&shared_required=true',
 		'&personal_required=false'].join('')
 }
+
+export const transfromToProcessedRequestParams = (showReq: ShowParams): string => {
+	return [
+		`?limit=${showReq.limit}`,
+		`&offset=${showReq.offset}`,
+		`&file_type=all`,
+		`&dir=/`,
+		`&dirs_required=false`,
+		`&files_required=true`,
+		'&status=uploaded'
+	].join('')
+}

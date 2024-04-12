@@ -11,6 +11,7 @@ import { reducer as reducerShow } from './showRequest';
 import { reducer as reducerUser } from './userAuth';
 import reducer from './whatToShow';
 import { reducer as reducerDisks } from './userDisks'
+import {reducer as reducerFileWS} from './fileProcess' 
 
 export const store = configureStore({
 	reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
 		[filesApi.reducerPath]: filesApi.reducer,
 		[searchAPi.reducerPath]: searchAPi.reducer,
 		[diskApi.reducerPath]: diskApi.reducer,
+		fileProcess: reducerFileWS,
 		whatToShow: reducer,
 		searchRequest: reducerSearch,
 		showRequest: reducerShow,
