@@ -12,6 +12,9 @@ func getFilter(fileOptions file.FileOptions) (bson.M, error) {
 
 	if fileOptions.FilesRequired && !fileOptions.DirsRequired {
 		filter["is_dir"] = false
+		if fileOptions.Status != "" {
+			filter["status"] = fileOptions.Status
+		}
 	} else if !fileOptions.FilesRequired && fileOptions.DirsRequired {
 		filter["is_dir"] = true
 	} else if !fileOptions.FilesRequired && !fileOptions.DirsRequired {
