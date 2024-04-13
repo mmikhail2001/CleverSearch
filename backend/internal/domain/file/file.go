@@ -60,6 +60,7 @@ type File struct {
 	ContentType string
 	Extension   string
 	Status      StatusType
+	Email       string
 
 	IsShared       bool
 	ShareAccess    AccessType

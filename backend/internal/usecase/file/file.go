@@ -66,7 +66,8 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 	pathComponents := strings.Split(file.Path, "/")
 
 	var userID string
-	if len(pathComponents) > 1 {
+	if len(pathComponents)-1 > 1 {
+		log.Printf("[%s] - [%s]", pathComponents[0], pathComponents[1])
 		fileTmpShare, err := uc.repo.GetFileByPath(ctx, "/"+pathComponents[1], "")
 		if err != nil {
 			log.Println("GetFileByPath err:", err)
@@ -123,6 +124,7 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 	file.ID = uuid.New().String()
 	file.IsDir = false
 	file.IsShared = false
+	file.Email = user.Email
 
 	file, err = uc.repo.UploadToStorage(ctx, fileReader, file)
 	if err != nil {
@@ -277,21 +279,41 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 		return fileDomain.File{}, sharederrors.ErrUserNotFoundInContext
 	}
 
-	_, err := uc.repo.GetFileByPath(ctx, file.Path, user.ID)
-	if err == nil {
-		log.Println("GetFileByPath: the file path already exists")
-		return file, fileDomain.ErrDirectoryAlreadyExists
-	} else if err != fileDomain.ErrNotFound {
-		log.Println("GetFileByPath: err", err)
-		return file, err
-	}
-
 	pathComponents := strings.Split(file.Path, "/")
+
+	var userID string
+	if len(pathComponents) > 1 {
+		fileTmpShare, err := uc.repo.GetFileByPath(ctx, "/"+pathComponents[1], "")
+		if err != nil {
+			log.Println("GetFileByPath err:", err)
+			return fileDomain.File{}, err
+		}
+
+		shredDir, err := uc.repo.GetSharedDir(ctx, fileTmpShare.ID, user.ID)
+		if err != nil {
+			if !errors.Is(err, fileDomain.ErrNotFound) {
+				log.Println("GetSharedDir err:", err)
+				return fileDomain.File{}, err
+			}
+			if errors.Is(err, fileDomain.ErrNotFound) {
+				userID = user.ID
+			}
+		} else {
+			userID = ""
+			// if !shredDir.Accepted || shredDir.ShareAccess != fileDomain.Writer {
+			if shredDir.ShareAccess != fileDomain.Writer {
+				log.Println("reader access, but try upload")
+				return fileDomain.File{}, fmt.Errorf("reader access, but try upload")
+			}
+		}
+	} else {
+		userID = user.ID
+	}
 
 	// TODO: при условии, что в начале /
 	for i := 1; i < len(pathComponents)-1; i++ {
 		dirPath := strings.Join(pathComponents[:i+1], "/")
-		_, err := uc.repo.GetFileByPath(ctx, dirPath, user.ID)
+		_, err := uc.repo.GetFileByPath(ctx, dirPath, userID)
 		if err != nil {
 			log.Printf("Error checking directory %s existence: %v\n", dirPath, err)
 			if errors.Is(err, fileDomain.ErrNotFound) {
@@ -299,6 +321,15 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 			}
 			return file, err
 		}
+	}
+
+	_, err := uc.repo.GetFileByPath(ctx, file.Path, userID)
+	if err == nil {
+		log.Println("GetFileByPath: the file path already exists")
+		return file, fileDomain.ErrDirectoryAlreadyExists
+	} else if err != fileDomain.ErrNotFound {
+		log.Println("GetFileByPath: err", err)
+		return file, err
 	}
 
 	file.Filename = pathComponents[len(pathComponents)-1]

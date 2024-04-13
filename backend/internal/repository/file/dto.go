@@ -19,6 +19,7 @@ type fileDTO struct {
 	ContentType string          `bson:"content_type"`
 	Extension   string          `bson:"extension"`
 	Status      file.StatusType `bson:"status"`
+	Email       string          `bson:"email"`
 
 	IsShared       bool            `bson:"is_shared"`
 	ShareAccess    file.AccessType `bson:"share_access"`

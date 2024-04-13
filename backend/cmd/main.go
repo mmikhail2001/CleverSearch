@@ -75,6 +75,8 @@ import (
 // apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
 // apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
 
+// удаление sharing папки (??????????7)
+
 // ручка на запрос статики
 
 // нельзя добавлять в файлы, которые из интеграции внешней
