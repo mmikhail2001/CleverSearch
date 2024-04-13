@@ -35,9 +35,13 @@ export const DiskView: FC<DiskViewProps> = ({
 
     }, [refreshResp])
 
+    const alreadyShowed = [] as diskTypes[]
     const disksToShow = disks.clouds
         .map(
             val => {
+                if (alreadyShowed.find(disk => disk === val.disk)) return
+                alreadyShowed.push(val.disk)
+                
                 return <TextWithImgAndModal
                     key={val.cloud_email + val.disk}
                     selected={nameOfSelectedDisk === val.disk && needSelect}
@@ -57,6 +61,7 @@ export const DiskView: FC<DiskViewProps> = ({
         )
 
     const allDiskInfo = diskImgSrc.get('all')
+
     disksToShow.push(
         <TextWithImg
             key={allDiskInfo.diskName + allDiskInfo.src}

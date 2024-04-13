@@ -14,6 +14,7 @@ import './renderFields.scss';
 import { Typography } from '@mui/material';
 import { useAppSelector } from '@store/store';
 import { newValues } from '@store/showRequest';
+import {getErrorMessageFromErroResp} from '@helpers/getErrorMessageFromErroResp'
 
 export interface RenderFieldsProps {
 	data: fileFile[],
@@ -24,6 +25,7 @@ export interface RenderFieldsProps {
 	deleteFile: (fileName: string, accessRights: AccessRights) => void,
 	openFolder: (dirToShow: string[]) => void,
 }
+
 
 
 export const RenderFields: FC<RenderFieldsProps> = ({
@@ -43,6 +45,10 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	}
 
 	if (isError) {
+		console.log(error)
+		if ('status' in error && 'data' in error) {
+			return <h1>{getErrorMessageFromErroResp(error)}</h1>;
+		}
 		return <h1>Произошла ошибка ${JSON.stringify(error)}</h1>;
 	}
 
