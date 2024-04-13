@@ -9,6 +9,7 @@ import { useLogout } from '@helpers/hooks/logout';
 import { Typography } from '@mui/material';
 import { useMobile } from 'src/mobileProvider';
 import { useNavigate } from 'react-router-dom';
+import PersonIcon from '@mui/icons-material/Person';
 
 interface UserProfileProps {
 	email: string;
@@ -40,13 +41,16 @@ export const UserProfile: FC<UserProfileProps> = ({
 
 	const profileMain = (): React.ReactNode => {
 		return (
-			<Typography
-				className='profile'
-				fontSize={'var(--ft-body)'}
-				sx={{ borderRadius: 'var( --big-radius)' }}
-			>
-				{email}
-			</Typography>
+			<div className='profile'>
+				<div style={{fontSize:'var(--ft-paragraph)'}}>
+					<PersonIcon fontSize={'inherit'}/>
+				</div>
+				<Typography
+					fontSize={'var(--ft-body)'}
+				>
+					{email}
+				</Typography>
+			</div>
 		)
 	}
 	const renderDropDown = (): React.ReactNode => {

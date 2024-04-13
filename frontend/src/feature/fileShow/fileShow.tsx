@@ -15,7 +15,8 @@ interface FileShowProps {
 	onDelete: () => void;
 	dirPath?: string
 	author: string,
-	config: { isDelete?: boolean, isShare?: boolean }
+	config: { isDelete?: boolean, isShare?: boolean },
+	onFavourite?: () => void,
 }
 
 export const FileShow: FC<FileShowProps> = ({
@@ -27,6 +28,7 @@ export const FileShow: FC<FileShowProps> = ({
 	size,
 	onClick,
 	onDelete,
+	onFavourite,
 	dirPath,
 	config
 }) => {
@@ -73,8 +75,11 @@ export const FileShow: FC<FileShowProps> = ({
 								event.stopPropagation();
 								onDelete();
 								setOpenDropDown(false)
-							}} >Delete</div>
+							}}>Удалить</div>
 							: null}
+						<div onClick={onFavourite}>
+							В Избранное
+						</div>
 						{config.isShare ?
 							<div
 								onClick={(event) => {
@@ -83,7 +88,7 @@ export const FileShow: FC<FileShowProps> = ({
 									setOpenDropDown(false)
 								}}
 							>
-								Share
+								Поделиться
 							</div>
 							: null}
 					</DropDown>
@@ -99,7 +104,7 @@ export const FileShow: FC<FileShowProps> = ({
 					/>
 					: null}
 
-				<Typography fontSize={'var(--ft-body)'} className="size">{size}</Typography>
+				<Typography fontSize={'var(--ft-body)'} className="size">{size === '0 B' ? null : size}</Typography>
 			</div>
 		</>
 	);

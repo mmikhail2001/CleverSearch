@@ -7,6 +7,7 @@ import { AccessRights } from '@models/searchParams';
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import './shared.scss'
 import { Typography } from '@mui/material';
+import {Option} from '@models/additional'
 
 interface SharedProps {
     dirPath: string,
@@ -19,6 +20,17 @@ const getValFromOption = (newVal: string[]): string => {
     }
     if (newVal) return newVal;
     return 'reader';
+}
+
+const getOptionFromVal = (val: string): Option => {
+    switch(val) {
+        case 'writer':
+            return  { label: 'Редактор', value: 'writer' } as Option
+        case 'reader':
+            return { label: 'Читатель', value: 'reader' } as Option
+        default:
+            return { label: 'Редактор', value: 'writer' } as Option
+    }
 }
 
 const useCopyState = (): [boolean, () => void] => {
@@ -49,6 +61,7 @@ export const Shared: FC<SharedProps> = ({
                 onKeyDown={(e) => {
                     if (e.key.toLowerCase() === 'enter') {
                         setEmail([...emails, currentEmail])
+                        setCurrentEmail('')
                     }
                 }}
                 placeholder={'Почты для доступа'}
@@ -96,7 +109,7 @@ export const Shared: FC<SharedProps> = ({
                     { label: 'Редактор', value: 'writer' },
                     { label: 'Читатель', value: 'reader' }
                 ]}
-                defaultValue={[{ label: 'Редактор', value: 'writer' }]}
+                defaultValue={[getOptionFromVal(accessType)]}
                 onChange={(newValue: string[]) => {
                     switch (getValFromOption(newValue)) {
                         case 'writer':

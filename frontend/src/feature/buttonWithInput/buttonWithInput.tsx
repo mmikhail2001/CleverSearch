@@ -26,10 +26,15 @@ export const ButtonWithInput: FC<ButtonWithInputProps> = ({
   return (
     <div className={className || ''}>
       <Button
+        isFullSize={true}
         fontSize='var(--ft-body)'
         variant={variant}
         buttonText={buttonText}
-        clickHandler={handleClick}
+        clickHandler={(e) => {
+          e.preventDefault()
+          handleClick()
+        }
+        }
         disabled={false}
       ></Button>
       <input
@@ -39,6 +44,7 @@ export const ButtonWithInput: FC<ButtonWithInputProps> = ({
         disabled={disabled}
         className={'hidden-input'}
         onChange={(event) => {
+          console.log('CHANGE EVENT', event.target)
           const files = event.target.files;
           if (files) {
             onChange(files);

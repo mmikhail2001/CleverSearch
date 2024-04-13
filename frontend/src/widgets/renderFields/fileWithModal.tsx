@@ -43,6 +43,7 @@ export const FileWithModal: FC<FileWithModalProps> = ({
 			<FileShow
 				key={file.id}
 				author={file.email}
+				onFavourite={() => {console.log('TODO FAVOURITE')}}
 				iconSrc={iconSrc}
 				altText={file.is_dir ? 'folder' : 'file'}
 				filename={file.is_dir ? splitPath[splitPath.length - 1] : file.filename}

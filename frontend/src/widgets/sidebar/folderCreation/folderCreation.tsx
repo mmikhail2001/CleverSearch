@@ -7,13 +7,15 @@ import React, { FC, useEffect, useState } from 'react';
 
 interface FolderCreationProps {
 	onFolderCreation: () => void,
-	dirs: string[]
+	dirs: string[],
+	className?: string,
 }
 
 
 export const FolderCreation: FC<FolderCreationProps> = ({
 	onFolderCreation,
-	dirs
+	dirs,
+	className,
 }) => {
 	const [isModalOpen, setisModalOpen] = useState(false);
 	const [createDir, resp] = useCreateDirMutation();
@@ -36,8 +38,9 @@ export const FolderCreation: FC<FolderCreationProps> = ({
 		&& resp.error.data.status === 3
 
 	return (
-		<div>
+		<div className={className}>
 			<Button
+				isFullSize={true}
 				fontSize='var(--ft-body)'
 				buttonText="Добавить папку"
 				variant={'contained'}

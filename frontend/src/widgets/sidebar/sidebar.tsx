@@ -26,6 +26,9 @@ import { ConnectedClouds } from '@models/user';
 import { transfromToShowRequestString } from '@api/transforms';
 import { changeDir, newValues } from '@store/showRequest';
 import {FileUploadNotification} from '@feature/fileUploadNotification/fileUploadNotification'
+import { DropDown } from '@entities/dropDown/dropDown';
+import { Button } from '@entities/button/button';
+import { PopOver } from '@entities/popover/popover';
 
 interface SidebarProps {
 	width: string;
@@ -52,9 +55,25 @@ export const Sidebar: FC<SidebarProps> = ({
 
 	const param = useAppSelector((state) => state.searchRequest);
 
-	const [send] = usePushFileMutation();
+	const [send, sendResp] = usePushFileMutation();
 	const { email } = useAppSelector(state => state.userAuth)
 	const logout = useLogout()
+	const [filesWasSend, setFilesWasSend] = useState<boolean>(false) 
+
+	const [openModal, setOpenModal] = useState<boolean>(false)
+
+	useEffect(() =>{
+		if (sendResp && sendResp.isSuccess && filesWasSend) {
+			if (isSearch) {
+				search(param);
+			} else if (isShow) {
+				show({...showParam, disk: showReq.disk, dir: showReq.dir });
+				dispatch(newValues({...showParam, disk: showReq.disk, dir: showReq.dir}))
+			}
+			setFilesWasSend(false)
+		}
+
+	}, [filesWasSend,sendResp])
 
 	let nameOfDisk: diskTypes;
 	if (typeof showReq.disk === 'string') {
@@ -80,40 +99,38 @@ export const Sidebar: FC<SidebarProps> = ({
 							/>
 						}
 					</div>
-					<ButtonWithInput
-						buttonText="Добавить"
-						onChange={(files: FileList) => {
-							const debouncFunc = debounce(() => {
+					<div className='button_sidebar'>
+						<ButtonWithInput
+							buttonText="Добавить файл"
+							onChange={(files: FileList) => {
+								const debouncFunc = debounce(() => {
+									setFilesWasSend(true)
+								}, 300);
+								
+								Array.from(files).forEach((file) => {
+									const formData = new FormData();
+
+									formData.append('file', file, file.name);
+									formData.append('dir', ['', ...showReq.dir].join('/'));
+									send(formData);
+									debouncFunc();
+								});
+							}}
+							disabled={false}
+							variant={'contained'}
+						></ButtonWithInput>
+						<FolderCreation
+							dirs={showReq.dir}
+							onFolderCreation={() => {
 								if (isSearch) {
 									search(param);
-								} else if (isShow) {
+								} else {
 									show({...showParam, disk: showReq.disk, dir: showReq.dir });
 									dispatch(newValues({...showParam, disk: showReq.disk, dir: showReq.dir}))
 								}
-							}, 300);
-							Array.from(files).forEach((file) => {
-								const formData = new FormData();
-
-								formData.append('file', file, file.name);
-								formData.append('dir', ['', ...showReq.dir].join('/'));
-								send(formData);
-								debouncFunc();
-							});
-						}}
-						disabled={false}
-						variant={'contained'}
-					></ButtonWithInput>
-					<FolderCreation
-						dirs={showReq.dir}
-						onFolderCreation={() => {
-							if (isSearch) {
-								search(param);
-							} else {
-								show({...showParam, disk: showReq.disk, dir: showReq.dir });
-								dispatch(newValues({...showParam, disk: showReq.disk, dir: showReq.dir}))
-							}
-						}}
-					/>
+							}}
+						/>
+					</div>
 					<DiskView
 						needSelect={isShow}
 						setSelectedState={(disk: diskTypes | ConnectedClouds
@@ -145,7 +162,7 @@ export const Sidebar: FC<SidebarProps> = ({
 					<div className="under-disks">
 						<TextWithImg
 							text="В обработке"
-							className={['text-with-img', 'work-in-progress', 'not-done', isProccessed ? 'selected' : '', 'text-with-img-row'].join(' ')}
+							className={['text-with-img', 'work-in-progress', isProccessed ? 'selected' : '', 'text-with-img-row'].join(' ')}
 							imgSrc={RobotSVG}
 							altImgText="Робот"
 							onClick={() => {

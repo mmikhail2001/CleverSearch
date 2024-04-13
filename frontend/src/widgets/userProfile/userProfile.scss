@@ -5,4 +5,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    border-radius: var( --big-radius);
+
+    gap: var(--normal-padding);
+    padding: var(--normal-padding);
 }

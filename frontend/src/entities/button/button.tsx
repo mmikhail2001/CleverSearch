@@ -14,7 +14,8 @@ interface ButtonProps {
 	className?: string;
 	size?: SizeBtn;
 	startIconSrc?: string;
-	fontSize?: string
+	fontSize?: string;
+	isFullSize?:boolean;
 }
 
 function getClassForButton(disabled: boolean, variant: VariantBtn): string {
@@ -36,7 +37,8 @@ export const Button: FC<ButtonProps> = ({
 	className,
 	size,
 	startIconSrc,
-	fontSize
+	fontSize,
+	isFullSize,
 }) => {
 	if (disabled === undefined || disabled === null) disabled = false;
 	let clkHandler: (e: React.MouseEvent<HTMLButtonElement>) => void;
@@ -48,6 +50,7 @@ export const Button: FC<ButtonProps> = ({
 
 	return (
 		<UIButton
+			fullWidth={isFullSize}
 			variant={variant}
 			size={size || 'small'}
 			disabled={disabled}

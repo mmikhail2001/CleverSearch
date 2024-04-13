@@ -1,7 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { SearchParams, fileTypes } from '@models/searchParams';
 import { diskTypes } from '@models/disk';
-import { compareArrays, isDiskEqual } from '@helpers/hooks/useShowParams';
 
 const searchSlice = createSlice({
 	name: 'searchReq',
