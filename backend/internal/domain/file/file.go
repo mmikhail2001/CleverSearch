@@ -60,17 +60,23 @@ type File struct {
 	ContentType string
 	Extension   string
 	Status      StatusType
-	IsShared    bool
-	ShareAccess AccessType
-	ShareLink   string
-	Link        string
-	CloudID     string
-	CloudEmail  string
-	MLData      interface{}
-	Disk        DiskType
-	PageNumber  int
-	Timestart   int
-	Duration    time.Duration
+
+	IsShared       bool
+	ShareAccess    AccessType
+	IsShareByEmail bool
+	ShareLink      string
+
+	Link string
+
+	Disk       DiskType
+	CloudID    string
+	CloudEmail string
+
+	PageNumber int
+	Timestart  int
+	Duration   time.Duration
+
+	MLData interface{}
 }
 
 type FileType string
@@ -119,4 +125,13 @@ type RequestToShare struct {
 	ShareAccess AccessType
 	ByEmails    bool
 	Emails      []string
+}
+
+type SharedDir struct {
+	ID          string
+	FileID      string
+	UserID      string
+	Accepted    bool
+	ShareAccess AccessType
+	Path        string
 }

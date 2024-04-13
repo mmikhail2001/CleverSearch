@@ -70,7 +70,7 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		for _, searchItem := range response.Text {
 			file, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
-				log.Println("GetFileByID error:", err)
+				log.Println("GetFileByID (Text) error:", err)
 				return nil, err
 			}
 			file.PageNumber = searchItem.PageNumber
@@ -82,7 +82,7 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		for _, searchItem := range response.Image {
 			file, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
-				log.Println("GetFileByID error:", err)
+				log.Println("GetFileByID (Image) error:", err)
 				return nil, err
 			}
 			files = append(files, file)
@@ -93,7 +93,7 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		for _, searchItem := range response.Audio {
 			file, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
-				log.Println("GetFileByID error:", err)
+				log.Println("GetFileByID (Audio) error:", err)
 				return nil, err
 			}
 			file.Timestart = searchItem.Timestart
@@ -105,7 +105,7 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		for _, searchItem := range response.Video {
 			file, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
-				log.Println("GetFileByID error:", err)
+				log.Println("GetFileByID (Video) error:", err)
 				return nil, err
 			}
 			file.Timestart = searchItem.Timestart

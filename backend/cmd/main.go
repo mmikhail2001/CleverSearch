@@ -61,9 +61,17 @@ import (
 // если директория была пошерена для всех (sharing_by_emails=false), то нужно сразу добавлять пользователя в shared_dirs
 
 // --- writer sharing
+
 // проверять директорию, в которую upload (delete)
 // если она shared_dirs для данного пользователя (значит ее нет в files у данного пользователя)
 // то проверять в shared_dirs, какие права у пользователя на нее (writer или reader)
+// если права пользователяют, то нужно добоавить файл в общую директорию
+
+// 1. добавление файла - автор - текущий пользователь
+// 			проверка всех поддиректорий (они созданы другим пользователем)
+// 2. создание директории
+// 3. удаление - не смотреть на автора
+
 // apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
 // apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
 

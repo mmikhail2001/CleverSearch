@@ -15,7 +15,7 @@ type Repository interface {
 	PublishMessage(ctx context.Context, file file.File) error
 	GetFileByID(ctx context.Context, uuidFile string) (file.File, error)
 	GetFileByPath(ctx context.Context, path string, userID string) (file.File, error)
-	GetSharedDirs(ctx context.Context, path string, userID string) ([]file.File, error)
+	GetSharedDirs(ctx context.Context, path string, userID string, accepted bool) ([]file.File, error)
 	SmartSearch(ctx context.Context, options file.FileOptions) ([]file.File, error)
 	Search(ctx context.Context, options file.FileOptions) ([]file.File, error)
 	CreateDir(ctx context.Context, file file.File) error
@@ -24,8 +24,11 @@ type Repository interface {
 	UploadToStorage(ctx context.Context, fileReader io.Reader, file file.File) (file.File, error)
 	RemoveFromStorage(ctx context.Context, file file.File) error
 	DownloadFile(ctx context.Context, filePath string) (io.ReadCloser, error)
-	AddUserToSharingDir(ctx context.Context, file file.File, userID string, accessType file.AccessType) error
+	// AddUserToSharingDir(ctx context.Context, file file.File, userID string, accessType file.AccessType) error
 	IsBucketEmpty(ctx context.Context, bucketName string) (bool, error)
+	GetSharedDir(ctx context.Context, fileID string, userID string) (file.SharedDir, error)
+	InsertSharedDir(ctx context.Context, sharedDir file.SharedDir) error
+	UpdateSharedDir(ctx context.Context, sharedDir file.SharedDir) (file.SharedDir, error)
 }
 
 type UserUsecase interface {
