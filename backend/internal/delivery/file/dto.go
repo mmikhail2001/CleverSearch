@@ -42,10 +42,10 @@ type DeleteFilesDTO struct {
 }
 
 type RequestToShareDTO struct {
-	Path        string          `json:"dir"`
-	ShareAccess file.AccessType `json:"access_type"`
-	ByEmails    bool            `json:"by_emails"`
-	Emails      []string        `json:"emails"`
+	Path        string   `json:"dir"`
+	ShareAccess string   `json:"access_type"`
+	ByEmails    bool     `json:"by_emails"`
+	Emails      []string `json:"emails"`
 }
 
 type ResponseShareLinkDTO struct {

@@ -321,8 +321,14 @@ func (h *Handler) ShareDir(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var reqShare file.RequestToShare
-	dto.Map(&reqShare, &req)
+	err := dto.Map(&reqShare, &req)
+	if err != nil {
+		log.Println("map err:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
+	reqShare.ShareAccess = file.AccessType(req.ShareAccess)
 	shareLink, err := h.usecase.GetSharingLink(r.Context(), reqShare)
 	if err != nil {
 		log.Println("Error ShareDir usecase", err)
