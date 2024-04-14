@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useRef } from 'react';
-import { FormControlLabel, Paper, PopoverOrigin, TextFieldPropsSizeOverrides, TextFieldVariants, TextField as UIInput, createTheme } from '@mui/material'
+import { PopoverOrigin } from '@mui/material'
 import { Popover as UIPopover } from '@mui/material'
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
@@ -26,11 +26,11 @@ export const PopOver: FC<PopOverProps> = ({
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const ref = useRef<HTMLDivElement>(null)
 
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    const handleClick = () => {
         toggleOpen(true)
     };
 
-    const handleClose = (event: React.MouseEvent<HTMLElement>) => {
+    const handleClose = () => {
         toggleOpen(false)
     };
 

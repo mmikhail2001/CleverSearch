@@ -109,9 +109,9 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 								src={VolumeLow}
 								alt={'Volume-low'}
 							/>}
-						children={
-							[
-								<Box sx={
+					>
+						[
+							<Box sx={
 									{
 										height: 130,
 										overflow: 'hidden',
@@ -142,9 +142,7 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 										}}
 									/>
 								</Box>
-							]
-						}
-					>
+						]
 					</DropDown>
 				</div>
 				<div className='fullscreen-container'>

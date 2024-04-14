@@ -26,8 +26,6 @@ export interface RenderFieldsProps {
 	openFolder: (dirToShow: string[]) => void,
 }
 
-
-
 export const RenderFields: FC<RenderFieldsProps> = ({
 	data,
 	error,
@@ -135,13 +133,13 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 					let iconSrc = '';
 
 					if (file.is_dir) {
-						const props: renderReturns = getDirProps(file);
+						const dirProp: renderReturns = getDirProps(file);
 
-						iconSrc = props.imgSrc;
-						clickHandler = props.clickHandler
-						renderModal = props.renderModal
+						iconSrc = dirProp.imgSrc;
+						clickHandler = dirProp.clickHandler
+						renderModal = dirProp.renderModal
 					} else {
-						let props: renderReturns;
+						let fileProp: renderReturns;
 						let authToken = '';
 
 						const disktmp = disks.clouds.find(val => val.cloud_email === file.cloud_email)
@@ -149,28 +147,28 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 						
 						switch (file.file_type) {
 							case 'img':
-								props = getImageProps(file, isOpen, changeState,authToken);
+								fileProp = getImageProps(file, isOpen, changeState,authToken);
 
-								iconSrc = props.imgSrc
-								clickHandler = props.clickHandler
-								renderModal = props.renderModal
+								iconSrc = fileProp.imgSrc
+								clickHandler = fileProp.clickHandler
+								renderModal = fileProp.renderModal
 								break;
 							case 'text':
 								
 
-								props = getPdfProps(file, isOpen, changeState, authToken);
+								fileProp = getPdfProps(file, isOpen, changeState, authToken);
 
-								iconSrc = props.imgSrc
-								clickHandler = props.clickHandler
-								renderModal = props.renderModal
+								iconSrc = fileProp.imgSrc
+								clickHandler = fileProp.clickHandler
+								renderModal = fileProp.renderModal
 								break;
 							case 'video':
 							case 'audio':
-								props = getVideoProps(file, isOpen, changeState,authToken);
+								fileProp = getVideoProps(file, isOpen, changeState,authToken);
 
-								iconSrc = props.imgSrc
-								clickHandler = props.clickHandler
-								renderModal = props.renderModal
+								iconSrc = fileProp.imgSrc
+								clickHandler = fileProp.clickHandler
+								renderModal = fileProp.renderModal
 								break;
 
 							default:

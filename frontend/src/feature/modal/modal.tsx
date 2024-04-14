@@ -1,6 +1,5 @@
-import React, { FC, useEffect, useRef } from 'react';
+import React, { FC } from 'react';
 import './modal.scss'
-import { Button } from '@entities/button/button';
 import { DialogActions, DialogContent, Dialog as UIDialog } from '@mui/material'
 
 interface ModalProps {
@@ -39,12 +38,13 @@ export const Modal: FC<ModalProps> = ({
             fullWidth={isFullWidth}
             scroll='paper'
             fullScreen={isFullscreen}
+            className={className}
         >
             <DialogContent>
                 {children}
             </DialogContent>
             {bottomFrame ?
-                <DialogActions onClick={(e) => e.preventDefault()}>
+                <DialogActions className={bodyClassName} onClick={(e) => e.preventDefault()}>
                     {bottomFrame}
                 </DialogActions>
                 :

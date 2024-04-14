@@ -1,7 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { ConnectedClouds } from '@models/user';
 import { diskTypes } from '@models/disk';
-import { selectClasses } from '@mui/material';
 
 export interface disksStore {
     clouds: ConnectedClouds[],

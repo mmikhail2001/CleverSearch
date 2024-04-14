@@ -60,7 +60,7 @@ export const SearchBox: FC<SearchBoxProps> = ({
 					fontSize={fontSize}
 					variant={'outlined'}
 					buttonText="Искать"
-					clickHandler={(e) => {
+					clickHandler={() => {
 						search();
 						onClick();
 					}}

@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
 import './button.scss';
 import { Button as UIButton } from '@mui/material';
-import CSS from 'csstype'
 
 export type VariantBtn = 'contained' | 'outlined' | 'text'
 export type SizeBtn = 'small' | 'medium' | 'large'
@@ -16,17 +15,6 @@ interface ButtonProps {
 	startIconSrc?: string;
 	fontSize?: string;
 	isFullSize?:boolean;
-}
-
-function getClassForButton(disabled: boolean, variant: VariantBtn): string {
-	let out: string = '';
-	if (disabled) {
-		out = 'button disabled-button';
-	} else {
-		out = 'button';
-	}
-	out += disabled ? ` ${variant}` + ` disabled-${variant} ` : ` ${variant}`;
-	return out;
 }
 
 export const Button: FC<ButtonProps> = ({
@@ -50,6 +38,7 @@ export const Button: FC<ButtonProps> = ({
 
 	return (
 		<UIButton
+			className={className}
 			fullWidth={isFullSize}
 			variant={variant}
 			size={size || 'small'}

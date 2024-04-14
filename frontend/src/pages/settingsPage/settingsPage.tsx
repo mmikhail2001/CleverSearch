@@ -1,15 +1,11 @@
-import { Modal } from '@feature/modal/modal';
 import { DiskType, diskImgSrc, diskTypes, isDiskType } from '@models/disk';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
-import LogoutIcon from '@mui/icons-material/Logout';
 import { Typography } from '@mui/material';
 import React, { FC, useEffect, useState } from 'react';
-import { useMobile } from 'src/mobileProvider';
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
 import { useDiskLinkConnectMutation } from '@api/diskApi';
 import { useNavigate } from 'react-router-dom';
-import { useLogout } from '@helpers/hooks/logout';
 
 import './settings.scss'
 
@@ -72,7 +68,7 @@ export const SettingsPage: FC = () => {
 			}
 		</div>
 		<div style={{
-			display: "flex",
+			display: 'flex',
 			justifyContent: 'space-between',
 			width: '300px',
 			fontSize: '2.4rem',
@@ -80,7 +76,7 @@ export const SettingsPage: FC = () => {
 			<div onClick={() => navigate('/')} style={{
 				width: '100%',
 				alignItems: 'center',
-				display: "flex",
+				display: 'flex',
 				flexDirection: 'column',
 				cursor: 'pointer'
 			}}>

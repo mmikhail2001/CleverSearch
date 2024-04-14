@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import './input.scss';
-import { TextFieldPropsSizeOverrides, TextFieldVariants, TextField as UIInput } from '@mui/material'
+import { TextFieldVariants, TextField as UIInput } from '@mui/material'
 import CSS from 'csstype';
 
 interface InputProps {
@@ -56,7 +56,7 @@ export const Input: FC<InputProps> = ({
 			onKeyDown={onKeyDown}
 			sx={{ fontSize: fontSize }}
 			inputProps={{ style: { fontSize: fontSize } }}
-			onChange={onChange}
+			onChange={changeHandler}
 		/>
 	);
 };

@@ -1,4 +1,4 @@
-import { diskImgSrc, diskTypes } from '@models/disk';
+import { diskTypes } from '@models/disk';
 import { switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
 import React, { FC, useEffect, useState } from 'react';
@@ -24,11 +24,8 @@ import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import { DiskView } from './diskView/diskView'
 import { ConnectedClouds } from '@models/user';
 import { transfromToShowRequestString } from '@api/transforms';
-import { changeDir, newValues } from '@store/showRequest';
+import { newValues } from '@store/showRequest';
 import {FileUploadNotification} from '@feature/fileUploadNotification/fileUploadNotification'
-import { DropDown } from '@entities/dropDown/dropDown';
-import { Button } from '@entities/button/button';
-import { PopOver } from '@entities/popover/popover';
 
 interface SidebarProps {
 	width: string;
@@ -59,8 +56,6 @@ export const Sidebar: FC<SidebarProps> = ({
 	const { email } = useAppSelector(state => state.userAuth)
 	const logout = useLogout()
 	const [filesWasSend, setFilesWasSend] = useState<boolean>(false) 
-
-	const [openModal, setOpenModal] = useState<boolean>(false)
 
 	useEffect(() =>{
 		if (sendResp && sendResp.isSuccess && filesWasSend) {
@@ -226,8 +221,10 @@ export const Sidebar: FC<SidebarProps> = ({
 				isOpen={isOpen}
 				closeModal={() => toggleShow(false)}
 				isFullscreen={true}
-				children={renderSidebar()} className={''}
-			/>
+				className={''}
+			>
+				{renderSidebar()}
+			</Modal>
 		)
 	}
 

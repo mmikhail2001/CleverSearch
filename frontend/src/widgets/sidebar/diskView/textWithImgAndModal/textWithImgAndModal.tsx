@@ -1,12 +1,10 @@
-import { TextWithImg } from "@feature/textWithImg/textWithimg";
-import { DiskType, diskTypes, isDiskType } from "@models/disk";
-import { ConnectedClouds } from "@models/user";
-import { FC, useRef, useState } from "react";
+import { TextWithImg } from '@feature/textWithImg/textWithimg';
+import { DiskType, diskTypes } from '@models/disk';
+import { ConnectedClouds } from '@models/user';
+import React,{ FC, useRef, useState } from 'react';
 import { Modal } from '@feature/modal/modal';
-import InfoIcon from '@mui/icons-material/Info';
 import { SelectorMulti } from '@entities/selectors/selectorMulti/selectorMulti';
 import { Option } from '@models/additional';
-import { Typography } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 const isSelectedDisk =
@@ -103,7 +101,8 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
             <Modal
                 isOpen={isOpen}
                 closeModal={() => setOpen(false)}
-                children={<div style={{ width: '250px' }}>
+            >
+                <div style={{ width: '250px' }}>
                     <SelectorMulti
                         defaultValue={emailSelectCloud[0] ? [transformToOption(emailSelectCloud[0].cloud_email)] : null}
                         isMulti={false}
@@ -119,8 +118,8 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
                                     .find(val => val.cloud_email === newValues[0])
                             )
                         }} />
-                </div>}
-            />
+                </div>
+            </Modal>
         </>
     );
 };

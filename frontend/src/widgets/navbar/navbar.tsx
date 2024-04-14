@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC } from 'react';
 import './navbar.scss';
 import { UserProfile } from '@widgets/userProfile/userProfile'
 import { SearchLine } from '@widgets/searchLine/searchLine';

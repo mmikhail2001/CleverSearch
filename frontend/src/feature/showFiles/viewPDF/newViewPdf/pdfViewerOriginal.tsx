@@ -87,8 +87,7 @@ const PdfViewer: FC<PdfViewerProps> = ({
   const renderPage: FC<ListChildComponentProps> = ({ index, style }) => {
     fetchPage(index);
     return (
-      // @ts-ignore
-      // HACK
+      // @ts-expect-error HACK
       <Page style={style}>
         <PdfPage page={pages[index]} scale={scale} />
       </Page>

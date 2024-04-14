@@ -9,7 +9,6 @@ import { Typography } from '@mui/material';
 import { Option } from '@models/additional';
 import { SelectorMulti } from '@entities/selectors/selectorMulti/selectorMulti';
 import { useAppSelector } from '@store/store';
-import { Padding } from '@mui/icons-material';
 import { ConnectedClouds } from '@models/user';
 
 export interface SearchDiskLineProps {

@@ -32,8 +32,7 @@ export const FolderCreation: FC<FolderCreationProps> = ({
 
 	const isFolderErr = resp.isError && resp.error
 		&& 'data' in resp.error
-		// @ts-expect-error
-		// Check on exist at line up
+		// @ts-expect-error Check on exist at line up
 		&& 'status' in resp.error.data
 		&& resp.error.data.status === 3
 
@@ -68,7 +67,7 @@ export const FolderCreation: FC<FolderCreationProps> = ({
 							: null
 					}
 					{
-						isFolderErr
+						isFolderErr && resp.isError
 							? <Typography
 								fontSize={'var(--ft-body)'}
 							>

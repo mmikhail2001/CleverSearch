@@ -1,13 +1,11 @@
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
-import { diskImgSrc, diskTypes, isDiskType } from '@models/disk';
+import { diskImgSrc, diskTypes } from '@models/disk';
 import { useAppSelector } from '@store/store';
 import { selectCloud } from '@store/userDisks';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { TextWithImgAndModal } from './textWithImgAndModal/textWithImgAndModal';
 import { useUpdateDiskMutation } from '@api/diskApi';
-import { ConnectedClouds } from '@models/user';
-import { isDiskEqual } from '@helpers/hooks/useShowParams';
 import { newValues } from '@store/showRequest';
 
 

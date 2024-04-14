@@ -60,11 +60,11 @@ export const UserProfile: FC<UserProfileProps> = ({
 			open={isOpenProfile}
 			toggleOpen={setOpen}
 			mainElement={profileMain()}
-			children={[
+		>
+			[
 				<div onClick={() => navigate('/settings')}>Настройки</div>,
 				<div onClick={logout}>Выйти</div>,
-			]}
-		>
+			]
 		</DropDown >)
 	}
 

@@ -1,16 +1,12 @@
 import React, { FC, useEffect, useState } from 'react';
-import { MultiValue, SingleValue } from 'react-select';
-import AsyncSelect from 'react-select/async';
 
 import { Option } from '@models/additional'
 import { debounce } from '@helpers/debounce';
-import { Autocomplete, CircularProgress, TextField } from '@mui/material';
-import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
+import { Autocomplete, TextField } from '@mui/material';
 
 interface SelectorAsyncProps {
 	loadFunction: (inputValue: string) => Promise<Option[]>;
 	isMulti?: boolean;
-	cacheOptions: boolean;
 	onChange: (
 		newVal: string[]
 	) => void;
@@ -24,7 +20,6 @@ interface SelectorAsyncProps {
 export const SelectorAsync: FC<SelectorAsyncProps> = ({
 	loadFunction,
 	isMulti,
-	cacheOptions,
 	onChange,
 	defaultOption,
 	debounceTime,
@@ -38,7 +33,7 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 
 	const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
 	const handleChange = (event: React.SyntheticEvent<Element, Event>, value: Option): void => {
-		let arrVal: Option[] = Array.isArray(value) ? value : [value]
+		const arrVal: Option[] = Array.isArray(value) ? value : [value]
 
 		setSelectedValues(arrVal.map(val => val.value))
 		onChange(arrVal.map(val => val.value))

@@ -9,8 +9,7 @@ import './fileUploadNotification.scss'
 interface FileUploadNotificationProps {
 }
 
-export const FileUploadNotification: FC<FileUploadNotificationProps> = ({
-}) => {
+export const FileUploadNotification: FC<FileUploadNotificationProps> = () => {
     const {fileToNotify} = useAppSelector(state => state.fileProcess)
     const {isShared} = useAppSelector(state => state.whatToShow)
     const dispatch = useDispatch()
@@ -34,8 +33,9 @@ export const FileUploadNotification: FC<FileUploadNotificationProps> = ({
                 }}
                 className="notify"
                 autoHideDuration={5000}
-                children={<Typography fontSize={'var(--ft-body)'}>Файл обработан: {file.filename}</Typography>}
-            ></NotificationBar>
+            >
+                <Typography fontSize={'var(--ft-body)'}>Файл обработан: {file.filename}</Typography>
+            </NotificationBar>
         </React.Fragment>
     );
 };

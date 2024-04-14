@@ -4,9 +4,8 @@ import React, { FC } from 'react';
 import { SearchDiskLine } from './searchLines/searchDisk';
 import { SearchFileType } from './searchLines/searchFilteType';
 import { SearchFolderLine } from './searchLines/searchFolder';
-import { Checkbox } from '@entities/checkbox/Checkbox';
 import { Switch } from '@entities/switch/switch'
-import { styled } from '@mui/material/styles';
+
 interface AllSearchLinesProps {
 	changeState: React.Dispatch<React.SetStateAction<SearchParamsLocal>>;
 	state: SearchParamsLocal;
@@ -14,7 +13,6 @@ interface AllSearchLinesProps {
 	search: () => void;
 	fontSize?: string;
 }
-
 
 export const AllSearchLines: FC<AllSearchLinesProps> = ({
 	changeState,

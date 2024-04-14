@@ -44,7 +44,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 	width
 }) => {
 	const [isBoxOpen, setisBoxOpen] = useState(false);
-	const [search, response] = useSearchMutation({ fixedCacheKey: 'search' });
+	const [, response] = useSearchMutation({ fixedCacheKey: 'search' });
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 
@@ -113,7 +113,6 @@ export const SearchLine: FC<SearchLineProps> = ({
 			open={isBoxOpen}
 			toggleOpen={setisBoxOpen}
 			isCloseOnSelect={false}
-			children={[renderOpenBox()]}
 			mainElement={
 				<div className={['search-line', isBoxOpen ? 'open-search-line' : ''].join(' ')}
 					style={{ width: width }
@@ -157,6 +156,8 @@ export const SearchLine: FC<SearchLineProps> = ({
 					</div>
 				</div >
 			}
-		/>
+		>
+			{[renderOpenBox()]}
+		</PopOver>
 	);
 };

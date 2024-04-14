@@ -12,9 +12,8 @@ export interface renderReturns {
 export interface FileWithModalProps {
 	file: fileFile,
 	deleteFile: (fileName: string) => void,
-	getFileProps: (file: fileFile, isOpen: boolean, changeState: (isOpen: boolean) => void) => renderReturns
+	getFileProps: (file: fileFile, isOpen: boolean, changeState: (isOpen: boolean) => void) => renderReturns,
 }
-
 
 export const FileWithModal: FC<FileWithModalProps> = ({
 	file,
@@ -23,19 +22,15 @@ export const FileWithModal: FC<FileWithModalProps> = ({
 }) => {
 	const [isOpen, setOpen] = useState(false)
 
-	const props = getFileProps(file, isOpen, (isOpen) => { setOpen(isOpen) })
-
-	const renderModal = props.renderModal;
-	const clickHandler = props.clickHandler;
-	const iconSrc = props.imgSrc;
-
+	const fileProp: renderReturns = getFileProps(file, isOpen, (isOpen) => { setOpen(isOpen) })
+	const { renderModal, clickHandler, imgSrc: iconSrc } = fileProp
+	
 	const splitPath = file.path.split('/')
 	const dirPath = file.is_dir ? file.path : ''
 
 	const canBeDeleted = (file: fileFile): boolean => {
 		return !file.is_shared
 			|| file.is_shared && file.share_access === 'writer'
-
 	}
 
 	return (

@@ -71,10 +71,10 @@ export const transfromToProcessedRequestParams = (showReq: ShowParams): string =
 	return [
 		`?limit=${showReq.limit}`,
 		`&offset=${showReq.offset}`,
-		`&file_type=all`,
-		`&dir=/`,
-		`&dirs_required=false`,
-		`&files_required=true`,
+		'&file_type=all',
+		'&dir=/',
+		'&dirs_required=false',
+		'&files_required=true',
 		'&status=uploaded'
 	].join('')
 }

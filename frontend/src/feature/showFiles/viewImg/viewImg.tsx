@@ -15,13 +15,13 @@ export const ViewImg: FC<ViewImgProps> = React.memo(function viewImg({ imgSrc, a
 	useEffect(()=> {
 		setLoading(true)
 		fetch(imgSrc, {	
-		headers: {'Authorization': `Bearer ${authToken}` }
-	  }).then((result) => {
-		result.blob().then(res => {
-			setImage(URL.createObjectURL(res))
-			setLoading(false)
+			headers: {'Authorization': `Bearer ${authToken}` }
+		}).then((result) => {
+			result.blob().then(res => {
+				setImage(URL.createObjectURL(res))
+				setLoading(false)
+			})
 		})
-	  })
 	}, [])
 
 	// Release memory from object
@@ -31,7 +31,7 @@ export const ViewImg: FC<ViewImgProps> = React.memo(function viewImg({ imgSrc, a
 	}, [ref])
 		
 	return <div className='view-img-container'>
-		{loading? "loading" : <img className='view-img' src={image} alt={altText} />}
+		{loading? 'loading' : <img className='view-img' src={image} alt={altText} />}
 	</div >
 });
 

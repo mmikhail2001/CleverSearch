@@ -66,8 +66,7 @@ export const SelectorWithImg: FC<SelectorWithImgProps> = ({
 					}
 					return <em>Ничего не выбрано</em>
 				}}
-				// @ts-expect-error
-				// Error because some bad typization inside
+				// @ts-expect-error Error because some bad typization inside
 				value={selectedValues}
 			>
 				{options ? options.map((val) =>

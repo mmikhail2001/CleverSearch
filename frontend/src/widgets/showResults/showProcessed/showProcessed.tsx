@@ -3,15 +3,13 @@ import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useDeleteFileMutation } from '@api/filesApi';
-import { useSearchMutation, useShowMutation, useShowProcessedMutation } from '@api/searchApi';
+import {  useShowProcessedMutation } from '@api/searchApi';
 import { RenderFields } from '@widgets/renderFields/renderFields';
 import { useNavigate } from 'react-router-dom';
-import {  switchToProcessed, switchToShow } from '@store/whatToShow';
+import {  switchToProcessed } from '@store/whatToShow';
 import { transfromToShowRequestString } from '@api/transforms';
 import '../show.scss'
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
-import { useSearchParams } from '@helpers/hooks/useSearchParams';
-import { newValues } from '@store/showRequest';
 import { useShowParams } from '@helpers/hooks/useShowParams';
 import { removeFiles } from '@store/fileProcess';
 

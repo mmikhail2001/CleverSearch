@@ -1,11 +1,4 @@
-import { useProfileQuery } from '@api/userApi';
-import { SerializedError } from '@reduxjs/toolkit';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { useAppSelector } from '@store/store';
-import { login as loginAction, logout as logoutAction, setUserEmail } from '@store/userAuth';
 import React, { FC } from 'react';
-import { useDispatch } from 'react-redux';
-import { Navigate, useLocation } from 'react-router';
 
 // WhatDisplay show what display is now like
 // 1 -- PC
@@ -33,10 +26,10 @@ export const MobileProvider: FC<{ children: React.ReactNode }> = ({ children }) 
     };
 
     React.useEffect(() => {
-        window.addEventListener("resize", getScreenDimensions);
+        window.addEventListener('resize', getScreenDimensions);
 
         return () => {
-            window.removeEventListener("resize", getScreenDimensions);
+            window.removeEventListener('resize', getScreenDimensions);
         };
     });
 

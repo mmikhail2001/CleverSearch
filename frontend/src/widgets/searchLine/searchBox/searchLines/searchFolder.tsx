@@ -43,7 +43,6 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 						value: lastDir,
 					} : null
 				}
-				cacheOptions={true}
 				onChange={(newVal) => {
 					changeDir([transformOptionsToDirs(newVal).join('...')])
 				}

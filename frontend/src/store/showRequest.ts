@@ -1,7 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { ShowParams, fileTypes } from '@models/searchParams';
 import { diskTypes } from '@models/disk';
-import { compareArrays, isDiskEqual } from '@helpers/hooks/useShowParams';
 import { ConnectedClouds } from '@models/user';
 
 const showSlice = createSlice({

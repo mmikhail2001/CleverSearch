@@ -13,7 +13,7 @@ import { SearchResponse, fileTypes, isFileType } from './searchParams';
 export type diskTypes = 'google' | 'yandex' | 'own' | 'all';
 
 /** if text of diskType return true */
-export const isDiskType = (text: string): boolean => {
+export const isDiskType = (text: string): text is diskTypes => {
 	if (['google', 'yandex', 'own', 'all'].includes(text)) return true;
 	return false;
 };

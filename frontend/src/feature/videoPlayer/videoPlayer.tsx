@@ -38,7 +38,6 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 	url,
 	start_time,
 	duration,
-	authToken,
 }) => {
 	const player = useRef<ReactPlayer>(null)
 	const [state, setState] = useState<VideoPlayerState>({

@@ -15,7 +15,7 @@ export const Drawer: FC<DrawerProps> = ({
     isPermanent,
     width
 }) => {
-    const handleClose = (event: object, reason: string): void => {
+    const handleClose = (): void => {
         toggleDrawer(false)
     }
 

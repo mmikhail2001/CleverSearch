@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { FormControlLabel, TextFieldPropsSizeOverrides, TextFieldVariants, TextField as UIInput } from '@mui/material'
+import { FormControlLabel } from '@mui/material'
 import { Switch as UISwitch } from '@mui/material'
 
 interface SwitchProps {
@@ -23,7 +23,7 @@ export const Switch: FC<SwitchProps> = ({
 }) => {
     return (
         <FormControlLabel
-            style={{ marginLeft: "0" }}
+            style={{ marginLeft: '0' }}
             label={label}
             slotProps={{ typography: { fontSize: fontSize } }}
             labelPlacement={labelPlacement}

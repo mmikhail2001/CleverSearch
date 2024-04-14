@@ -1,11 +1,10 @@
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
-import { diskTypes, isDiskType } from '@models/disk';
+import { diskTypes } from '@models/disk';
 import { fileTypes, transformToShowParams } from '@models/searchParams';
 import { ConnectedClouds } from '@models/user';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAppSelector } from '@store/store';
 import { useDispatch } from 'react-redux';
-import { selectCloud } from '@store/userDisks';
 import { newValues } from '@store/showRequest';
 import { useParamsFromURL } from './useParamsFromURL';
 
@@ -18,7 +17,6 @@ export interface searchStateValue {
     internalDiskRequired: boolean;
 }
 
-// HACK происходит магия 200 ререндеров
 export const isDiskEqual = (prevDisk: ConnectedClouds | string, currentDisk: ConnectedClouds | string) => {
     if (typeof prevDisk !== typeof currentDisk) {
         return false
@@ -30,8 +28,8 @@ export const isDiskEqual = (prevDisk: ConnectedClouds | string, currentDisk: Con
         return prevDisk === currentDisk;
     }
 
-    if (!!!prevDisk && !!currentDisk) return false
-    if (!!prevDisk && !!!currentDisk) return false
+    if (!prevDisk && !!currentDisk) return false
+    if (!!prevDisk && !currentDisk) return false
     if (!prevDisk && !currentDisk) return true
 
     return (prevDisk as ConnectedClouds).cloud_email === (currentDisk as ConnectedClouds).cloud_email

@@ -1,6 +1,6 @@
-import { fileFile } from "./searchParams"
+import { fileFile } from './searchParams'
 
-const eventChangeStatus = "changeStatus"
+const eventChangeStatus = 'changeStatus'
 export const events = eventChangeStatus
 
 export interface Notify {

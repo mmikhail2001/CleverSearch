@@ -19,8 +19,7 @@ import { ShowSharedUUIDFiles } from '@widgets/showResults/showSharedFiles/showSh
 
 import './App.scss'
 
-// @ts-ignore
-// TODO Not find any types of this 
+// @ts-expect-error Do not what error is here. Not find any types of this 
 import * as pdfjsLib from 'pdfjs-dist/webpack.mjs';
 import { MobileProvider } from './mobileProvider';
 import { SettingsPage } from '@pages/settingsPage/settingsPage'

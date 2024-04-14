@@ -1,10 +1,10 @@
 import { Sidebar } from '@widgets/sidebar/sidebar';
-import React, { FC, useEffect, useRef, useState } from 'react';
+import React, { FC, useState } from 'react';
 
 import { useDispatch } from 'react-redux';
 import { switchToShow } from '@store/whatToShow';
 
-import { useWebsoket} from "@helpers/hooks/useWebsocket"
+import { useWebsoket} from '@helpers/hooks/useWebsocket'
 import { Navbar } from '@widgets/navbar/navbar';
 import { Outlet, useNavigate } from 'react-router-dom';
 import './mainPage.scss';

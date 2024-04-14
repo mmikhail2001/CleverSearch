@@ -1,12 +1,10 @@
 import React, { FC, useEffect } from 'react';
 import './selector.scss';
-import Selector, { ActionMeta, MultiValue, SingleValue } from 'react-select';
 import { Option } from '@models/additional'
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { OutlinedInput } from '@mui/material';
-import { render } from 'react-dom';
 
 // https://react-select.com/components
 // https://www.youtube.com/watch?v=3u_ulMvTYZI&t=269s&ab_channel=MonsterlessonsAcademy
@@ -39,10 +37,6 @@ const MenuProps = {
 
 const changeFromValueToLabel = (value: string[], options: Option[]): string[] => {
 	return value.map(val => options.find((pred) => pred.value === val).label)
-}
-
-const changeFromLabelToValue = (label: string[], options: Option[]): string[] => {
-	return label.map(val => options.find((pred) => pred.label === val).value)
 }
 
 export const SelectorMulti: FC<SelectorMultiProps> = ({
@@ -107,8 +101,7 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 				MenuProps={MenuProps}
 				input={<OutlinedInput />}
 				renderValue={handlerRenderValues}
-				// @ts-expect-error
-				// Error because some bad typization inside
+				// @ts-expect-error Error because some bad typization inside
 				value={selectedValues}
 			>
 				{options ?

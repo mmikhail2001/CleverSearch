@@ -1,6 +1,5 @@
 import React, { FC, useEffect, useRef, useState } from 'react';
 import './dropDown.scss';
-import { relative } from 'path';
 import { Menu, PopoverOrigin } from '@mui/material';
 import { MenuItem } from '@mui/material';
 import CSS from 'csstype';
@@ -28,7 +27,7 @@ export const DropDown: FC<DropDownProps> = ({
 	toggleOpen,
 	styleOnMain,
 }) => {
-	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const ref = useRef<HTMLDivElement>(null)
 
 	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
