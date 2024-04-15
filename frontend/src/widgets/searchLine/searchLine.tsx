@@ -43,7 +43,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 	onIconClick,
 	width
 }) => {
-	const [isBoxOpen, setisBoxOpen] = useState(false);
+	const [isBoxOpen, setisBoxOpen] = useState<boolean>(false);
 	const [, response] = useSearchMutation({ fixedCacheKey: 'search' });
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -82,6 +82,11 @@ export const SearchLine: FC<SearchLineProps> = ({
 		dispatch(newSearchValues(searchValue));
 		dispatch(newValues({...showReq, dir: []}))
 
+		setTimeout(
+			() => setisBoxOpen(!isBoxOpen),
+			0
+		)
+
 		const url = transformToSearchRequestString({ ...searchValue, limit: 10, offset: 0 })
 		navigate(url)
 	}
@@ -106,7 +111,6 @@ export const SearchLine: FC<SearchLineProps> = ({
 		)
 	}
 
-
 	return (
 		<PopOver
 			key={'search-popover-with-box'}
@@ -114,9 +118,9 @@ export const SearchLine: FC<SearchLineProps> = ({
 			toggleOpen={setisBoxOpen}
 			isCloseOnSelect={false}
 			mainElement={
-				<div className={['search-line', isBoxOpen ? 'open-search-line' : ''].join(' ')}
-					style={{ width: width }
-					}
+				<div 
+					className={['search-line', isBoxOpen ? 'open-search-line' : ''].join(' ')}
+					style={{ width: width, zIndex: 1301 }}
 				>
 					<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
 						<div className="search-icon-container"
@@ -149,7 +153,13 @@ export const SearchLine: FC<SearchLineProps> = ({
 					</div>
 					<div
 						className="filter-icon-container"
-						onClick={() => setisBoxOpen(!isBoxOpen)}
+						onClick={() => {
+								setTimeout(
+									() => setisBoxOpen(!isBoxOpen),
+									0
+								)
+							}
+						}
 						style={{ fontSize: 'var(--ft-title)' }}
 					>
 						<TuneIcon fontSize='inherit' />
