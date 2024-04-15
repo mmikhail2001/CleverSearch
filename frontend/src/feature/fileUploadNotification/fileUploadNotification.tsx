@@ -16,7 +16,7 @@ export const FileUploadNotification: FC<FileUploadNotificationProps> = () => {
     const [open, setOpen] = useState<boolean>(true)
     
     const file = fileToNotify[0]
-    console.log('filefile',file)
+
     if (!file) return null
     if (!open) setOpen(true)
         

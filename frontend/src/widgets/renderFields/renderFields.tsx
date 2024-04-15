@@ -43,12 +43,8 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	}
 
 	if (isError) {
-		console.log(error)
-		if ('status' in error && 'data' in error) {
 			return <h1>{getErrorMessageFromErroResp(error)}</h1>;
 		}
-		return <h1>Произошла ошибка ${JSON.stringify(error)}</h1>;
-	}
 
 	if (!data || data.length === 0) {
 		return <div>Нет никаких файлов :(</div>;

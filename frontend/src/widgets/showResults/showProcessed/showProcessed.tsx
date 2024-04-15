@@ -63,7 +63,9 @@ export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
                         )
                         navigate(url, { replace: true })
                     }}
-                    reactOnElements={[]}
+                    reactOnElements={[
+                        // TODO если сделаем папки в processed
+                    ]}
                 />
             </div>
             <RenderFields

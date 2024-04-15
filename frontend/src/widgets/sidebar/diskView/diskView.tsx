@@ -33,6 +33,7 @@ export const DiskView: FC<DiskViewProps> = ({
 
     }, [refreshResp])
 
+
     const alreadyShowed = [] as diskTypes[]
     const disksToShow = disks.clouds
         .map(

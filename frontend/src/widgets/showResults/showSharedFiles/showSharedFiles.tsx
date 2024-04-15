@@ -3,7 +3,7 @@ import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useShowSharedMutation } from '@api/searchApi';
-import { transfromToSharedRequestParams } from '@api/transforms';
+import { transfromToSharedRequestParams, transfromToShowRequestString } from '@api/transforms';
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
 import { transformToShowParams } from '@models/searchParams';
 import { switchToShared } from '@store/whatToShow';
@@ -11,7 +11,7 @@ import { RenderFields } from '@widgets/renderFields/renderFields';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../show.scss';
 import { useParamsFromURL } from '@helpers/hooks/useParamsFromURL';
-import { newValues } from '@store/showRequest';
+import { changeDir, newValues } from '@store/showRequest';
 
 interface ShowSharedFilesProps { }
 
@@ -68,7 +68,23 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 							return
 						}
 					}}
-					reactOnElements={[]}
+					reactOnElements={
+						['Shared', ...showReq.dir].map((dir, index) => {
+                            return () => {
+                                let dirToSet: string[] = []
+                                if (index !== 0) 
+                                    dirToSet = showReq.dir.slice(0, index)
+                                const url = transfromToSharedRequestParams(
+                                    {
+                                        ...showReq,
+                                        dir: dirToSet,
+                                    }
+                                )
+                                dispatch(changeDir(dirToSet))
+                                navigate(url, { replace: true })
+                            }
+                        })
+					}
 				/>
 			</div>
 			<RenderFields

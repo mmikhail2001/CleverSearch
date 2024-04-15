@@ -2,6 +2,7 @@ import { useCreateDirMutation } from '@api/filesApi';
 import { Button } from '@entities/button/button';
 import { Input } from '@entities/input/input';
 import { Modal } from '@feature/modal/modal';
+import { getErrorMessageFromErroResp } from '@helpers/getErrorMessageFromErroResp';
 import { Typography } from '@mui/material';
 import React, { FC, useEffect, useState } from 'react';
 
@@ -30,11 +31,7 @@ export const FolderCreation: FC<FolderCreationProps> = ({
 		setError(resp.isError)
 	}, [resp])
 
-	const isFolderErr = resp.isError && resp.error
-		&& 'data' in resp.error
-		// @ts-expect-error Check on exist at line up
-		&& 'status' in resp.error.data
-		&& resp.error.data.status === 3
+	const errorMessage = getErrorMessageFromErroResp(resp.error)
 
 	return (
 		<div className={className}>
@@ -58,22 +55,13 @@ export const FolderCreation: FC<FolderCreationProps> = ({
 				}}>
 					<Typography fontSize={'var(--ft-body)'}>Название папки</Typography>
 					{
-						!isFolderErr && resp.isError
-							? <Typography
-								fontSize={'var(--ft-body)'}
-							>
-								Произошла ошибка
-							</Typography>
-							: null
-					}
-					{
-						isFolderErr && resp.isError
-							? <Typography
-								fontSize={'var(--ft-body)'}
-							>
-								Папка уже существует!
-							</Typography>
-							: null
+						resp.isError
+						? <Typography
+							fontSize={'var(--ft-body)'}
+						>
+							{errorMessage}
+						</Typography>
+						: null
 					}
 					<Input
 						isError={isErrorExist}

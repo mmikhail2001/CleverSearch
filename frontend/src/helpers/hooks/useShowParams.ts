@@ -5,8 +5,9 @@ import { ConnectedClouds } from '@models/user';
 import { useEffect } from 'react';
 import { useAppSelector } from '@store/store';
 import { useDispatch } from 'react-redux';
-import { newValues } from '@store/showRequest';
+import { changeDisk, newValues } from '@store/showRequest';
 import { useParamsFromURL } from './useParamsFromURL';
+import { selectCloud } from '@store/userDisks';
 
 export interface searchStateValue {
     fileType: fileTypes[];
@@ -98,6 +99,10 @@ export const useShowParams = () => {
                     internalDiskRequired: params.internalDiskRequired,
                 })
             )
+            
+            if (typeof settedDisk !== 'string') {
+                dispatch(selectCloud(settedDisk))
+            }
         }
     }, [])
     showState.disk = typeof settedDisk === 'string'

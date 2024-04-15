@@ -9,12 +9,13 @@ interface VoidFunc {
 
 export interface BreadCrumpsProps {
     dirs: string[];
+    // Reactions on all breadcrumps
     reactOnElements?: VoidFunc[]
+    // Reaction on button on all breadcrumps, like back
     onClick: () => void
 }
 
 export const BreadCrumps: FC<BreadCrumpsProps> = ({ dirs, reactOnElements, onClick }) => {
-    // TODO подумать над тем, чтобы внедрить тут работу над ссылками, не onclick
     return <>
         <Breadcrumbs
             separator={<Typography fontSize={'var(--ft-body)'}>/</Typography>}
@@ -25,6 +26,7 @@ export const BreadCrumps: FC<BreadCrumpsProps> = ({ dirs, reactOnElements, onCli
 
                     return <Typography
                         fontSize={'var(--ft-body)'}
+                        sx={{cursor: dirs.length !== index + 1 ? 'pointer' : 'default'}}
                         key={value}
                         onClick={reactOnElements ? reactOnElements[index] : () => { }}
                     >

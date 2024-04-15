@@ -47,7 +47,9 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
                     onClick={() => {
                         navigate(-1)
                     }}
-                    reactOnElements={[]}
+                    reactOnElements={[
+                        // TODO если сделаем поиск папки, то нужно доделать это место
+                    ]}
                 />
             </div>
             <RenderFields

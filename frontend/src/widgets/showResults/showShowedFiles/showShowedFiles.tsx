@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { switchToShow } from '@store/whatToShow';
 import '../show.scss'
 import { useShowParams } from '@helpers/hooks/useShowParams'
-import { newValues } from '@store/showRequest';
+import { changeDir, newValues } from '@store/showRequest';
 
 interface ShowShowedFilesProps { }
 
@@ -69,7 +69,23 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                         )
                         navigate(url, { replace: true })
                     }}
-                    reactOnElements={[]}
+                    reactOnElements={
+                        ['Show', ...showReq.dir].map((dir, index) => {
+                            return () => {
+                                let dirToSet: string[] = []
+                                if (index !== 0) 
+                                    dirToSet = showReq.dir.slice(0, index)
+                                const url = transfromToShowRequestString(
+                                    {
+                                        ...showReq,
+                                        dir: dirToSet,
+                                    }
+                                )
+                                dispatch(changeDir(dirToSet))
+                                navigate(url, { replace: true })
+                            }
+                        })
+                    }
                 />
             </div>
             <RenderFields
