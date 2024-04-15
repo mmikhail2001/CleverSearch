@@ -18,7 +18,7 @@ import { Drawer } from '@entities/drawer/drawer';
 import { Modal } from '@feature/modal/modal';
 import { UserProfile } from '@widgets/userProfile/userProfile';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Typography } from '@mui/material';
+import { Popover, Typography } from '@mui/material';
 import { useLogout } from '@helpers/hooks/logout';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import { DiskView } from './diskView/diskView'
@@ -26,6 +26,8 @@ import { ConnectedClouds } from '@models/user';
 import { transfromToShowRequestString } from '@api/transforms';
 import { newValues } from '@store/showRequest';
 import {FileUploadNotification} from '@feature/fileUploadNotification/fileUploadNotification'
+import { PopOver } from '@entities/popover/popover';
+import { Button } from '@entities/button/button';
 
 interface SidebarProps {
 	width: string;
@@ -56,6 +58,8 @@ export const Sidebar: FC<SidebarProps> = ({
 	const { email } = useAppSelector(state => state.userAuth)
 	const logout = useLogout()
 	const [filesWasSend, setFilesWasSend] = useState<boolean>(false) 
+
+	const [isCreationPopOpen,setCreationPopOpen] = useState<boolean>(false)
 
 	useEffect(() =>{
 		if (sendResp && sendResp.isSuccess && filesWasSend) {
@@ -95,36 +99,64 @@ export const Sidebar: FC<SidebarProps> = ({
 						}
 					</div>
 					<div className='button_sidebar'>
-						<ButtonWithInput
-							buttonText="Добавить файл"
-							onChange={(files: FileList) => {
-								const debouncFunc = debounce(() => {
-									setFilesWasSend(true)
-								}, 300);
-								
-								Array.from(files).forEach((file) => {
-									const formData = new FormData();
+						<PopOver
+							styleMain={{width: '100%'}}
+							mainElement={
+								<Button
+									isFullSize={true}
+									fontSize={'var(--ft-body)'}
+									buttonText={'Создать'} 
+									clickHandler={() => setCreationPopOpen(!isCreationPopOpen) } 
+									variant={'contained'}								 
+								/>
+							}
+							open={isCreationPopOpen}
+							toggleOpen={setCreationPopOpen}
+							isCloseOnSelect={false}
+							variants='down'
+						>
+							{[
+								<div
+									style={{
+										padding: 'var(--normal-padding)',
+										gap: 'var(--normal-padding)',
+										display: 'flex',
+										flexDirection: 'column',
+									}}
+								>
+									<ButtonWithInput
+										buttonText="Добавить файл"
+										onChange={(files: FileList) => {
+											const debouncFunc = debounce(() => {
+												setFilesWasSend(true)
+											}, 300);
+											
+											Array.from(files).forEach((file) => {
+												const formData = new FormData();
 
-									formData.append('file', file, file.name);
-									formData.append('dir', ['', ...showReq.dir].join('/'));
-									send(formData);
-									debouncFunc();
-								});
-							}}
-							disabled={false}
-							variant={'contained'}
-						></ButtonWithInput>
-						<FolderCreation
-							dirs={showReq.dir}
-							onFolderCreation={() => {
-								if (isSearch) {
-									search(param);
-								} else {
-									show({...showParam, disk: showReq.disk, dir: showReq.dir });
-									dispatch(newValues({...showParam, disk: showReq.disk, dir: showReq.dir}))
-								}
-							}}
-						/>
+												formData.append('file', file, file.name);
+												formData.append('dir', ['', ...showReq.dir].join('/'));
+												send(formData);
+												debouncFunc();
+											});
+										}}
+										disabled={false}
+										variant={'contained'}
+									></ButtonWithInput>
+									<FolderCreation
+										dirs={showReq.dir}
+										onFolderCreation={() => {
+											if (isSearch) {
+												search(param);
+											} else {
+												show({...showParam, disk: showReq.disk, dir: showReq.dir });
+												dispatch(newValues({...showParam, disk: showReq.disk, dir: showReq.dir}))
+											}
+										}}
+									/>
+								</div>
+							]}
+						</PopOver>
 					</div>
 					<DiskView
 						needSelect={isShow}

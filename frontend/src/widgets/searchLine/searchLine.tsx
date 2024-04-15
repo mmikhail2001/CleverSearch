@@ -120,7 +120,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 			mainElement={
 				<div 
 					className={['search-line', isBoxOpen ? 'open-search-line' : ''].join(' ')}
-					style={{ width: width, zIndex: 1301 }}
+					style={{ width: width }}
 				>
 					<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
 						<div className="search-icon-container"
@@ -160,9 +160,17 @@ export const SearchLine: FC<SearchLineProps> = ({
 								)
 							}
 						}
-						style={{ fontSize: 'var(--ft-title)' }}
+						style={{ 
+							fontSize: 'var(--ft-title)',
+							marginLeft: 'var(--normal-padding)',
+						}}
 					>
-						<TuneIcon fontSize='inherit' />
+						<TuneIcon
+							sx={{
+								fill: 'var(--Bg-dark)',
+							}}
+							fontSize='inherit' 
+						/>
 					</div>
 				</div >
 			}

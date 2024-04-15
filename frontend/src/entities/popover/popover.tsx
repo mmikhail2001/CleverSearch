@@ -2,10 +2,12 @@ import React, { FC, useEffect, useRef } from 'react';
 import { PopoverOrigin } from '@mui/material'
 import { Popover as UIPopover } from '@mui/material'
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
+import CSS from 'csstype'
 
 export type WhereToPlace = 'up' | 'down'
 
 interface PopOverProps {
+    styleMain?: CSS.Properties
     children: React.ReactNode[]
     mainElement: React.ReactNode,
     variants?: WhereToPlace,
@@ -22,6 +24,7 @@ export const PopOver: FC<PopOverProps> = ({
     isCloseOnSelect,
     open,
     toggleOpen,
+    styleMain,
 }) => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const ref = useRef<HTMLDivElement>(null)
@@ -76,7 +79,7 @@ export const PopOver: FC<PopOverProps> = ({
 
     return (
         <>
-            <div onClick={handleClick} ref={ref} style={{ width: 'fit-content' }}>{mainElement}</div>
+            <div onClick={handleClick} ref={ref} style={{ width: 'fit-content', ...styleMain }}>{mainElement}</div>
             <UIPopover
                 disableAutoFocus
                 anchorEl={anchorEl}
