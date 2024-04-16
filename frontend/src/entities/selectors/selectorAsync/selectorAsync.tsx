@@ -71,6 +71,7 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 
 	return (
 		<Autocomplete
+			sx={{fontSize: fontSize}}
 			fullWidth
 			multiple={isMulti}
 			noOptionsText={noOptionsText}
@@ -87,6 +88,14 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 			getOptionLabel={(option) => option.label}
 			defaultValue={defaultOption}
 			onInputChange={handleInputChange}
+			renderOption={(props, option, state) => {
+				return <li 
+					{...props}
+					style={{fontSize: fontSize}}
+				>
+					{option.label}
+				</li>
+			}}
 			renderInput={(params) => (
 				<TextField
 					{...params}
@@ -94,7 +103,7 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 						...params.InputProps,
 						style: {
 							fontSize: fontSize,
-						}
+						},
 					}}
 					placeholder={placeholder}
 					variant="outlined"

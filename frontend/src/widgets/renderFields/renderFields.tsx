@@ -15,6 +15,7 @@ import { Typography } from '@mui/material';
 import { useAppSelector } from '@store/store';
 import { newValues } from '@store/showRequest';
 import {getErrorMessageFromErroResp} from '@helpers/getErrorMessageFromErroResp'
+import { useMobile } from 'src/mobileProvider';
 
 export interface RenderFieldsProps {
 	data: fileFile[],
@@ -37,6 +38,8 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 }) => {
 	const disks = useAppSelector(state => state.disks)
 	const showReq = useAppSelector(state => state.showRequest)
+	const {whatDisplay} = useMobile()
+	const isMobile = whatDisplay === 2
 
 	if (isLoading) {
 		return <h1>Подождите, загружаем файлы...</h1>;
@@ -120,7 +123,10 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 				<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>Название</Typography>
 				<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>Автор</Typography>
 				<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}></Typography>
-				<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>Размер</Typography>
+				{isMobile 
+				? null 
+				:<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>Размер</Typography>
+				}
 			</div>
 			{data.map((file) => {
 				const getFileProps = (file: fileFile, isOpen: boolean, changeState: (isOpen: boolean) => void): renderReturns => {

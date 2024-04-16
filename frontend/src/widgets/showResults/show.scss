@@ -1,6 +1,11 @@
+@import '../../index.scss';
+
 .data-show {
 	overflow: hidden;
 	display: grid;
 	gap: var(--huge-padding);
+	@media screen and (max-width: $tablet-width) {
+		gap: var(--normal-padding);
+	}
 	grid-template-rows: 1fr;
 }

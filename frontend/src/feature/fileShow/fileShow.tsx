@@ -4,6 +4,7 @@ import { SharedModal } from '@widgets/sharedModal/sharedModal'
 import { DropDown } from '@entities/dropDown/dropDown'
 import { Typography } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useMobile } from 'src/mobileProvider';
 
 interface FileShowProps {
 	iconSrc: string;
@@ -34,12 +35,66 @@ export const FileShow: FC<FileShowProps> = ({
 }) => {
 	const [isOpen, setOpen] = useState(false)
 	const [isOpenDropDown, setOpenDropDown] = useState(false)
+	const {whatDisplay} = useMobile()
+	const ref = useRef<HTMLDivElement>(null)
+
+	const isMobile = whatDisplay === 2
 
 	const handleClickFile = (e: React.MouseEvent<HTMLElement>): void => {
 		if (ref?.current && ref.current.contains(e.target as Node))
 			onClick();
 	}
-	const ref = useRef<HTMLDivElement>(null)
+
+
+	const renderDropDown = (): React.ReactNode => {
+		return <DropDown
+			variants='down-center'
+			open={isOpenDropDown}
+			toggleOpen={(val) => {
+				setOpenDropDown(val);
+			}}
+			mainElement={
+				<div style={{
+					display: 'flex',
+					alignItems: 'center',
+					fontSize: 'var(--ft-paragraph)',
+				}}>
+					<MoreVertIcon fontSize={'inherit'}></MoreVertIcon>
+				</div>}
+		>
+			{config.isDelete ?
+				<div onClick={(event) => {
+					event.stopPropagation();
+					onDelete();
+					setOpenDropDown(false)
+				}}>Удалить</div>
+				: null}
+			<div className={'not-done'} onClick={onFavourite}>
+				В Избранное
+			</div>
+			{config.isShare ?
+				<React.Fragment>
+					<div
+						onClick={(event) => {
+							event.stopPropagation();
+							setOpen(true);
+							setOpenDropDown(false)
+						}}
+					>
+						Поделиться
+					</div>
+					<SharedModal
+						isOpen={isOpen}
+						close={() => {
+							setOpen(false);
+							setOpenDropDown(false);
+						}}
+						dirPath={dirPath}
+					/>
+				</React.Fragment>
+				: null}
+		</DropDown>
+	}
 
 	return (
 		<>
@@ -55,56 +110,12 @@ export const FileShow: FC<FileShowProps> = ({
 				</div>
 				<Typography fontSize={'var(--ft-body)'}>{author}</Typography>
 				<div className='additional-functions-file'>
-					<DropDown
-						variants='down-center'
-						open={isOpenDropDown}
-						toggleOpen={(val) => {
-							setOpenDropDown(val);
-						}}
-						mainElement={
-							<div style={{
-								display: 'flex',
-								alignItems: 'center',
-								fontSize: 'var(--ft-paragraph)',
-							}}>
-								<MoreVertIcon fontSize={'inherit'}></MoreVertIcon>
-							</div>}
-					>
-						{config.isDelete ?
-							<div onClick={(event) => {
-								event.stopPropagation();
-								onDelete();
-								setOpenDropDown(false)
-							}}>Удалить</div>
-							: null}
-						<div className={'not-done'} onClick={onFavourite}>
-							В Избранное
-						</div>
-						{config.isShare ?
-							<div
-								onClick={(event) => {
-									event.stopPropagation();
-									setOpen(true);
-									setOpenDropDown(false)
-								}}
-							>
-								Поделиться
-							</div>
-							: null}
-					</DropDown>
+					{renderDropDown()}
 				</div>
-				{config.isShare ?
-					<SharedModal
-						isOpen={isOpen}
-						close={() => {
-							setOpen(false);
-							setOpenDropDown(false);
-						}}
-						dirPath={dirPath}
-					/>
-					: null}
-
-				<Typography fontSize={'var(--ft-body)'} className="size">{size === '0 B' ? null : size}</Typography>
+				{isMobile
+				? null 
+				: <Typography fontSize={'var(--ft-body)'} className="size">{size === '0 B' ? null : size}</Typography> 
+				}
 			</div>
 		</>
 	);

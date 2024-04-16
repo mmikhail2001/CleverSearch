@@ -75,6 +75,7 @@ export const SearchDiskLine: FC<SearchDiskLineProps> = ({
 			<div style={{paddingTop: 'var(--big-padding)'}}>
 				{selectedDisk && !selectedDisk.find(val => val === 'all') ? 
 				<SelectorMulti
+				placeholder={'Выберите почту'}
 				fontSize={fontSize}
 				options={disks.clouds.filter(val => selectedDisk
 					.find(diskVal => diskVal === val.disk))

@@ -38,7 +38,6 @@ export const SearchBox: FC<SearchBoxProps> = ({
 	fontSize,
 	style,
 }) => {
-
 	return (
 		<div className="search-box" style={style}>
 			<AllSearchLines

@@ -6,6 +6,8 @@ import { Modal } from '@feature/modal/modal';
 import { SelectorMulti } from '@entities/selectors/selectorMulti/selectorMulti';
 import { Option } from '@models/additional';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { useMobile } from 'src/mobileProvider';
+import CSS from 'csstype'
 
 const isSelectedDisk =
     (disk: ConnectedClouds, selectedDisk: ConnectedClouds[]): boolean => {
@@ -35,11 +37,14 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
         selectCloud,
         refreshDisk,
         currentSelectedDisk,
-    }
-): React.ReactNode => {
+    }): React.ReactNode => {
     const [isOpen, setOpen] = useState<boolean>(false)
     const { src, altText, diskName } = disk;
     const ref = useRef(null)
+    const {whatDisplay} = useMobile()
+    const isMobile = whatDisplay === 2
+    
+    const refSize = useRef<HTMLDivElement>(null)
 
     const transformToOption = (cloudEmail: string): Option => {
         return {
@@ -52,10 +57,18 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
         .filter(val => val.disk === diskName)
 
     const emailsInDisk = cloudValues.filter(val => val.disk === disk.diskName).map(val => val.cloud_email)
-
     const emailSelectCloud = currentDiskSelected?.filter(val => val.cloud_email !== '')
-
     const subText = emailsInDisk.length === 1 ? emailsInDisk[0] : currentDiskSelected.map(val => val.cloud_email).join(', ')
+
+    let cssForSelectorWithEmail: CSS.Properties;
+    if (isMobile) {
+        cssForSelectorWithEmail = {
+            maxWidth: refSize.current ? `calc(${refSize.current.clientWidth}px + 0.25rem)` : '212px',
+            width: '100%',
+            overflow: 'auto',
+        }
+    }
+
     return (
         <>
             <TextWithImg
@@ -101,9 +114,15 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
             <Modal
                 isOpen={isOpen}
                 closeModal={() => setOpen(false)}
+                isFullWidth={isMobile}
             >
-                <div style={{ width: '250px' }}>
+                <div style={{ 
+                    width: isMobile ? null :'250px' ,
+                    }}
+                    ref={refSize}
+                >
                     <SelectorMulti
+                        menuStyle={cssForSelectorWithEmail}
                         defaultValue={emailSelectCloud[0] ? [transformToOption(emailSelectCloud[0].cloud_email)] : null}
                         isMulti={false}
                         options={cloudValues

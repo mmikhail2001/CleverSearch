@@ -75,7 +75,13 @@ export const SelectorWithImg: FC<SelectorWithImgProps> = ({
 						key={val.value}
 						value={val.value}
 					>
-						<img src={val.imgSrc} />
+						<img
+							style={{
+								height: `calc(${fontSize} + 0.2rem)` || 'calc(var(--ft-body) + 0.2rem)',
+								paddingRight: 'var(--normal-padding)',
+							}} 
+							src={val.imgSrc} 
+						/>
 						<em>{val.label}</em>
 					</MenuItem>
 				) : <MenuItem disabled>Загрузка...</MenuItem>}

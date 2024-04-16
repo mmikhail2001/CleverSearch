@@ -1,10 +1,12 @@
 import React, { FC, useEffect } from 'react';
-import './selector.scss';
 import { Option } from '@models/additional'
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { OutlinedInput } from '@mui/material';
+import CSS from 'csstype'
+
+import './selector.scss';
 
 // https://react-select.com/components
 // https://www.youtube.com/watch?v=3u_ulMvTYZI&t=269s&ab_channel=MonsterlessonsAcademy
@@ -22,6 +24,7 @@ interface SelectorMultiProps {
 	notOptions?: string;
 	isError?: boolean;
 	fontSize?: string;
+	menuStyle?: CSS.Properties,
 }
 
 const ITEM_HEIGHT = 48;
@@ -49,6 +52,7 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 	notOptions,
 	isError,
 	fontSize,
+	menuStyle,
 }) => {
 	const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
 
@@ -107,7 +111,7 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 				{options ?
 					options.map((val) =>
 						<MenuItem
-							sx={{ fontSize: fontSize }}
+							sx={{ fontSize: fontSize,...menuStyle}}
 							key={val.value}
 							value={val.value}
 						>

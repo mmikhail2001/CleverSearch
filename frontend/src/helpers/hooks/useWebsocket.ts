@@ -7,7 +7,6 @@ export const useWebsoket = () => {
     const dispatch = useDispatch()
 
     useEffect(function() {
-        console.log('RUNNNN')
         const connect = function(prevTimes: number) {
             const ws = new WebSocket(`ws://${process.env.wsAdress}/api/ws`);
 
