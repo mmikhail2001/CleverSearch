@@ -5,7 +5,7 @@ import { Typography } from '@mui/material';
 interface TextWithImgProps {
 	text: string;
 	subText?: string;
-	imgSrc: string;
+	imgSrc: string | React.ReactNode;
 	altImgText: string;
 	className: string;
 	onClick?: (e: React.MouseEvent<HTMLParagraphElement>) => void;
@@ -26,7 +26,10 @@ export const TextWithImg: FC<TextWithImgProps> = ({
 	return (
 		<div className={['text-with-img', className].join(' ')} onClick={onClick}>
 			{leftIconProp}
-			<img className="text-image" src={imgSrc} alt={altImgText}></img>
+			{typeof imgSrc === 'string'
+			? <img className="text-image" src={imgSrc} alt={altImgText}></img>
+			: imgSrc
+			}
 			<div className="text-option">
 				<Typography fontSize={'var(--ft-paragraph)'}>{text}</Typography>
 				{subText ? <Typography sx={{

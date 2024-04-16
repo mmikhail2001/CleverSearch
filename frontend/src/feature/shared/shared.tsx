@@ -4,10 +4,14 @@ import { Button } from '@entities/button/button'
 import { useGetShareUrlMutation } from '@api/filesApi';
 import { SelectorMulti } from '@entities/selectors/selectorMulti/selectorMulti';
 import { AccessRights } from '@models/searchParams';
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
-import './shared.scss'
+import List from '@mui/joy/List';
+import ListItem from '@mui/joy/ListItem';
 import { Typography } from '@mui/material';
 import {Option} from '@models/additional'
+
+import CloseIcon from '@mui/icons-material/Close';
+
+import './shared.scss'
 
 interface SharedProps {
     dirPath: string,
@@ -52,11 +56,37 @@ export const Shared: FC<SharedProps> = ({
     const [share, resp] = useGetShareUrlMutation()
     const [isCopied, setCopied] = useCopyState()
 
+    const generatedLinkField = (setCopied: () => void, navigator: Navigator, link:string): React.ReactNode => {
+        return (
+            <div>
+                <p>Ссылка:</p>
+                <p onClick={() => {
+                    setCopied()
+                    navigator.clipboard
+                        .writeText(`${process.env.protocol}://${process.env.adress}` +
+                        link)
+                }}>
+                    {link}
+                </p>
+                {isCopied ? <div style={{ position: 'absolute' }}>Ссылка скопирована в ваш буфер!</div> : null}
+            </div>)
+    }
+
+    let accessShowOut = ''
+
+    if (resp.isSuccess ) {
+        accessShowOut = accessType === 'writer' ? 'Редактор' : 'Читатель'
+    }
+
     return (
         <div className={['shared-modal', className].join(' ')} >
+            {
+            resp.isSuccess 
+            ? null 
+            : 
             <Input
+                disabled={false}
                 fontSize='var(--ft-body)'
-                disabled={resp.isSuccess}
                 onChange={(e) => setCurrentEmail(e.target.value)}
                 onKeyDown={(e) => {
                     if (e.key.toLowerCase() === 'enter') {
@@ -68,59 +98,88 @@ export const Shared: FC<SharedProps> = ({
                 type={'email'}
                 value={currentEmail}
             ></Input>
+            }
+           
             <div style={{ width: '100%' }}>
                 {emails?.length > 0
                     ?
                     <>
-                        <Typography fontSize={'var(--ft-body)'}>Доступ дан:</Typography>
-                        <TextareaAutosize
+                        {accessShowOut === '' 
+                        ? null
+                        : <Typography fontSize={'var(--ft-body)'}>
+                            Роль выдана: {accessShowOut}
+                            </Typography>
+                        }
+                        <Typography fontSize={'var(--ft-body)'}>
+                            Доступ дан:
+                        </Typography>
+                        <List 
+                            marker={'disc'}
                             style={{
-                                background: 'var(--main-color-50)',
-                                outlineStyle: 'none',
-                                fontSize: 'var(--ft-body)',
-                                width: '100%',
+                                maxHeight: 'calc(3 * calc(var(--ft-body) + 0.2rem))',
+                                overflowY: 'auto',
                             }}
-                            disabled
-                            maxRows={3}
-                            aria-label="maximum height"
-                            value={emails.join('\n')}
-                        />
+                        >
+                            {emails.map(val => (
+                                <ListItem 
+                                    sx={{
+                                        fontSize: 'var(--ft-body)',
+                                        width: '100%',
+                                    }}
+                                >
+                                    <div style={{
+                                            width: '100%',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                        }}
+                                    >
+                                        {val}
+                                        {resp.isSuccess 
+                                        ? null 
+                                        :
+                                        <CloseIcon 
+                                            onClick={() => {
+                                                if (resp.isSuccess) return
+                                                setEmail(emails.filter(emailVal => emailVal !== val))
+                                            }}
+                                        />
+                                        }
+                                    </div>
+                                </ListItem>
+                            ))}
+                        </List>
                     </>
                     : null
                 }
             </div>
-            {resp.data ? <div>
-                <p>Ссылка:</p>
-                <p onClick={() => {
-                    setCopied()
-                    navigator.clipboard
-                        .writeText(`${process.env.protocol}://${process.env.adress}` +
-                            resp.data.body.share_link)
-                }}>
-                    {resp.data.body.share_link}
-                </p>
-                {isCopied ? <div style={{ position: 'absolute' }}>Copied!</div> : null}
-            </div>
-                : null}
-            <SelectorMulti
-                fontSize='var(--ft-body)'
-                isMulti={false}
-                options={[
-                    { label: 'Редактор', value: 'writer' },
-                    { label: 'Читатель', value: 'reader' }
-                ]}
-                defaultValue={[getOptionFromVal(accessType)]}
-                onChange={(newValue: string[]) => {
-                    switch (getValFromOption(newValue)) {
-                        case 'writer':
-                            setAccessType('writer');
-                            break;
-                        default:
-                            setAccessType('reader');
+            {resp.data 
+                ? generatedLinkField(setCopied, navigator, resp.data.body.share_link)
+                : null
+            }
+            {
+            resp.isSuccess
+            ? null
+            :
+                <SelectorMulti
+                    fontSize='var(--ft-body)'
+                    isMulti={false}
+                    options={[
+                        { label: 'Редактор', value: 'writer' },
+                        { label: 'Читатель', value: 'reader' }
+                    ]}
+                    defaultValue={[getOptionFromVal(accessType)]}
+                    onChange={(newValue: string[]) => {
+                        switch (getValFromOption(newValue)) {
+                            case 'writer':
+                                setAccessType('writer');
+                                break;
+                            default:
+                                setAccessType('reader');
+                        }
                     }
-                }
-                }
-            />
+                    }
+                />
+            }
             <Button
                 fontSize='var(--ft-body)'
                 buttonText='Поделиться'

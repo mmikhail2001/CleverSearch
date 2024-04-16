@@ -8,9 +8,7 @@ import { ButtonWithInput } from '@feature/buttonWithInput/buttonWithInput';
 import { usePushFileMutation } from '@api/filesApi';
 import { useAppSelector } from '@store/store';
 import { useSearchMutation, useShowMutation } from '@api/searchApi';
-import RobotSVG from '@icons/Robot.svg';
-import DownloadSVG from '@icons/Download.svg';
-import CleverSVG from '@icons/disks/Disk.svg';
+
 import { useNavigate } from 'react-router-dom';
 import { debounce } from '@helpers/debounce'
 import { FolderCreation } from './folderCreation/folderCreation'
@@ -29,6 +27,11 @@ import {FileUploadNotification} from '@feature/fileUploadNotification/fileUpload
 import { PopOver } from '@entities/popover/popover';
 import { Button } from '@entities/button/button';
 
+import RobotSVG from '@icons/Robot.svg';
+import DownloadSVG from '@icons/Download.svg';
+import CleverSVG from '@icons/disks/Disk.svg';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+
 interface SidebarProps {
 	width: string;
 	isMobile?: boolean;
@@ -42,7 +45,7 @@ export const Sidebar: FC<SidebarProps> = ({
 	toggleShow,
 	isOpen,
 }) => {
-	const { isSearch, isShow, isProccessed, isShared } = useAppSelector((state) => state.whatToShow);
+	const { isSearch, isShow, isProccessed, isShared, isLoved } = useAppSelector((state) => state.whatToShow);
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate()
@@ -207,6 +210,14 @@ export const Sidebar: FC<SidebarProps> = ({
 								dispatch(switchToShared())
 								dispatch(newValues({...showReq, disk: 'all'}))
 								navigate('/shared')
+							}}
+						/>
+						<TextWithImg
+							text="Общие"
+							className={['loved', isLoved ? 'selected' : '', 'text-with-img-row', 'not-done'].join(' ')}
+							imgSrc={<FavoriteIcon/>} 
+							altImgText="Сердце"
+							onClick={() => {
 							}}
 						/>
 					</div>

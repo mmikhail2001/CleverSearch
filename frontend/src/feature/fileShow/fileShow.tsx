@@ -77,7 +77,7 @@ export const FileShow: FC<FileShowProps> = ({
 								setOpenDropDown(false)
 							}}>Удалить</div>
 							: null}
-						<div onClick={onFavourite}>
+						<div className={'not-done'} onClick={onFavourite}>
 							В Избранное
 						</div>
 						{config.isShare ?

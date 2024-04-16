@@ -7,6 +7,7 @@ const showSlice = createSlice({
 		isShow: false,
 		isProccessed: false,
 		isShared: false,
+		isLoved: false,
 	},
 	reducers: {
 		switchToSearch(state) {
@@ -14,24 +15,35 @@ const showSlice = createSlice({
 			state.isShow = false;
 			state.isProccessed = false;
 			state.isShared = false;
+			state.isLoved = false;
 		},
 		switchToShow(state) {
 			state.isShow = true;
 			state.isSearch = false;
 			state.isProccessed = false;
 			state.isShared = false;
+			state.isLoved = false;
 		},
 		switchToProcessed(state) {
 			state.isShow = false;
 			state.isSearch = false;
 			state.isProccessed = true;
 			state.isShared = false;
+			state.isLoved = false;
 		},
 		switchToShared(state) {
 			state.isShow = false;
 			state.isSearch = false;
 			state.isProccessed = false;
 			state.isShared = true;
+			state.isLoved = false;
+		},
+		switchToLoved(state) {
+			state.isShow = false;
+			state.isSearch = false;
+			state.isProccessed = false;
+			state.isShared = false;
+			state.isLoved = true;
 		},
 	},
 });
