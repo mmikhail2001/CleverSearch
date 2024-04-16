@@ -21,6 +21,9 @@ import './App.scss'
 
 // @ts-expect-error Do not what error is here. Not find any types of this 
 import * as pdfjsLib from 'pdfjs-dist/webpack.mjs';
+// import 'node_modules/pdfjs-dist/web/pdf_viewer.css';
+
+
 import { MobileProvider } from './mobileProvider';
 import { SettingsPage } from '@pages/settingsPage/settingsPage'
 
