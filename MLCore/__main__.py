@@ -1,7 +1,6 @@
 import sys
 from argparse import ArgumentParser
 import os
-import time
 import uvicorn
 from ML_dispatcher import MLDispatcher
 from Services.ImageService import ImageService
@@ -71,7 +70,6 @@ def main(args):
 
         dispathcer.run()
     else:
-
         setup_search_handler(args)
 
         uvicorn.run(

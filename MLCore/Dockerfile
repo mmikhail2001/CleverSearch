@@ -18,5 +18,4 @@ RUN echo "hello world world"
 COPY . /app/MLCore
 
 
-# CMD ["sh", "-c", "sleep 120 && python /app/MLCore/__main__.py"]
 CMD ["python", "/app/MLCore/__main__.py"]

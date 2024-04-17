@@ -1,6 +1,11 @@
 package cleveruser
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+	"golang.org/x/oauth2"
+)
 
 var (
 	ErrWrongCredentials          = errors.New("wrong credentials")
@@ -22,8 +27,15 @@ var (
 )
 
 type User struct {
-	ID       string
-	Email    string
-	Password string
-	Bucket   string
+	ID              string
+	Email           string
+	Password        string
+	Bucket          string
+	ConnectedClouds []UserCloud
+}
+
+type UserCloud struct {
+	Cloud      file.DiskType
+	CloudEmail string
+	Token      *oauth2.Token
 }

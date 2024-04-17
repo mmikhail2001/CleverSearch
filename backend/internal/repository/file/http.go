@@ -26,8 +26,8 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 	queryParams.Set("query", fileOptions.Query)
 	queryParams.Set("file_type", string(fileOptions.FileType))
 	queryParams.Set("dir", fileOptions.Dir)
-	queryParams.Set("disk", string(fileOptions.Disk))
 	queryParams.Set("user_id", user.ID)
+	queryParams.Set("disk", "")
 	url := APIServiceMLSearch + "?" + queryParams.Encode()
 
 	// http://mlcore:8081/search?query=serer&file_type=img&dir=/&user_id=user_id
@@ -56,6 +56,8 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		return nil, err
 	}
 
+	log.Println("from ML :", string(bodyBytes))
+
 	var response searchResponseDTO
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
@@ -68,9 +70,10 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		for _, searchItem := range response.Text {
 			file, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
-				log.Println("GetFileByID error:", err)
+				log.Println("GetFileByID (Text) error:", err)
 				return nil, err
 			}
+			file.PageNumber = searchItem.PageNumber
 			files = append(files, file)
 		}
 		return files, nil
@@ -79,7 +82,7 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		for _, searchItem := range response.Image {
 			file, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
-				log.Println("GetFileByID error:", err)
+				log.Println("GetFileByID (Image) error:", err)
 				return nil, err
 			}
 			files = append(files, file)
@@ -90,9 +93,10 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		for _, searchItem := range response.Audio {
 			file, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
-				log.Println("GetFileByID error:", err)
+				log.Println("GetFileByID (Audio) error:", err)
 				return nil, err
 			}
+			file.Timestart = searchItem.Timestart
 			files = append(files, file)
 		}
 		return files, nil
@@ -101,9 +105,10 @@ func (r *Repository) SmartSearch(ctx context.Context, fileOptions file.FileOptio
 		for _, searchItem := range response.Video {
 			file, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
-				log.Println("GetFileByID error:", err)
+				log.Println("GetFileByID (Video) error:", err)
 				return nil, err
 			}
+			file.Timestart = searchItem.Timestart
 			files = append(files, file)
 		}
 		return files, nil

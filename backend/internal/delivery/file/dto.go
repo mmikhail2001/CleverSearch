@@ -16,7 +16,7 @@ type FileDTO struct {
 	Bucket      string          `json:"bucket"`
 	IsDir       bool            `json:"is_dir"`
 	FileType    file.FileType   `json:"file_type"`
-	Size        int64           `json:"size"`
+	Size        string          `json:"size"`
 	ContentType string          `json:"content_type"`
 	Extension   string          `json:"extension"`
 	Status      file.StatusType `json:"status"`
@@ -24,6 +24,12 @@ type FileDTO struct {
 	ShareAccess file.AccessType `json:"share_access"`
 	ShareLink   string          `json:"share_link"`
 	Link        string          `json:"link"`
+	CloudID     string          `json:"cloud_id"`
+	CloudEmail  string          `json:"cloud_email"`
+	Disk        file.DiskType   `json:"disk"`
+	PageNumber  int             `json:"page_number"`
+	Timestart   int             `json:"timestart"`
+	Duration    time.Duration   `json:"duration"`
 }
 
 type FileForMLDTO struct {
@@ -36,10 +42,10 @@ type DeleteFilesDTO struct {
 }
 
 type RequestToShareDTO struct {
-	Path        string          `json:"dir"`
-	ShareAccess file.AccessType `json:"access_type"`
-	ByEmails    bool            `json:"by_emails"`
-	Emails      []string        `json:"emails"`
+	Path        string   `json:"dir"`
+	ShareAccess string   `json:"access_type"`
+	ByEmails    bool     `json:"by_emails"`
+	Emails      []string `json:"emails"`
 }
 
 type ResponseShareLinkDTO struct {

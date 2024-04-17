@@ -17,4 +17,5 @@ type Usecase interface {
 	DeleteFiles(ctx context.Context, filePaths []string) error
 	DownloadFile(ctx context.Context, filePath string) (io.ReadCloser, error)
 	GetSharingLink(ctx context.Context, reqShare file.RequestToShare) (string, error)
+	GetFileTypeByContentType(contentType string) file.FileType
 }

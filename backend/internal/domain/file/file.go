@@ -45,6 +45,8 @@ const (
 	Processed StatusType = "processed"
 )
 
+type SizeType int64
+
 type File struct {
 	ID          string
 	Filename    string
@@ -54,16 +56,28 @@ type File struct {
 	Bucket      string
 	IsDir       bool
 	FileType    FileType
-	Size        int64
+	Size        SizeType
 	ContentType string
 	Extension   string
 	Status      StatusType
-	IsShared    bool
-	ShareAccess AccessType
-	ShareLink   string
-	Link        string
-	MLData      interface{}
-	// Disk
+	Email       string
+
+	IsShared       bool
+	ShareAccess    AccessType
+	IsShareByEmail bool
+	ShareLink      string
+
+	Link string
+
+	Disk       DiskType
+	CloudID    string
+	CloudEmail string
+
+	PageNumber int
+	Timestart  int
+	Duration   time.Duration
+
+	MLData interface{}
 }
 
 type FileType string
@@ -80,31 +94,31 @@ const (
 type DiskType string
 
 const (
-	AllStorages  FileType = "all"
-	Own          FileType = "own"
-	GoogleDrive  FileType = "google_drive"
-	YandexDisc   FileType = "yandex_disc"
-	LocalStorage FileType = "local_storage"
+	AllStorages  DiskType = "all"
+	Own          DiskType = "own"
+	GoogleDrive  DiskType = "google"
+	YandexDisk   DiskType = "yandex"
+	LocalStorage DiskType = "local"
 )
 
 type FileOptions struct {
-	FileType FileType
-	// TODO: заменить на path
-	Dir    string
-	UserID string
-	// для поиска в коллекции shared_dirs
-	// Shared bool
-	Disk             DiskType
-	Limit            int
-	Offset           int
-	Query            string
-	Status           StatusType
-	IsSmartSearch    bool
-	FirstNesting     bool
-	DirsRequired     bool
-	FilesRequired    bool
-	SharedRequired   bool
-	PersonalRequired bool
+	FileType              FileType
+	Dir                   string
+	UserID                string
+	CloudEmail            string
+	Disk                  string
+	Limit                 int
+	Offset                int
+	Query                 string
+	Status                StatusType
+	IsSmartSearch         bool
+	FirstNesting          bool
+	DirsRequired          bool
+	FilesRequired         bool
+	SharedRequired        bool
+	PersonalRequired      bool
+	ExternalDisklRequired bool
+	InternalDisklRequired bool
 }
 
 type RequestToShare struct {
@@ -112,4 +126,13 @@ type RequestToShare struct {
 	ShareAccess AccessType
 	ByEmails    bool
 	Emails      []string
+}
+
+type SharedDir struct {
+	ID          string
+	FileID      string
+	UserID      string
+	Accepted    bool
+	ShareAccess AccessType
+	Path        string
 }

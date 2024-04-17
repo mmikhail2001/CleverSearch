@@ -42,6 +42,15 @@ func getFileExtension(filename string) string {
 	return ""
 }
 
+func (uc *Usecase) GetFileTypeByContentType(contentType string) fileDomain.FileType {
+	fileType, exists := fileTypeMap[contentType]
+	if !exists {
+		log.Println("file type not found")
+		return ""
+	}
+	return fileType
+}
+
 func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDomain.File) (fileDomain.File, error) {
 	if !strings.HasPrefix(file.Path, "/") {
 		log.Printf("Directory path [%s] does not start with /\n", file.Path)
@@ -55,10 +64,40 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 	}
 
 	pathComponents := strings.Split(file.Path, "/")
-	// TODO: при условии, что в начале /
+
+	var userID string
+	if len(pathComponents)-1 > 1 {
+		log.Printf("[%s] - [%s]", pathComponents[0], pathComponents[1])
+		fileTmpShare, err := uc.repo.GetFileByPath(ctx, "/"+pathComponents[1], "")
+		if err != nil {
+			log.Println("GetFileByPath err:", err)
+			return fileDomain.File{}, err
+		}
+
+		shredDir, err := uc.repo.GetSharedDir(ctx, fileTmpShare.ID, user.ID)
+		if err != nil {
+			if !errors.Is(err, fileDomain.ErrNotFound) {
+				log.Println("GetSharedDir err:", err)
+				return fileDomain.File{}, err
+			}
+			if errors.Is(err, fileDomain.ErrNotFound) {
+				userID = user.ID
+			}
+		} else {
+			userID = ""
+			// if !shredDir.Accepted || shredDir.ShareAccess != fileDomain.Writer {
+			if shredDir.ShareAccess != fileDomain.Writer {
+				log.Println("reader access, but try upload")
+				return fileDomain.File{}, fmt.Errorf("reader access, but try upload")
+			}
+		}
+	} else {
+		userID = user.ID
+	}
+
 	for i := 1; i < len(pathComponents)-1; i++ {
 		dirPath := strings.Join(pathComponents[:i+1], "/")
-		_, err := uc.repo.GetFileByPath(ctx, dirPath, user.ID)
+		_, err := uc.repo.GetFileByPath(ctx, dirPath, userID)
 		if err != nil {
 			log.Printf("Error checking directory %s existence: %v\n", dirPath, err)
 			if errors.Is(err, fileDomain.ErrNotFound) {
@@ -68,7 +107,7 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 		}
 	}
 
-	_, err := uc.repo.GetFileByPath(ctx, file.Path, user.ID)
+	_, err := uc.repo.GetFileByPath(ctx, file.Path, userID)
 	if err == nil {
 		log.Println("Upload: the file path already exists")
 		return fileDomain.File{}, fileDomain.ErrFileAlreadyExists
@@ -85,6 +124,7 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 	file.ID = uuid.New().String()
 	file.IsDir = false
 	file.IsShared = false
+	file.Email = user.Email
 
 	file, err = uc.repo.UploadToStorage(ctx, fileReader, file)
 	if err != nil {
@@ -121,9 +161,31 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 		options.Dir = "/"
 	}
 
+	var files []fileDomain.File
+
+	// если запрос на внешние, то обязательно нужно указать диск
+	if options.ExternalDisklRequired && options.CloudEmail != "" {
+		filesExternal, err := uc.repo.GetFiles(ctx, options)
+		if err != nil {
+			log.Println("external requered, but cloud email is empty")
+			return []fileDomain.File{}, err
+		}
+		if options.FirstNesting {
+			files = append(files, filterFilesByNesting(filesExternal, options.Dir)...)
+		} else {
+			files = append(files, filesExternal...)
+		}
+	}
+
+	if options.InternalDisklRequired {
+		options.CloudEmail = ""
+		options.ExternalDisklRequired = false
+	} else {
+		return files, nil
+	}
+
 	// если путь корневой, то нужны (shared папки и все файлы и папки) данного пользователя
 	if options.Dir == "/" {
-		var files []fileDomain.File
 		options.UserID = user.ID
 		// ищем файлы пользователя
 		if options.PersonalRequired {
@@ -137,7 +199,7 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 
 		// ищем директории, которыми с данным пользователем пошарены
 		if options.SharedRequired {
-			sharedDirs, err := uc.repo.GetSharedDirs(ctx, "", options.UserID)
+			sharedDirs, err := uc.repo.GetSharedDirs(ctx, "", options.UserID, true)
 			if err != nil && !errors.Is(err, file.ErrNotFound) {
 				log.Println("GetSharedDirs error:", err)
 				return []fileDomain.File{}, err
@@ -173,18 +235,16 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 		if options.FirstNesting {
 			return filterFilesByNesting(files, options.Dir), nil
 		}
-		printPaths(files, "files")
 		return files, nil
 	}
 
 	// если запрошен не корень, то нужно проверить, корневой каталог является расшаренным данному пользователю
 	rootDir := strings.Split(options.Dir, "/")[1]
-	_, err := uc.repo.GetSharedDirs(ctx, "/"+rootDir, user.ID)
+	_, err := uc.repo.GetSharedDirs(ctx, "/"+rootDir, user.ID, true)
 	if err != nil && !errors.Is(err, file.ErrNotFound) {
 		log.Println("GetSharedDir error:", err)
 		return []fileDomain.File{}, err
 	}
-	var files []fileDomain.File
 	if options.PersonalRequired && errors.Is(err, file.ErrNotFound) {
 		options.UserID = user.ID
 		files, err = uc.repo.GetFiles(ctx, options)
@@ -219,21 +279,41 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 		return fileDomain.File{}, sharederrors.ErrUserNotFoundInContext
 	}
 
-	_, err := uc.repo.GetFileByPath(ctx, file.Path, user.ID)
-	if err == nil {
-		log.Println("GetFileByPath: the file path already exists")
-		return file, fileDomain.ErrDirectoryAlreadyExists
-	} else if err != fileDomain.ErrNotFound {
-		log.Println("GetFileByPath: err", err)
-		return file, err
-	}
-
 	pathComponents := strings.Split(file.Path, "/")
+
+	var userID string
+	if len(pathComponents) > 1 {
+		fileTmpShare, err := uc.repo.GetFileByPath(ctx, "/"+pathComponents[1], "")
+		if err != nil {
+			log.Println("GetFileByPath err:", err)
+			return fileDomain.File{}, err
+		}
+
+		shredDir, err := uc.repo.GetSharedDir(ctx, fileTmpShare.ID, user.ID)
+		if err != nil {
+			if !errors.Is(err, fileDomain.ErrNotFound) {
+				log.Println("GetSharedDir err:", err)
+				return fileDomain.File{}, err
+			}
+			if errors.Is(err, fileDomain.ErrNotFound) {
+				userID = user.ID
+			}
+		} else {
+			userID = ""
+			// if !shredDir.Accepted || shredDir.ShareAccess != fileDomain.Writer {
+			if shredDir.ShareAccess != fileDomain.Writer {
+				log.Println("reader access, but try upload")
+				return fileDomain.File{}, fmt.Errorf("reader access, but try upload")
+			}
+		}
+	} else {
+		userID = user.ID
+	}
 
 	// TODO: при условии, что в начале /
 	for i := 1; i < len(pathComponents)-1; i++ {
 		dirPath := strings.Join(pathComponents[:i+1], "/")
-		_, err := uc.repo.GetFileByPath(ctx, dirPath, user.ID)
+		_, err := uc.repo.GetFileByPath(ctx, dirPath, userID)
 		if err != nil {
 			log.Printf("Error checking directory %s existence: %v\n", dirPath, err)
 			if errors.Is(err, fileDomain.ErrNotFound) {
@@ -243,6 +323,16 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 		}
 	}
 
+	_, err := uc.repo.GetFileByPath(ctx, file.Path, userID)
+	if err == nil {
+		log.Println("GetFileByPath: the file path already exists")
+		return file, fileDomain.ErrDirectoryAlreadyExists
+	} else if err != fileDomain.ErrNotFound {
+		log.Println("GetFileByPath: err", err)
+		return file, err
+	}
+
+	file.Filename = pathComponents[len(pathComponents)-1]
 	file.Bucket = user.Email
 	file.UserID = user.ID
 	file.TimeCreated = time.Now()
@@ -262,15 +352,32 @@ func (uc *Usecase) Search(ctx context.Context, options fileDomain.FileOptions) (
 		log.Printf("Directory path [%s] does not start with /\n", options.Dir)
 		return []fileDomain.File{}, fmt.Errorf("directory path [%s] does not start with /", options.Dir)
 	}
+
 	if options.IsSmartSearch {
 		return uc.repo.SmartSearch(ctx, options)
 	}
-	files, err := uc.GetFiles(ctx, options)
-	if err != nil && !errors.Is(err, file.ErrNotFound) {
-		return []fileDomain.File{}, nil
+
+	var files []fileDomain.File
+
+	if options.ExternalDisklRequired && options.CloudEmail != "" {
+		filesExternal, err := uc.repo.GetFiles(ctx, options)
+		if err != nil {
+			log.Println("external requered, but cloud email is empty")
+			return []fileDomain.File{}, err
+		}
+		files = append(files, filesExternal...)
 	}
 
-	printPaths(files, "before filtered")
+	if options.InternalDisklRequired {
+		options.CloudEmail = ""
+		options.ExternalDisklRequired = false
+		filesTmp, err := uc.GetFiles(ctx, options)
+		if err != nil && !errors.Is(err, file.ErrNotFound) {
+			return []fileDomain.File{}, nil
+		}
+
+		files = append(files, filesTmp...)
+	}
 
 	var filteredFiles []fileDomain.File
 
@@ -279,7 +386,6 @@ func (uc *Usecase) Search(ctx context.Context, options fileDomain.FileOptions) (
 			filteredFiles = append(filteredFiles, file)
 		}
 	}
-	printPaths(filteredFiles, "after filtered")
 
 	return filteredFiles, nil
 }
@@ -374,12 +480,18 @@ func (uc *Usecase) CompleteProcessingFile(ctx context.Context, uuidFile string) 
 		return err
 	}
 
+	if string(file.Disk) != "" {
+		err = uc.repo.RemoveFromStorage(ctx, file)
+		if err != nil {
+			log.Println("RemoveFromStorage err in CompleteProcessingFile:", err)
+			return err
+		}
+	}
+
 	uc.notifyUsecase.Notify(notifier.Notify{
-		Event:    eventChangeStatus,
-		UserID:   file.UserID,
-		Path:     file.Path,
-		Status:   string(file.Status),
-		FileType: file.FileType,
+		Event:  eventChangeStatus,
+		File:   file,
+		UserID: file.UserID,
 	})
 	return nil
 }
@@ -399,7 +511,10 @@ func (uc *Usecase) GetSharingLink(ctx context.Context, reqShare file.RequestToSh
 	if err != nil {
 		return "", err
 	}
+	file.IsShareByEmail = false
+
 	if reqShare.ByEmails {
+		file.IsShareByEmail = true
 		for _, email := range reqShare.Emails {
 			user, err := uc.userUsecase.GetUserByEmail(ctx, email)
 			if err != nil {
@@ -408,9 +523,27 @@ func (uc *Usecase) GetSharingLink(ctx context.Context, reqShare file.RequestToSh
 					return "", err
 				}
 			}
-			err = uc.repo.AddUserToSharingDir(ctx, file, user.ID, reqShare.ShareAccess)
+			_, err = uc.repo.GetSharedDir(ctx, file.ID, user.ID)
 			if err != nil {
-				return "", err
+				if !errors.Is(err, fileDomain.ErrNotFound) {
+					log.Println("GetSharedDir err:", err)
+					return "", err
+				}
+				if errors.Is(err, fileDomain.ErrNotFound) {
+					sharedDir := fileDomain.SharedDir{
+						ID:          uuid.New().String(),
+						FileID:      file.ID,
+						UserID:      user.ID,
+						Accepted:    false,
+						ShareAccess: reqShare.ShareAccess,
+						Path:        file.Path,
+					}
+					err = uc.repo.InsertSharedDir(ctx, sharedDir)
+					if err != nil {
+						log.Println("InsertSharedDir err:", err)
+						return "", err
+					}
+				}
 			}
 		}
 	}
@@ -436,7 +569,53 @@ func (uc *Usecase) AddSheringGrant(ctx context.Context, fileID string) error {
 		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
 		return sharederrors.ErrUserNotFoundInContext
 	}
-	return uc.repo.AddUserToSharingDir(ctx, file, user.ID, file.ShareAccess)
+
+	log.Println("fileID = ", fileID)
+	log.Println("userID = ", user.ID)
+
+	if file.IsShareByEmail {
+		sharedDir, err := uc.repo.GetSharedDir(ctx, fileID, user.ID)
+		if err != nil {
+			if errors.Is(err, fileDomain.ErrNotFound) {
+				log.Println("access to the shared dir was not granted")
+				return fmt.Errorf("access to the shared dir was not granted")
+			}
+			return err
+		}
+		if !sharedDir.Accepted {
+			sharedDir.Accepted = true
+			_, err := uc.repo.UpdateSharedDir(ctx, sharedDir)
+			if err != nil {
+				log.Println("UpdateSharedDir err:", err)
+				return err
+			}
+		}
+		return nil
+	} else {
+		_, err := uc.repo.GetSharedDir(ctx, fileID, user.ID)
+		if err != nil {
+			if errors.Is(err, fileDomain.ErrNotFound) {
+				sharedDir := fileDomain.SharedDir{
+					ID:          uuid.New().String(),
+					FileID:      file.ID,
+					UserID:      user.ID,
+					Accepted:    true,
+					ShareAccess: file.ShareAccess,
+					Path:        file.Path,
+				}
+				err = uc.repo.InsertSharedDir(ctx, sharedDir)
+				if err != nil {
+					log.Println("InsertSharedDir err:", err)
+					return err
+				}
+				return nil
+			}
+			log.Println("GetSharedDir err:", err)
+			return err
+		}
+		return nil
+	}
+	// return uc.repo.AddUserToSharingDir(ctx, file, user.ID, file.ShareAccess)
 }
 
 func (uc *Usecase) GetFileByID(ctx context.Context, file_uuid string) (file.File, error) {

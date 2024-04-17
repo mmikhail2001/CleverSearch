@@ -11,3 +11,7 @@ type Usecase interface {
 	Login(ctx context.Context, authUser cleveruser.User) (string, error)
 	Logout(ctx context.Context, sessionID string) error
 }
+
+type CloudUsecase interface {
+	UpdateAllTokens(ctx context.Context, user *cleveruser.User) error
+}
