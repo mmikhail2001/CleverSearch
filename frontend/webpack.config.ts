@@ -14,12 +14,10 @@ export default (env: {
 	wsAdress?: string;
 }) => {
 	const mode = env.mode || 'development';
-	const isDev = mode === 'development';
-	const PORT = 3000;
 	const isWatch = env.watch === 'true' || false;
 	const adress = env.adress || 'localhost:8080';
 	const protocol = env.protocol || 'http';
-	const whereToBuild = env.whereToBuild || "build"
+	const whereToBuild = env.whereToBuild || 'build'
 	const buildLocalFolder = env.buildLocalFolder === 'true' || false
 	const wsAdress = env.wsAdress === '' || env.wsAdress === undefined ? adress : env.wsAdress
 
@@ -71,7 +69,7 @@ export default (env: {
 		watchOptions: {
 			ignored: /node_modules/,
 			poll: 20,
-		},
+		}, 
 		resolve: {
 			extensions: ['.js', '.ts', '.tsx'],
 			plugins: [
