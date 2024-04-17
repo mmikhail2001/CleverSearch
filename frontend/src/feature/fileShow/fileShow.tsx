@@ -78,19 +78,11 @@ export const FileShow: FC<FileShowProps> = ({
 						onClick={(event) => {
 							event.stopPropagation();
 							setOpen(true);
-							setOpenDropDown(false)
+							// setOpenDropDown(false)
 						}}
 					>
 						Поделиться
 					</div>
-					<SharedModal
-						isOpen={isOpen}
-						close={() => {
-							setOpen(false);
-							setOpenDropDown(false);
-						}}
-						dirPath={dirPath}
-					/>
 				</React.Fragment>
 				: null}
 		</DropDown>
@@ -112,6 +104,18 @@ export const FileShow: FC<FileShowProps> = ({
 				<div className='additional-functions-file'>
 					{renderDropDown()}
 				</div>
+				{config.isShare 
+				?
+				<SharedModal
+					isOpen={isOpen}
+					close={() => {
+						setOpen(false);
+						setOpenDropDown(false);
+					}}
+					dirPath={dirPath}
+				/>
+				: null
+				}
 				{isMobile
 				? null 
 				: <Typography fontSize={'var(--ft-body)'} className="size">{size === '0 B' ? null : size}</Typography> 

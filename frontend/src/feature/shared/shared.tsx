@@ -60,7 +60,8 @@ export const Shared: FC<SharedProps> = ({
         return (
             <div>
                 <p>Ссылка:</p>
-                <p onClick={() => {
+                <p onClick={(e) => {
+                    e.preventDefault()
                     setCopied()
                     navigator.clipboard
                         .writeText(`${process.env.protocol}://${process.env.adress}` +
@@ -79,7 +80,7 @@ export const Shared: FC<SharedProps> = ({
     }
 
     return (
-        <div className={['shared-modal', className].join(' ')} >
+        <div className={['shared-modal', className].join(' ')} onClick={(e) => e.preventDefault()}>
             {
             resp.isSuccess 
             ? null 
@@ -87,8 +88,13 @@ export const Shared: FC<SharedProps> = ({
             <Input
                 disabled={false}
                 fontSize='var(--ft-body)'
-                onChange={(e) => setCurrentEmail(e.target.value)}
+                onChange={(e) => {
+                    setCurrentEmail(e.target.value)
+                    e.preventDefault()
+                }
+                }
                 onKeyDown={(e) => {
+                    e.preventDefault()
                     if (e.key.toLowerCase() === 'enter') {
                         setEmail([...emails, currentEmail])
                         setCurrentEmail('')
