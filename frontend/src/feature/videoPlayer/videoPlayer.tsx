@@ -15,6 +15,7 @@ interface VideoPlayerProps {
 	url: string,
 	duration: number,
 	start_time?: number,
+	authToken?: string,
 }
 
 interface VideoPlayerState {
@@ -36,7 +37,7 @@ interface VideoPlayerState {
 export const VideoPlayer: FC<VideoPlayerProps> = ({
 	url,
 	start_time,
-	duration
+	duration,
 }) => {
 	const player = useRef<ReactPlayer>(null)
 	const [state, setState] = useState<VideoPlayerState>({
@@ -56,8 +57,6 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 	});
 	const [firstTime, setFirstTime] = useState(true);
 	const fullScreen = useFullScreenHandle();
-
-
 
 	const handleOnPlaybackRateChange = (speed: string) => {
 		setState({ ...state, playbackRate: parseFloat(speed) })
@@ -101,10 +100,9 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 					muted={state.muted}
 					onPlay={handlePlay}
 					progressInterval={10}
-					// TODO make pip
 					onPause={handlePause}
 					onPlaybackRateChange={handleOnPlaybackRateChange}
-					onError={e => console.log('onError', e)}
+					onError={(e, data, f, g) => console.info('onError', e, data, f, g)}
 					onProgress={handleProgress}
 					onDuration={handleDuration}
 					onReady={(pl) => {

@@ -3,50 +3,35 @@ import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useShowSharedMutation } from '@api/searchApi';
-import { transfromToSharedRequestParams } from '@api/transforms';
+import { transfromToSharedRequestParams, transfromToShowRequestString } from '@api/transforms';
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
 import { transformToShowParams } from '@models/searchParams';
-import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
 import { switchToShared } from '@store/whatToShow';
 import { RenderFields } from '@widgets/renderFields/renderFields';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import '../show.scss';
+import { useParamsFromURL } from '@helpers/hooks/useParamsFromURL';
+import { changeDir, newValues } from '@store/showRequest';
 
 interface ShowSharedFilesProps { }
-
-const getParamsFromURL = () => {
-	const [searchParams] = useSearchParams();
-
-	const searchParamsToObject = (params: URLSearchParams) => {
-		const result: Record<string, string> = {};
-		params.forEach((value, key) => {
-			result[key] = value;
-		});
-		return result;
-	};
-
-	return searchParamsToObject(searchParams)
-}
 
 
 export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 	const [showShared, { data, ...searchResp }] = useShowSharedMutation({ fixedCacheKey: 'share' });
 	const dispatch = useDispatch();
-	const { currentDisk, dirs } = useAppSelector(
-		(state) => state.currentDirDisk
-	);
 
 	const location = useLocation()
 	const { isShared } = useAppSelector(state => state.whatToShow)
+	const showReq = useAppSelector(state => state.showRequest)
 	const [valueToShow, setvalueToShow] = useState(data?.body);
 
 	const navigate = useNavigate()
-	const urlParams = getParamsFromURL()
+	const urlParams = useParamsFromURL()
 	const [params] = useState(transformToShowParams(urlParams))
 
+	// TODO remove when do useShowParams
 	useEffect(() => {
-		dispatch(changeDir({ dirs: params.dir }))
-		dispatch(changeDisk(params.disk))
+		dispatch(newValues({...showReq, dir: params.dir, disk: params.disk}))
 	}, [])
 
 	useEffect(() => {
@@ -55,11 +40,11 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 
 	useEffect(() => {
 		dispatch(switchToShared())
-		showShared({ limit: 10, offset: 0, disk: currentDisk, dir: dirs })
+		showShared({ limit: 10, offset: 0, disk: showReq.disk, dir: showReq.dir })
 	}, [])
 
 	useEffect(() => {
-		showShared({ limit: 10, offset: 0, disk: currentDisk, dir: dirs })
+		showShared({ limit: 10, offset: 0, disk: showReq.disk, dir: showReq.dir })
 	}, [location.key, location.hash, location.pathname])
 
 	if (!isShared) {
@@ -72,20 +57,35 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 
 	return (
 		<div className="data-show" >
-			<BreadCrumps
-				dirs={['Shared', ...dirs]}
-				onClick={() => {
-					if (dirs.length !== 0) {
-						dispatch(changeDir({ dirs: dirs.slice(0, -1) }))
-						navigate(-1)
-
-						return
-					}
-				}}
-				reactOnElements={[]}
-			/>
 			<div className="data-show__header">
-				<p>Результаты поиска:</p>
+				<BreadCrumps
+					dirs={['Shared', ...showReq.dir]}
+					onClick={() => {
+						if (showReq.dir.length !== 0) {
+							dispatch(newValues({...showReq, dir: showReq.dir.slice(0, -1)}))
+							navigate(-1)
+
+							return
+						}
+					}}
+					reactOnElements={
+						['Shared', ...showReq.dir].map((dir, index) => {
+                            return () => {
+                                let dirToSet: string[] = []
+                                if (index !== 0) 
+                                    dirToSet = showReq.dir.slice(0, index)
+                                const url = transfromToSharedRequestParams(
+                                    {
+                                        ...showReq,
+                                        dir: dirToSet,
+                                    }
+                                )
+                                dispatch(changeDir(dirToSet))
+                                navigate(url, { replace: true })
+                            }
+                        })
+					}
+				/>
 			</div>
 			<RenderFields
 				data={valueToShow}
@@ -97,8 +97,7 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 				openFolder={(path) => {
 					const pathWithValues = path.filter(val => val !== '')
 
-					dispatch(changeDir({ dirs: pathWithValues }))
-					dispatch(changeDisk('all'));
+					dispatch(newValues({...showReq, dir: pathWithValues, disk: 'all'}))
 					if (!isShared) {
 						dispatch(switchToShared());
 					}

@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { Folder } from '@models/folder';
+import { Folder, FolderResp } from '@models/folder';
 import { SearchResponse, ShareRequest, ShareResponse, fileFile } from '@models/searchParams';
 
 export const filesApi = createApi({
@@ -10,7 +10,8 @@ export const filesApi = createApi({
 	endpoints: (builder) => ({
 		getFolders: builder.mutation<SearchResponse, string>({
 			query: (folderSearch: string) => ({
-				url: `files?query=${folderSearch}&dir=/&disk=all&limit=20&offset=0&files_required=false&dirs_required=true`,
+				// HACK cloud email
+				url: `files?query=${folderSearch}&dir=/&cloud_email&limit=20&offset=0&files_required=false&dirs_required=true`,
 				method: 'GET',
 			}),
 		}),
@@ -28,7 +29,7 @@ export const filesApi = createApi({
 				body: { 'files': files },
 			}),
 		}),
-		createDir: builder.mutation<Folder[], string[]>({
+		createDir: builder.mutation<FolderResp, string[]>({
 			query: (dirPath: string[]) => ({
 				url: `/dirs/create?dir_path=${['', ...dirPath].join('/')}`,
 				method: 'POST',

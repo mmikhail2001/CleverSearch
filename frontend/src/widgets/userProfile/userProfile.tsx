@@ -1,20 +1,31 @@
 import React, { FC, useState } from 'react';
 import './userProfile.scss';
 import { DropDown } from '@entities/dropDown/dropDown';
-import { useLogoutMutation } from '@api/userApi';
 import { useDispatch } from 'react-redux';
-import { logout as logoutAction } from '@store/userAuth'
 import { useLazyProfileQuery } from '@api/userApi'
 import { setUserEmail } from '@store/userAuth';
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
+import { useLogout } from '@helpers/hooks/logout';
+import { Typography } from '@mui/material';
+import { useMobile } from 'src/mobileProvider';
+import { useNavigate } from 'react-router-dom';
+import PersonIcon from '@mui/icons-material/Person';
 
 interface UserProfileProps {
-	email: string,
+	email: string;
+	isDropdownExist?: boolean;
 }
 
-export const UserProfile: FC<UserProfileProps> = ({ email }) => {
+export const UserProfile: FC<UserProfileProps> = ({
+	email,
+	isDropdownExist,
+}): React.ReactNode => {
 	const [isOpenProfile, setOpen] = useState(false)
-	const [logout] = useLogoutMutation()
 	const dispatch = useDispatch()
+	const logout = useLogout()
+	const { whatDisplay } = useMobile()
+
+	const navigate = useNavigate()
 
 	const [profile, profileResp] = useLazyProfileQuery()
 
@@ -29,21 +40,38 @@ export const UserProfile: FC<UserProfileProps> = ({ email }) => {
 	}
 
 	const profileMain = (): React.ReactNode => {
-		return <div className='profile'>
-			{email}
-		</div>
+		return (
+			<div className='profile'>
+				<div style={{fontSize:'var(--ft-paragraph)'}}>
+					<PersonIcon fontSize={'inherit'}/>
+				</div>
+				<Typography
+					fontSize={'var(--ft-body)'}
+				>
+					{email}
+				</Typography>
+			</div>
+		)
+	}
+	const renderDropDown = (): React.ReactNode => {
+		return (<DropDown
+			styleOnMain={{ height: '100%', cursor: whatDisplay === 3 ? 'default' : 'pointer' }}
+			variants='down-center'
+			open={isOpenProfile}
+			toggleOpen={setOpen}
+			mainElement={profileMain()}
+		>
+			[
+				<div onClick={() => navigate('/settings')}>Настройки</div>,
+				<div onClick={logout}>Выйти</div>,
+			]
+		</DropDown >)
 	}
 
-
-
+	const isShowDropDown = isNullOrUndefined(isDropdownExist) || isDropdownExist
 	return (
-		<DropDown
-			close={() => setOpen(false)}
-			isOpen={isOpenProfile}
-			mainElement={profileMain()}
-			onClick={() => setOpen(true)}
-		>
-			<div onClick={() => { logout(null); dispatch(logoutAction()) }}>Logout</div>
-		</DropDown>
-	);
+		<>
+			{isShowDropDown ? renderDropDown() : profileMain()}
+		</>
+	)
 };

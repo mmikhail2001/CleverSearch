@@ -28,7 +28,6 @@ export const LoginForm: FC<LoginFormProps> = () => {
 		<div className="login-form">
 			<div className="login-form__inputs">
 				<Input
-					className={['input-login']}
 					disabled={loginResp.isLoading}
 					type="email"
 					placeholder="email"
@@ -36,7 +35,6 @@ export const LoginForm: FC<LoginFormProps> = () => {
 					onChange={(e) => setLogin(e.target.value)}
 				></Input>
 				<Input
-					className={['input-password']}
 					disabled={loginResp.isLoading}
 					type="password"
 					placeholder="password"
@@ -45,7 +43,7 @@ export const LoginForm: FC<LoginFormProps> = () => {
 				></Input>
 			</div>
 			<Button
-				variant={'filled'}
+				variant={'contained'}
 				buttonText="Lets go"
 				clickHandler={
 					() => {

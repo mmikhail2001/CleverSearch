@@ -4,4 +4,12 @@
     padding: var(--big-padding);
     height: 100%;
     width: 100%;
+
+    gap: var(--big-padding)
+}
+
+.buttons {
+    display: flex;
+    justify-content: end;
+    gap: var(--normal-padding)
 }

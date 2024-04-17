@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack serve --env protocol=http adress=localhost:8080 ",
-    "start:watch": "webpack --env watch=true protocol=http adress=localhost ",
-    "build:prod": "webpack --env mode=production",
-    "build:dev": "webpack --env mode=developmen protocol=http adress=localhost"
+    "start": "webpack serve --env protocol=http adress=localhost:8080 whereToBuild=/mnt/f/my_programs/Tecnopark/FrontReact/front/frontend/build buildLocalFolder=false",
+    "start:watch": "webpack --env watch=true protocol=http adress=localhost whereToBuild=/mnt/f/my_programs/Tecnopark/FrontReact/back/frontend/build/ buildLocalFolder=false",
+    "build:prod": "webpack --env watch=true protocol=https adress=clever-search.ru buildLocalFolder=true",
+    "build:dev": "webpack --env mode=developmen protocol=http adress=localhost buildLocalFolder=true"
   },
   "keywords": [],
   "author": "",
@@ -43,10 +43,15 @@
     "webpack-dev-server": "^5.0.2"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.15.15",
+    "@mui/joy": "^5.0.0-beta.32",
+    "@mui/material": "^5.15.15",
     "@reduxjs/toolkit": "^2.2.1",
     "@types/react-pdf": "^7.0.0",
     "npm": "^10.5.0",
-    "pdfjs-dist": "^4.0.379",
+    "pdfjs-dist": "^4.1.392",
     "react": "^18.2.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",

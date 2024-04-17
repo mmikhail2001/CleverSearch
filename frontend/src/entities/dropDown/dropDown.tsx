@@ -1,85 +1,143 @@
 import React, { FC, useEffect, useRef, useState } from 'react';
 import './dropDown.scss';
-import { relative } from 'path';
+import { Menu, PopoverOrigin } from '@mui/material';
+import { MenuItem } from '@mui/material';
+import CSS from 'csstype';
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
-export type WhereToPlace = 'up' | 'down'
-
+export type WhereToPlace = 'up' | 'down' | 'down-center' | 'up-center'
 interface DropDownProps {
-	children: React.ReactNode
-	isOpen: boolean,
-	close: () => void,
-	onClick: () => void,
+	children: React.ReactNode[]
 	mainElement: React.ReactNode,
-	classForDropdownBody?: string,
 	variants?: WhereToPlace,
+	isCloseOnSelect?: boolean,
+	open: boolean;
+	toggleOpen: (state: boolean) => void;
+	className?: string;
+	styleOnMain?: CSS.Properties;
 }
 
 export const DropDown: FC<DropDownProps> = ({
+	className,
 	children,
-	isOpen,
-	close,
-	onClick,
 	mainElement,
-	classForDropdownBody,
-	variants
+	variants,
+	isCloseOnSelect,
+	open,
+	toggleOpen,
+	styleOnMain,
 }) => {
-	const dropDownRef = useRef<HTMLDivElement>(null)
-	const [displayElements, setdisplayElements] = useState(false);
-	const [closeFunc, setCloseFunc] = useState(null as NodeJS.Timeout);
+	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+	const ref = useRef<HTMLDivElement>(null)
+
+	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+		event.stopPropagation()
+		toggleOpen(true)
+	};
+
+	const handleClose = (event: React.MouseEvent<HTMLElement>) => {
+		event.stopPropagation()
+		toggleOpen(false)
+	};
+
+	let transformOrigin: PopoverOrigin
+	let anchorOrigin: PopoverOrigin
+
+	// Tranform playground
+	//https://mui.com/material-ui/react-popover/#anchor-playground
+	switch (variants) {
+		case 'up':
+			anchorOrigin = {
+				vertical: 'top',
+				horizontal: 'right',
+
+			}
+			transformOrigin = {
+				vertical: 'bottom',
+				horizontal: 'right',
+
+			}
+			break;
+		case 'down-center':
+			anchorOrigin = {
+				vertical: 'bottom',
+				horizontal: 'center',
+
+			}
+			transformOrigin = {
+				vertical: 'top',
+				horizontal: 'center',
+			}
+			break;
+		case 'up-center':
+			anchorOrigin = {
+				vertical: 'top',
+				horizontal: 'center',
+			}
+
+			transformOrigin = {
+				vertical: 'bottom',
+				horizontal: 'center',
+			}
+			break;
+		case 'down':
+		default:
+			anchorOrigin = {
+				vertical: 'bottom',
+				horizontal: 'right',
+
+			}
+			transformOrigin = {
+				vertical: 'top',
+				horizontal: 'right',
+			}
+
+	}
 
 	useEffect(() => {
-		function handleClickOutside(event: MouseEvent) {
-			if (dropDownRef.current && (dropDownRef.current === event.target
-				|| !dropDownRef.current.contains(event.target as Node & EventTarget))) {
-				close()
-				return
-			}
+		if (ref) {
+			setAnchorEl(ref.current)
 		}
+	}, [ref])
 
-		function handleEsc(event: KeyboardEvent) {
-			if (event.key.toLowerCase() === 'escape') {
-				close()
-			}
-		}
-
-		document.addEventListener('keydown', handleEsc);
-		document.addEventListener('mousedown', handleClickOutside);
-
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-			document.removeEventListener('keydown', handleEsc);
-		};
-	}, [dropDownRef]);
-
-	useEffect(() => {
-		if (!isOpen) {
-			setCloseFunc(setTimeout(() => {
-				setdisplayElements(isOpen)
-			}, 150))
-			return;
-		}
-		clearTimeout(closeFunc)
-		setdisplayElements(isOpen)
-	}, [isOpen])
-
-	if (variants === undefined || variants === null) variants = 'down'
+	const isNeedCloseOnSelect = isNullOrUndefined(isCloseOnSelect) || isCloseOnSelect
 
 	return (
-		// TODO remove css inline
-		<div style={{ position: 'relative', height: 'fit-content', cursor: 'pointer' }}>
-			<div className='dropdown-menu'
-				onClick={(e) => {
-					e.stopPropagation();
-					onClick();
-				}}>
+		<>
+			<div
+				className={className}
+				onClick={handleClick}
+				ref={ref}
+				style={styleOnMain}
+			>
 				{mainElement}
 			</div>
-			<div
-				ref={dropDownRef}
-				className={['dropdown', classForDropdownBody, `dropdown-${variants}`, isOpen ? '' : 'dropdown-hide'].join(' ')}
+			<Menu
+				disableAutoFocusItem
+				disableAutoFocus
+				anchorEl={anchorEl}
+				open={open}
+				onClose={handleClose}
+				MenuListProps={{
+					'aria-labelledby': 'basic-button',
+				}}
+				transformOrigin={transformOrigin}
+				anchorOrigin={anchorOrigin}
 			>
-				{displayElements ? <div>{children}</div> : null}
-			</div>
-		</div>
+				{
+					children.filter((val) => !isNullOrUndefined(val)).map(
+						child => <MenuItem
+							key={child.toString().slice(-5, -9)}
+							onClick={isNeedCloseOnSelect ? handleClose : null}
+							sx={{
+								fontSize: 'var(--ft-small-text)',
+							}}
+						>
+							{child}
+						</MenuItem>
+					)
+				}
+			</Menu >
+		</>
 	);
 };

@@ -1,25 +1,20 @@
 import React, { FC } from 'react';
 import './button.scss';
+import { Button as UIButton } from '@mui/material';
 
-export type Variants = 'filled' | 'not-filled' | 'button-text'
+export type VariantBtn = 'contained' | 'outlined' | 'text'
+export type SizeBtn = 'small' | 'medium' | 'large'
 
 interface ButtonProps {
 	buttonText: string;
 	clickHandler: (e: React.MouseEvent<HTMLButtonElement>) => void;
 	disabled?: boolean;
-	variant: Variants;
+	variant: VariantBtn;
 	className?: string;
-}
-
-function getClassForButton(disabled: boolean, variant: Variants): string {
-	let out: string = '';
-	if (disabled) {
-		out = 'button disabled-button';
-	} else {
-		out = 'button';
-	}
-	out += disabled ? ` ${variant}` + ` disabled-${variant} ` : ` ${variant}`;
-	return out;
+	size?: SizeBtn;
+	startIconSrc?: string;
+	fontSize?: string;
+	isFullSize?:boolean;
 }
 
 export const Button: FC<ButtonProps> = ({
@@ -28,6 +23,10 @@ export const Button: FC<ButtonProps> = ({
 	disabled,
 	variant,
 	className,
+	size,
+	startIconSrc,
+	fontSize,
+	isFullSize,
 }) => {
 	if (disabled === undefined || disabled === null) disabled = false;
 	let clkHandler: (e: React.MouseEvent<HTMLButtonElement>) => void;
@@ -38,12 +37,22 @@ export const Button: FC<ButtonProps> = ({
 	}
 
 	return (
-		<button
+		<UIButton
+			className={className}
+			fullWidth={isFullSize}
+			variant={variant}
+			size={size || 'small'}
 			disabled={disabled}
-			className={[className, getClassForButton(disabled, variant)].join(' ')}
 			onClick={clkHandler}
+			startIcon={startIconSrc ? <img src={startIconSrc} /> : null}
+			sx={{
+				textTransform: 'none',
+				fontSize: fontSize,
+				justifyContent: variant === 'text' ? 'start' : null,
+				padding: variant === 'text' ? '0' : null,
+			}}
 		>
 			<p>{buttonText}</p>
-		</button>
+		</UIButton>
 	);
 };

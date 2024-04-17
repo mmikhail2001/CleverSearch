@@ -1,7 +1,10 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useRef, useState } from 'react';
 import './fileShow.scss';
 import { SharedModal } from '@widgets/sharedModal/sharedModal'
 import { DropDown } from '@entities/dropDown/dropDown'
+import { Typography } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useMobile } from 'src/mobileProvider';
 
 interface FileShowProps {
 	iconSrc: string;
@@ -13,7 +16,8 @@ interface FileShowProps {
 	onDelete: () => void;
 	dirPath?: string
 	author: string,
-	config: { isDelete?: boolean, isShare?: boolean }
+	config: { isDelete?: boolean, isShare?: boolean },
+	onFavourite?: () => void,
 }
 
 export const FileShow: FC<FileShowProps> = ({
@@ -25,53 +29,93 @@ export const FileShow: FC<FileShowProps> = ({
 	size,
 	onClick,
 	onDelete,
+	onFavourite,
 	dirPath,
 	config
 }) => {
 	const [isOpen, setOpen] = useState(false)
 	const [isOpenDropDown, setOpenDropDown] = useState(false)
+	const {whatDisplay} = useMobile()
+	const ref = useRef<HTMLDivElement>(null)
+
+	const isMobile = whatDisplay === 2
+
+	const handleClickFile = (e: React.MouseEvent<HTMLElement>): void => {
+		if (ref?.current && ref.current.contains(e.target as Node))
+			onClick();
+	}
+
+
+	const renderDropDown = (): React.ReactNode => {
+		return <DropDown
+			variants='down-center'
+			open={isOpenDropDown}
+			toggleOpen={(val) => {
+				setOpenDropDown(val);
+			}}
+			mainElement={
+				<div style={{
+					display: 'flex',
+					alignItems: 'center',
+					fontSize: 'var(--ft-paragraph)',
+				}}>
+					<MoreVertIcon fontSize={'inherit'}></MoreVertIcon>
+				</div>}
+		>
+			{config.isDelete ?
+				<div onClick={(event) => {
+					event.stopPropagation();
+					onDelete();
+					setOpenDropDown(false)
+				}}>Удалить</div>
+				: null}
+			<div className={'not-done'} onClick={onFavourite}>
+				В Избранное
+			</div>
+			{config.isShare ?
+				<React.Fragment>
+					<div
+						onClick={(event) => {
+							event.stopPropagation();
+							setOpen(true);
+							setOpenDropDown(false)
+						}}
+					>
+						Поделиться
+					</div>
+					<SharedModal
+						isOpen={isOpen}
+						close={() => {
+							setOpen(false);
+							setOpenDropDown(false);
+						}}
+						dirPath={dirPath}
+					/>
+				</React.Fragment>
+				: null}
+		</DropDown>
+	}
 
 	return (
 		<>
-			<div className="file-show-line" onClick={onClick} >
+			<div className="file-show-line" ref={ref} onClick={handleClickFile} >
 				<div className='container-file-info'>
 					<div className="icon-placement">
 						<img className="icon" src={iconSrc} alt={altText ? altText : ''}></img>
 					</div>
 					<div className="filename-with-date">
-						<div className="filename">{filename}</div>
-						<div className="date">{date}</div>
+						<Typography fontSize={'var(--ft-body)'} className="filename">{filename}</Typography>
+						<Typography fontSize={'var(--ft-body)'} className="date">{date}</Typography>
 					</div>
 				</div>
-				<div>{author}</div>
+				<Typography fontSize={'var(--ft-body)'}>{author}</Typography>
 				<div className='additional-functions-file'>
-					<DropDown
-						close={() => setOpenDropDown(false)}
-						isOpen={isOpenDropDown}
-						onClick={() => setOpenDropDown(true)}
-						mainElement={<div>More</div>}
-					>
-						{config.isDelete ?
-							<div onClick={(event) => { event.stopPropagation(); onDelete(); }} >Delete</div>
-							: null}
-						{config.isShare ?
-							<div
-								onClick={(event) => { event.stopPropagation(); setOpen(true); }}
-							>
-								Share
-							</div>
-							: null}
-					</DropDown>
+					{renderDropDown()}
 				</div>
-				{config.isShare ?
-					<SharedModal
-						isOpen={isOpen}
-						close={() => setOpen(false)}
-						dirPath={dirPath}
-					/>
-					: null}
-
-				<div className="size">{size}</div>
+				{isMobile
+				? null 
+				: <Typography fontSize={'var(--ft-body)'} className="size">{size === '0 B' ? null : size}</Typography> 
+				}
 			</div>
 		</>
 	);

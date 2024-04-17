@@ -10,3 +10,14 @@
 	max-height: 100%;
 	overflow: hidden;
 }
+
+.bottom-buttons {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	background: var(--main-color-50);
+	padding: var(--normal-padding);
+	padding-bottom: var(--big-padding);
+
+	width: 100%;
+}

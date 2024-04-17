@@ -51,8 +51,15 @@ table {
 	border-spacing: 0;
 }
 
+$pc-width: 1000px;
+$tablet-width: 700px;
+$mobile-width: 300px;
 
 :root {   
+    --pc-width: 1000px;
+    --tablet-width: 700px;
+    --mobile-width: 300px;
+
     /* Font sizes */
     --ft-small-text: 1.4rem;
     --ft-body: 1.8rem;
@@ -125,4 +132,19 @@ body {
 
 * {
     box-sizing: border-box;
+}
+
+:root{
+    @media screen and (max-width: $tablet-width) {
+        --ft-small-text: 1.2rem;
+        --ft-body: 1.4rem;
+        --ft-paragraph: 2.0rem;
+        --ft-title: 2.8rem;
+    }
+    @media screen and (min-width: $pc-width) {
+        --ft-small-text: 1.2rem;
+        --ft-body: 1.4rem;
+        --ft-paragraph: 2rem;
+        --ft-title: 2.8rem;
+    }
 }

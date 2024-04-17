@@ -1,60 +1,47 @@
 import { useShowMutation } from '@api/searchApi';
 import { useAppSelector } from '@store/store';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useDeleteFileMutation } from '@api/filesApi';
-import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
 import { RenderFields } from '@widgets/renderFields/renderFields';
-import { useSearchParams } from 'react-router-dom';
-import { transformToShowParams } from '@models/searchParams';
 import { transfromToShowRequestString } from '@api/transforms';
 import { useNavigate } from 'react-router-dom';
 import { switchToShow } from '@store/whatToShow';
 import '../show.scss'
+import { useShowParams } from '@helpers/hooks/useShowParams'
+import { changeDir, newValues } from '@store/showRequest';
 
 interface ShowShowedFilesProps { }
 
-const useShowParams = () => {
-    const [searchParams] = useSearchParams();
-    const searchParamsToObject = (params: URLSearchParams) => {
-
-        const result: Record<string, string> = {};
-        params.forEach((value, key) => {
-            result[key] = value;
-        });
-        return result;
-    };
-
-    return searchParamsToObject(searchParams)
-}
-
-
 export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const navigate = useNavigate();
-
+    const { showState } = useShowParams()
     const [show, showResp] = useShowMutation({ fixedCacheKey: 'show' });
-    const { currentDisk, dirs } = useAppSelector(
-        (state) => state.currentDirDisk
-    );
 
+    const showReq = useAppSelector(state => state.showRequest)
+    const showParam = useAppSelector(state => state.showRequest)
+    
     const { isShow } = useAppSelector(state => state.whatToShow)
 
     const [deleteFile] = useDeleteFileMutation();
     const dispatch = useDispatch();
 
-    const urlParams = useShowParams()
-    const [params] = useState(transformToShowParams(urlParams))
+    const isPersonal = typeof showReq.disk === 'string'
 
     useEffect(() => {
-        dispatch(changeDir({ dirs: params.dir }))
-        dispatch(changeDisk(params.disk))
-    }, [params])
+        if (isShow) {
+            show({
+                ...showParam,
+                disk: showReq.disk,
+                dir: showReq.dir,
+                externalDiskRequired: !isPersonal,
+                internalDiskRequired: isPersonal,
+                });
+        }
 
-    useEffect(() => {
-        show({ limit: 10, offset: 0, disk: currentDisk, dir: dirs });
-    }, [dirs, currentDisk])
+    }, [showReq, isShow])
 
     if (!isShow) {
         dispatch(switchToShow())
@@ -64,21 +51,42 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
         <div className="data-show">
             <div className="data-show__header">
                 <BreadCrumps
-                    dirs={['Show', ...dirs]}
+                    dirs={['Show', ...showReq.dir]}
                     onClick={() => {
                         const url = transfromToShowRequestString(
-                            { ...params, dir: dirs.slice(0, -1) || [] }
+                            {
+                                fileType: showState.fileType,
+                                disk: showReq.disk,
+                                dir: showReq.dir.slice(0, -1) || [],
+                                limit: 10,
+                                offset: 0,
+                                externalDiskRequired: showState.externalDiskRequired,
+                                internalDiskRequired: showState.internalDiskRequired,
+                            }
                         )
                         dispatch(
-                            changeDir({
-                                dirs: dirs.slice(0, -1) || [],
-                            })
+                            dispatch(newValues({...showReq, dir: showReq.dir.slice(0, -1) || []}))
                         )
                         navigate(url, { replace: true })
                     }}
-                    reactOnElements={[]}
+                    reactOnElements={
+                        ['Show', ...showReq.dir].map((dir, index) => {
+                            return () => {
+                                let dirToSet: string[] = []
+                                if (index !== 0) 
+                                    dirToSet = showReq.dir.slice(0, index)
+                                const url = transfromToShowRequestString(
+                                    {
+                                        ...showReq,
+                                        dir: dirToSet,
+                                    }
+                                )
+                                dispatch(changeDir(dirToSet))
+                                navigate(url, { replace: true })
+                            }
+                        })
+                    }
                 />
-                <p>Результаты поиска:</p>
             </div>
             <RenderFields
                 data={showResp.data?.body}
@@ -89,14 +97,36 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                 deleteFile={
                     (fileName: string): void => {
                         deleteFile([fileName]);
-                        setTimeout(() =>
-                            show(
-                                { limit: 10, offset: 0, disk: currentDisk, dir: dirs }),
-                            100);
-                    }}
+                        setTimeout(() =>{
+                            show({
+                                ...showParam, 
+                                disk: showReq.disk, 
+                                dir: showReq.dir,
+                                externalDiskRequired: !isPersonal,
+                                internalDiskRequired: isPersonal,
+                            });
+                            dispatch(newValues({
+                                ...showParam,
+                                 disk: showReq.disk,
+                                  dir: showReq.dir,
+                                  externalDiskRequired: !isPersonal,
+                                  internalDiskRequired: isPersonal,
+                                }))
+                        },
+                            100)
+                        }
+                    }
                 openFolder={(path) => {
                     const url = transfromToShowRequestString(
-                        { ...params, dir: path || [] }
+                        {
+                            fileType: showState.fileType,
+                            disk: showState.disk[0],
+                            limit: 10,
+                            offset: 0,
+                            dir: path || [],
+                            externalDiskRequired: showState.externalDiskRequired,
+                            internalDiskRequired: showState.internalDiskRequired,
+                        }
                     )
                     navigate(url, { replace: true })
                 }}

@@ -1,12 +1,22 @@
- .file-show-line {
+@import '../../index.scss';
+
+.file-show-line {
+    gap: var(--normal-padding);
+    max-width: 100%;
     width: 100%;
     display: grid;
-    grid-template-columns: 3fr  0.5fr 2fr 1fr;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 0.5fr) minmax(0, 2fr) minmax(0, 1fr);
     
+    @media screen and (max-width: $tablet-width) {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) minmax(0, 1fr);  
+    }
+
     justify-content: space-between;
     align-content: center;
     padding: 16px;
- }
+
+    cursor: pointer;
+ };
 
 .icon-placement {
     width: 25px;
@@ -14,15 +24,11 @@
 }
 
 .filename-with-date {
-    display: flex;
-    gap: 12px;
-    flex-direction: row;
-}
-
-@media screen and (max-width: 1201px) {
-  .filename-with-date {
-    flex-direction: column;
-  }
+  overflow: hidden;
+  max-width: 100%;
+  display: flex;
+  gap: 12px;
+  flex-direction: row;
 }
 
 .icon {
@@ -54,4 +60,11 @@
 
 .size {
   justify-content: end;
+}
+
+.filename {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 100%;
 }

@@ -13,7 +13,7 @@ const Page: FC<PageProps> = React.memo(function page({ children, style }: PagePr
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    outline: '1px solid #ccc'
+    outline: '1px solid #ccc',
   };
   return <div style={internalStyle}>{children}</div>;
 });

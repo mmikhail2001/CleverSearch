@@ -1,17 +1,18 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { SearchParams, diskTypes, fileTypes } from '@models/searchParams';
+import { SearchParams, fileTypes } from '@models/searchParams';
+import { diskTypes } from '@models/disk';
 
 const searchSlice = createSlice({
-	name: 'whatToShow',
+	name: 'searchReq',
 	initialState: {
 		smartSearch: false,
 		fileType: ['all' as fileTypes],
 		query: '',
 		dir: [] as string[],
-		disk: ['own'] as diskTypes[],
+		disk: ['all'] as diskTypes[],
 	} as SearchParams,
 	reducers: {
-		newValues(state, action: PayloadAction<SearchParams>) {
+		newSearchValues(state, action: PayloadAction<SearchParams>) {
 			return {
 				...state,
 				...action.payload
@@ -21,4 +22,4 @@ const searchSlice = createSlice({
 });
 
 export const { actions, reducer } = searchSlice;
-export const { newValues } = actions;
+export const { newSearchValues } = actions;

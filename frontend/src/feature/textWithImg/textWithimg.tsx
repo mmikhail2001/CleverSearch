@@ -1,13 +1,16 @@
 import React, { FC } from 'react';
 import './textWithImg.scss';
+import { Typography } from '@mui/material';
 
 interface TextWithImgProps {
-  text: string;
-  subText?:string;
-  imgSrc: string;
-  altImgText: string;
-  className: string;
-  onClick?: (e: React.MouseEvent<HTMLParagraphElement>) => void;
+	text: string;
+	subText?: string;
+	imgSrc: string | React.ReactNode;
+	altImgText: string;
+	className: string;
+	onClick?: (e: React.MouseEvent<HTMLParagraphElement>) => void;
+	leftIconProp?: React.ReactNode,
+	rightIconProp?: React.ReactNode,
 }
 
 export const TextWithImg: FC<TextWithImgProps> = ({
@@ -17,14 +20,26 @@ export const TextWithImg: FC<TextWithImgProps> = ({
 	className,
 	onClick,
 	altImgText,
+	leftIconProp,
+	rightIconProp,
 }) => {
 	return (
 		<div className={['text-with-img', className].join(' ')} onClick={onClick}>
-			<img className="text-image" src={imgSrc} alt={altImgText}></img>
-			<div>
-				<p className="text">{text}</p>
-				{subText ? <p className="subText">{subText}</p> : null}
+			{leftIconProp}
+			{typeof imgSrc === 'string'
+			? <img className="text-image" src={imgSrc} alt={altImgText}></img>
+			: imgSrc
+			}
+			<div className="text-option">
+				<Typography fontSize={'var(--ft-paragraph)'}>{text}</Typography>
+				{subText ? <Typography sx={{
+					textOverflow: 'ellipsis',
+					maxWidth: '100%',
+					overflow: 'hidden'
+				}}
+					fontSize={'var(--ft-body)'}>{subText}</Typography> : null}
 			</div>
-		</div>
+			{rightIconProp}
+		</div >
 	);
 };

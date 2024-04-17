@@ -43,7 +43,6 @@ export const ShowSharedUUIDFiles: FC<ShowSharedUUIDFilesProps> = () => {
 	return (
 		<div className="data-show" >
 			<div className="data-show__header">
-				<p>Результаты поиска:</p>
 			</div>
 		</div>
 	);

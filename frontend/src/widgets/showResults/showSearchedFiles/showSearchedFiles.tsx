@@ -4,29 +4,16 @@ import { useDispatch } from 'react-redux';
 
 import { useDeleteFileMutation } from '@api/filesApi';
 import { useSearchMutation } from '@api/searchApi';
-import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
 import { RenderFields } from '@widgets/renderFields/renderFields';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { switchToSearch, switchToShow } from '@store/whatToShow';
 import { transfromToShowRequestString } from '@api/transforms';
-import { transformToSearchParams } from '@models/searchParams'
 import '../show.scss'
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
+import { useSearchParams } from '@helpers/hooks/useSearchParams';
+import { newValues } from '@store/showRequest';
 
 interface ShowSearchedFilesProps { }
-
-const useSearchUrlParams = () => {
-    const [searchParams] = useSearchParams();
-    const searchParamsToObject = (params: URLSearchParams) => {
-        const result: Record<string, string> = {};
-        params.forEach((value, key) => {
-            result[key] = value;
-        });
-        return result;
-    };
-
-    return searchParamsToObject(searchParams)
-}
 
 
 export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
@@ -35,27 +22,35 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     const dispatch = useDispatch();
 
     const navigate = useNavigate()
-    const urlParams = useSearchUrlParams()
+    useSearchParams()
+
+    const showReq = useAppSelector(state => state.showRequest)
+    const searchParams = useAppSelector(state => state.searchRequest)
+    const { isSearch } = useAppSelector(state => state.whatToShow)
 
     useEffect(() => {
+        if (searchParams.limit)
+            search(searchParams)
+    }, [searchParams])
+
+    if (!isSearch) {
         dispatch(switchToSearch())
-        const params = transformToSearchParams(urlParams)
-        search(params)
-    }, [])
+    }
 
     const paramsSearch = useAppSelector((state) => state.searchRequest);
 
     return (
         <div className="data-show" >
-            <BreadCrumps
-                dirs={['Search']}
-                onClick={() => {
-                    navigate(-1)
-                }}
-                reactOnElements={[]}
-            />
             <div className="data-show__header">
-                <p>Результаты поиска:</p>
+                <BreadCrumps
+                    dirs={['Search']}
+                    onClick={() => {
+                        navigate(-1)
+                    }}
+                    reactOnElements={[
+                        // TODO если сделаем поиск папки, то нужно доделать это место
+                    ]}
+                />
             </div>
             <RenderFields
                 data={data?.body}
@@ -71,8 +66,7 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
                             100);
                     }}
                 openFolder={(path) => {
-                    dispatch(changeDir({ dirs: path }))
-                    dispatch(changeDisk('all'));
+                    dispatch(newValues({...showReq, dir: path, disk: 'all'}))
                     dispatch(switchToShow());
 
                     const url = transfromToShowRequestString({ limit: 10, offset: 0, dir: path });

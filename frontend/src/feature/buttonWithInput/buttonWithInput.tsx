@@ -1,12 +1,12 @@
 import React, { FC, useRef } from 'react';
-import { Button, Variants } from '@entities/button/button';
+import { Button, VariantBtn } from '@entities/button/button';
 
 import './buttonWithInput.scss'
 
 interface ButtonWithInputProps {
   onChange: (a: FileList) => void;
   disabled: boolean;
-  variant: Variants;
+  variant: VariantBtn;
   className?: string;
   buttonText: string;
 }
@@ -26,9 +26,15 @@ export const ButtonWithInput: FC<ButtonWithInputProps> = ({
   return (
     <div className={className || ''}>
       <Button
+        isFullSize={true}
+        fontSize='var(--ft-body)'
         variant={variant}
         buttonText={buttonText}
-        clickHandler={handleClick}
+        clickHandler={(e) => {
+          e.preventDefault()
+          handleClick()
+        }
+        }
         disabled={false}
       ></Button>
       <input

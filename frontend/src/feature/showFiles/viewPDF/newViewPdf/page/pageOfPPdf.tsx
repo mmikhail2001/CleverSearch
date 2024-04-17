@@ -49,10 +49,13 @@ const PdfPage: FC<PdfPageProps> = React.memo(function pdfPage({ page, scale }: P
     }
   }, [page, scale]);
 
+  const root = document.documentElement
+  root.style.setProperty('--scale-factor', String(scale))
+
   return (
     <div className="PdfPage">
       <canvas ref={canvasRef} />
-      <div ref={textLayerRef} className="PdfPage__textLayer" />
+      <div ref={textLayerRef} className='textLayer'/> {/* className="PdfPage__textLayer" /> */}
     </div>
   );
 });
