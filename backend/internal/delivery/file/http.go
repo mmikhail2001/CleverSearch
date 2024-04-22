@@ -179,6 +179,13 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
+	// [ file.FileOptions{FileType:"all", Dir:"/Double", UserID:"", CloudEmail:"", Disk:"",
+	// Limit:10, Offset:0, Query:"", Status:"", IsSmartSearch:false,
+	// FirstNesting:true, DirsRequired:true, FilesRequired:true, SharedRequired:true,
+	// PersonalRequired:true, ExternalDisklRequired:false, InternalDisklRequired:true} ]
+
+	log.Printf("\n\n [ %#v ] \n\n ", options)
+
 	var results []file.File
 	if strings.Contains(r.URL.Path, "search") {
 		if options.Query == "" {

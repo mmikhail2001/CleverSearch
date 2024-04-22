@@ -282,7 +282,7 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 	pathComponents := strings.Split(file.Path, "/")
 
 	var userID string
-	if len(pathComponents) > 1 {
+	if len(pathComponents) > 2 {
 		fileTmpShare, err := uc.repo.GetFileByPath(ctx, "/"+pathComponents[1], "")
 		if err != nil {
 			log.Println("GetFileByPath err:", err)
@@ -333,7 +333,8 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 	}
 
 	file.Filename = pathComponents[len(pathComponents)-1]
-	file.Bucket = user.Email
+	file.Bucket = user.Bucket
+	file.Email = user.Email
 	file.UserID = user.ID
 	file.TimeCreated = time.Now()
 	file.ID = uuid.New().String()
