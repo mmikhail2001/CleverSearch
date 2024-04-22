@@ -85,6 +85,13 @@ import (
 // если надо удалить корневую, то проверка, автор ли это?
 //
 
+/*
+
+	https://www.googleapis.com/drive/v3/files/18K24x4gLpkgiOHYJPP2CyV_Gf-nQGlZR?alt=media
+	/cloud/google/18K24x4gLpkgiOHYJPP2CyV_Gf-nQGlZR
+
+*/
+
 var staticDir string = "/app/frontend/build"
 var staticDirMinio string = "/app/minio_files"
 
@@ -179,6 +186,7 @@ func Run() error {
 	apiAuth.HandleFunc("/clouds/connect", cloudHandler.ConnectCloud).Methods("POST")
 	apiAuth.HandleFunc("/clouds/callback", cloudHandler.AuthProviderCallback).Methods("GET")
 	apiAuth.HandleFunc("/clouds/refresh", cloudHandler.RefreshCloud).Methods("POST")
+	apiAuth.HandleFunc("/clouds/google/{cloud_email}/{cloud_file_id}", cloudHandler.GetCloudFile).Methods("GET")
 
 	apiAuth.HandleFunc("/dirs/create", fileHandler.CreateDir).Methods("POST")
 	apiAuth.HandleFunc("/dirs/share", fileHandler.ShareDir).Methods("POST")

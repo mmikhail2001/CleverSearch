@@ -22,6 +22,7 @@ type FileRepository interface {
 	CreateFile(ctx context.Context, file file.File) error
 	UploadToStorage(ctx context.Context, fileReader io.Reader, file file.File) (file.File, error)
 	PublishMessage(ctx context.Context, file file.File) error
+	GetFileByCloudID(ctx context.Context, cloudID string) (file.File, error)
 }
 
 type UserRepository interface {

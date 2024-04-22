@@ -15,4 +15,5 @@ type StaticHandler interface {
 type Usecase interface {
 	CloudConnect(ctx context.Context, token *oauth2.Token) error
 	RefreshConnect(ctx context.Context, disk file.DiskType, cloudEmail string) error
+	GetToken(ctx context.Context, cloudEmail string, cloudID string) (string, error)
 }

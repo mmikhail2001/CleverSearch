@@ -355,3 +355,25 @@ func (r *Repository) UpdateSharedDir(ctx context.Context, sharedDir file.SharedD
 
 	return sharedDir, nil
 }
+
+func (r *Repository) GetFileByCloudID(ctx context.Context, cloudID string) (file.File, error) {
+	var resultDTO fileDTO
+
+	filter := bson.M{"cloud_id": cloudID}
+	err := r.mongo.Collection("files").FindOne(ctx, filter).Decode(&resultDTO)
+	if err != nil {
+		log.Println("GetFileByID: FindOne:", cloudID, err)
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return file.File{}, file.ErrNotFound
+		}
+		return file.File{}, err
+	}
+	var fileRes file.File
+	err = dto.Map(&fileRes, &resultDTO)
+	if err != nil {
+		log.Println("Dto Map GetFileByID repo error:", err)
+		return file.File{}, err
+	}
+
+	return fileRes, nil
+}

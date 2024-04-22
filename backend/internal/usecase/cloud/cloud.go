@@ -239,22 +239,35 @@ func (uc *Usecase) RefreshConnect(ctx context.Context, disk file.DiskType, cloud
 	}
 
 	return nil
-
-	// TODO: нужно обновить файлы (сделать refresh с облачным хранилищем)
-	// нужно удалить те, которые были удалены в облаке
-	// создать и скачать те, которые были добавлены в облаке
-	// то же самое с папками
-	// можно создать множества cloudID существующих файлов и множество cloudID файлов на внешнем диске
-	// найти разницу для удаления и создания
-	// вот функции uc.fileRepo
 }
 
-// about, err := srv.About.Get().Fields("user(emailAddress)").Do()
-// if err != nil {
-// 	log.Println("Unable to retrieve user info", err)
-// 	return "", err
-// }
+func (uc *Usecase) GetToken(ctx context.Context, cloudEmail string, cloudID string) (string, error) {
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return "", sharederrors.ErrUserNotFoundInContext
+	}
 
-// return about.User.EmailAddress, nil
-// }
-//
+	err := uc.UpdateAllTokens(ctx, &user)
+	if err != nil {
+		log.Println("UpdateAllTokens err:", err)
+		return "", err
+	}
+
+	cloudFile, err := uc.fileRepo.GetFileByCloudID(ctx, cloudID)
+	if err != nil {
+		return "", err
+	}
+	if cloudFile.UserID != user.ID {
+		log.Println("request to file, but owner invalid")
+		return "", fmt.Errorf("request to file, but owner invalid")
+	}
+	for _, cloud := range user.ConnectedClouds {
+		if cloud.CloudEmail == cloudEmail {
+			return cloud.Token.AccessToken, nil
+		}
+	}
+	log.Println("not found cloud email")
+	return "", fmt.Errorf("not found cloud email")
+
+}

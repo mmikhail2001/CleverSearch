@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/drive/v3"
@@ -111,4 +113,46 @@ func (h *Handler) RefreshCloud(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) GetCloudFile(w http.ResponseWriter, r *http.Request) {
+	cloudFileID := mux.Vars(r)["cloud_file_id"]
+	cloudEmail := mux.Vars(r)["cloud_email"]
+	token, err := h.usecase.GetToken(r.Context(), cloudEmail, cloudFileID)
+	if err != nil {
+		log.Println("GetTokenByCloudID err:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", "https://www.googleapis.com/drive/v3/files/"+cloudFileID+"?alt=media", nil)
+	if err != nil {
+		log.Println("NewRequest err:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	req.Header.Add("Authorization", "Bearer "+token)
+
+	if rangeHeader := r.Header.Get("Range"); rangeHeader != "" {
+		req.Header.Add("Range", rangeHeader)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Println("Request to Google Drive API failed:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	for k, v := range resp.Header {
+		w.Header()[k] = v
+	}
+
+	w.WriteHeader(resp.StatusCode)
+	if _, err = io.Copy(w, resp.Body); err != nil {
+		log.Println("Failed to write response body:", err)
+	}
 }

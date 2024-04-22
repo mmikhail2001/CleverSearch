@@ -74,7 +74,8 @@ func (uc *Usecase) fillFilesRecursively(ctx context.Context, srv *drive.Service,
 		}
 
 		if !fileInfo.IsDir {
-			fileInfo.Link = fmt.Sprintf("https://www.googleapis.com/drive/v3/files/%s?alt=media", file.Id)
+			fileInfo.Link = fmt.Sprintf("/api/clouds/google/%s/%s", cloudUserEmail, file.Id)
+			// fileInfo.Link = fmt.Sprintf("https://www.googleapis.com/drive/v3/files/%s?alt=media", file.Id)
 		}
 
 		*fileList = append(*fileList, fileInfo)
