@@ -53,6 +53,8 @@ export const useShowParams = () => {
         disk: diskTypes[] | ConnectedClouds[];
         externalDiskRequired?: boolean;
         internalDiskRequired?: boolean;
+        shared_required?: boolean,
+        personal_required?: boolean,
     }
 
     const urlParams = useParamsFromURL()
@@ -70,6 +72,8 @@ export const useShowParams = () => {
 
     showState.externalDiskRequired = params.externalDiskRequired
     showState.internalDiskRequired = params.internalDiskRequired
+    showState.personal_required = params.personalReq
+    showState.shared_required = params.sharedReq
 
     let settedDir: string[];
     if (params.dir.length === 0) {
@@ -97,6 +101,8 @@ export const useShowParams = () => {
                     disk: settedDisk,
                     externalDiskRequired: params.externalDiskRequired,
                     internalDiskRequired: params.internalDiskRequired,
+                    personalReq: params.personalReq,
+                    sharedReq: params.sharedReq,
                 })
             )
             

@@ -12,27 +12,23 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import '../show.scss';
 import { useParamsFromURL } from '@helpers/hooks/useParamsFromURL';
 import { changeDir, newValues } from '@store/showRequest';
+import { useShowParams } from '@helpers/hooks/useShowParams';
 
 interface ShowSharedFilesProps { }
 
 
 export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
-	const [showShared, { data, ...searchResp }] = useShowSharedMutation({ fixedCacheKey: 'share' });
+	const [showShared, { data, ...searchResp }] = useShowSharedMutation({ fixedCacheKey: 'shared' });
 	const dispatch = useDispatch();
 
 	const location = useLocation()
-	const { isShared } = useAppSelector(state => state.whatToShow)
 	const showReq = useAppSelector(state => state.showRequest)
+	const { isShared } = useAppSelector(state => state.whatToShow)
+	
 	const [valueToShow, setvalueToShow] = useState(data?.body);
 
 	const navigate = useNavigate()
-	const urlParams = useParamsFromURL()
-	const [params] = useState(transformToShowParams(urlParams))
-
-	// TODO remove when do useShowParams
-	useEffect(() => {
-		dispatch(newValues({...showReq, dir: params.dir, disk: params.disk}))
-	}, [])
+	const { showState } = useShowParams()
 
 	useEffect(() => {
 		setvalueToShow(data?.body)
@@ -40,12 +36,11 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 
 	useEffect(() => {
 		dispatch(switchToShared())
-		showShared({ limit: 10, offset: 0, disk: showReq.disk, dir: showReq.dir })
 	}, [])
 
 	useEffect(() => {
-		showShared({ limit: 10, offset: 0, disk: showReq.disk, dir: showReq.dir })
-	}, [location.key, location.hash, location.pathname])
+		showShared({ ...showReq})
+	}, [showReq, isShared])
 
 	if (!isShared) {
 		dispatch(switchToShared())

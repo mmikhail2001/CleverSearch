@@ -61,10 +61,10 @@ export const UserProfile: FC<UserProfileProps> = ({
 			toggleOpen={setOpen}
 			mainElement={profileMain()}
 		>
-			[
+			{[
 				<div onClick={() => navigate('/settings')}>Настройки</div>,
 				<div onClick={logout}>Выйти</div>,
-			]
+			]}
 		</DropDown >)
 	}
 

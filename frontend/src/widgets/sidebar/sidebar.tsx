@@ -7,7 +7,7 @@ import './sidebar.scss';
 import { ButtonWithInput } from '@feature/buttonWithInput/buttonWithInput';
 import { usePushFileMutation } from '@api/filesApi';
 import { useAppSelector } from '@store/store';
-import { useSearchMutation, useShowMutation } from '@api/searchApi';
+import { useSearchMutation, useShowMutation, useShowSharedMutation } from '@api/searchApi';
 
 import { useNavigate } from 'react-router-dom';
 import { debounce } from '@helpers/debounce'
@@ -52,8 +52,11 @@ export const Sidebar: FC<SidebarProps> = ({
 
 	const [search] = useSearchMutation({ fixedCacheKey: 'search' });
 	const [show] = useShowMutation({ fixedCacheKey: 'show' });
+	const [showShared] = useShowSharedMutation({ fixedCacheKey: 'shared' });
+	
 	const showParam = useAppSelector(state => state.showRequest)
 	const showReq = useAppSelector(state => state.showRequest)
+
 
 	const param = useAppSelector((state) => state.searchRequest);
 
@@ -71,7 +74,11 @@ export const Sidebar: FC<SidebarProps> = ({
 			} else if (isShow) {
 				show({...showParam, disk: showReq.disk, dir: showReq.dir });
 				dispatch(newValues({...showParam, disk: showReq.disk, dir: showReq.dir}))
+			} else if (isShared) {
+				showShared({...showParam, disk: showReq.disk, dir: showReq.dir });
+				dispatch(newValues({...showParam, disk: showReq.disk, dir: showReq.dir}))
 			}
+
 			setFilesWasSend(false)
 		}
 
@@ -151,8 +158,11 @@ export const Sidebar: FC<SidebarProps> = ({
 										onFolderCreation={() => {
 											if (isSearch) {
 												search(param);
-											} else {
+											} else if(isShow) {
 												show({...showParam, disk: showReq.disk, dir: showReq.dir });
+												dispatch(newValues({...showParam, disk: showReq.disk, dir: showReq.dir}))
+											} else if (isShared) {
+												showShared({...showParam, disk: showReq.disk, dir: showReq.dir });
 												dispatch(newValues({...showParam, disk: showReq.disk, dir: showReq.dir}))
 											}
 										}}
@@ -213,7 +223,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							}}
 						/>
 						<TextWithImg
-							text="Общие"
+							text="Избранное"
 							className={['loved', isLoved ? 'selected' : '', 'text-with-img-row', 'not-done'].join(' ')}
 							imgSrc={<FavoriteIcon/>} 
 							altImgText="Сердце"
