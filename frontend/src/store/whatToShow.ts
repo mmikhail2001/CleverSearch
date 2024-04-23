@@ -51,6 +51,6 @@ const showSlice = createSlice({
 // Extract the action creators object and the reducer
 const { actions, reducer } = showSlice;
 // Extract and export each action creator by name
-export const { switchToSearch, switchToShow, switchToProcessed, switchToShared } = actions;
+export const { switchToSearch, switchToShow, switchToProcessed, switchToShared, switchToLoved } = actions;
 // Export the reducer, either as a default or named export
 export default reducer;

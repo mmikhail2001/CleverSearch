@@ -17,7 +17,8 @@ interface ShowShowedFilesProps { }
 
 export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const navigate = useNavigate();
-    const { showState } = useShowParams()
+    useShowParams()
+
     const [show, showResp] = useShowMutation({ fixedCacheKey: 'show' });
 
     const showReq = useAppSelector(state => state.showRequest)
@@ -55,13 +56,11 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                     onClick={() => {
                         const url = transfromToShowRequestString(
                             {
-                                fileType: showState.fileType,
-                                disk: showReq.disk,
+                                ...showReq,
+                                fileType: showReq.fileType,
                                 dir: showReq.dir.slice(0, -1) || [],
-                                limit: 10,
-                                offset: 0,
-                                externalDiskRequired: showState.externalDiskRequired,
-                                internalDiskRequired: showState.internalDiskRequired,
+                                externalDiskRequired: showReq.externalDiskRequired,
+                                internalDiskRequired: showReq.internalDiskRequired,
                             }
                         )
                         dispatch(
@@ -99,14 +98,14 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                         deleteFile([fileName]);
                         setTimeout(() =>{
                             show({
-                                ...showParam, 
+                                ...showReq, 
                                 disk: showReq.disk, 
                                 dir: showReq.dir,
                                 externalDiskRequired: !isPersonal,
                                 internalDiskRequired: isPersonal,
                             });
                             dispatch(newValues({
-                                ...showParam,
+                                ...showReq,
                                  disk: showReq.disk,
                                   dir: showReq.dir,
                                   externalDiskRequired: !isPersonal,
@@ -119,15 +118,18 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                 openFolder={(path) => {
                     const url = transfromToShowRequestString(
                         {
-                            fileType: showState.fileType,
-                            disk: showState.disk[0],
-                            limit: 10,
-                            offset: 0,
+                            ...showReq,
+                            fileType: showReq.fileType,
+                            disk: showReq.disk,
                             dir: path || [],
-                            externalDiskRequired: showState.externalDiskRequired,
-                            internalDiskRequired: showState.internalDiskRequired,
+                            externalDiskRequired: showReq.externalDiskRequired,
+                            internalDiskRequired: showReq.internalDiskRequired,
                         }
                     )
+                    dispatch(newValues({
+                        ...showReq,
+                        dir: path,
+                        }))
                     navigate(url, { replace: true })
                 }}
             />

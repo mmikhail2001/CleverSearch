@@ -1,4 +1,4 @@
-import { diskTypes } from './disk';
+import { diskTypes, isDiskType } from './disk';
 import { ConnectedClouds } from './user';
 
 export const sharedType = {
@@ -96,6 +96,7 @@ export interface fileFile {
   duration?: number,
   timestart?: number,
   page_number?: number,
+  is_fav?: boolean,
 }
 
 export interface SearchResponse {
@@ -110,6 +111,7 @@ export const transformToShowParams = (obj: {
   file_type?: string,
   dir?: string,
   cloud_email?: string,
+  diskName?: diskTypes,
   external_disk_required?: string,
   internal_disk_required?: string,
 }) => {
@@ -129,15 +131,20 @@ export const transformToShowParams = (obj: {
     dir = []
   }
 
-  return {
+  let diskNameoSet: diskTypes
+  if (isDiskType(obj.diskName)) {
+    diskNameoSet = obj.diskName
+  } 
+
+  return [{
     limit: obj.limit || 10,
     offset: obj.offset || 0,
     fileType: fileType || 'all',
     dir: dir,
-    disk: obj.cloud_email || 'all',
+    disk: diskNameoSet,
     externalDiskRequired: obj.external_disk_required === 'true',
     internalDiskRequired: obj.internal_disk_required === 'true',
-  } as ShowParams
+  }, diskNameoSet, obj.cloud_email] as [ShowParams, diskTypes, string]
 }
 
 export interface ShowParams {

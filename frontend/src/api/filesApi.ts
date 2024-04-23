@@ -42,6 +42,24 @@ export const filesApi = createApi({
 				body: request
 			}),
 		}),
+		addToFavourite: builder.mutation<ShareResponse, string>({
+			query: (id: string) => ({
+				url: `/files/favs/add/${id}`,
+				method: 'POST',
+			}),
+		}),
+		deleteToFavourite: builder.mutation<ShareResponse, string>({
+			query: (id: string) => ({
+				url: `/files/favs/delete/${id}`,
+				method: 'POST',
+			}),
+		}),
+		getFavourite: builder.mutation<SearchResponse, null>({
+			query: () => ({
+				url: `/files/favs`,
+				method: 'GET',
+			}),
+		}),
 	}),
 });
 
@@ -50,5 +68,8 @@ export const {
 	useGetFoldersMutation,
 	usePushFileMutation,
 	useCreateDirMutation,
-	useGetShareUrlMutation
+	useGetShareUrlMutation,
+	useDeleteToFavouriteMutation,
+	useAddToFavouriteMutation,
+	useGetFavouriteMutation,
 } = filesApi;

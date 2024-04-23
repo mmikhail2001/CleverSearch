@@ -10,3 +10,10 @@
     gap: var(--normal-padding);
     padding: var(--normal-padding);
 }
+
+.profile-picture {
+    object-fit: cover;
+    height: var(--ft-paragraph);
+    width: var(--ft-paragraph);
+    border-radius: var(--big-radius);
+}

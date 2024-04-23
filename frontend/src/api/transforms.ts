@@ -55,16 +55,35 @@ export const transformToSearchRequestString = (searchReq: SearchParams): string 
 }
 
 export const transfromToSharedRequestParams = (showReq: ShowParams): string => {
+	let emailToShow: string;
+	let diskToShow: string;
+	if (showReq.disk) {
+		if (typeof showReq.disk === 'string') {
+			emailToShow = showReq.disk
+			diskToShow = 'all'
+		} else {
+			emailToShow = showReq.disk.cloud_email
+			diskToShow = showReq.disk.disk
+		}
+	} else {
+		emailToShow = 'all'
+	}
+	
+	if (emailToShow === 'all') emailToShow = ''
+
 	return [`?limit=${showReq.limit}`,
 	`&offset=${showReq.offset}`,
-	`&disk=${showReq.disk ? showReq.disk : 'all'}`,
+	`&disk=${diskToShow}`,
 	`&file_type=${showReq.fileType ? showReq.fileType.join(',') : 'all' as fileTypes}`,
 	`&dir=${showReq.dir && showReq.dir.length !== 0 ? ['', ...showReq.dir].join('/') : '/'}`,
 	`&first_nesting=${showReq.nestingReq === undefined ? true : showReq.nestingReq}`,
 	`&dirs_required=${showReq.dirsReq === undefined ? true : showReq.dirsReq}`,
 	`&files_required=${showReq.filesReq === undefined ? true : showReq.filesReq}`,
-		'&shared_required=true',
-		'&personal_required=false'].join('')
+	`&external_disk_required=${true}`,
+	`&internal_disk_required=${true}`,
+	'&shared_required=true',
+	`&cloud_email=${emailToShow}`,
+	'&personal_required=false'].join('')
 }
 
 export const transfromToProcessedRequestParams = (showReq: ShowParams): string => {

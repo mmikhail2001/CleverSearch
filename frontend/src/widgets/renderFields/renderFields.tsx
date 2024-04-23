@@ -13,9 +13,10 @@ import { FileWithModal, renderReturns } from './fileWithModal';
 import './renderFields.scss';
 import { Typography } from '@mui/material';
 import { useAppSelector } from '@store/store';
-import { newValues } from '@store/showRequest';
 import {getErrorMessageFromErroResp} from '@helpers/getErrorMessageFromErroResp'
 import { useMobile } from 'src/mobileProvider';
+import { diskTypes } from '@models/disk';
+import { ConnectedClouds } from '@models/user';
 
 export interface RenderFieldsProps {
 	data: fileFile[],
@@ -24,7 +25,7 @@ export interface RenderFieldsProps {
 	isLoading: boolean,
 	dispatch: Dispatch<UnknownAction>,
 	deleteFile: (fileName: string, accessRights: AccessRights) => void,
-	openFolder: (dirToShow: string[]) => void,
+	openFolder: (dirToShow: string[], diskToShow: diskTypes | ConnectedClouds) => void,
 }
 
 export const RenderFields: FC<RenderFieldsProps> = ({
@@ -37,7 +38,6 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	openFolder,
 }) => {
 	const disks = useAppSelector(state => state.disks)
-	const showReq = useAppSelector(state => state.showRequest)
 	const {whatDisplay} = useMobile()
 	const isMobile = whatDisplay === 2
 
@@ -57,18 +57,26 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 		const imgSrc = folderIconPath;
 		const clickHandler = () => {
 			const dirsPath = file.path.split('/')
-			dispatch(newValues({...showReq, dir: dirsPath}))
-			openFolder(dirsPath);
+			let disk: diskTypes | ConnectedClouds = 'all';
+			if (file.cloud_email !== "") {
+				disk = {
+					cloud_email:file.cloud_email, 
+					disk: file.disk,
+					access_token: '',
+				}
+			}
+			
+			openFolder(dirsPath, disk);
 		};
 		const renderModal = (): null => null
 		return { imgSrc, clickHandler, renderModal }
 	};
 
-	const getImageProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void,authToken?: string): renderReturns => {
+	const getImageProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void): renderReturns => {
 		const renderModal = () => {
 			return (
 				<Modal className={'modal__img-show'} isOpen={state} closeModal={() => changeState(false)}>
-					<ViewImg imgSrc={file.link} altText={''} authToken={authToken} />
+					<ViewImg imgSrc={file.link} altText={''} />
 				</Modal>
 			)
 		}
@@ -77,7 +85,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 		return { clickHandler, imgSrc, renderModal }
 	};
 
-	const getPdfProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void, authToken?: string): renderReturns => {
+	const getPdfProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void): renderReturns => {
 		const renderModal = () => {
 			return (
 				<Modal
@@ -88,7 +96,6 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 					bodyClassName={'modal-body__pdf'}
 				>
 					<ViewPDF
-						authToken={authToken}
 						pdfURL={file.link}
 						openPageInPDF={file.page_number || 0}
 					/>
@@ -99,7 +106,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 		return { clickHandler: () => { }, imgSrc, renderModal }
 	};
 
-	const getVideoProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void,authToken?: string): renderReturns => {
+	const getVideoProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void): renderReturns => {
 		const renderModal = () => {
 			// TODO видео уезжает, зажать по высоте
 			return (
@@ -108,7 +115,6 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 						url={file.link}
 						duration={file.duration || 0}
 						start_time={file.timestart || 0}
-						authToken={authToken}
 					></VideoPlayer>
 				</Modal>
 			)
@@ -149,7 +155,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 						
 						switch (file.file_type) {
 							case 'img':
-								fileProp = getImageProps(file, isOpen, changeState,authToken);
+								fileProp = getImageProps(file, isOpen, changeState);
 
 								iconSrc = fileProp.imgSrc
 								clickHandler = fileProp.clickHandler
@@ -158,7 +164,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 							case 'text':
 								
 
-								fileProp = getPdfProps(file, isOpen, changeState, authToken);
+								fileProp = getPdfProps(file, isOpen, changeState);
 
 								iconSrc = fileProp.imgSrc
 								clickHandler = fileProp.clickHandler
@@ -166,7 +172,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 								break;
 							case 'video':
 							case 'audio':
-								fileProp = getVideoProps(file, isOpen, changeState,authToken);
+								fileProp = getVideoProps(file, isOpen, changeState);
 
 								iconSrc = fileProp.imgSrc
 								clickHandler = fileProp.clickHandler

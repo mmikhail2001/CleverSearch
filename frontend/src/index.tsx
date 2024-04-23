@@ -27,6 +27,7 @@ import * as pdfjsLib from 'pdfjs-dist/webpack.mjs';
 import { MobileProvider } from './mobileProvider';
 import { SettingsPage } from '@pages/settingsPage/settingsPage'
 import { RegisterForm } from '@pages/registerPage/register';
+import { ShowLovedFiles } from '@widgets/showResults/showLovedFiles/showLovedFiles';
 
 const root = ReactDOM.createRoot(
 	document.getElementById('root') as HTMLElement
@@ -48,6 +49,7 @@ root.render(
 								<Route path='/dirs/:diruuid' element={<ShowSharedUUIDFiles />}></Route >
 								<Route path='/shared' element={<ShowSharedFiles />}></Route >
 								<Route path='/processed' element={<ShowProcessedFiles />}></Route >
+								<Route path='/loved' element={<ShowLovedFiles />}></Route >
 								<Route path='*' element={<ErrorPage />}></Route>
 							</Route>
 							<Route path='/settings' element={<RequireAuth><SettingsPage /></RequireAuth>} ></Route>

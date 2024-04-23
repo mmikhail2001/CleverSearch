@@ -68,3 +68,16 @@
   overflow: hidden;
   width: 100%;
 }
+
+.file-show__author {
+  object-fit: cover;
+  height: var(--ft-paragraph);
+  width: var(--ft-paragraph);
+  border-radius: var(--big-radius);
+}
+
+.file-show__author-position {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

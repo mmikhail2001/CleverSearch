@@ -58,17 +58,31 @@ export const useShowParams = () => {
     }
 
     const urlParams = useParamsFromURL()
-    const params = transformToShowParams(urlParams)
+    const [params, diskName, cloudEmail] = transformToShowParams(urlParams)
 
     const dispatch = useDispatch()
 
-    const settedDisk = isNullOrUndefined(params.disk)
-        || params.disk === 'all' as diskTypes
-        ? 'all' as diskTypes
-        : disks.clouds
-            .find(
-                val => params.disk === val.cloud_email
-            )
+    let settedDisk: diskTypes | ConnectedClouds;
+    if (params.disk !== 'all' && cloudEmail !== "") {
+        const findedDisk = disks.clouds
+        .find(
+            val => cloudEmail === val.cloud_email
+        )
+
+        if (isNullOrUndefined(findedDisk)) {
+            settedDisk = {
+                access_token: "",
+                cloud_email: cloudEmail,
+                disk: diskName,
+            }
+        } else {
+            settedDisk = findedDisk
+        }   
+    }
+
+    if ((isNullOrUndefined(params.disk) || params.disk !== 'all') && (isNullOrUndefined(cloudEmail) ||cloudEmail === '')) {
+        settedDisk = 'all'
+    }
 
     showState.externalDiskRequired = params.externalDiskRequired
     showState.internalDiskRequired = params.internalDiskRequired

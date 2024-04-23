@@ -5,6 +5,7 @@ import { DropDown } from '@entities/dropDown/dropDown'
 import { Typography } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useMobile } from 'src/mobileProvider';
+import { getAvatarByEmail } from '@api/userApi';
 
 interface FileShowProps {
 	iconSrc: string;
@@ -16,7 +17,7 @@ interface FileShowProps {
 	onDelete: () => void;
 	dirPath?: string
 	author: string,
-	config: { isDelete?: boolean, isShare?: boolean },
+	config: { isDelete?: boolean, isShare?: boolean, isLoved?: boolean, isCanBeLoved?: boolean },
 	onFavourite?: () => void,
 }
 
@@ -45,7 +46,6 @@ export const FileShow: FC<FileShowProps> = ({
 			onClick();
 	}
 
-
 	const renderDropDown = (): React.ReactNode => {
 		return <DropDown
 			variants='down-center'
@@ -69,9 +69,12 @@ export const FileShow: FC<FileShowProps> = ({
 					setOpenDropDown(false)
 				}}>Удалить</div>
 				: null}
-			<div className={'not-done'} onClick={onFavourite}>
-				В Избранное
+			{config.isCanBeLoved ? 
+			<div onClick={onFavourite}>
+				{!config.isLoved ? "В Избранное" : "Убрать из избранного"}
 			</div>
+			: null
+			}
 			{config.isShare ?
 				<React.Fragment>
 					<div
@@ -100,7 +103,14 @@ export const FileShow: FC<FileShowProps> = ({
 						<Typography fontSize={'var(--ft-body)'} className="date">{date}</Typography>
 					</div>
 				</div>
-				<Typography fontSize={'var(--ft-body)'}>{author}</Typography>
+				
+				<div className='file-show__author-position'>
+				{author !== "" 
+				? <img className='file-show__author' src={getAvatarByEmail(author)} /> 
+				: null
+				}
+				</div>
+
 				<div className='additional-functions-file'>
 					{renderDropDown()}
 				</div>

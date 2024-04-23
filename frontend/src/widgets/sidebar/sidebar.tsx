@@ -1,5 +1,5 @@
 import { diskTypes } from '@models/disk';
-import { switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
+import { switchToLoved, switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -224,10 +224,12 @@ export const Sidebar: FC<SidebarProps> = ({
 						/>
 						<TextWithImg
 							text="Избранное"
-							className={['loved', isLoved ? 'selected' : '', 'text-with-img-row', 'not-done'].join(' ')}
-							imgSrc={<FavoriteIcon/>} 
+							className={['loved', isLoved ? 'selected' : '', 'text-with-img-row'].join(' ')}
+							imgSrc={<FavoriteIcon sx={{width:'var(--ft-paragraph)',height:'var(--ft-paragraph)'}}/>} 
 							altImgText="Сердце"
 							onClick={() => {
+								dispatch(switchToLoved())
+								navigate('/loved')
 							}}
 						/>
 					</div>

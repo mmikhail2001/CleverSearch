@@ -8,6 +8,9 @@ import { useDiskLinkConnectMutation } from '@api/diskApi';
 import { useNavigate } from 'react-router-dom';
 
 import './settings.scss'
+import { useSetAvatarMutation } from '@api/userApi';
+import { Input } from '@entities/input/input';
+import { ButtonWithInput } from '@feature/buttonWithInput/buttonWithInput';
 
 // TODO maybe another file?
 const getTextWithImg = (
@@ -38,6 +41,8 @@ export const SettingsPage: FC = () => {
 	const [connect, resp] = useDiskLinkConnectMutation()
 	const [diskToConnect, setDiskToConnect] = useState<diskTypes>('all')
 
+	const [sentAvatar, respAvatar] = useSetAvatarMutation()
+
 	const navigate = useNavigate()
 
 	useEffect(() => {
@@ -66,6 +71,23 @@ export const SettingsPage: FC = () => {
 						)
 					})
 			}
+		</div>
+		<div>
+			<ButtonWithInput
+				buttonText='Установить аватар'
+				onChange={(files) => {
+					Array.from(files).forEach((file) => {
+						const formData = new FormData();
+
+						formData.append('avatar', file, file.name);
+						sentAvatar(formData);
+					});
+				}}
+				variant='contained'
+				disabled={false}
+			/>
+			{respAvatar.isSuccess ? <p>Аватар установлен</p> : null}
+			{respAvatar.isError ? <p>Произошла ошибка при установке</p> : null}
 		</div>
 		<div style={{
 			display: 'flex',
