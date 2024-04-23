@@ -1,14 +1,14 @@
-.login-form {
+.register-form {
     display: flex;
     flex-direction: column;
     height: auto;
-    width: auto;
     justify-content: center;
     align-items: center;
     padding: 1rem;
+    width: auto;
 }
 
-.login-form__inputs {
+.register-form__inputs {
     width: 200px;
     padding: 1rem;
     display: flex;
@@ -16,7 +16,7 @@
     gap: 0.75rem;
 }
 
-.login-form__buttons {
+.register-form__buttons {
     display: flex;
     flex-direction: column;
     width: 200px;

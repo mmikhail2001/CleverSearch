@@ -26,6 +26,7 @@ import * as pdfjsLib from 'pdfjs-dist/webpack.mjs';
 
 import { MobileProvider } from './mobileProvider';
 import { SettingsPage } from '@pages/settingsPage/settingsPage'
+import { RegisterForm } from '@pages/registerPage/register';
 
 const root = ReactDOM.createRoot(
 	document.getElementById('root') as HTMLElement
@@ -51,6 +52,7 @@ root.render(
 							</Route>
 							<Route path='/settings' element={<RequireAuth><SettingsPage /></RequireAuth>} ></Route>
 							<Route path='/login' errorElement={<ErrorPage />} element={<ProtectedFromAuthUser><LoginForm /></ProtectedFromAuthUser>}></Route>
+							<Route path='/register' errorElement={<ErrorPage />} element={<ProtectedFromAuthUser><RegisterForm /></ProtectedFromAuthUser>}></Route>
 						</Routes>
 					</MobileProvider>
 				</AuthProvider>

@@ -1,69 +1,71 @@
-import { useLoginMutation } from '@api/userApi';
+import { useLoginMutation, useRegisterMutation } from '@api/userApi';
 import { login as loginAction } from '@store/userAuth';
 import { Button } from '@entities/button/button';
 import { Input } from '@entities/input/input';
-import { FC, useState } from 'react';
+import React, { FC, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import './login.scss';
-import React from 'react';
+import './register.scss';
 
-interface LoginFormProps { }
+interface RegisterProps { }
 
-export const LoginForm: FC<LoginFormProps> = () => {
+export const RegisterForm: FC<RegisterProps> = () => {
 	const [loginField, setLogin] = useState('');
 	const [passwordField, setPassword] = useState('');
 
-	const [login, loginResp] = useLoginMutation();
+	const [register, registerResp] = useRegisterMutation();
 	const dispatch = useDispatch();
 
 	const navigate = useNavigate();
 
-	if (loginResp.isSuccess) {
+	if (registerResp.isSuccess) {
 		dispatch(loginAction());
 		navigate('/');
 	}
 
 	return (
-		<div className="login-form">
-			<div className="login-form__inputs">
-				<p>Authorization:</p>
+		<div className="register-form">
+			<div className="register-form__inputs">
+				<p>Registration:</p>
 				<Input
-					disabled={loginResp.isLoading}
+					disabled={registerResp.isLoading}
 					type="email"
 					placeholder="email"
 					value={loginField}
 					onChange={(e) => setLogin(e.target.value)}
 				></Input>
 				<Input
-					disabled={loginResp.isLoading}
+					disabled={registerResp.isLoading}
 					type="password"
 					placeholder="password"
 					value={passwordField}
 					onChange={(e) => setPassword(e.target.value)}
 				></Input>
 			</div>
-			<div className='login-form__buttons'>
+			<div className='register-form__buttons'>
 				<Button
 					variant={'contained'}
 					buttonText="Lets go"
+					isFullSize={true}
 					clickHandler={
 						() => {
-							login({ email: loginField, password: passwordField });
+							register({ email: loginField, password: passwordField });
 						}
 					}
-					isFullSize={true}
-					disabled={!(loginField !== "" && passwordField !== "") || loginResp.isLoading ? true : false}
+					disabled={!(loginField !== "" && passwordField !== "") 
+						&& registerResp.isLoading ? true : false
+					}
 				/>
 				<Button
 					variant={'contained'}
-					buttonText="Register"
+					buttonText="Login"
 					isFullSize={true}
 					clickHandler={
 						() => {
-							navigate('/register')
+							navigate('/login')
 						}
 					}
+					disabled={registerResp.isLoading ? true : false}
 				/>
 			</div>
 		</div>
