@@ -1,9 +1,14 @@
 package file
 
 import (
+	"context"
+	"log"
 	"regexp"
 
+	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/sharederrors"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -44,4 +49,36 @@ func getFilter(fileOptions file.FileOptions) (bson.M, error) {
 	}
 
 	return filter, nil
+}
+
+func UpdateFavs(ctx context.Context, fileDTOs []fileDTO, files *[]file.File) {
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return
+	}
+	userID := user.ID
+	for i, dto := range fileDTOs {
+		for _, favUserID := range dto.Favs {
+			if favUserID == userID {
+				(*files)[i].IsFav = true
+				break
+			}
+		}
+	}
+}
+
+func UpdateFav(ctx context.Context, fileDTO fileDTO, file *file.File) {
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return
+	}
+	userID := user.ID
+	for _, favUserID := range fileDTO.Favs {
+		if favUserID == userID {
+			file.IsFav = true
+			break
+		}
+	}
 }

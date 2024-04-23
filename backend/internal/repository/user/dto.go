@@ -7,11 +7,13 @@ import (
 )
 
 type UserDTO struct {
-	ID              string      `bson:"_id"`
-	Email           string      `bson:"email"`
-	Password        string      `bson:"password"`
-	Bucket          string      `bson:"bucket"`
-	ConnectedClouds []UserCloud `bson:"connected_clouds"`
+	ID                string      `bson:"_id"`
+	Email             string      `bson:"email"`
+	Password          string      `bson:"password"`
+	Bucket            string      `bson:"bucket"`
+	ContentTypeAvatar string      `bson:"content_type"`
+	Avatar            string      `bson:"avatar"`
+	ConnectedClouds   []UserCloud `bson:"connected_clouds"`
 }
 
 type UserCloud struct {

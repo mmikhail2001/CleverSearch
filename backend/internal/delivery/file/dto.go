@@ -30,6 +30,7 @@ type FileDTO struct {
 	PageNumber  int             `json:"page_number"`
 	Timestart   int             `json:"timestart"`
 	Duration    time.Duration   `json:"duration"`
+	IsFav       bool            `json:"is_fav"`
 }
 
 type FileForMLDTO struct {

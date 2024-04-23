@@ -120,6 +120,8 @@ func (r *Repository) Search(ctx context.Context, fileOptions file.FileOptions) (
 		return nil, err
 	}
 
+	UpdateFavs(ctx, resultsDTO, &results)
+
 	return results, nil
 }
 
@@ -165,6 +167,8 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 		return nil, err
 	}
 
+	UpdateFavs(ctx, resultsDTO, &results)
+
 	return results, nil
 }
 
@@ -186,6 +190,8 @@ func (r *Repository) GetFileByID(ctx context.Context, uuidFile string) (file.Fil
 		log.Println("Dto Map GetFileByID repo error:", err)
 		return file.File{}, err
 	}
+
+	UpdateFav(ctx, resultDTO, &fileRes)
 
 	return fileRes, nil
 }
@@ -215,6 +221,9 @@ func (r *Repository) GetFileByPath(ctx context.Context, path string, userID stri
 		log.Println("Dto Map GetFileByID repo error:", err)
 		return file.File{}, err
 	}
+
+	UpdateFav(ctx, resultDTO, &fileRes)
+
 	return fileRes, nil
 }
 
@@ -375,5 +384,108 @@ func (r *Repository) GetFileByCloudID(ctx context.Context, cloudID string) (file
 		return file.File{}, err
 	}
 
+	UpdateFav(ctx, resultDTO, &fileRes)
+
 	return fileRes, nil
+}
+
+func (r *Repository) GetFavs(ctx context.Context, userID string) ([]file.File, error) {
+	filter := bson.M{"favs": userID}
+	cursor, err := r.mongo.Collection("files").Find(ctx, filter)
+	if err != nil {
+		log.Println("GetFavs error:", err)
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var resultsDTO []fileDTO
+	for cursor.Next(ctx) {
+		var dto fileDTO
+		err := cursor.Decode(&dto)
+		if err != nil {
+			return nil, err
+		}
+		resultsDTO = append(resultsDTO, dto)
+	}
+
+	results := make([]file.File, len(resultsDTO))
+	err = dto.Map(&results, &resultsDTO)
+	if err != nil {
+		log.Println("Dto Map GetFiles repo error:", err)
+		return nil, err
+	}
+
+	if err := cursor.Err(); err != nil {
+		log.Println("Cursor error:", err)
+		return nil, err
+	}
+	UpdateFavs(ctx, resultsDTO, &results)
+	return results, nil
+}
+
+func (r *Repository) AddFav(ctx context.Context, userID string, fileID string) error {
+	isNull, err := r.isFavsNull(ctx, fileID)
+	if err != nil {
+		log.Println("AddFav: isFavsNull: err", err)
+		return err
+	}
+
+	// Если поле "favs" равно null, инициализируем его пустым массивом
+	if isNull {
+		err := r.initializeFavsField(ctx, fileID)
+		if err != nil {
+			log.Println("AddFav: initializeFavsField: err", err)
+			return err
+		}
+	}
+
+	filter := bson.M{"_id": fileID}
+	update := bson.M{"$addToSet": bson.M{"favs": userID}}
+	_, err = r.mongo.Collection("files").UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Println("AddFav error:", err)
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) isFavsNull(ctx context.Context, fileID string) (bool, error) {
+	filter := bson.M{"_id": fileID, "favs": nil}
+	count, err := r.mongo.Collection("files").CountDocuments(ctx, filter)
+	if err != nil {
+		log.Println("isFavsNull error:", err)
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *Repository) initializeFavsField(ctx context.Context, fileID string) error {
+	filter := bson.M{"_id": fileID}
+	update := bson.M{"$set": bson.M{"favs": []string{}}}
+
+	result, err := r.mongo.Collection("files").UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Println("initializeFavsField error:", err)
+		return err
+	}
+
+	if result.ModifiedCount == 0 && result.UpsertedCount == 0 {
+		return errors.New("favs field was not initialized")
+	}
+	return nil
+}
+
+func (r *Repository) DeleteFav(ctx context.Context, userID string, fileID string) error {
+	filter := bson.M{"_id": fileID}
+	update := bson.M{"$pull": bson.M{"favs": userID}}
+	result, err := r.mongo.Collection("files").UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Println("DeleteFav error:", err)
+		return err
+	}
+	if result.ModifiedCount == 0 {
+		log.Println("file not found or user not in favs")
+		return nil
+	}
+	return nil
 }

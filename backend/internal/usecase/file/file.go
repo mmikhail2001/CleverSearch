@@ -129,19 +129,19 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 	file, err = uc.repo.UploadToStorage(ctx, fileReader, file)
 	if err != nil {
 		log.Println("UploadToStorage repo error:", err)
-		return file, err
+		return fileDomain.File{}, err
 	}
 
 	err = uc.repo.CreateFile(ctx, file)
 	if err != nil {
 		log.Println("CreateFile repo error:", err)
-		return file, err
+		return fileDomain.File{}, err
 	}
 
 	err = uc.repo.PublishMessage(ctx, file)
 	if err != nil {
 		log.Println("PublishMessage repo error:", err)
-		return file, err
+		return fileDomain.File{}, err
 	}
 	return file, nil
 }
@@ -619,6 +619,52 @@ func (uc *Usecase) AddSheringGrant(ctx context.Context, fileID string) error {
 	// return uc.repo.AddUserToSharingDir(ctx, file, user.ID, file.ShareAccess)
 }
 
-func (uc *Usecase) GetFileByID(ctx context.Context, file_uuid string) (file.File, error) {
-	return uc.repo.GetFileByID(ctx, file_uuid)
+func (uc *Usecase) GetFileByID(ctx context.Context, fileID string) (file.File, error) {
+	return uc.repo.GetFileByID(ctx, fileID)
+}
+
+func (uc *Usecase) GetFavs(ctx context.Context) ([]file.File, error) {
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return []fileDomain.File{}, sharederrors.ErrUserNotFoundInContext
+	}
+	return uc.repo.GetFavs(ctx, user.ID)
+}
+
+func (uc *Usecase) AddFav(ctx context.Context, fileID string) error {
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return sharederrors.ErrUserNotFoundInContext
+	}
+	foundFile, err := uc.repo.GetFileByID(ctx, fileID)
+	if err != nil {
+		log.Println("AddFav: GetFileByID: err", err)
+		return err
+	}
+	if foundFile.IsDir {
+		log.Println("Dir wont be fav")
+		return fmt.Errorf("dir wont be fav")
+
+	}
+	return uc.repo.AddFav(ctx, user.ID, fileID)
+}
+
+func (uc *Usecase) DeleteFav(ctx context.Context, fileID string) error {
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return sharederrors.ErrUserNotFoundInContext
+	}
+	foundFile, err := uc.repo.GetFileByID(ctx, fileID)
+	if err != nil {
+		log.Println("DeleteFav: GetFileByID: err", err)
+		return err
+	}
+	if foundFile.IsDir {
+		log.Println("Dir wont be fav")
+		return fmt.Errorf("dir wont be fav")
+	}
+	return uc.repo.DeleteFav(ctx, user.ID, fileID)
 }
