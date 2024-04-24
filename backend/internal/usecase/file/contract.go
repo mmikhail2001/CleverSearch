@@ -29,6 +29,7 @@ type Repository interface {
 	GetSharedDir(ctx context.Context, fileID string, userID string) (file.SharedDir, error)
 	InsertSharedDir(ctx context.Context, sharedDir file.SharedDir) error
 	UpdateSharedDir(ctx context.Context, sharedDir file.SharedDir) (file.SharedDir, error)
+	GetAllFiles() ([]file.File, error)
 
 	GetFavs(ctx context.Context, userID string) ([]file.File, error)
 	AddFav(ctx context.Context, userID string, fileID string) error

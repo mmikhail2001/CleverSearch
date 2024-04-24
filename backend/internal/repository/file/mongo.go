@@ -172,6 +172,38 @@ func (r *Repository) GetFiles(ctx context.Context, fileOptions file.FileOptions)
 	return results, nil
 }
 
+func (r *Repository) GetAllFiles() ([]file.File, error) {
+	filter := bson.M{}
+	filter["is_dir"] = false
+	cursor, err := r.mongo.Collection("files").Find(context.Background(), filter)
+	if err != nil {
+		return []file.File{}, err
+	}
+	var resultsDTO []fileDTO
+	for cursor.Next(context.Background()) {
+		var dto fileDTO
+		err := cursor.Decode(&dto)
+		if err != nil {
+			return nil, err
+		}
+		resultsDTO = append(resultsDTO, dto)
+	}
+
+	results := make([]file.File, len(resultsDTO))
+	err = dto.Map(&results, &resultsDTO)
+	if err != nil {
+		log.Println("Dto Map GetFiles repo error:", err)
+		return nil, err
+	}
+
+	if err := cursor.Err(); err != nil {
+		log.Println("Cursor error:", err)
+		return nil, err
+	}
+
+	return results, nil
+}
+
 func (r *Repository) GetFileByID(ctx context.Context, uuidFile string) (file.File, error) {
 	var resultDTO fileDTO
 

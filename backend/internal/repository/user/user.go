@@ -66,19 +66,34 @@ func (r *Repository) CreateUser(ctx context.Context, user cleveruser.User) (clev
 	return user, nil
 }
 
+// TODO: обновление только токенов
 func (r *Repository) UpdateUser(ctx context.Context, user cleveruser.User) error {
 	collection := r.mongo.Collection("users")
 
+	filter := bson.M{"_id": user.ID}
 	var userDTO UserDTO
-	if err := dto.Map(&userDTO, &user); err != nil {
-		log.Println("UpdateUser: Error mapping user to DTO")
+	err := collection.FindOne(ctx, filter).Decode(&userDTO)
+	if err != nil {
+		log.Println("UpdateUser: Error fetching user from database")
 		return err
 	}
 
-	filter := bson.M{"_id": user.ID}
-	update := bson.M{"$set": userDTO}
+	userDTO.ConnectedClouds = make([]UserCloud, len(user.ConnectedClouds))
+	for i, cloud := range user.ConnectedClouds {
+		userDTO.ConnectedClouds[i] = UserCloud{
+			Cloud:      cloud.Cloud,
+			CloudEmail: cloud.CloudEmail,
+			Token: TokenDTO{
+				AccessToken:  cloud.Token.AccessToken,
+				TokenType:    cloud.Token.TokenType,
+				RefreshToken: cloud.Token.RefreshToken,
+				Expiry:       cloud.Token.Expiry,
+			},
+		}
+	}
 
-	_, err := collection.UpdateOne(ctx, filter, update)
+	update := bson.M{"$set": userDTO}
+	_, err = collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		log.Println("UpdateUser: UpdateOne error")
 		return err
@@ -86,6 +101,27 @@ func (r *Repository) UpdateUser(ctx context.Context, user cleveruser.User) error
 
 	return nil
 }
+
+// func (r *Repository) UpdateUser(ctx context.Context, user cleveruser.User) error {
+// 	collection := r.mongo.Collection("users")
+
+// 	var userDTO UserDTO
+// 	if err := dto.Map(&userDTO, &user); err != nil {
+// 		log.Println("UpdateUser: Error mapping user to DTO")
+// 		return err
+// 	}
+
+// 	filter := bson.M{"_id": user.ID}
+// 	update := bson.M{"$set": userDTO}
+
+// 	_, err := collection.UpdateOne(ctx, filter, update)
+// 	if err != nil {
+// 		log.Println("UpdateUser: UpdateOne error")
+// 		return err
+// 	}
+
+// 	return nil
+// }
 
 func (r *Repository) GetUserByEmail(ctx context.Context, email string) (cleveruser.User, error) {
 	collection := r.mongo.Collection("users")

@@ -11,7 +11,9 @@ import (
 	"strings"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/sharederrors"
 	"github.com/dranikpg/dto-mapper"
 	"github.com/gorilla/mux"
 )
@@ -184,10 +186,30 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	// FirstNesting:true, DirsRequired:true, FilesRequired:true, SharedRequired:true,
 	// PersonalRequired:true, ExternalDisklRequired:false, InternalDisklRequired:true} ]
 
+	// заплатка
+	user, ok := r.Context().Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 	log.Printf("\n\n [ %#v ] \n\n ", options)
 
 	var results []file.File
-	if strings.Contains(r.URL.Path, "search") {
+	if strings.Contains(r.URL.Path, "ml/files") {
+		options.DirsRequired = false
+		options.FirstNesting = false
+		var resultsTmp []file.File
+		resultsTmp, err = h.usecase.GetFiles(r.Context(), options)
+		results = append(results, resultsTmp...)
+		for _, cloud := range user.ConnectedClouds {
+			options.InternalDisklRequired = false
+			options.Disk = string(cloud.Cloud)
+			options.CloudEmail = cloud.CloudEmail
+			resultsTmp, err = h.usecase.GetFiles(r.Context(), options)
+			results = append(results, resultsTmp...)
+		}
+		log.Println("len(results) === ", len(results))
+	} else if strings.Contains(r.URL.Path, "search") {
 		if options.Query == "" {
 			log.Println("search with empty query")
 			w.WriteHeader(http.StatusBadRequest)

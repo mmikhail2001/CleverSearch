@@ -138,6 +138,8 @@ func Run() error {
 	fileUsecase := fileUsecase.NewUsecase(fileRepo, notifyUsecase, userUsecase)
 	cloudUsecase := cloudUsecase.NewUsecase(oauthConfig, fileRepo, fileUsecase, userRepo)
 
+	go fileUsecase.Async()
+
 	staticHandler := staticDelivery.NewHandler(staticDir, fileUsecase)
 	userHandler := userDelivery.NewHandler(userUsecase, cloudUsecase)
 	fileHandler := fileDelivery.NewHandler(fileUsecase)
