@@ -2,6 +2,7 @@ package cloud
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"sort"
@@ -258,7 +259,32 @@ func (uc *Usecase) GetToken(ctx context.Context, cloudEmail string, cloudID stri
 	if err != nil {
 		return "", err
 	}
-	if cloudFile.UserID != user.ID {
+
+	pathComponents := strings.Split(cloudFile.Path, "/")
+
+	isShare := false
+	if len(pathComponents) > 2 {
+		fileTmpShare, err := uc.fileRepo.GetFileByPath(ctx, "/"+pathComponents[1], "")
+		if err != nil {
+			log.Println("GetFileByPath err:", err)
+			return "", err
+		}
+
+		_, err = uc.fileRepo.GetSharedDir(ctx, fileTmpShare.ID, user.ID)
+		if err != nil {
+			if !errors.Is(err, fileDomain.ErrNotFound) {
+				log.Println("GetSharedDir err:", err)
+				return "", err
+			}
+			if errors.Is(err, fileDomain.ErrNotFound) {
+				isShare = false
+			}
+		} else {
+			isShare = true
+		}
+	}
+
+	if cloudFile.UserID != user.ID || isShare {
 		log.Println("request to file, but owner invalid")
 		return "", fmt.Errorf("request to file, but owner invalid")
 	}
