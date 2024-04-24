@@ -151,21 +151,50 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 		log.Printf("Directory path [%s] does not start with /\n", options.Dir)
 		return []fileDomain.File{}, fileDomain.ErrDirectoryNotStartsWithSlash
 	}
+
 	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
 	if !ok {
 		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
 		return []fileDomain.File{}, sharederrors.ErrUserNotFoundInContext
 	}
+
 	options.UserID = user.ID
 
 	if options.Dir == "" {
 		options.Dir = "/"
+	}
+	if options.Status != fileDomain.StatusType("") {
+		var files []fileDomain.File
+		options.DirsRequired = false
+		options.FirstNesting = false
+		var resultsTmp []file.File
+		options.CloudEmail = ""
+		options.Disk = ""
+		resultsTmp, err := uc.repo.GetFiles(ctx, options)
+		if err != nil {
+			log.Println("GetFiles: err:", err)
+			return []fileDomain.File{}, err
+		}
+		files = append(files, resultsTmp...)
+		for _, cloud := range user.ConnectedClouds {
+			options.InternalDisklRequired = false
+			options.Disk = string(cloud.Cloud)
+			options.CloudEmail = cloud.CloudEmail
+			resultsTmp, err := uc.repo.GetFiles(ctx, options)
+			if err != nil {
+				log.Println("GetFiles: err:", err)
+				return []fileDomain.File{}, err
+			}
+			files = append(files, resultsTmp...)
+		}
+		return files, nil
 	}
 
 	var files []fileDomain.File
 
 	// если запрос на внешние, то обязательно нужно указать диск
 	saveCloudEmail := options.CloudEmail
+
 	if options.ExternalDisklRequired && options.CloudEmail != "" {
 		filesExternal, err := uc.repo.GetFiles(ctx, options)
 		if err != nil {

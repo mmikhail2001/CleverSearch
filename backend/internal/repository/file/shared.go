@@ -14,7 +14,7 @@ import (
 
 func getFilter(fileOptions file.FileOptions) (bson.M, error) {
 	filter := bson.M{}
-
+	log.Println("80")
 	if fileOptions.FilesRequired && !fileOptions.DirsRequired {
 		filter["is_dir"] = false
 		if fileOptions.Status != "" {
@@ -47,6 +47,8 @@ func getFilter(fileOptions file.FileOptions) (bson.M, error) {
 		filter["cloud_email"] = ""
 		filter["disk"] = ""
 	}
+
+	log.Println("81")
 
 	return filter, nil
 }

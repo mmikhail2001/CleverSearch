@@ -23,6 +23,8 @@ type FileRepository interface {
 	UploadToStorage(ctx context.Context, fileReader io.Reader, file file.File) (file.File, error)
 	PublishMessage(ctx context.Context, file file.File) error
 	GetFileByCloudID(ctx context.Context, cloudID string) (file.File, error)
+	GetFileByPath(ctx context.Context, path string, userID string) (file.File, error)
+	GetSharedDir(ctx context.Context, fileID string, userID string) (file.SharedDir, error)
 }
 
 type UserRepository interface {
