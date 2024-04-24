@@ -1,14 +1,21 @@
 package user
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+	"github.com/gorilla/mux"
 )
+
+var limitSizeAvatar int64 = 10 * 1024 * 1024
 
 type Handler struct {
 	usecase      Usecase
@@ -151,4 +158,59 @@ func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(profile)
+}
+
+func (h *Handler) AddAvatar(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, limitSizeAvatar)
+	f, handler, err := r.FormFile("avatar")
+	if err != nil {
+		log.Printf("Failed to parse avatar file from the body: %v\n", err)
+		if errors.As(err, new(*http.MaxBytesError)) {
+			log.Printf("The size exceeded the maximum size equal to %d mb: %v\n", limitSizeAvatar/1024/1024, err)
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(shared.NewResponse(file.StatusFileExceedsMaxSize, file.ErrFileExceedsMaxSize.Error(), nil))
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer f.Close()
+
+	log.Printf("Uploading: Avatar: %+v", handler.Filename)
+
+	var contentType string
+	if contentTypes, ok := handler.Header["Content-Type"]; ok && len(contentTypes) > 0 {
+		contentType = contentTypes[0]
+	} else {
+		log.Println(file.ErrContentTypeNotSet.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(shared.NewResponse(file.StatusContentTypeNotSet, file.ErrContentTypeNotSet.Error(), nil))
+		return
+	}
+
+	if contentType != "image/jpeg" && contentType != "image/png" {
+		log.Println("avatar content-type is invalid")
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	err = h.usecase.AddAvatar(r.Context(), f, contentType)
+	if err != nil {
+		log.Println("usecase AddAvatar err:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) GetAvatar(w http.ResponseWriter, r *http.Request) {
+	userEmail := mux.Vars(r)["user_email"]
+	avatarBase64, contentType, err := h.usecase.GetAvatar(r.Context(), userEmail)
+	if err != nil {
+		log.Println("GetAavatar err:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", contentType)
+	data := base64.NewDecoder(base64.StdEncoding, strings.NewReader(avatarBase64))
+	io.Copy(w, data)
 }

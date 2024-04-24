@@ -18,4 +18,8 @@ type Usecase interface {
 	DownloadFile(ctx context.Context, filePath string) (io.ReadCloser, error)
 	GetSharingLink(ctx context.Context, reqShare file.RequestToShare) (string, error)
 	GetFileTypeByContentType(contentType string) file.FileType
+
+	GetFavs(ctx context.Context) ([]file.File, error)
+	AddFav(ctx context.Context, fileID string) error
+	DeleteFav(ctx context.Context, fileID string) error
 }

@@ -2,12 +2,16 @@ package user
 
 import (
 	"context"
+	"encoding/base64"
+	"io"
 	"log"
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/sharederrors"
 	"github.com/google/uuid"
 )
 
@@ -96,4 +100,23 @@ func (uc *Usecase) Logout(ctx context.Context, sessionID string) error {
 	}
 	delete(uc.userSessions, sessionID)
 	return nil
+}
+
+func (uc *Usecase) AddAvatar(ctx context.Context, fileReader io.Reader, contentType string) error {
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return sharederrors.ErrUserNotFoundInContext
+	}
+	bytesAvatar, err := io.ReadAll(fileReader)
+	if err != nil {
+		log.Println("ReadAll err: ", err)
+		return err
+	}
+	avatarBase64 := base64.StdEncoding.EncodeToString(bytesAvatar)
+	return uc.repo.AddAvatar(ctx, user.ID, avatarBase64, contentType)
+}
+
+func (uc *Usecase) GetAvatar(ctx context.Context, userEmail string) (string, string, error) {
+	return uc.repo.GetAvatar(ctx, userEmail)
 }

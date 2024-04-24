@@ -77,6 +77,8 @@ type File struct {
 	Timestart  int
 	Duration   time.Duration
 
+	IsFav bool
+
 	MLData interface{}
 }
 

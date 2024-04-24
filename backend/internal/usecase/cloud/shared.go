@@ -58,6 +58,7 @@ func (uc *Usecase) fillFilesRecursively(ctx context.Context, srv *drive.Service,
 		}
 		fileInfo := fileDomain.File{
 			ID:          uuid.New().String(),
+			Email:       user.Email,
 			CloudID:     file.Id,
 			CloudEmail:  cloudUserEmail,
 			Filename:    file.Name,

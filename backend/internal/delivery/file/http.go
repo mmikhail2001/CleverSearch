@@ -11,7 +11,9 @@ import (
 	"strings"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/sharederrors"
 	"github.com/dranikpg/dto-mapper"
 	"github.com/gorilla/mux"
 )
@@ -184,10 +186,30 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	// FirstNesting:true, DirsRequired:true, FilesRequired:true, SharedRequired:true,
 	// PersonalRequired:true, ExternalDisklRequired:false, InternalDisklRequired:true} ]
 
+	// заплатка
+	user, ok := r.Context().Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 	log.Printf("\n\n [ %#v ] \n\n ", options)
 
 	var results []file.File
-	if strings.Contains(r.URL.Path, "search") {
+	if strings.Contains(r.URL.Path, "ml/files") {
+		options.DirsRequired = false
+		options.FirstNesting = false
+		var resultsTmp []file.File
+		resultsTmp, err = h.usecase.GetFiles(r.Context(), options)
+		results = append(results, resultsTmp...)
+		for _, cloud := range user.ConnectedClouds {
+			options.InternalDisklRequired = false
+			options.Disk = string(cloud.Cloud)
+			options.CloudEmail = cloud.CloudEmail
+			resultsTmp, err = h.usecase.GetFiles(r.Context(), options)
+			results = append(results, resultsTmp...)
+		}
+		log.Println("len(results) === ", len(results))
+	} else if strings.Contains(r.URL.Path, "search") {
 		if options.Query == "" {
 			log.Println("search with empty query")
 			w.WriteHeader(http.StatusBadRequest)
@@ -350,4 +372,54 @@ func (h *Handler) ShareDir(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(shared.NewResponse(0, "", ResponseShareLinkDTO{ShareLink: shareLink}))
+}
+
+// /files/favs
+// /files/favs/add/{file_uuid}
+// /files/favs/delete/{file_uuid}
+
+// файлы нужно отдавать с полем (is_fav)
+
+func (h *Handler) GetFavs(w http.ResponseWriter, r *http.Request) {
+	results, err := h.usecase.GetFavs(r.Context())
+	if err != nil {
+		log.Println("GetFavs err:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	filesDTO := []FileDTO{}
+	for _, file := range results {
+		var fileDTO FileDTO
+		err = dto.Map(&fileDTO, &file)
+		fileDTO.Size = file.Size.ToDTO()
+		if err != nil {
+			log.Println("Dto map err:", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		filesDTO = append(filesDTO, fileDTO)
+	}
+	json.NewEncoder(w).Encode(shared.NewResponse(0, "", filesDTO))
+}
+
+func (h *Handler) AddFav(w http.ResponseWriter, r *http.Request) {
+	fileID := mux.Vars(r)["file_uuid"]
+	err := h.usecase.AddFav(r.Context(), fileID)
+	if err != nil {
+		log.Println("AddFav err:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) DeleteFav(w http.ResponseWriter, r *http.Request) {
+	fileID := mux.Vars(r)["file_uuid"]
+	err := h.usecase.DeleteFav(r.Context(), fileID)
+	if err != nil {
+		log.Println("DeleteFav err:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

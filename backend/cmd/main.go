@@ -85,12 +85,8 @@ import (
 // если надо удалить корневую, то проверка, автор ли это?
 //
 
-/*
-
-	https://www.googleapis.com/drive/v3/files/18K24x4gLpkgiOHYJPP2CyV_Gf-nQGlZR?alt=media
-	/cloud/google/18K24x4gLpkgiOHYJPP2CyV_Gf-nQGlZR
-
-*/
+// входит ли в зону ответственности usecase проверять context и доставать оттуда user?
+// может быть, это стоит делать в delivery и передавать user в методы usecase явно через параметры?
 
 var staticDir string = "/app/frontend/build"
 var staticDirMinio string = "/app/minio_files"
@@ -137,10 +133,12 @@ func Run() error {
 	fileRepo := file.NewRepository(minio, mongoDB, channelRabbitMQ)
 	notifyGateway := notifier.NewGateway()
 
-	userUsecase := userUsecase.NewUsecase(userRepo)
 	notifyUsecase := notifyUsecase.NewUsecase(notifyGateway)
+	userUsecase := userUsecase.NewUsecase(userRepo)
 	fileUsecase := fileUsecase.NewUsecase(fileRepo, notifyUsecase, userUsecase)
 	cloudUsecase := cloudUsecase.NewUsecase(oauthConfig, fileRepo, fileUsecase, userRepo)
+
+	go fileUsecase.Async()
 
 	staticHandler := staticDelivery.NewHandler(staticDir, fileUsecase)
 	userHandler := userDelivery.NewHandler(userUsecase, cloudUsecase)
@@ -181,6 +179,10 @@ func Run() error {
 	apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
 	apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
 
+	apiAuth.HandleFunc("/files/favs", fileHandler.GetFavs).Methods("GET")
+	apiAuth.HandleFunc("/files/favs/add/{file_uuid}", fileHandler.AddFav).Methods("POST")
+	apiAuth.HandleFunc("/files/favs/delete/{file_uuid}", fileHandler.DeleteFav).Methods("POST")
+
 	apiAuth.HandleFunc("/files/{file_uuid}", fileHandler.GetFileByID).Methods("GET")
 
 	apiAuth.HandleFunc("/clouds/connect", cloudHandler.ConnectCloud).Methods("POST")
@@ -195,6 +197,8 @@ func Run() error {
 	api.HandleFunc("/users/logout", userHandler.Logout).Methods("POST")
 	api.HandleFunc("/users/login", userHandler.Login).Methods("POST")
 	api.HandleFunc("/users/register", userHandler.Register).Methods("POST")
+	apiAuth.HandleFunc("/users/avatars", userHandler.AddAvatar).Methods("POST")
+	apiAuth.HandleFunc("/users/avatars/{user_email}", userHandler.GetAvatar).Methods("GET")
 
 	api.HandleFunc("/ml/complete", fileHandler.CompleteProcessingFile).Methods("POST")
 

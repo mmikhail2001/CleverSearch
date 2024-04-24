@@ -32,6 +32,8 @@ type fileDTO struct {
 	CloudEmail string        `bson:"cloud_email"`
 	Disk       file.DiskType `bson:"disk"`
 
+	Favs []string `bson:"favs"`
+
 	MLData interface{} `bson:"ml_data"`
 }
 

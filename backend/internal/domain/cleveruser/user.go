@@ -31,6 +31,7 @@ type User struct {
 	Email           string
 	Password        string
 	Bucket          string
+	AvatarLink      string
 	ConnectedClouds []UserCloud
 }
 
