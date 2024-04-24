@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { useShowSharedMutation } from '@api/searchApi';
 import { transfromToSharedRequestParams, transfromToShowRequestString } from '@api/transforms';
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
+import { transformToShowParams } from '@models/searchParams';
 import { switchToShared } from '@store/whatToShow';
 import { RenderFields } from '@widgets/renderFields/renderFields';
 import { useLocation, useNavigate } from 'react-router-dom';

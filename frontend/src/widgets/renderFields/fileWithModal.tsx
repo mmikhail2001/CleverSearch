@@ -70,26 +70,28 @@ export const FileWithModal: FC<FileWithModalProps> = ({
 	}
 
 	const renderFile = (): React.ReactNode => {
-		return <FileShow
-			key={file.id}
-			author={file.email}
-			onFavourite={onFavouriteClick}
-			iconSrc={iconSrc}
-			altText={file.is_dir ? 'folder' : 'file'}
-			filename={file.is_dir ? splitPath[splitPath.length - 1] : file.filename}
-			date={file.date}
-			size={file.size}
-			onDelete={() => deleteFile(file.path)}
-			onClick={() => { setOpen(true); clickHandler() }}
-			dirPath={dirPath}
-			config={{
-				isDelete: canBeDeleted(file),
-				isShare: dirPath && dirPath.split('/').length == 2,
-				isCanBeLoved: !file.is_dir,
-				isLoved: fileFav,
-			}}
-		></FileShow>
-	{renderModal()}
+		return <>
+			<FileShow
+				key={file.id}
+				author={file.email}
+				onFavourite={onFavouriteClick}
+				iconSrc={iconSrc}
+				altText={file.is_dir ? 'folder' : 'file'}
+				filename={file.is_dir ? splitPath[splitPath.length - 1] : file.filename}
+				date={file.date}
+				size={file.size}
+				onDelete={() => deleteFile(file.path)}
+				onClick={() => { setOpen(true); clickHandler() }}
+				dirPath={dirPath}
+				config={{
+					isDelete: canBeDeleted(file),
+					isShare: dirPath && dirPath.split('/').length == 2,
+					isCanBeLoved: !file.is_dir,
+					isLoved: fileFav,
+				}}
+			></FileShow>
+			{renderModal()}
+		</>
 	}
 
 	const needRender = isLoved ? isLoved && fileFav : true
