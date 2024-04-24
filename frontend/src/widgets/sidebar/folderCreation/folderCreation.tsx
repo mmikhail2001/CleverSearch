@@ -38,7 +38,7 @@ export const FolderCreation: FC<FolderCreationProps> = ({
 			<Button
 				isFullSize={true}
 				fontSize='var(--ft-body)'
-				buttonText="Добавить папку"
+				buttonText="Папку"
 				variant={'contained'}
 				clickHandler={() => {
 					setisModalOpen(!isModalOpen)

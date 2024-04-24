@@ -115,7 +115,7 @@ export const Sidebar: FC<SidebarProps> = ({
 								<Button
 									isFullSize={true}
 									fontSize={'var(--ft-body)'}
-									buttonText={'Создать'} 
+									buttonText={'Добавить'} 
 									clickHandler={() => setCreationPopOpen(!isCreationPopOpen) } 
 									variant={'contained'}								 
 								/>

@@ -22,8 +22,11 @@ export const transfromToShowRequestString = (showReq: ShowParams): string => {
 	`&files_required=${showReq.filesReq === undefined ? true : showReq.filesReq}`,
 	`&shared_required=${showReq.sharedReq === undefined ? true : showReq.sharedReq}`,
 	`&personal_required=${showReq.personalReq === undefined ? true : showReq.personalReq}`,
-	`&external_disk_required=${showReq.externalDiskRequired}`,
-	`&internal_disk_required=${showReq.internalDiskRequired}`].join('')
+	// `&external_disk_required=${showReq.externalDiskRequired}`,
+	// `&internal_disk_required=${showReq.internalDiskRequired}`,
+	`&external_disk_required=${true}`,
+	`&internal_disk_required=${true}`,
+	].join('')
 }
 
 export const transformToSearchRequestString = (searchReq: SearchParams): string => {
@@ -82,7 +85,7 @@ export const transfromToSharedRequestParams = (showReq: ShowParams): string => {
 	`&external_disk_required=${true}`,
 	`&internal_disk_required=${true}`,
 	'&shared_required=true',
-	`&cloud_email=${emailToShow}`,
+	emailToShow !== '' ? `&cloud_email=${emailToShow}`: null ,
 	'&personal_required=false'].join('')
 }
 

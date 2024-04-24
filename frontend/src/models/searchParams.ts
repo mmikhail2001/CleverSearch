@@ -111,7 +111,7 @@ export const transformToShowParams = (obj: {
   file_type?: string,
   dir?: string,
   cloud_email?: string,
-  diskName?: diskTypes,
+  disk?: diskTypes,
   external_disk_required?: string,
   internal_disk_required?: string,
 }) => {
@@ -132,8 +132,8 @@ export const transformToShowParams = (obj: {
   }
 
   let diskNameoSet: diskTypes
-  if (isDiskType(obj.diskName)) {
-    diskNameoSet = obj.diskName
+  if (isDiskType(obj.disk)) {
+    diskNameoSet = obj.disk
   } 
 
   return [{

@@ -59,11 +59,12 @@ export const useShowParams = () => {
 
     const urlParams = useParamsFromURL()
     const [params, diskName, cloudEmail] = transformToShowParams(urlParams)
+    console.log('[params, diskName, cloudEmail],',[params, diskName, cloudEmail])
 
     const dispatch = useDispatch()
 
     let settedDisk: diskTypes | ConnectedClouds;
-    if (params.disk !== 'all' && cloudEmail !== "") {
+    if (params.disk !== 'all' && cloudEmail !== '') {
         const findedDisk = disks.clouds
         .find(
             val => cloudEmail === val.cloud_email
@@ -71,7 +72,7 @@ export const useShowParams = () => {
 
         if (isNullOrUndefined(findedDisk)) {
             settedDisk = {
-                access_token: "",
+                access_token: '',
                 cloud_email: cloudEmail,
                 disk: diskName,
             }

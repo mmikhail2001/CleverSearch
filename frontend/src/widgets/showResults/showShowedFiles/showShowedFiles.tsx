@@ -37,7 +37,7 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                 ...showParam,
                 disk: showReq.disk,
                 dir: showReq.dir,
-                externalDiskRequired: !isPersonal,
+                externalDiskRequired: true,
                 internalDiskRequired: isPersonal,
                 });
         }
@@ -115,12 +115,12 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                             100)
                         }
                     }
-                openFolder={(path) => {
+                openFolder={(path, disk) => {
                     const url = transfromToShowRequestString(
                         {
                             ...showReq,
                             fileType: showReq.fileType,
-                            disk: showReq.disk,
+                            disk: disk,
                             dir: path || [],
                             externalDiskRequired: showReq.externalDiskRequired,
                             internalDiskRequired: showReq.internalDiskRequired,
@@ -129,6 +129,7 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                     dispatch(newValues({
                         ...showReq,
                         dir: path,
+                        disk: disk,
                         }))
                     navigate(url, { replace: true })
                 }}

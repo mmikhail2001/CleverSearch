@@ -7,6 +7,9 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useMobile } from 'src/mobileProvider';
 import { getAvatarByEmail } from '@api/userApi';
 
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+
 interface FileShowProps {
 	iconSrc: string;
 	altText?: string;
@@ -71,7 +74,7 @@ export const FileShow: FC<FileShowProps> = ({
 				: null}
 			{config.isCanBeLoved ? 
 			<div onClick={onFavourite}>
-				{!config.isLoved ? "В Избранное" : "Убрать из избранного"}
+				{!config.isLoved ? 'В Избранное' : 'Убрать из избранного'}
 			</div>
 			: null
 			}
@@ -91,12 +94,24 @@ export const FileShow: FC<FileShowProps> = ({
 		</DropDown>
 	}
 
+	const renderLoveIcon = () => {
+		if (config.isCanBeLoved) {
+			return <div style={{width:'25px'}} onClick={onFavourite}>
+				{config.isLoved ? <FavoriteIcon/> : <FavoriteBorderIcon fontSize='medium'/>}
+				</div>
+		}
+		return <div style={{width:'25px'}}></div>
+	}
+
 	return (
 		<>
 			<div className="file-show-line" ref={ref} onClick={handleClickFile} >
 				<div className='container-file-info'>
 					<div className="icon-placement">
-						<img className="icon" src={iconSrc} alt={altText ? altText : ''}></img>
+						<img className="icon" 
+							src={iconSrc} alt={altText ? altText : ''}
+						/>
+						
 					</div>
 					<div className="filename-with-date">
 						<Typography fontSize={'var(--ft-body)'} className="filename">{filename}</Typography>
@@ -105,13 +120,14 @@ export const FileShow: FC<FileShowProps> = ({
 				</div>
 				
 				<div className='file-show__author-position'>
-				{author !== "" 
+				{author !== '' 
 				? <img className='file-show__author' src={getAvatarByEmail(author)} /> 
 				: null
 				}
 				</div>
 
 				<div className='additional-functions-file'>
+					{renderLoveIcon()}
 					{renderDropDown()}
 				</div>
 				{config.isShare 
