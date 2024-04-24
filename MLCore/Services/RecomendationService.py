@@ -24,12 +24,16 @@ class SearchService():
 
         data_array = self.get_data_array(params)
 
+        logger.info(data_array)
+
         text_processor = TextProcessor()
         query_emb = [text_processor.process_query_string(kwargs['query'])]
 
         list_embs = [[obj['ml_data'][0]['Value']] for obj in data_array]
 
         dists = []
+
+        
 
         for i in range(len(list_embs)):
             for j in range(len(list_embs[i][0])):
@@ -44,7 +48,7 @@ class SearchService():
         elif params['file_type'] == 'text':
             return self.find_text_files(data_array, sorted_list, params['file_type'])
         elif params['file_type'] == 'img':
-            pass
+            return self.find_img_files(data_array, sorted_list, params['file_type'])
         else:
             raise HTTPException(status_code=400, detail=f"bad file type")
 
@@ -85,6 +89,17 @@ class SearchService():
                 'timestamp': data_array[k]['ml_data'][1]['Value'][result[k]]
             } for k in list(result.keys())]
         return {file_type: files_uuid}
+    
+    def find_img_files(self, data_array, sorted_list, file_type):
+        result = {}
+        for elem in sorted_list:
+            if elem[0] not in result:
+                result[elem[0]] = elem[1]
+        files_uuid = [
+            {
+                "file_uuid": data_array[k]['id']
+            } for k in list(result.keys())]
+        return {file_type: files_uuid}
 
 
 def setup_search_handler(args):
@@ -95,9 +110,11 @@ def setup_search_handler(args):
         params = {
             'file_type': file_type,
             'status': "processed",
-            'dir': "/",
+            'dir': dir,
             'user_id': user_id
         }
+
+        logger.info(params)
 
         return search_service.search_handler(params, query=query)
     return search

@@ -60,9 +60,7 @@ class ImageProcessor(IDataProcessor):
                 logger.warning(f'{img.filename}: >> text not found')
             img_crops = self.__crop_image(img, bboxes)
             string = self.__get_string_from_crops(img_crops).lower()
-            
             processed_str_list = TextPreprocessor(string).process()
-
             logger.debug(f'processed list: {processed_str_list} \n length: {len(processed_str_list)}')
 
             emds_list = self.__encode_processed_string(processed_str_list)
@@ -90,10 +88,13 @@ class ImageProcessor(IDataProcessor):
 
     def __encode_processed_string(self, processed_string):
         embeddings = []
-        for sentence in processed_string:
+        for _, sentence in processed_string:
+            # logger.info('----------------------------------------------------')
+            # logger.info(sentence)
+            # logger.info('----------------------------------------------------')
             tokens = self.bert_tokenizer(sentence, return_tensors='pt', padding=True)
             embeddings.append(
-                self.bert(**tokens).last_hidden_state[:, 0, :]
+                self.bert(**tokens).last_hidden_state[:, 0, :].squeeze(0).tolist()
             )
 
         return embeddings
