@@ -1,4 +1,6 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { diskTypes } from '@models/disk';
+import { ConnectedClouds } from '@models/user';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 const showSlice = createSlice({
 	name: 'whatToShow',
@@ -8,6 +10,7 @@ const showSlice = createSlice({
 		isProccessed: false,
 		isShared: false,
 		isLoved: false,
+		whatDiskToShow: '' as diskTypes | ConnectedClouds,
 	},
 	reducers: {
 		switchToSearch(state) {
@@ -45,12 +48,25 @@ const showSlice = createSlice({
 			state.isShared = false;
 			state.isLoved = true;
 		},
+		switchDisk(state, action: PayloadAction<diskTypes | ConnectedClouds>) {
+			return {
+				...state,
+				whatDiskToShow: action.payload
+			}
+		}
 	},
 });
 
 // Extract the action creators object and the reducer
 const { actions, reducer } = showSlice;
 // Extract and export each action creator by name
-export const { switchToSearch, switchToShow, switchToProcessed, switchToShared, switchToLoved } = actions;
+export const { 
+	switchToSearch,
+	switchToShow,
+	switchToProcessed,
+	switchToShared,
+	switchToLoved ,
+	switchDisk,
+	} = actions;
 // Export the reducer, either as a default or named export
 export default reducer;

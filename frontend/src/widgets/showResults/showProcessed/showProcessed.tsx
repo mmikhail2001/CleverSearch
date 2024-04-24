@@ -12,12 +12,13 @@ import '../show.scss'
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
 import { useShowParams } from '@helpers/hooks/useShowParams';
 import { removeFiles } from '@store/fileProcess';
+import {transformFromDiskToDiskName} from '@helpers/transformFromDiskToDiskName'
 
 interface ShowProcessedFilesProps { }
 
 
 export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
-    const { isProccessed } = useAppSelector(state => state.whatToShow)
+    const { isProccessed, whatDiskToShow } = useAppSelector(state => state.whatToShow)
     const navigate = useNavigate();
     const { showState } = useShowParams()
     const [show, showResp] = useShowProcessedMutation({ fixedCacheKey: 'processed' });
@@ -61,7 +62,7 @@ export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
                                 internalDiskRequired: showState.internalDiskRequired,
                             }
                         )
-                        navigate(url, { replace: true })
+                        navigate(url+`&diskToShow=${transformFromDiskToDiskName(whatDiskToShow)}`, { replace: true })
                     }}
                     reactOnElements={[
                         // TODO если сделаем папки в processed
@@ -98,7 +99,7 @@ export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
                             internalDiskRequired: showState.internalDiskRequired,
                         }
                     )
-                    navigate(url, { replace: true })
+                    navigate(url+`&diskToShow=${transformFromDiskToDiskName(whatDiskToShow)}`, { replace: true })
                 }}
             />
         </div>

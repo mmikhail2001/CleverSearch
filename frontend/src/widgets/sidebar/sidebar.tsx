@@ -1,5 +1,5 @@
 import { diskTypes } from '@models/disk';
-import { switchToLoved, switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
+import { switchDisk, switchToLoved, switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -31,6 +31,7 @@ import RobotSVG from '@icons/Robot.svg';
 import DownloadSVG from '@icons/Download.svg';
 import CleverSVG from '@icons/disks/Disk.svg';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import { transformFromDiskToDiskName } from '@helpers/transformFromDiskToDiskName';
 
 interface SidebarProps {
 	width: string;
@@ -45,7 +46,14 @@ export const Sidebar: FC<SidebarProps> = ({
 	toggleShow,
 	isOpen,
 }) => {
-	const { isSearch, isShow, isProccessed, isShared, isLoved } = useAppSelector((state) => state.whatToShow);
+	const { 
+		isSearch,
+		isShow,
+		isProccessed,
+		isShared,
+		isLoved,
+		whatDiskToShow,
+		} = useAppSelector((state) => state.whatToShow);
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate()
@@ -56,7 +64,6 @@ export const Sidebar: FC<SidebarProps> = ({
 	
 	const showParam = useAppSelector(state => state.showRequest)
 	const showReq = useAppSelector(state => state.showRequest)
-
 
 	const param = useAppSelector((state) => state.searchRequest);
 
@@ -83,13 +90,6 @@ export const Sidebar: FC<SidebarProps> = ({
 		}
 
 	}, [filesWasSend,sendResp])
-
-	let nameOfDisk: diskTypes;
-	if (typeof showReq.disk === 'string') {
-		nameOfDisk = showReq.disk
-	} else {
-		nameOfDisk = showReq.disk.disk
-	}
 
 	const renderSidebar = (): React.ReactNode => {
 		return (
@@ -184,7 +184,8 @@ export const Sidebar: FC<SidebarProps> = ({
 								internal = false
 								external = true
 							}
-
+							dispatch(switchDisk(disk))
+							
 							if (!isShow) dispatch(switchToShow())
 								const url = transfromToShowRequestString({
 								dir: [],
@@ -194,10 +195,10 @@ export const Sidebar: FC<SidebarProps> = ({
 								externalDiskRequired: external,
 								internalDiskRequired: internal,
 							})
-							navigate(url)
+							navigate(url+`&diskToShow=${transformFromDiskToDiskName(disk)}`)
 							dispatch(newValues({...showReq,dir:[], disk: disk}))
 						}}
-						nameOfSelectedDisk={nameOfDisk}
+						nameOfSelectedDisk={typeof whatDiskToShow === 'string' ? whatDiskToShow : whatDiskToShow.disk}
 					/>
 					<div className="under-disks">
 						<TextWithImg

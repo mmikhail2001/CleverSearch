@@ -6,7 +6,6 @@ import { useDispatch } from 'react-redux';
 import { useDeleteFileMutation, useGetFavouriteMutation } from '@api/filesApi';
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
 import { RenderFields } from '@widgets/renderFields/renderFields';
-import { transfromToShowRequestString } from '@api/transforms';
 import { useNavigate } from 'react-router-dom';
 import { switchToLoved, switchToShow } from '@store/whatToShow';
 import '../show.scss'

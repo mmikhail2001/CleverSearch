@@ -1,3 +1,4 @@
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 import { diskTypes, isDiskType } from './disk';
 import { ConnectedClouds } from './user';
 
@@ -114,6 +115,7 @@ export const transformToShowParams = (obj: {
   disk?: diskTypes,
   external_disk_required?: string,
   internal_disk_required?: string,
+  diskToShow?:string,
 }) => {
   let fileType: fileTypes[];
   if (obj.file_type) {
@@ -137,14 +139,18 @@ export const transformToShowParams = (obj: {
   } 
 
   return [{
-    limit: obj.limit || 10,
-    offset: obj.offset || 0,
-    fileType: fileType || 'all',
-    dir: dir,
-    disk: diskNameoSet,
-    externalDiskRequired: obj.external_disk_required === 'true',
-    internalDiskRequired: obj.internal_disk_required === 'true',
-  }, diskNameoSet, obj.cloud_email] as [ShowParams, diskTypes, string]
+      limit: obj.limit || 10,
+      offset: obj.offset || 0,
+      fileType: fileType || 'all',
+      dir: dir,
+      disk: diskNameoSet,
+      externalDiskRequired: obj.external_disk_required === 'true',
+      internalDiskRequired: obj.internal_disk_required === 'true',
+    }, 
+    diskNameoSet, 
+    obj.cloud_email, 
+    isNullOrUndefined(obj.diskToShow) ? '' : obj.diskToShow,
+] as [ShowParams, diskTypes, string, string]
 }
 
 export interface ShowParams {

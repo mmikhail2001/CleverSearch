@@ -23,9 +23,12 @@ export const DiskView: FC<DiskViewProps> = ({
 }) => {
     const dispatch = useDispatch();
     const disks = useAppSelector(state => state.disks)
+    
     const showReq = useAppSelector(state => state.showRequest)
     const [refresh, refreshResp] = useUpdateDiskMutation()
     
+
+
     useEffect(() => {
         if (refreshResp.isSuccess &&  typeof showReq.disk !== 'string' && showReq.disk.disk === nameOfSelectedDisk) {
             dispatch(newValues({...showReq, disk: showReq.disk}))
