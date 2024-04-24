@@ -24,7 +24,7 @@ const getTextWithImg = (
 	return (
 		<TextWithImg
 			key={diskName + src}
-			className={['text-with-img-row'].join(' ')}
+			className={['text-row-settings'].join(' ')}
 			text={diskName}
 			imgSrc={src}
 			altImgText={altText}

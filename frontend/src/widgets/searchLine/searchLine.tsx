@@ -124,7 +124,10 @@ export const SearchLine: FC<SearchLineProps> = ({
 				>
 					<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
 						<div className="search-icon-container"
-							onClick={onIconClick}
+							onClick={whatDisplay === 1 ? onIconClick: () => {
+								setisBoxOpen(false)
+								onIconClick()
+							} }
 							style={{ fontSize: 'var(--ft-title)' }}>
 							{whatDisplay === 1 ?
 								<SearchIcon fontSize='inherit' />

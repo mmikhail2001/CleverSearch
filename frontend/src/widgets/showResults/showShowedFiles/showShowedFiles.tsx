@@ -25,12 +25,12 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const showReq = useAppSelector(state => state.showRequest)
     const showParam = useAppSelector(state => state.showRequest)
     
-    const { isShow,whatDiskToShow } = useAppSelector(state => state.whatToShow)
+    const { isShow, whatDiskToShow } = useAppSelector(state => state.whatToShow)
 
     const [deleteFile] = useDeleteFileMutation();
     const dispatch = useDispatch();
 
-    const isPersonal = typeof whatDiskToShow === 'string'
+    const isPersonal = typeof whatDiskToShow === 'string' && whatDiskToShow === 'all'
 
     useEffect(() => {
         if (isShow) {

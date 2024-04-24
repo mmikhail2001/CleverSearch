@@ -61,8 +61,6 @@ export const useShowParams = () => {
 
     const urlParams = useParamsFromURL()
     const [params, diskName, cloudEmail, diskToShow] = transformToShowParams(urlParams)
-    console.log('[params, diskName, cloudEmail],',[params, diskName, cloudEmail])
-
     
     let settedDisk: diskTypes | ConnectedClouds;
     if (params.disk !== 'all' && cloudEmail !== '') {

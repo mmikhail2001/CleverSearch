@@ -84,7 +84,6 @@ export const FileShow: FC<FileShowProps> = ({
 						onClick={(event) => {
 							event.stopPropagation();
 							setOpen(true);
-							// setOpenDropDown(false)
 						}}
 					>
 						Поделиться
@@ -96,8 +95,12 @@ export const FileShow: FC<FileShowProps> = ({
 
 	const renderLoveIcon = () => {
 		if (config.isCanBeLoved) {
-			return <div style={{width:'25px'}} onClick={onFavourite}>
-				{config.isLoved ? <FavoriteIcon/> : <FavoriteBorderIcon fontSize='medium'/>}
+			return <div style={{width:'25px'}} onClick={(e)=> {
+						e.stopPropagation();
+						onFavourite();
+					}}
+				>
+				{config.isLoved ? <FavoriteIcon sx={{color:'red'}}/> : <FavoriteBorderIcon fontSize='medium'/>}
 				</div>
 		}
 		return <div style={{width:'25px'}}></div>
