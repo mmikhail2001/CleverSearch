@@ -65,7 +65,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 		const clickHandler = () => {
 			const dirsPath = file.path.split('/')
 			let disk: diskTypes | ConnectedClouds = 'all';
-			if (file.cloud_email !== "") {
+			if (file.cloud_email !== '') {
 				disk = {
 					cloud_email:file.cloud_email, 
 					disk: file.disk,
@@ -160,10 +160,6 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 						renderModal = dirProp.renderModal
 					} else {
 						let fileProp: renderReturns;
-						let authToken = '';
-
-						const disktmp = disks.clouds.find(val => val.cloud_email === file.cloud_email)
-						authToken = disktmp?.access_token || null;
 						
 						switch (file.file_type) {
 							case 'img':
@@ -174,8 +170,6 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 								renderModal = fileProp.renderModal
 								break;
 							case 'text':
-								
-
 								fileProp = getPdfProps(file, isOpen, changeState);
 
 								iconSrc = fileProp.imgSrc

@@ -72,7 +72,7 @@ export const FileShow: FC<FileShowProps> = ({
 				: null}
 			{config.isCanBeLoved ? 
 			<div onClick={onFavourite}>
-				{!config.isLoved ? "В Избранное" : "Убрать из избранного"}
+				{!config.isLoved ? 'В Избранное' : 'Убрать из избранного'}
 			</div>
 			: null
 			}
@@ -82,7 +82,6 @@ export const FileShow: FC<FileShowProps> = ({
 						onClick={(event) => {
 							event.stopPropagation();
 							setOpen(true);
-							// setOpenDropDown(false)
 						}}
 					>
 						Поделиться
@@ -134,7 +133,7 @@ export const FileShow: FC<FileShowProps> = ({
 				}
 
 				<div className='file-show__author-position'>
-				{author !== "" 
+				{author !== '' 
 				? <img className='file-show__author' src={getAvatarByEmail(author)} /> 
 				: null
 				}

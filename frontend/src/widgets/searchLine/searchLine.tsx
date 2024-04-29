@@ -90,7 +90,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 		dispatch(newValues({...showReq, dir: []}))
 
 		setTimeout(
-			() => setisBoxOpen(!isBoxOpen),
+			() => setisBoxOpen(false),
 			0
 		)
 
@@ -130,8 +130,11 @@ export const SearchLine: FC<SearchLineProps> = ({
 					style={{ width: width }}
 				>
 					<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
-						<div
-							onClick={onIconClick}
+						<div className="search-icon-container"
+							onClick={whatDisplay === 1 ? onIconClick : () => {
+								setisBoxOpen(false)
+								onIconClick()
+							} }
 							style={{ fontSize: 'var(--ft-paragraph)' }}>
 							{whatDisplay === 1 ?
 								<SearchIcon fontSize='inherit' />

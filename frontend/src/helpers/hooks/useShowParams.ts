@@ -1,5 +1,5 @@
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
-import { diskTypes } from '@models/disk';
+import { diskTypes, isDiskType } from '@models/disk';
 import { fileTypes, transformToShowParams } from '@models/searchParams';
 import { ConnectedClouds } from '@models/user';
 import { useEffect } from 'react';
@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import { changeDisk, newValues } from '@store/showRequest';
 import { useParamsFromURL } from './useParamsFromURL';
 import { selectCloud } from '@store/userDisks';
+import { switchDisk } from '@store/whatToShow';
 
 export interface searchStateValue {
     fileType: fileTypes[];
@@ -46,6 +47,7 @@ export const compareArrays = (a: any[], b: any[]): boolean =>
 export const useShowParams = () => {
     const disks = useAppSelector(state => state.disks)
     const showRequest = useAppSelector(state => state.showRequest)
+    const dispatch = useDispatch()
 
     const showState = {} as {
         fileType: fileTypes[];
@@ -58,12 +60,10 @@ export const useShowParams = () => {
     }
 
     const urlParams = useParamsFromURL()
-    const [params, diskName, cloudEmail] = transformToShowParams(urlParams)
-
-    const dispatch = useDispatch()
-
+    const [params, diskName, cloudEmail, diskToShow] = transformToShowParams(urlParams)
+    
     let settedDisk: diskTypes | ConnectedClouds;
-    if (params.disk !== 'all' && cloudEmail !== "") {
+    if (params.disk !== 'all' && cloudEmail !== '') {
         const findedDisk = disks.clouds
         .find(
             val => cloudEmail === val.cloud_email
@@ -71,7 +71,7 @@ export const useShowParams = () => {
 
         if (isNullOrUndefined(findedDisk)) {
             settedDisk = {
-                access_token: "",
+                access_token: '',
                 cloud_email: cloudEmail,
                 disk: diskName,
             }
@@ -97,6 +97,13 @@ export const useShowParams = () => {
     }
     
     useEffect(() => {
+        if (diskToShow !== '' && isDiskType(diskToShow)) {
+            dispatch(switchDisk(diskToShow))
+        } else {
+            dispatch(switchDisk('all'))
+
+        }
+
         if (!
             (
                 compareArrays(showRequest.dir,settedDir) 

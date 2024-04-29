@@ -12,6 +12,7 @@ import { switchToShow } from '@store/whatToShow';
 import '../show.scss'
 import { useShowParams } from '@helpers/hooks/useShowParams'
 import { changeDir, newValues } from '@store/showRequest';
+import { transformFromDiskToDiskName } from '@helpers/transformFromDiskToDiskName';
 
 interface ShowShowedFilesProps { }
 
@@ -30,12 +31,12 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const showReq = useAppSelector(state => state.showRequest)
     const showParam = useAppSelector(state => state.showRequest)
     
-    const { isShow } = useAppSelector(state => state.whatToShow)
+    const { isShow, whatDiskToShow } = useAppSelector(state => state.whatToShow)
 
     const [deleteFile] = useDeleteFileMutation();
     const dispatch = useDispatch();
 
-    const isPersonal = typeof showReq.disk === 'string'
+    const isPersonal = typeof whatDiskToShow === 'string' && whatDiskToShow === 'all'
 
     useEffect(() => {
         if (isShow) {
@@ -43,7 +44,7 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                 ...showParam,
                 disk: showReq.disk,
                 dir: showReq.dir,
-                externalDiskRequired: !isPersonal,
+                externalDiskRequired: true,
                 internalDiskRequired: isPersonal,
                 });
         }
@@ -83,7 +84,7 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                         dispatch(
                             dispatch(newValues({...showReq, dir: showReq.dir.slice(0, -1) || []}))
                         )
-                        navigate(url, { replace: true })
+                        navigate(url+`&diskToShow=${transformFromDiskToDiskName(whatDiskToShow)}`, { replace: true })
                     }}
                     reactOnElements={
                         ['Show', ...showReq.dir].map((dir, index) => {
@@ -98,7 +99,7 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                                     }
                                 )
                                 dispatch(changeDir(dirToSet))
-                                navigate(url, { replace: true })
+                                navigate(url+`&diskToShow=${transformFromDiskToDiskName(whatDiskToShow)}`, { replace: true })
                             }
                         })
                     }
@@ -132,12 +133,12 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                             100)
                         }
                     }
-                openFolder={(path) => {
+                openFolder={(path, disk) => {
                     const url = transfromToShowRequestString(
                         {
                             ...showReq,
                             fileType: showReq.fileType,
-                            disk: showReq.disk,
+                            disk: disk,
                             dir: path || [],
                             externalDiskRequired: showReq.externalDiskRequired,
                             internalDiskRequired: showReq.internalDiskRequired,
@@ -146,8 +147,9 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                     dispatch(newValues({
                         ...showReq,
                         dir: path,
+                        disk: disk,
                         }))
-                    navigate(url, { replace: true })
+                    navigate(url+`&diskToShow=${transformFromDiskToDiskName(whatDiskToShow)}`, { replace: true })
                 }}
             />
         </div>

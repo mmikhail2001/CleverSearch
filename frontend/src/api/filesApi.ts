@@ -15,6 +15,13 @@ export const filesApi = createApi({
 				method: 'GET',
 			}),
 		}),
+		createDir: builder.mutation<FolderResp, string[]>({
+			query: (dirPath: string[]) => ({
+				url: `/dirs/create?dir_path=${['', ...dirPath].join('/')}`,
+				method: 'POST',
+			}),
+		}),
+		
 		pushFile: builder.mutation<fileFile, FormData>({
 			query: (formData: FormData) => ({
 				url: '/files/upload',
@@ -29,12 +36,7 @@ export const filesApi = createApi({
 				body: { 'files': files },
 			}),
 		}),
-		createDir: builder.mutation<FolderResp, string[]>({
-			query: (dirPath: string[]) => ({
-				url: `/dirs/create?dir_path=${['', ...dirPath].join('/')}`,
-				method: 'POST',
-			}),
-		}),
+
 		getShareUrl: builder.mutation<ShareResponse, ShareRequest>({
 			query: (request: ShareRequest) => ({
 				url: '/dirs/share',
@@ -42,6 +44,7 @@ export const filesApi = createApi({
 				body: request
 			}),
 		}),
+		
 		addToFavourite: builder.mutation<ShareResponse, string>({
 			query: (id: string) => ({
 				url: `/files/favs/add/${id}`,
@@ -56,7 +59,7 @@ export const filesApi = createApi({
 		}),
 		getFavourite: builder.mutation<SearchResponse, null>({
 			query: () => ({
-				url: `/files/favs`,
+				url: '/files/favs',
 				method: 'GET',
 			}),
 		}),

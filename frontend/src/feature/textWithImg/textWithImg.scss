@@ -21,7 +21,8 @@
 }
 
 .text-with-img-row {
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: minmax(0, 0.5fr) minmax(0, 3fr) minmax(0, 0.25fr);
 }
 
 .text-option{

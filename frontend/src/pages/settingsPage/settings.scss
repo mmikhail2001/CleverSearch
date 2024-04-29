@@ -19,3 +19,8 @@
 .disk-connect-settings {
     align-items: center;
 }
+
+.text-row-settings {
+    gap: var(--normal-padding);
+    flex-direction: row;
+}

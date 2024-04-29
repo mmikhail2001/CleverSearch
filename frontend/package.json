@@ -6,6 +6,7 @@
   "scripts": {
     "start": "webpack serve --env protocol=http adress=localhost:8080 whereToBuild=/mnt/f/my_programs/Tecnopark/FrontReact/front/frontend/build buildLocalFolder=false",
     "start:watch": "webpack --env watch=true protocol=http adress=localhost whereToBuild=/mnt/f/my_programs/Tecnopark/FrontReact/back/frontend/build buildLocalFolder=false",
+    "start:watch-notebook": "webpack --env watch=true protocol=http adress=localhost whereToBuild=C:/Users/79270/Documents/Lections/Technopark/diploim/back/frontend/build buildLocalFolder=false",
     "start:watch-local": "webpack --env watch=true protocol=http adress=localhost buildLocalFolder=true",
     "build:prod": "webpack --env mode=production protocol=http adress=clever-search.ru buildLocalFolder=true",
     "build:dev": "webpack --env mode=developmen protocol=http adress=localhost buildLocalFolder=true"

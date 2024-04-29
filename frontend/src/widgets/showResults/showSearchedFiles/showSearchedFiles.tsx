@@ -15,7 +15,6 @@ import { newValues } from '@store/showRequest';
 
 interface ShowSearchedFilesProps { }
 
-
 export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     const [deleteFile] = useDeleteFileMutation();
     const [search, { data, ...searchResp }] = useSearchMutation({ fixedCacheKey: 'search' });
