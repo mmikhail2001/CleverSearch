@@ -49,15 +49,17 @@ export const SearchBox: FC<SearchBoxProps> = ({
 			/>
 			<div className="buttons">
 				<Button
+					style={{color: 'rgba(255,255,255, 0.8)'}}
 					fontSize={fontSize}
-					variant={'outlined'}
+					variant={'text'}
 					buttonText="Сбросить"
 					clickHandler={() => setToInitial(changeState, state)}
 					disabled={false}
 				></Button>
 				<Button
+					style={{color: 'inherit'}}	
 					fontSize={fontSize}
-					variant={'outlined'}
+					variant={'contained'}
 					buttonText="Искать"
 					clickHandler={() => {
 						search();

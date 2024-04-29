@@ -103,9 +103,6 @@ export const SearchLine: FC<SearchLineProps> = ({
 			<SearchBox
 				key={'searchbox'}
 				fontSize={'var(--ft-body)'}
-				style={{
-					width: width,
-				}}
 				changeState={(obj: searchStateValue) => {
 					setSearchValue({ ...obj, dir: obj.dir })
 				}}
@@ -121,6 +118,8 @@ export const SearchLine: FC<SearchLineProps> = ({
 	return (
 		<PopOver
 			marginTop={'2.4rem'}
+			whatCorner='left'
+			variants={'down'}
 			key={'search-popover-with-box'}
 			open={isBoxOpen}
 			toggleOpen={setisBoxOpen}

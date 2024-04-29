@@ -5,8 +5,9 @@ import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 import CSS from 'csstype'
 
 export type WhereToPlace = 'up' | 'down'
+export type WhatCorner = 'left' | 'right'
 
-const getOrigins = (variant: WhereToPlace): PopoverOrigin[] => {
+const getOrigins = (variant: WhereToPlace, whatCorner: WhatCorner ): PopoverOrigin[] => {
     let transformOrigin: PopoverOrigin
     let anchorOrigin: PopoverOrigin
 
@@ -29,12 +30,12 @@ const getOrigins = (variant: WhereToPlace): PopoverOrigin[] => {
         default:
             anchorOrigin = {
                 vertical: 'bottom',
-                horizontal: 'right',
+                horizontal: 'left',
 
             }
             transformOrigin = {
                 vertical: 'top',
-                horizontal: 'right',
+                horizontal: 'left',
             }
 
     }
@@ -42,8 +43,9 @@ const getOrigins = (variant: WhereToPlace): PopoverOrigin[] => {
 }
 
 interface PopOverProps {
-    styleMain?: CSS.Properties
-    children: React.ReactNode[]
+    styleMain?: CSS.Properties,
+    children: React.ReactNode[],
+    whatCorner?: WhatCorner,
     mainElement: React.ReactNode,
     variants?: WhereToPlace,
     isCloseOnSelect?: boolean,
@@ -62,6 +64,7 @@ export const PopOver: FC<PopOverProps> = ({
     toggleOpen,
     styleMain,
     marginTop,
+    whatCorner,
 }) => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const ref = useRef<HTMLDivElement>(null)
@@ -74,7 +77,11 @@ export const PopOver: FC<PopOverProps> = ({
         toggleOpen(false)
     };
 
-   let [transformOrigin, anchorOrigin] = getOrigins(variants)
+    if (isNullOrUndefined(whatCorner)) {
+        whatCorner = 'right'
+    }
+    
+    let [transformOrigin, anchorOrigin] = getOrigins(variants, whatCorner)
 
     useEffect(() => {
         if (ref) {

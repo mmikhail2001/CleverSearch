@@ -1,9 +1,12 @@
 .search-box {
     display: flex;
     flex-direction: column;
-    padding: var(--big-padding);
+    padding-bottom: 1.9rem;
+    padding-top: 1.9rem;
+    padding-right: 3rem;
+    padding-left: 3rem;
     height: 100%;
-    width: 100%;
+    width: fit-content;
 
     gap: 2.4rem;
     border-radius: var(--big-radius);
@@ -13,7 +16,8 @@
 .buttons {
     display: flex;
     justify-content: end;
-    gap: var(--normal-padding)
+    gap: var(--normal-padding);
+    height: 3.3rem;
 }
 
 .line {

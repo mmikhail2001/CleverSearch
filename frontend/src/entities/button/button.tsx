@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import './button.scss';
-import { Button as UIButton, styled } from '@mui/material';
+import { SxProps, Theme, Button as UIButton, styled } from '@mui/material';
 import CSS from 'csstype';
 
 export type VariantBtn = 'contained' | 'outlined' | 'text'
@@ -17,6 +17,7 @@ interface ButtonProps {
 	endIcon?: React.ReactNode;
 	fontSize?: string;
 	isFullSize?:boolean;
+	style?: CSS.Properties,
 }
 
 const UIButtonWithStyle = styled(UIButton)({
@@ -67,6 +68,7 @@ export const Button: FC<ButtonProps> = ({
 	endIcon,
 	fontSize,
 	isFullSize,
+	style,
 }) => {
 	if (disabled === undefined || disabled === null) disabled = false;
 	let clkHandler: (e: React.MouseEvent<HTMLButtonElement>) => void;
@@ -76,15 +78,15 @@ export const Button: FC<ButtonProps> = ({
 		clkHandler = () => { };
 	}
 
-	let cssStyles: CSS.Properties = {
+	let cssStyles: SxProps<Theme> = {
+		...style,
 		textTransform: 'none',
-				fontSize: fontSize,
-				justifyContent: variant === 'text' ? 'start' : null,
-				padding: variant === 'text' ? '0' : null,
+		fontSize: fontSize,
+		justifyContent: variant === 'text' ? 'start' : null,
+		padding: variant === 'text' ? '0' : null,
 	};
 	switch (variant) {
 		case 'contained':
-			
 		break;
 		case 'outlined':
 			cssStyles= {
@@ -98,10 +100,14 @@ export const Button: FC<ButtonProps> = ({
 				...cssStyles,
 				backgroundColor: 'transparent',
 				boxShadow: 'none',
+				'&:hover': {
+					background: 'transparent',
+				}
 			}
 			break;
 	}
 
+	const isText = variant ==='text'
 
 	return (
 		<UIButtonWithStyle
@@ -113,7 +119,10 @@ export const Button: FC<ButtonProps> = ({
 			onClick={clkHandler}
 			startIcon={startIconSrc ? <img src={startIconSrc} /> : null}
 			endIcon={endIcon ? endIcon : null}
-			sx={cssStyles}
+			sx={
+				{...cssStyles,
+				}
+			}
 		>
 			<p>{buttonText}</p>
 		</UIButtonWithStyle>

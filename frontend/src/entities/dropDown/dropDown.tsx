@@ -113,6 +113,15 @@ export const DropDown: FC<DropDownProps> = ({
 				{mainElement}
 			</div>
 			<Menu
+				sx={{
+					'& > div': {
+						backgroundColor: 'transparent',
+						borderRadius: 'var(--big-radius)',
+						border: 'none',
+						boxShadow:'3px 3px 10px 4px rgba(0,0,0,0.1)',
+						color:'inherit',
+					}}
+				}
 				disableAutoFocusItem
 				disableAutoFocus
 				anchorEl={anchorEl}
@@ -120,6 +129,9 @@ export const DropDown: FC<DropDownProps> = ({
 				onClose={handleClose}
 				MenuListProps={{
 					'aria-labelledby': 'basic-button',
+					style: {
+						backgroundColor: 'var(--color-dropdowns)',
+					}
 				}}
 				transformOrigin={transformOrigin}
 				anchorOrigin={anchorOrigin}

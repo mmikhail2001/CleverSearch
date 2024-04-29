@@ -55,7 +55,9 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 		}
 
 	if (!data || data.length === 0) {
-		return <div>Нет никаких файлов :(</div>;
+		return <div className='show-all-files' style={{fontSize: 'var(--ft-body-plus)'}}>
+			К сожалению нет файлов :(
+			</div>;
 	}
 
 	const getDirProps = (file: fileFile): renderReturns => {
@@ -133,7 +135,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 
 	return (
 		<div key={'rendered-list'} className='show-all-files' style={{height: height}}>
-			<div className='file-show-line'>
+			<div className='file-show-line' style={{cursor: 'default'}}>
 				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Название</Typography>
 				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Дата добавления</Typography>
 				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Автор</Typography>
