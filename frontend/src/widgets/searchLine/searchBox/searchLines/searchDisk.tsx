@@ -10,6 +10,7 @@ import { Option } from '@models/additional';
 import { SelectorMulti } from '@entities/selectors/selectorMulti/selectorMulti';
 import { useAppSelector } from '@store/store';
 import { ConnectedClouds } from '@models/user';
+import { Height } from '@mui/icons-material';
 
 export interface SearchDiskLineProps {
 	changeState: React.Dispatch<
@@ -59,40 +60,43 @@ export const SearchDiskLine: FC<SearchDiskLineProps> = ({
 		}
 	}
 	return (
-		<div className="line">
-			<Typography fontSize={'var(--ft-body)'}>Диск</Typography>
-			<SelectorWithImg
-				fontSize={fontSize}
-				options={getDisksToOptions()}
-				isMulti={false}
-				onChange={
-					(newVal) => {
-						setSelectedDisk(diskVal(newVal))
+		<>
+			<div className="line">
+				<Typography fontSize={'var(--ft-body)'} className='line__name'>Диск</Typography>
+				<SelectorWithImg
+					fontSize={fontSize}
+					options={getDisksToOptions()}
+					isMulti={false}
+					onChange={
+						(newVal) => {
+							setSelectedDisk(diskVal(newVal))
+						}
 					}
-				}
-				defaultValue={state.disk && selectedDisk === null ? diskValueToOption(defaultValueDisk) : null}
-			/>
-			<div style={{paddingTop: 'var(--big-padding)'}}>
-				{selectedDisk && !selectedDisk.find(val => val === 'all') ? 
-				<SelectorMulti
-				placeholder={'Выберите почту'}
-				fontSize={fontSize}
-				options={disks.clouds.filter(val => selectedDisk
-					.find(diskVal => diskVal === val.disk))
-					.map(val => emailToOption(val.cloud_email))
-				}
-				isMulti={false}
-				onChange={
-					(newVal) => {
-						setSelectedEmail(newVal)
-						changeState({...state, disk: disks.clouds.filter(val => val.cloud_email === newVal[0]) as ConnectedClouds[]})
-					}
-				}
-				defaultValue={selectedEmail ? null : [emailToOption(defaultValueEmail)]}
-			/>
-				: null
-			}
+					defaultValue={state.disk && selectedDisk === null ? diskValueToOption(defaultValueDisk) : null}
+				/>
 			</div>
-		</div>
+				{selectedDisk && !selectedDisk.find(val => val === 'all') ? 
+				<div className="line">
+					<Typography fontSize={'var(--ft-body)'} className='line__name'>Почта</Typography>
+					<SelectorMulti
+					placeholder={'Выберите почту'}
+					fontSize={fontSize}
+					options={disks.clouds.filter(val => selectedDisk
+						.find(diskVal => diskVal === val.disk))
+						.map(val => emailToOption(val.cloud_email))
+					}
+					isMulti={false}
+					onChange={
+						(newVal) => {
+							setSelectedEmail(newVal)
+							changeState({...state, disk: disks.clouds.filter(val => val.cloud_email === newVal[0]) as ConnectedClouds[]})
+						}
+					}
+					defaultValue={selectedEmail ? null : [emailToOption(defaultValueEmail)]}
+				/>		
+				</div>
+				: null
+		}
+		</>
 	);
 };

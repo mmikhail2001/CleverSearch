@@ -34,6 +34,8 @@ const MenuProps = {
 		style: {
 			maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
 			width: 'auto',
+			backgroundColor: 'rgb(16, 44, 80)',
+			color: 'inherit',
 		},
 	},
 };
@@ -96,7 +98,22 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 	return (
 		<FormControl sx={{ width: '100%' }}>
 			<Select
-				sx={{ fontSize: fontSize }}
+				sx={{ 
+					fontSize: fontSize,
+					height: '100%',
+					borderRadius: "var(--big-radius)",
+					paddingLeft: '20px',
+					color: 'inherit',
+					border: '1px solid rgba(255,255,255,0.4)',
+					"& .Mui-focused": {
+						border: '1px solid rgba(255,255,255,1)',
+						outline:"none",
+					},
+					'& .MuiOutlinedInput-notchedOutline': {
+						outline: 'none',
+						borderColor: 'rgba(255,255,255,0.4) !important',
+					},
+				 }}
 				displayEmpty
 				error={isError}
 				maxMenuHeight={maxMenuHeight}

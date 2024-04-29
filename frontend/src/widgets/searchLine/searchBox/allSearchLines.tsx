@@ -21,7 +21,8 @@ export const AllSearchLines: FC<AllSearchLinesProps> = ({
 }) => {
 	return (
 		<>
-			<div className="line">
+			<div className='line'>
+				<p className='line__name'>Умный поиск</p>
 				<Switch
 					checked={state.smartSearch}
 					disabled={false}
@@ -29,8 +30,6 @@ export const AllSearchLines: FC<AllSearchLinesProps> = ({
 						changeState({ ...state, smartSearch: !state.smartSearch })
 					}
 					fontSize={fontSize}
-					label='Умный поиск'
-					labelPlacement='start'
 				/>
 			</div>
 			<SearchFolderLine

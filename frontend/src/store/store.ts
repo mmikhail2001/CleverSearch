@@ -12,6 +12,7 @@ import { reducer as reducerUser } from './userAuth';
 import reducer from './whatToShow';
 import { reducer as reducerDisks } from './userDisks'
 import {reducer as reducerFileWS} from './fileProcess' 
+import {reducer as createSlice} from './searchFilter' 
 
 export const store = configureStore({
 	reducer: {
@@ -25,6 +26,7 @@ export const store = configureStore({
 		showRequest: reducerShow,
 		userAuth: reducerUser,
 		disks: reducerDisks,
+		searchFilter: createSlice,
 	},
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware()

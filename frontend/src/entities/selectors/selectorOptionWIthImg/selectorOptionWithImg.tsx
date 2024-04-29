@@ -48,10 +48,28 @@ export const SelectorWithImg: FC<SelectorWithImgProps> = ({
 	}, [defaultValue])
 
 	return (
-		<FormControl sx={{ width: '100%' }}>
+		<FormControl sx={{ width: '100%', height: '100%' }}>
 			<Select
-				inputProps={{ style: { fontSize: fontSize } }}
-				sx={{ fontSize: fontSize }}
+				MenuProps={{ slotProps: {paper: {style: {
+					backgroundColor:'rgb(16, 44, 80)',
+					color: 'inherit',
+				}}}}}
+				sx={{ 
+					fontSize: fontSize,
+					height: '100%',
+					borderRadius: "var(--big-radius)",
+					paddingLeft: '20px',
+					color: 'inherit',
+					border: '1px solid rgba(255,255,255,0.4)',
+					"& .Mui-focused": {
+						border: '1px solid rgba(255,255,255,1)',
+						outline:"none",
+					},
+					'& .MuiOutlinedInput-notchedOutline': {
+						outline: 'none',
+						borderColor: 'rgba(255,255,255,0.4) !important',
+					},
+				  }}
 				multiple={isMulti}
 				displayEmpty
 				onChange={handleChange}
@@ -71,7 +89,7 @@ export const SelectorWithImg: FC<SelectorWithImgProps> = ({
 			>
 				{options ? options.map((val) =>
 					<MenuItem
-						sx={{ fontSize: fontSize }}
+						sx={{ fontSize: fontSize, color: 'inherit' }}
 						key={val.value}
 						value={val.value}
 					>

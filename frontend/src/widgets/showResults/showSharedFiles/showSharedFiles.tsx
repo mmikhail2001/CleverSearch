@@ -1,5 +1,5 @@
 import { useAppSelector } from '@store/store';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useShowSharedMutation } from '@api/searchApi';
@@ -24,10 +24,11 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 	const showReq = useAppSelector(state => state.showRequest)
 	const { isShared } = useAppSelector(state => state.whatToShow)
 	
+	const {isOpen} = useAppSelector(state => state.searchFilter)
+
 	const [valueToShow, setvalueToShow] = useState(data?.body);
 
 	const navigate = useNavigate()
-	console.log("SHOW PARAMS",useShowParams())
 
 	useEffect(() => {
 		setvalueToShow(data?.body)
@@ -49,10 +50,24 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 		setvalueToShow([valueToShow])
 	}
 
+	const mainElement = useRef<HTMLDivElement>(null)
+    const headerElement = useRef<HTMLDivElement>(null)
+	const [heightToSet, setheightToSet] = useState('100%')
+	
+	useEffect(() => {
+			if (mainElement.current && 
+				headerElement.current 
+			) {
+				setheightToSet(`calc(${String(
+					mainElement.current.clientHeight - headerElement.current.clientHeight
+				)}px - 4.8rem)`)
+			}
+	
+		},[mainElement.current, headerElement.current])
 
 	return (
-		<div className="data-show" >
-			<div className="data-show__header">
+		<div className="data-show" ref={mainElement} style={{filter: isOpen ? 'blur(5px)' : ''}}>
+			<div className="data-show__header" ref={headerElement}>
 				<BreadCrumps
 					dirs={['Shared', ...showReq.dir]}
 					onClick={() => {
@@ -83,11 +98,11 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 				/>
 			</div>
 			<RenderFields
+				height={heightToSet}
 				data={valueToShow}
 				error={searchResp.error}
 				isError={searchResp.isError}
 				isLoading={searchResp.isLoading}
-				dispatch={dispatch}
 				deleteFile={() => { }}
 				openFolder={(path, disk) => {
 					const pathWithValues = path.filter(val => val !== '')

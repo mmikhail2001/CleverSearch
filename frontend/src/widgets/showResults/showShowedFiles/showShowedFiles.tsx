@@ -18,9 +18,12 @@ interface ShowShowedFilesProps { }
 export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const navigate = useNavigate();
     useShowParams()
+    
     const mainElement = useRef<HTMLDivElement>(null)
     const headerElement = useRef<HTMLDivElement>(null)
     const [heightToSet, setheightToSet] = useState('100%')
+
+    const {isOpen} = useAppSelector(state => state.searchFilter)
 
     const [show, showResp] = useShowMutation({ fixedCacheKey: 'show' });
 
@@ -63,7 +66,7 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     },[mainElement.current, headerElement.current])
 
     return (
-        <div className="data-show" ref={mainElement}>
+        <div className="data-show" ref={mainElement} style={{filter: isOpen ? 'blur(5px)' : ''}}>
             <div className="data-show__header" ref={headerElement}>
                 <BreadCrumps
                     dirs={['Show', ...showReq.dir]}
@@ -107,7 +110,6 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                 error={showResp.error}
                 isError={showResp.isError}
                 isLoading={showResp.isLoading}
-                dispatch={dispatch}
                 deleteFile={
                     (fileName: string): void => {
                         deleteFile([fileName]);

@@ -1,5 +1,5 @@
 import { useAppSelector } from '@store/store';
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useDeleteFileMutation } from '@api/filesApi';
@@ -21,6 +21,8 @@ export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
     const navigate = useNavigate();
     const { showState } = useShowParams()
     const [show, showResp] = useShowProcessedMutation({ fixedCacheKey: 'processed' });
+
+    const {isOpen} = useAppSelector(state => state.searchFilter)
 
     const [deleteFile] = useDeleteFileMutation();
     const dispatch = useDispatch();
@@ -44,9 +46,24 @@ export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
         dispatch(switchToProcessed())
     }
 
+    const mainElement = useRef<HTMLDivElement>(null)
+    const headerElement = useRef<HTMLDivElement>(null)
+	const [heightToSet, setheightToSet] = useState('100%')
+	
+	useEffect(() => {
+			if (mainElement.current && 
+				headerElement.current 
+			) {
+				setheightToSet(`calc(${String(
+					mainElement.current.clientHeight - headerElement.current.clientHeight
+				)}px - 4.8rem)`)
+			}
+	
+		},[mainElement.current, headerElement.current])
+
     return (
-        <div className="data-show">
-            <div className="data-show__header">
+        <div className="data-show" ref={mainElement} style={{filter: isOpen ? 'blur(5px)' : ''}}>
+            <div className="data-show__header" ref={headerElement}>
                 <BreadCrumps
                     dirs={['Processed']}
                     onClick={() => {
@@ -69,11 +86,11 @@ export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
                 />
             </div>
             <RenderFields
+                height={heightToSet}
                 data={showResp.data?.body}
                 error={showResp.error}
                 isError={showResp.isError}
                 isLoading={showResp.isLoading}
-                dispatch={dispatch}
                 deleteFile={
                     (fileName: string): void => {
                         deleteFile([fileName]);

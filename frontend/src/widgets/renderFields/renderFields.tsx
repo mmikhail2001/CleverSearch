@@ -17,6 +17,11 @@ import {getErrorMessageFromErroResp} from '@helpers/getErrorMessageFromErroResp'
 import { useMobile } from 'src/mobileProvider';
 import { diskTypes } from '@models/disk';
 import { ConnectedClouds } from '@models/user';
+import ImageIcon from '@mui/icons-material/Image';
+import FolderIcon from '@mui/icons-material/Folder';
+import ArticleRoundedIcon from '@mui/icons-material/ArticleRounded';
+import VideoFileRoundedIcon from '@mui/icons-material/VideoFileRounded';
+import AccessibleForwardRoundedIcon from '@mui/icons-material/AccessibleForwardRounded';
 
 export interface RenderFieldsProps {
 	height?:string,
@@ -24,7 +29,6 @@ export interface RenderFieldsProps {
 	error: FetchBaseQueryError | SerializedError,
 	isError: boolean,
 	isLoading: boolean,
-	dispatch: Dispatch<UnknownAction>,
 	deleteFile: (fileName: string, accessRights: AccessRights) => void,
 	openFolder: (dirToShow: string[], diskToShow: diskTypes | ConnectedClouds) => void,
 }
@@ -35,7 +39,6 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	error,
 	isError,
 	isLoading,
-	dispatch,
 	deleteFile,
 	openFolder,
 }) => {
@@ -56,7 +59,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	}
 
 	const getDirProps = (file: fileFile): renderReturns => {
-		const imgSrc = folderIconPath;
+		const imgSrc = <FolderIcon fontSize='inherit' sx={{color: "#DB9713"}} />;
 		const clickHandler = () => {
 			const dirsPath = file.path.split('/')
 			let disk: diskTypes | ConnectedClouds = 'all';
@@ -82,7 +85,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 				</Modal>
 			)
 		}
-		const imgSrc = imageIconPath;
+		const imgSrc = <ImageIcon fontSize='inherit' sx={{color:'#0A9542'}}/>;
 		const clickHandler = (): null => null;
 		return { clickHandler, imgSrc, renderModal }
 	};
@@ -104,7 +107,9 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 				</Modal>
 			)
 		}
-		const imgSrc = documentIconPath;
+
+		const imgSrc = <ArticleRoundedIcon fontSize='inherit' sx={{color: "#4285F4"}} />;
+
 		return { clickHandler: () => { }, imgSrc, renderModal }
 	};
 
@@ -121,11 +126,11 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 				</Modal>
 			)
 		}
-		const imgSrc = documentIconPath;
+		
+		const imgSrc = <VideoFileRoundedIcon fontSize='inherit' sx={{color: "#EA4335"}} />;
 		return { clickHandler: () => { }, imgSrc, renderModal }
 	};
 
-	console.log('input hei', height)
 	return (
 		<div key={'rendered-list'} className='show-all-files' style={{height: height}}>
 			<div className='file-show-line'>
@@ -143,7 +148,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 				const getFileProps = (file: fileFile, isOpen: boolean, changeState: (isOpen: boolean) => void): renderReturns => {
 					let renderModal: () => React.ReactNode | null = () => null;
 					let clickHandler: () => void;
-					let iconSrc = '';
+					let iconSrc: string | React.ReactNode = '';
 
 					if (file.is_dir) {
 						const dirProp: renderReturns = getDirProps(file);
@@ -185,7 +190,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 								break;
 
 							default:
-								iconSrc = imageIconPath;
+								iconSrc = <AccessibleForwardRoundedIcon fontSize='inherit' sx={{color:'#4285F4'}}/>;
 						}
 					}
 					return {

@@ -33,8 +33,13 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 
 	return (
 		<div className="line">
-			<Typography fontSize={'var(--ft-body)'}>Директория</Typography>
+			<Typography fontSize={'var(--ft-body)'} className='line__name'>Директория</Typography>
 			<SelectorAsync
+				style={{
+					borderColor: 'rgba(255,255,255,0.4)',
+					color: 'rgb(255,255,255)',
+				}}
+				color='#102C50'
 				fontSize={fontSize}
 				placeholder={'Все папки'}
 				defaultOption={lastDir ?

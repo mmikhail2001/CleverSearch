@@ -15,6 +15,8 @@ export const ShowSharedUUIDFiles: FC<ShowSharedUUIDFilesProps> = () => {
 	const dispatch = useDispatch();
 	const { isShared } = useAppSelector(state => state.whatToShow)
 
+	const {isOpen} = useAppSelector(state => state.searchFilter)
+
 	const navigate = useNavigate()
 	const { diruuid } = useParams()
 
@@ -41,7 +43,7 @@ export const ShowSharedUUIDFiles: FC<ShowSharedUUIDFilesProps> = () => {
 	})
 
 	return (
-		<div className="data-show" >
+		<div className="data-show" style={{filter: isOpen ? 'blur(5px)' : ''}}>
 			<div className="data-show__header">
 			</div>
 		</div>

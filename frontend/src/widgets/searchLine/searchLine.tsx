@@ -25,6 +25,7 @@ import { ConnectedClouds } from '@models/user';
 import { useAppSelector } from '@store/store';
 import { compareArrays } from '@helpers/hooks/useShowParams';
 import { newValues } from '@store/showRequest';
+import { changeOpenFilter } from '@store/searchFilter';
 
 export interface searchStateValue {
 	smartSearch: boolean;
@@ -47,6 +48,8 @@ export const SearchLine: FC<SearchLineProps> = ({
 	const [, response] = useSearchMutation({ fixedCacheKey: 'search' });
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+	
+	const {isOpen} = useAppSelector(state => state.searchFilter)
 
 	const { whatDisplay } = useMobile();
 
@@ -77,6 +80,10 @@ export const SearchLine: FC<SearchLineProps> = ({
 		setSearchValue({...searchValue, dir: searchReq.dir})
 	}, [])
 
+	if (isOpen !== isBoxOpen ) {
+		dispatch(changeOpenFilter(isBoxOpen))
+	}
+
 	function mySearch(): void {
 		dispatch(switchToSearch());
 		dispatch(newSearchValues(searchValue));
@@ -90,6 +97,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 		const url = transformToSearchRequestString({ ...searchValue, limit: 10, offset: 0 })
 		navigate(url)
 	}
+
 	const renderOpenBox = (): React.ReactNode => {
 		return (
 			<SearchBox
@@ -97,7 +105,6 @@ export const SearchLine: FC<SearchLineProps> = ({
 				fontSize={'var(--ft-body)'}
 				style={{
 					width: width,
-					background: 'var(--main-color-100)'
 				}}
 				changeState={(obj: searchStateValue) => {
 					setSearchValue({ ...obj, dir: obj.dir })
@@ -113,6 +120,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 
 	return (
 		<PopOver
+			marginTop={'2.4rem'}
 			key={'search-popover-with-box'}
 			open={isBoxOpen}
 			toggleOpen={setisBoxOpen}

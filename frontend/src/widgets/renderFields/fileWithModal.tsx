@@ -8,7 +8,7 @@ import { useAppSelector } from '@store/store';
 export interface renderReturns {
 	renderModal: () => React.ReactNode | null;
 	clickHandler: () => void;
-	imgSrc: string;
+	imgSrc: string | React.ReactNode;
 }
 
 export interface FileWithModalProps {

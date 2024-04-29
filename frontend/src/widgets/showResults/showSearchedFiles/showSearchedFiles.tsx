@@ -1,5 +1,5 @@
 import { useAppSelector } from '@store/store';
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useDeleteFileMutation } from '@api/filesApi';
@@ -24,6 +24,8 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     const navigate = useNavigate()
     useSearchParams()
 
+    const {isOpen} = useAppSelector(state => state.searchFilter)
+
     const showReq = useAppSelector(state => state.showRequest)
     const searchParams = useAppSelector(state => state.searchRequest)
     const { isSearch } = useAppSelector(state => state.whatToShow)
@@ -39,9 +41,25 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
 
     const paramsSearch = useAppSelector((state) => state.searchRequest);
 
+    const mainElement = useRef<HTMLDivElement>(null)
+    const headerElement = useRef<HTMLDivElement>(null)
+	const [heightToSet, setheightToSet] = useState('100%')
+	
+	useEffect(() => {
+			if (mainElement.current && 
+				headerElement.current 
+			) {
+				setheightToSet(`calc(${String(
+					mainElement.current.clientHeight - headerElement.current.clientHeight
+				)}px - 4.8rem)`)
+			}
+	
+		},[mainElement.current, headerElement.current])
+
+
     return (
-        <div className="data-show" >
-            <div className="data-show__header">
+        <div className="data-show" ref={mainElement} style={{filter: isOpen ? 'blur(5px)' : ''}}>
+            <div className="data-show__header" ref={headerElement}>
                 <BreadCrumps
                     dirs={['Search']}
                     onClick={() => {
@@ -53,11 +71,11 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
                 />
             </div>
             <RenderFields
+                height={heightToSet}
                 data={data?.body}
                 error={searchResp.error}
                 isError={searchResp.isError}
                 isLoading={searchResp.isLoading}
-                dispatch={dispatch}
                 deleteFile={
                     (fileName: string): void => {
                         deleteFile([fileName]);

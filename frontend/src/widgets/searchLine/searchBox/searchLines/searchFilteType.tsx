@@ -23,7 +23,7 @@ export const SearchFileType: FC<SearchFileTypeLineProps> = ({
 }) => {
 	return (
 		<div className="line">
-			<Typography fontSize={'var(--ft-body)'}>Тип файла</Typography>
+			<Typography fontSize={'var(--ft-body)'} className='line__name'>Тип файла</Typography>
 			<SelectorMulti
 				fontSize={fontSize}
 				placeholder='Любой'

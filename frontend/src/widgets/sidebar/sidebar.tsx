@@ -224,7 +224,7 @@ export const Sidebar: FC<SidebarProps> = ({
 						<TextWithImg
 							text="Избранное"
 							className={['loved', isLoved ? 'selected' : '', 'text-with-img-row'].join(' ')}
-							imgSrc={<FavoriteIcon sx={{width:'var(--ft-paragraph)',height:'var(--ft-paragraph)'}}/>} 
+							imgSrc={<FavoriteIcon sx={{color:"#FF4444", width:'var(--ft-paragraph)',height:'var(--ft-paragraph)'}}/>} 
 							altImgText="Сердце"
 							onClick={() => {
 								dispatch(switchToLoved())
