@@ -80,9 +80,6 @@ export const DiskView: FC<DiskViewProps> = ({
     )
 
     return (
-        <div className="disk-show">
-            <h2 className="disk-show-label">Ваши диски</h2>
-            <div className="disks">{disksToShow}</div>
-        </div>
+        <div className="disks">{disksToShow}</div>
     )
 };

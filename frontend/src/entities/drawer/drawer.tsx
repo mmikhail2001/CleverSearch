@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Drawer as UIDrawer } from '@mui/material'
+import { Drawer as UIDrawer, createTheme } from '@mui/material'
 interface DrawerProps {
     children: React.ReactNode;
     open: boolean;
@@ -21,7 +21,11 @@ export const Drawer: FC<DrawerProps> = ({
 
     return (
         <UIDrawer
-            sx={{ width: width }}
+            sx={{ width: width, "& .MuiDrawer-paper": { 
+                borderWidth: 0, 
+                backgroundColor: 'transparent',
+                color: 'inherit',
+            } }}
             open={open}
             onClose={handleClose}
             variant={isPermanent ? 'permanent' : 'persistent'}

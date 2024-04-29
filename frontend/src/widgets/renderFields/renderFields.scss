@@ -17,4 +17,31 @@
 .show-all-files {
     overflow-y: auto;
     height: 100%;
+    padding-left: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+
+    margin-top: 2.8rem;
+}
+
+.show-all-files::-webkit-scrollbar {
+    width: 12px;
+}
+
+/* Track */
+.show-all-files::-webkit-scrollbar-track {
+    border-radius: 2.5rem;
+    background: #1E1B24;
+}
+
+/* Handle */
+.show-all-files::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.6); 
+    border-radius: 2.5rem
+}
+
+/* Handle on hover */
+.show-all-files::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.4); 
 }

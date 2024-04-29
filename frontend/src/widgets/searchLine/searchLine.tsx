@@ -123,9 +123,9 @@ export const SearchLine: FC<SearchLineProps> = ({
 					style={{ width: width }}
 				>
 					<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
-						<div className="search-icon-container"
+						<div
 							onClick={onIconClick}
-							style={{ fontSize: 'var(--ft-title)' }}>
+							style={{ fontSize: 'var(--ft-paragraph)' }}>
 							{whatDisplay === 1 ?
 								<SearchIcon fontSize='inherit' />
 								: <DehazeIcon sx={{ cursor: 'pointer' }} fontSize='inherit' />
@@ -133,9 +133,10 @@ export const SearchLine: FC<SearchLineProps> = ({
 						</div>
 						<div className="search-text">
 							<Input
-								fontSize={'var(--ft-body)'}
+								style={{backgroundColor: 'var(--color-active)'}}
+								fontSize={'var(--ft-paragraph)'}
 								isFullWidth
-								variant='standard'
+								variant='text'
 								onKeyDown={(e) => {
 									if (e.key.toLowerCase() === 'enter') {
 										mySearch()
@@ -161,14 +162,11 @@ export const SearchLine: FC<SearchLineProps> = ({
 							}
 						}
 						style={{ 
-							fontSize: 'var(--ft-title)',
+							fontSize: 'var(--ft-paragraph)',
 							marginLeft: 'var(--normal-padding)',
 						}}
 					>
 						<TuneIcon
-							sx={{
-								fill: 'var(--Bg-dark)',
-							}}
 							fontSize='inherit' 
 						/>
 					</div>

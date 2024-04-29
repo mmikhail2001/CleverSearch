@@ -16,7 +16,7 @@ import { Drawer } from '@entities/drawer/drawer';
 import { Modal } from '@feature/modal/modal';
 import { UserProfile } from '@widgets/userProfile/userProfile';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Popover, Typography } from '@mui/material';
+import { Popover, Typography, createTheme } from '@mui/material';
 import { useLogout } from '@helpers/hooks/logout';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import { DiskView } from './diskView/diskView'
@@ -29,8 +29,9 @@ import { Button } from '@entities/button/button';
 
 import RobotSVG from '@icons/Robot.svg';
 import DownloadSVG from '@icons/Download.svg';
-import CleverSVG from '@icons/disks/Disk.svg';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import AddIcon from '@mui/icons-material/Add';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 
 interface SidebarProps {
 	width: string;
@@ -99,23 +100,21 @@ export const Sidebar: FC<SidebarProps> = ({
 						{isMobile ?
 							<UserProfile email={email} isDropdownExist={false} />
 							:
-							<TextWithImg
+							<Typography
 								onClick={() => dispatch(switchToShow())}
-								text="CleverSearch"
-								className={['our-name', 'text-with-img-row'].join(' ')}
-								imgSrc={CleverSVG}
-								altImgText="our-logo"
-							/>
+								className={['our-name'].join(' ')}
+							>CleverSearch</Typography>
 						}
 					</div>
 					<div className='button_sidebar'>
 						<PopOver
-							styleMain={{width: '100%'}}
+							styleMain={{width: '179px'}}
 							mainElement={
 								<Button
+									endIcon={<AddIcon fontSize='inherit'/>}
 									isFullSize={true}
-									fontSize={'var(--ft-body)'}
-									buttonText={'Создать'} 
+									fontSize={'var(--ft-paragraph)'}
+									buttonText={'Добавить'} 
 									clickHandler={() => setCreationPopOpen(!isCreationPopOpen) } 
 									variant={'contained'}								 
 								/>
@@ -171,39 +170,39 @@ export const Sidebar: FC<SidebarProps> = ({
 							]}
 						</PopOver>
 					</div>
-					<DiskView
-						needSelect={isShow}
-						setSelectedState={(disk: diskTypes | ConnectedClouds
-						) => {
-							let internal = false;
-							let external = false;
-							if (typeof disk === 'string') {
-								internal = true
-								external = false
-							} else {
-								internal = false
-								external = true
-							}
+					<div className='disk-show'>
+						<DiskView
+							needSelect={isShow}
+							setSelectedState={(disk: diskTypes | ConnectedClouds
+							) => {
+								let internal = false;
+								let external = false;
+								if (typeof disk === 'string') {
+									internal = true
+									external = false
+								} else {
+									internal = false
+									external = true
+								}
 
-							if (!isShow) dispatch(switchToShow())
-								const url = transfromToShowRequestString({
-								dir: [],
-								disk: disk,
-								limit: 10,
-								offset: 0,
-								externalDiskRequired: external,
-								internalDiskRequired: internal,
-							})
-							navigate(url)
-							dispatch(newValues({...showReq,dir:[], disk: disk}))
-						}}
-						nameOfSelectedDisk={nameOfDisk}
-					/>
-					<div className="under-disks">
+								if (!isShow) dispatch(switchToShow())
+									const url = transfromToShowRequestString({
+									dir: [],
+									disk: disk,
+									limit: 10,
+									offset: 0,
+									externalDiskRequired: external,
+									internalDiskRequired: internal,
+								})
+								navigate(url)
+								dispatch(newValues({...showReq,dir:[], disk: disk}))
+							}}
+							nameOfSelectedDisk={nameOfDisk}
+						/>
 						<TextWithImg
 							text="В обработке"
 							className={['text-with-img', 'work-in-progress', isProccessed ? 'selected' : '', 'text-with-img-row'].join(' ')}
-							imgSrc={RobotSVG}
+							imgSrc={<img src={RobotSVG} style={{color: 'inherit'}}/>}
 							altImgText="Робот"
 							onClick={() => {
 								dispatch(switchToProcessed());
@@ -214,7 +213,7 @@ export const Sidebar: FC<SidebarProps> = ({
 						<TextWithImg
 							text="Общие"
 							className={['shared', isShared ? 'selected' : '', 'text-with-img-row'].join(' ')}
-							imgSrc={DownloadSVG} // TODO
+							imgSrc={<PeopleAltIcon />} // TODO
 							altImgText="Картинка с двумя людьми"
 							onClick={() => {
 								dispatch(switchToShared())

@@ -100,16 +100,32 @@ export const FileShow: FC<FileShowProps> = ({
 					</div>
 					<div className="filename-with-date">
 						<Typography fontSize={'var(--ft-body)'} className="filename">{filename}</Typography>
-						<Typography fontSize={'var(--ft-body)'} className="date">{date}</Typography>
+						{
+							isMobile 
+							?<Typography fontSize={'var(--ft-body)'} className="date">{date}</Typography>
+							:null 
+						}
+						
 					</div>
 				</div>
 				
+				{isMobile ? null :
+					<div className='file-show__date'>
+						{date}
+					</div>
+				}
+
 				<div className='file-show__author-position'>
 				{author !== "" 
 				? <img className='file-show__author' src={getAvatarByEmail(author)} /> 
 				: null
 				}
 				</div>
+				
+				{isMobile
+				? null 
+				: <Typography fontSize={'var(--ft-body)'} className="size">{size === '0 B' ? null : size}</Typography> 
+				}
 
 				<div className='additional-functions-file'>
 					{renderDropDown()}
@@ -126,10 +142,7 @@ export const FileShow: FC<FileShowProps> = ({
 				/>
 				: null
 				}
-				{isMobile
-				? null 
-				: <Typography fontSize={'var(--ft-body)'} className="size">{size === '0 B' ? null : size}</Typography> 
-				}
+				
 			</div>
 		</>
 	);

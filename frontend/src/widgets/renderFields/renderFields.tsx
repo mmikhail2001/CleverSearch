@@ -19,6 +19,7 @@ import { diskTypes } from '@models/disk';
 import { ConnectedClouds } from '@models/user';
 
 export interface RenderFieldsProps {
+	height?:string,
 	data: fileFile[],
 	error: FetchBaseQueryError | SerializedError,
 	isError: boolean,
@@ -29,6 +30,7 @@ export interface RenderFieldsProps {
 }
 
 export const RenderFields: FC<RenderFieldsProps> = ({
+	height,
 	data,
 	error,
 	isError,
@@ -123,16 +125,19 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 		return { clickHandler: () => { }, imgSrc, renderModal }
 	};
 
+	console.log('input hei', height)
 	return (
-		<div key={'rendered-list'} className='show-all-files'>
+		<div key={'rendered-list'} className='show-all-files' style={{height: height}}>
 			<div className='file-show-line'>
-				<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>Название</Typography>
-				<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>Автор</Typography>
-				<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}></Typography>
+				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Название</Typography>
+				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Дата добавления</Typography>
+				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Автор</Typography>
 				{isMobile 
 				? null 
-				:<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>Размер</Typography>
+				:<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Размер</Typography>
 				}
+				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}></Typography>
+				
 			</div>
 			{data.map((file) => {
 				const getFileProps = (file: fileFile, isOpen: boolean, changeState: (isOpen: boolean) => void): renderReturns => {

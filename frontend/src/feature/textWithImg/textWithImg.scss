@@ -5,11 +5,14 @@
     border-radius: var(--big-radius);
     padding-left: var(--big-padding);
     padding-right: var(--big-padding);
-    padding-top: var(--normal-padding);
-    padding-bottom: var(--normal-padding);
+    padding-top: var(--small-padding);
+    padding-bottom: var(--small-padding);
 
     align-items: center;
     cursor: pointer;
+    
+    max-width: 100%;
+    overflow: hidden
 }
 
 .text-image {
@@ -25,9 +28,4 @@
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.text-with-img {
-    max-width: 100%;
-    overflow: hidden
 }

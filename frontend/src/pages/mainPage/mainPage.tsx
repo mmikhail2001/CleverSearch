@@ -12,7 +12,7 @@ import { useMobile } from 'src/mobileProvider';
 import { Button } from '@entities/button/button';
 import { changeDir, changeDisk } from '@store/showRequest';
 
-const drawerWidth = '240px'
+const drawerWidth = '294px'
 
 export const MainPage: FC = () => {
 	const { whatDisplay } = useMobile()

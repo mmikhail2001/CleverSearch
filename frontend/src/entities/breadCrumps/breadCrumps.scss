@@ -2,3 +2,13 @@
     display: flex;
     flex-direction: row;
 }
+
+.bread-crumbs-container {
+    background-color: rgba(157,171,182,20%);
+    padding-left: 4rem;
+    padding-right: 4rem;
+    padding-top: 1.1rem;
+    padding-bottom: 1.1rem;
+    width: 70%;
+    border-radius: var(--small-radius);
+}

@@ -32,15 +32,6 @@ export const ShowLovedFiles: FC<ShowLovedFilesProps> = () => {
 
     return (
         <div className="data-show">
-            <div className="data-show__header">
-                <BreadCrumps
-                    dirs={['Loved']}
-                    onClick={() => {
-                        // TODO maybe remove and change style
-                        console.info('maybe remove and change style')
-                    }}
-                />
-            </div>
             <RenderFields
                 data={respLoved.data?.body}
                 error={respLoved.error}

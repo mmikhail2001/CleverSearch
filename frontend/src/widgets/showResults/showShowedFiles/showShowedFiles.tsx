@@ -1,6 +1,6 @@
 import { useShowMutation } from '@api/searchApi';
 import { useAppSelector } from '@store/store';
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useDeleteFileMutation } from '@api/filesApi';
@@ -18,6 +18,9 @@ interface ShowShowedFilesProps { }
 export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const navigate = useNavigate();
     useShowParams()
+    const mainElement = useRef<HTMLDivElement>(null)
+    const headerElement = useRef<HTMLDivElement>(null)
+    const [heightToSet, setheightToSet] = useState('100%')
 
     const [show, showResp] = useShowMutation({ fixedCacheKey: 'show' });
 
@@ -48,9 +51,20 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
         dispatch(switchToShow())
     }
 
+    useEffect(() => {
+        if (mainElement.current && 
+            headerElement.current 
+        ) {
+            setheightToSet(`calc(${String(
+                mainElement.current.clientHeight - headerElement.current.clientHeight
+            )}px - 4.8rem)`)
+        }
+
+    },[mainElement.current, headerElement.current])
+
     return (
-        <div className="data-show">
-            <div className="data-show__header">
+        <div className="data-show" ref={mainElement}>
+            <div className="data-show__header" ref={headerElement}>
                 <BreadCrumps
                     dirs={['Show', ...showReq.dir]}
                     onClick={() => {
@@ -88,6 +102,7 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
                 />
             </div>
             <RenderFields
+                height={heightToSet}
                 data={showResp.data?.body}
                 error={showResp.error}
                 isError={showResp.isError}

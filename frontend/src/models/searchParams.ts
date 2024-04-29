@@ -84,7 +84,7 @@ export interface fileFile {
   is_shared: boolean,
   share_access: string,
   share_link: string,
-  date: string;
+  time_created: string;
   link: string,
   cloud_email: string,
   disk: diskTypes,

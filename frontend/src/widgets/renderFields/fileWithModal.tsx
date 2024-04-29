@@ -78,7 +78,7 @@ export const FileWithModal: FC<FileWithModalProps> = ({
 				iconSrc={iconSrc}
 				altText={file.is_dir ? 'folder' : 'file'}
 				filename={file.is_dir ? splitPath[splitPath.length - 1] : file.filename}
-				date={file.date}
+				date={file.time_created}
 				size={file.size}
 				onDelete={() => deleteFile(file.path)}
 				onClick={() => { setOpen(true); clickHandler() }}

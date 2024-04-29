@@ -1,13 +1,14 @@
 import React, { FC } from 'react';
 import './input.scss';
 import { TextFieldVariants, TextField as UIInput } from '@mui/material'
+
 import CSS from 'csstype';
 
 interface InputProps {
 	onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	disabled: boolean;
 	placeholder: string;
-	variant?: TextFieldVariants;
+	variant?: TextFieldVariants | 'text';
 	type: string;
 	value: string;
 	onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
@@ -41,12 +42,14 @@ export const Input: FC<InputProps> = ({
 		changeHandler = () => { };
 	}
 
+	let cssProps: CSS.Properties = style || {};
+
 	return (
 		<UIInput
-			style={style}
+			style={cssProps}
 			disabled={disabled}
 			ref={ref}
-			variant={variant}
+			variant={variant === 'text' ? 'standard' : variant}
 			error={isError}
 			size={size}
 			fullWidth={isFullWidth}
@@ -55,7 +58,10 @@ export const Input: FC<InputProps> = ({
 			placeholder={placeholder}
 			onKeyDown={onKeyDown}
 			sx={{ fontSize: fontSize }}
-			inputProps={{ style: { fontSize: fontSize } }}
+			InputProps={{
+				disableUnderline: variant === 'text',
+				style: { fontSize: fontSize, color: 'inherit'}
+			}}
 			onChange={changeHandler}
 		/>
 	);

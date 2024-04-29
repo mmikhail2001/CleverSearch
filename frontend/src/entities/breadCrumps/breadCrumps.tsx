@@ -16,17 +16,21 @@ export interface BreadCrumpsProps {
 }
 
 export const BreadCrumps: FC<BreadCrumpsProps> = ({ dirs, reactOnElements, onClick }) => {
-    return <>
+    return <div className='bread-crumbs-container'>
         <Breadcrumbs
-            separator={<Typography fontSize={'var(--ft-body)'}>/</Typography>}
+            sx={{color:'inherit'}}
+            separator={<Typography sx={{color:'inherit'}} fontSize={'var(--ft-pg-24)'}>/</Typography>}
         >
             {
                 dirs.map((value, index) => {
                     if (value === '') return null
 
                     return <Typography
-                        fontSize={'var(--ft-body)'}
-                        sx={{cursor: dirs.length !== index + 1 ? 'pointer' : 'default'}}
+                        fontSize={'var(--ft-pg-24)'}
+                        sx={{
+                            cursor: dirs.length !== index + 1 ? 'pointer' : 'default',
+                            color: 'inherit',
+                        }}
                         key={value}
                         onClick={reactOnElements ? reactOnElements[index] : () => { }}
                     >
@@ -35,12 +39,5 @@ export const BreadCrumps: FC<BreadCrumpsProps> = ({ dirs, reactOnElements, onCli
                 })
             }
         </Breadcrumbs >
-        <Button
-            fontSize={'var(--ft-body)'}
-            buttonText={'Назад'}
-            clickHandler={onClick}
-            variant={'text'}
-            disabled={dirs.length <= 1}
-        />
-    </>
+    </div>
 }

@@ -9,7 +9,6 @@ import { useLogout } from '@helpers/hooks/logout';
 import { Typography } from '@mui/material';
 import { useMobile } from 'src/mobileProvider';
 import { useNavigate } from 'react-router-dom';
-import PersonIcon from '@mui/icons-material/Person';
 
 interface UserProfileProps {
 	email: string;
