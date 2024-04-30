@@ -4,6 +4,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from Processors.TextProcessor import TextProcessor
 import sys
 import logging
+import numpy as np
 
 sys.path.insert(0, './MLCore/')
 sys.path.insert(1, './MLCore/utils')
@@ -25,18 +26,20 @@ class SearchService():
         data_array = self.get_data_array(params)
 
         text_processor = TextProcessor()
-        query_emb = [text_processor.process_query_string(kwargs['query'])]
+        query_emb = np.array(text_processor.process_query_string(kwargs['query'])).reshape(1, -1)
 
         list_embs = [[obj['ml_data'][0]['Value']] for obj in data_array]
 
         dists = []
 
+        logger.info(query_emb.shape)
+
         for i in range(len(list_embs)):
             for j in range(len(list_embs[i][0])):
+                print(np.array(list_embs[i][0][j]).shape)
                 dists.append(
-                    (i, j, cosine_similarity([list_embs[i][0][j]], query_emb))
+                    (i, j, cosine_similarity(np.array(list_embs[i][0][j]).reshape(1, -1), query_emb)) # [list_embs[i][0][j]]
                 )
-        logger.info(dists)
         sorted_list = sorted(dists, key=lambda x: x[2], reverse=True)[:5]
 
         if params['file_type'] == 'audio' or params['file_type'] == 'video':
@@ -44,7 +47,7 @@ class SearchService():
         elif params['file_type'] == 'text':
             return self.find_text_files(data_array, sorted_list, params['file_type'])
         elif params['file_type'] == 'img':
-            pass
+            return self.find_img_files(data_array, sorted_list, params['file_type'])
         else:
             raise HTTPException(status_code=400, detail=f"bad file type")
 
@@ -85,6 +88,17 @@ class SearchService():
                 'timestamp': data_array[k]['ml_data'][1]['Value'][result[k]]
             } for k in list(result.keys())]
         return {file_type: files_uuid}
+    
+    def find_img_files(self, data_array, sorted_list, file_type):
+        result = {}
+        for elem in sorted_list:
+            if elem[0] not in result:
+                result[elem[0]] = elem[1]
+        files_uuid = [
+            {
+                "file_uuid": data_array[k]['id']
+            } for k in list(result.keys())]
+        return {file_type: files_uuid}
 
 
 def setup_search_handler(args):
@@ -97,6 +111,8 @@ def setup_search_handler(args):
             'dir': "/",
             'user_id': user_id
         }
+
+        logger.info(params)
 
         return search_service.search_handler(params, query=query)
     return search

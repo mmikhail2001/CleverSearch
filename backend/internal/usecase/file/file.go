@@ -163,6 +163,32 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 	if options.Dir == "" {
 		options.Dir = "/"
 	}
+	if options.Status != fileDomain.StatusType("") {
+		var files []fileDomain.File
+		options.DirsRequired = false
+		options.FirstNesting = false
+		var resultsTmp []file.File
+		options.CloudEmail = ""
+		options.Disk = ""
+		resultsTmp, err := uc.repo.GetFiles(ctx, options)
+		if err != nil {
+			log.Println("GetFiles: err:", err)
+			return []fileDomain.File{}, err
+		}
+		files = append(files, resultsTmp...)
+		for _, cloud := range user.ConnectedClouds {
+			options.InternalDisklRequired = false
+			options.Disk = string(cloud.Cloud)
+			options.CloudEmail = cloud.CloudEmail
+			resultsTmp, err := uc.repo.GetFiles(ctx, options)
+			if err != nil {
+				log.Println("GetFiles: err:", err)
+				return []fileDomain.File{}, err
+			}
+			files = append(files, resultsTmp...)
+		}
+		return files, nil
+	}
 
 	// если имеется статус в параметрах, то отвечаем без папок, всеми файлами (внутренними, расшаренными, внешними)
 	// кажется, что расшаренные здесь не возвратятся, т.к. выше options.UserID = user.ID
