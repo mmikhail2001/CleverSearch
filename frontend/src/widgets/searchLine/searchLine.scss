@@ -2,7 +2,7 @@
     box-sizing: border-box;
     border-radius: var(--big-radius);
 
-    background-color: var(--main-color-200);
+    background-color: var(--color-active);
 
     display: flex;
     flex-direction: row;
@@ -15,6 +15,7 @@
     padding: var(--normal-padding) var(--huge-padding);
     position: relative;
 }
+
 
 .search-text  {
     width: 100%;
@@ -59,4 +60,8 @@
 .filter-icon, .search-icon {
     height: 1.5em;
     width: 1.5em;
+}
+
+.open-search-line {
+    z-index: 1301;
 }

@@ -1,40 +1,45 @@
-import { SearchParamsLocal } from '@models/searchParams';
+import { SearchParams } from '@models/searchParams';
 import React, { FC } from 'react';
 
-import { SearchDiskLine } from './searchLines/searchDisk';
 import { SearchFileType } from './searchLines/searchFilteType';
 import { SearchFolderLine } from './searchLines/searchFolder';
-import { Checkbox } from '@entities/checkbox/Checkbox';
+import { Switch } from '@entities/switch/switch'
 
 interface AllSearchLinesProps {
-	changeState: React.Dispatch<React.SetStateAction<SearchParamsLocal>>;
-	state: SearchParamsLocal;
+	changeState: React.Dispatch<React.SetStateAction<SearchParams>>;
+	state: SearchParams;
 	closeDrop: () => void;
 	search: () => void;
+	fontSize?: string;
 }
 
 export const AllSearchLines: FC<AllSearchLinesProps> = ({
 	changeState,
 	state,
+	fontSize,
 }) => {
 	return (
 		<>
-			<div className="line">
-				<p className="search-box__text">Умный поиск</p>
-				<Checkbox
-					isChecked={state.smartSearch}
+			<div className='line'>
+				<p className='line__name'>Smart search</p>
+				<Switch
+					checked={state.smartSearch}
 					disabled={false}
-					clickHandler={() =>
+					onChange={() =>
 						changeState({ ...state, smartSearch: !state.smartSearch })
 					}
+					fontSize={fontSize}
 				/>
 			</div>
 			<SearchFolderLine
+				fontSize={fontSize}
 				changeState={changeState}
 				state={state}
-			></SearchFolderLine>
-			<SearchDiskLine changeState={changeState} state={state}></SearchDiskLine>
-			<SearchFileType changeState={changeState} state={state}></SearchFileType>
+			/>
+			<SearchFileType
+				fontSize={fontSize}
+				changeState={changeState}
+				state={state} />
 		</>
 	)
 };

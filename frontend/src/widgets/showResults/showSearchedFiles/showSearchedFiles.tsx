@@ -1,84 +1,79 @@
 import { useAppSelector } from '@store/store';
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useDeleteFileMutation } from '@api/filesApi';
 import { useSearchMutation } from '@api/searchApi';
-import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
 import { RenderFields } from '@widgets/renderFields/renderFields';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { switchToSearch, switchToShow } from '@store/whatToShow';
-import { transfromToShowRequestString } from '@api/transforms';
-import { transformToSearchParams } from '@models/searchParams'
-import '../show.scss'
+import { useNavigate } from 'react-router-dom';
+import { switchToDrive, switchToSearch, switchToShow } from '@store/whatToShow';
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
+import { useSearchParams } from '@helpers/hooks/useSearchParams';
+import { newValues } from '@store/showRequest';
+import { ShowGlobal } from '../showGlobal';
+import { getDriveURLFront, getInternalURLFront } from '@helpers/transformsToURL';
+import { SearchParams } from '@models/searchParams';
 
 interface ShowSearchedFilesProps { }
 
-const useSearchUrlParams = () => {
-    const [searchParams] = useSearchParams();
-    const searchParamsToObject = (params: URLSearchParams) => {
-        const result: Record<string, string> = {};
-        params.forEach((value, key) => {
-            result[key] = value;
-        });
-        return result;
-    };
-
-    return searchParamsToObject(searchParams)
-}
-
-
 export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
-    const [deleteFile] = useDeleteFileMutation();
     const [search, { data, ...searchResp }] = useSearchMutation({ fixedCacheKey: 'search' });
     const dispatch = useDispatch();
 
     const navigate = useNavigate()
-    const urlParams = useSearchUrlParams()
+    useSearchParams()
+
+    const showReq = useAppSelector(state => state.showRequest)
+    const searchParams = useAppSelector(state => state.searchRequest)
+    const { isSearch } = useAppSelector(state => state.whatToShow)
+    const [query, setQuery] = useState<SearchParams>({} as SearchParams)
 
     useEffect(() => {
+        if (searchParams.query !== query.query
+            || searchParams.dir !== query.dir
+            || searchParams.fileType !== query.fileType
+            || searchParams.smartSearch !== query.smartSearch
+        ) {
+            search(searchParams)
+            setQuery(searchParams)
+        }
+    }, [searchParams])
+
+    if (!isSearch) {
         dispatch(switchToSearch())
-        const params = transformToSearchParams(urlParams)
-        search(params)
-    }, [])
+    }
 
     const paramsSearch = useAppSelector((state) => state.searchRequest);
 
     return (
-        <div className="data-show" >
-            <BreadCrumps
-                dirs={['Search']}
-                onClick={() => {
-                    navigate(-1)
-                }}
-                reactOnElements={[]}
-            />
-            <div className="data-show__header">
-                <p>Результаты поиска:</p>
-            </div>
-            <RenderFields
-                data={data?.body}
-                error={searchResp.error}
-                isError={searchResp.isError}
-                isLoading={searchResp.isLoading}
-                dispatch={dispatch}
-                deleteFile={
-                    (fileName: string): void => {
-                        deleteFile([fileName]);
-                        setTimeout(() =>
-                            search(paramsSearch),
-                            100);
-                    }}
-                openFolder={(path) => {
-                    dispatch(changeDir({ dirs: path }))
-                    dispatch(changeDisk('all'));
+        <ShowGlobal
+            firstElementInBreadCrumbs='Search results'
+            breadCrumbsReactions={() => { return () => { }; } }
+            dirs={[]}
+            getValue={() => search(paramsSearch)}
+            data={data?.body}
+            error={searchResp.error}
+            isError={searchResp.isError}
+            isLoading={searchResp.isLoading}
+            openFolder={(path, disk) => {
+                if (disk === 'internal') {
+                    dispatch(newValues({ ...showReq, dir: path, disk: 'internal' }));
                     dispatch(switchToShow());
-
-                    const url = transfromToShowRequestString({ limit: 10, offset: 0, dir: path });
-                    navigate(url)
-                }}
+                    const url = getInternalURLFront(path);
+                    navigate(url);
+                    
+                    return
+                }
+                    
+                dispatch(newValues({ ...showReq, dir: path, disk: disk }));
+                dispatch(switchToDrive());
+                if (typeof disk !== 'string') {
+                    const url = getDriveURLFront(path, disk.cloud_email);
+                    navigate(url);
+                }
+            } }
+            whatShow={isSearch}
+            switchToWhatShow={() => dispatch(switchToSearch())}
             />
-        </div>
     );
 };

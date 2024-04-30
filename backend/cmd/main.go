@@ -14,37 +14,40 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
+	cloudDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/cloud"
 	fileDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/file"
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/middleware"
 	notifyDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/notifier"
 	staticDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/static"
 	userDelivery "github.com/WindowsKonon1337/CleverSearch/internal/delivery/user"
+	cloudUsecase "github.com/WindowsKonon1337/CleverSearch/internal/usecase/cloud"
 	fileUsecase "github.com/WindowsKonon1337/CleverSearch/internal/usecase/file"
 	notifyUsecase "github.com/WindowsKonon1337/CleverSearch/internal/usecase/notifier"
 	userUsecase "github.com/WindowsKonon1337/CleverSearch/internal/usecase/user"
 )
 
 // TODO:
-// нужный ws.conn должен выбираться исходя из cookie пользователя (сейчас заглушка userID = 1)
-// не работает ограничение на размер файла
 // в доменную сущность поместился Conn *websocket.Conn
 // конфиг файл
 // контексты, таймауты
 
 // можно ли беку следить, как мл обрабатывает очередь ? нужно ли?
-// (не замечал больше) если в поле директории указать /dir, то 2024/03/04 21:49:12 Failed to PutObject minio: Object name contains unsupported characters.
-
-// имеет смысл разделить репозиторий на fileStorage, db....
-
-// ручка getFiles - общее количество файлов (limit)
-// ручка поиск - общее количестов + поиск в рамках директории + остальные фильтры
-
-// кривое выделение текста в pdf
-
-// ava позже
 
 // конверт png, txt to jpg, pdf
-// response search
+
+// apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
+// apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
+
+// удаление sharing папки (??????????7)
+
+// ручка на запрос статики
+
+// нельзя добавлять в файлы, которые из интеграции внешней
+
+// входит ли в зону ответственности usecase проверять context и доставать оттуда user?
+// может быть, это стоит делать в delivery и передавать user в методы usecase явно через параметры?
+
+// shared_dirs -> добавить author_id
 
 var staticDir string = "/app/frontend/build"
 var staticDirMinio string = "/app/minio_files"
@@ -82,18 +85,27 @@ func Run() error {
 
 	log.Println("rabbitMQ connected")
 
+	oauthConfig, err := cloudDelivery.NewDriveClient()
+	if err != nil {
+		return err
+	}
+
 	userRepo := user.NewRepository(mongoDB)
 	fileRepo := file.NewRepository(minio, mongoDB, channelRabbitMQ)
 	notifyGateway := notifier.NewGateway()
 
-	userUsecase := userUsecase.NewUsecase(userRepo)
 	notifyUsecase := notifyUsecase.NewUsecase(notifyGateway)
+	userUsecase := userUsecase.NewUsecase(userRepo)
 	fileUsecase := fileUsecase.NewUsecase(fileRepo, notifyUsecase, userUsecase)
+	cloudUsecase := cloudUsecase.NewUsecase(oauthConfig, fileRepo, fileUsecase, userRepo)
+
+	go fileUsecase.Async()
 
 	staticHandler := staticDelivery.NewHandler(staticDir, fileUsecase)
-	userHandler := userDelivery.NewHandler(userUsecase)
+	userHandler := userDelivery.NewHandler(userUsecase, cloudUsecase)
 	fileHandler := fileDelivery.NewHandler(fileUsecase)
-	notifyDelivery := notifyDelivery.NewHandler(notifyUsecase)
+	notifyHandler := notifyDelivery.NewHandler(notifyUsecase)
+	cloudHandler := cloudDelivery.NewHandler(oauthConfig, staticHandler, cloudUsecase)
 
 	middleware := middleware.NewMiddleware(userUsecase)
 
@@ -111,6 +123,9 @@ func Run() error {
 
 	minioRouter := r.PathPrefix("/minio").Subrouter()
 	minioRouter.Use(middleware.AuthMiddleware)
+
+	// запрос на скачиваение файлы
+	// TODO: nginx выполняет
 	minioRouter.HandleFunc("/{path:.*}", fileHandler.DownloadFile).Methods("GET")
 
 	api := r.PathPrefix("/api").Subrouter()
@@ -119,29 +134,48 @@ func Run() error {
 	apiAuth := api.Methods("GET", "POST").Subrouter()
 	apiAuth.Use(middleware.AuthMiddleware)
 
-	apiAuth.HandleFunc("/files", fileHandler.GetFiles).Methods("GET")
-	apiAuth.HandleFunc("/files/search", fileHandler.GetFiles).Methods("GET")
-	apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
-	apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
-	apiAuth.HandleFunc("/files/{file_uuid}", fileHandler.GetFileByID).Methods("GET")
-
-	apiAuth.HandleFunc("/dirs/create", fileHandler.CreateDir).Methods("POST")
-
-	apiAuth.HandleFunc("/dirs/share", fileHandler.ShareDir).Methods("POST")
-
-	apiAuth.HandleFunc("/users/profile", userHandler.Profile).Methods("GET")
-
-	api.HandleFunc("/users/logout", userHandler.Logout).Methods("POST")
-	api.HandleFunc("/users/login", userHandler.Login).Methods("POST")
-	api.HandleFunc("/users/register", userHandler.Register).Methods("POST")
-
-	api.HandleFunc("/ml/complete", fileHandler.CompleteProcessingFile).Methods("POST")
-
 	filesMLRouter := api.Methods("GET").Subrouter()
 	filesMLRouter.Use(middleware.GetUserIDMiddleware)
 	filesMLRouter.HandleFunc("/ml/files", fileHandler.GetFiles).Methods("GET")
 
-	apiAuth.HandleFunc("/ws", notifyDelivery.ConnectNotifications).Methods("GET")
+	apiAuth.HandleFunc("/files", fileHandler.GetFiles).Methods("GET")
+	apiAuth.HandleFunc("/files/search", fileHandler.GetFiles).Methods("GET")
+
+	filesMLRouter.HandleFunc("/v2/files/processed", fileHandler.Processed).Methods("GET")
+	apiAuth.HandleFunc("/v2/files/uploaded", fileHandler.Uploaded).Methods("GET")
+	apiAuth.HandleFunc("/v2/files/shared", fileHandler.Shared).Methods("GET")
+	apiAuth.HandleFunc("/v2/files/drive", fileHandler.Drive).Methods("GET")
+	apiAuth.HandleFunc("/v2/files/internal", fileHandler.Internal).Methods("GET")
+	apiAuth.HandleFunc("/v2/files/search", fileHandler.Search).Methods("GET")
+	apiAuth.HandleFunc("/v2/files/dirs", fileHandler.Dirs).Methods("GET")
+
+	apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
+	apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
+
+	apiAuth.HandleFunc("/files/favs", fileHandler.GetFavs).Methods("GET")
+	apiAuth.HandleFunc("/files/favs/add/{file_uuid}", fileHandler.AddFav).Methods("POST")
+	apiAuth.HandleFunc("/files/favs/delete/{file_uuid}", fileHandler.DeleteFav).Methods("POST")
+
+	apiAuth.HandleFunc("/files/{file_uuid}", fileHandler.GetFileByID).Methods("GET")
+
+	apiAuth.HandleFunc("/clouds/connect", cloudHandler.ConnectCloud).Methods("POST")
+	apiAuth.HandleFunc("/clouds/callback", cloudHandler.AuthProviderCallback).Methods("GET")
+	apiAuth.HandleFunc("/clouds/refresh", cloudHandler.RefreshCloud).Methods("POST")
+	apiAuth.HandleFunc("/clouds/google/{cloud_email}/{cloud_file_id}", cloudHandler.GetCloudFile).Methods("GET")
+
+	apiAuth.HandleFunc("/dirs/create", fileHandler.CreateDir).Methods("POST")
+	apiAuth.HandleFunc("/dirs/share", fileHandler.ShareDir).Methods("POST")
+
+	apiAuth.HandleFunc("/users/profile", userHandler.Profile).Methods("GET")
+	api.HandleFunc("/users/logout", userHandler.Logout).Methods("POST")
+	api.HandleFunc("/users/login", userHandler.Login).Methods("POST")
+	api.HandleFunc("/users/register", userHandler.Register).Methods("POST")
+	apiAuth.HandleFunc("/users/avatars", userHandler.AddAvatar).Methods("POST")
+	apiAuth.HandleFunc("/users/avatars/{user_email}", userHandler.GetAvatar).Methods("GET")
+
+	api.HandleFunc("/ml/complete", fileHandler.CompleteProcessingFile).Methods("POST")
+
+	apiAuth.HandleFunc("/ws", notifyHandler.ConnectNotifications).Methods("GET")
 
 	shareLinkRouter := r.Methods("GET").Subrouter()
 	shareLinkRouter.Use(middleware.AuthMiddleware)

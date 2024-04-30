@@ -1,0 +1,44 @@
+@import '../../index.scss';
+
+.register-background {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    padding: 1rem;
+    background: linear-gradient(to bottom, $color-top, $color-bottom);
+}
+
+.register-form {
+    height:auto;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+.register-form__inputs {
+    width: fit-content;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.register-form__buttons {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    gap: var(--normal-padding);
+    padding: 1rem;
+}
+
+.register-form__name {
+    cursor: default;
+    font-size: var(--ft-title) !important;
+    opacity: 0.6;
+    color: var(--text-color-light);
+}

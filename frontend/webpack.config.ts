@@ -4,20 +4,29 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import 'webpack-dev-server';
 
-export default (env: { watch: string; mode: 'production' | 'development'; protocol: string; adress: string }) => {
+export default (env: {
+	watch: string;
+	mode: 'production' | 'development';
+	protocol: string;
+	adress: string;
+	whereToBuild?: string;
+	buildLocalFolder?: string;
+	wsAdress?: string;
+}) => {
 	const mode = env.mode || 'development';
-	const isDev = mode === 'development';
-	const PORT = 3000;
 	const isWatch = env.watch === 'true' || false;
 	const adress = env.adress || 'localhost:8080';
 	const protocol = env.protocol || 'http';
+	const whereToBuild = env.whereToBuild || 'build'
+	const buildLocalFolder = env.buildLocalFolder === 'true' || false
+	const wsAdress = env.wsAdress === '' || env.wsAdress === undefined ? adress : env.wsAdress
 
 	const config: webpack.Configuration = {
 		mode: 'development',
 		entry: './src/index.tsx',
 		output: {
 			filename: '[name][contenthash].js',
-			path: path.resolve(__dirname, 'build'),
+			path: buildLocalFolder ? path.resolve(__dirname, whereToBuild) : whereToBuild,
 			clean: true,
 			publicPath: '/'
 		},
@@ -51,7 +60,8 @@ export default (env: { watch: string; mode: 'production' | 'development'; protoc
 			}),
 			new webpack.DefinePlugin({
 				'process.env.adress': JSON.stringify(adress),
-				'process.env.protocol': JSON.stringify(protocol)
+				'process.env.protocol': JSON.stringify(protocol),
+				'process.env.wsAdress': JSON.stringify(wsAdress)
 			})
 		],
 		devtool: 'inline-source-map',
@@ -59,12 +69,11 @@ export default (env: { watch: string; mode: 'production' | 'development'; protoc
 		watchOptions: {
 			ignored: /node_modules/,
 			poll: 20,
-		},
+		}, 
 		resolve: {
 			extensions: ['.js', '.ts', '.tsx'],
 			plugins: [
 				new TsconfigPathsPlugin({
-					/* options: see below */
 				}),
 			],
 		},

@@ -1,23 +1,32 @@
 import React, { FC } from 'react';
+import { Checkbox as UICheckbox } from '@mui/material';
 
 interface CheckboxProps {
-  isChecked: boolean;
-  clickHandler: (e: React.MouseEvent<HTMLInputElement>) => void;
-  disabled: boolean;
+	isChecked: boolean;
+	changeHandler: (e: React.ChangeEvent) => void;
+	disabled: boolean;
 }
 
+export type ColorCheckbox = 'default'
+	| 'primary'
+	| 'secondary'
+	| 'error'
+	| 'info'
+	| 'success'
+	| 'warning'
+
+
+
 export const Checkbox: FC<CheckboxProps> = ({
-	clickHandler,
+	changeHandler,
 	isChecked,
 	disabled,
 }) => {
 	return (
-		<input
-			type="checkbox"
+		<UICheckbox
 			checked={isChecked}
 			disabled={disabled}
-			className={disabled ? 'disabled-checkbox' : 'checkbox'}
-			onClick={clickHandler}
-		></input>
+			onChange={changeHandler}
+		></UICheckbox>
 	);
 };

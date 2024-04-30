@@ -61,10 +61,7 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileType, ok := fileTypeMap[contentType]
-	if !ok {
-		fileType = file.Unknown
-	}
+	fileType := h.usecase.GetFileTypeByContentType(contentType)
 
 	if dir != "/" {
 		dir = dir + "/"
@@ -72,7 +69,7 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	fileUpload, err := h.usecase.Upload(r.Context(), f, file.File{
 		Filename:    handler.Filename,
-		Size:        handler.Size,
+		Size:        file.SizeType(handler.Size),
 		Path:        dir + handler.Filename,
 		ContentType: contentType,
 		FileType:    fileType,
@@ -96,6 +93,7 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	var fileDTO FileDTO
 	dto.Map(&fileDTO, &fileUpload)
+	fileDTO.Size = fileUpload.Size.ToDTO()
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(shared.NewResponse(0, "", fileDTO))
 }
@@ -141,11 +139,7 @@ func (h *Handler) GetFileByID(w http.ResponseWriter, r *http.Request) {
 	}
 	var fileDTO FileDTO
 	dto.Map(&fileDTO, &foundFile)
-	fileDTO, err = setUserEmailToFile(r.Context(), fileDTO)
-	if err != nil {
-		json.NewEncoder(w).Encode(shared.NewResponse(-1, err.Error(), nil))
-		w.WriteHeader(http.StatusBadGateway)
-	}
+	fileDTO.Size = foundFile.Size.ToDTO()
 	json.NewEncoder(w).Encode(shared.NewResponse(0, "", fileDTO))
 }
 
@@ -153,17 +147,19 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	queryValues := r.URL.Query()
 
 	options := file.FileOptions{
-		FileType:         file.FileType(queryValues.Get("file_type")),
-		Dir:              queryValues.Get("dir"),
-		FirstNesting:     queryValues.Get("first_nesting") == "true",
-		DirsRequired:     queryValues.Get("dirs_required") == "true" || queryValues.Get("dirs_required") == "",
-		FilesRequired:    queryValues.Get("files_required") == "true" || queryValues.Get("files_required") == "",
-		SharedRequired:   queryValues.Get("shared_required") == "true" || queryValues.Get("shared_required") == "",
-		PersonalRequired: queryValues.Get("personal_required") == "true" || queryValues.Get("personal_required") == "",
-		IsSmartSearch:    queryValues.Get("is_smart_search") == "true",
-		Disk:             file.DiskType(queryValues.Get("disk")),
-		Query:            queryValues.Get("query"),
-		Status:           file.StatusType(queryValues.Get("status")),
+		FileType:              file.FileType(queryValues.Get("file_type")),
+		Dir:                   queryValues.Get("dir"),
+		FirstNesting:          queryValues.Get("first_nesting") == "true",
+		DirsRequired:          queryValues.Get("dirs_required") == "true" || queryValues.Get("dirs_required") == "",
+		FilesRequired:         queryValues.Get("files_required") == "true" || queryValues.Get("files_required") == "",
+		SharedRequired:        queryValues.Get("shared_required") == "true" || queryValues.Get("shared_required") == "",
+		PersonalRequired:      queryValues.Get("personal_required") == "true" || queryValues.Get("personal_required") == "",
+		IsSmartSearch:         queryValues.Get("is_smart_search") == "true",
+		CloudEmail:            queryValues.Get("cloud_email"),
+		InternalDisklRequired: queryValues.Get("internal_disk_required") == "true" || queryValues.Get("internal_disk_required") == "",
+		ExternalDisklRequired: queryValues.Get("external_disk_required") == "true" || queryValues.Get("external_disk_required") == "",
+		Query:                 queryValues.Get("query"),
+		Status:                file.StatusType(queryValues.Get("status")),
 	}
 
 	var err error
@@ -177,6 +173,8 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
+
+	log.Printf("\n\n [ %#v ] \n\n ", options)
 
 	var results []file.File
 	if strings.Contains(r.URL.Path, "search") {
@@ -216,6 +214,7 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 		for _, file := range results {
 			var fileDTO FileForMLDTO
 			err = dto.Map(&fileDTO, &file)
+			fileDTO.Size = file.Size.ToDTO()
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 			}
@@ -230,13 +229,10 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 	for _, file := range results {
 		var fileDTO FileDTO
 		err = dto.Map(&fileDTO, &file)
+		fileDTO.Size = file.Size.ToDTO()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-		}
-		fileDTO, err = setUserEmailToFile(r.Context(), fileDTO)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(-1, err.Error(), nil))
+			return
 		}
 		filesDTO = append(filesDTO, fileDTO)
 	}
@@ -322,8 +318,14 @@ func (h *Handler) ShareDir(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var reqShare file.RequestToShare
-	dto.Map(&reqShare, &req)
+	err := dto.Map(&reqShare, &req)
+	if err != nil {
+		log.Println("map err:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
+	reqShare.ShareAccess = file.AccessType(req.ShareAccess)
 	shareLink, err := h.usecase.GetSharingLink(r.Context(), reqShare)
 	if err != nil {
 		log.Println("Error ShareDir usecase", err)
@@ -338,4 +340,48 @@ func (h *Handler) ShareDir(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(shared.NewResponse(0, "", ResponseShareLinkDTO{ShareLink: shareLink}))
+}
+
+func (h *Handler) GetFavs(w http.ResponseWriter, r *http.Request) {
+	results, err := h.usecase.GetFavs(r.Context())
+	if err != nil {
+		log.Println("GetFavs err:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	filesDTO := []FileDTO{}
+	for _, file := range results {
+		var fileDTO FileDTO
+		err = dto.Map(&fileDTO, &file)
+		fileDTO.Size = file.Size.ToDTO()
+		if err != nil {
+			log.Println("Dto map err:", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		filesDTO = append(filesDTO, fileDTO)
+	}
+	json.NewEncoder(w).Encode(shared.NewResponse(0, "", filesDTO))
+}
+
+func (h *Handler) AddFav(w http.ResponseWriter, r *http.Request) {
+	fileID := mux.Vars(r)["file_uuid"]
+	err := h.usecase.AddFav(r.Context(), fileID)
+	if err != nil {
+		log.Println("AddFav err:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) DeleteFav(w http.ResponseWriter, r *http.Request) {
+	fileID := mux.Vars(r)["file_uuid"]
+	err := h.usecase.DeleteFav(r.Context(), fileID)
+	if err != nil {
+		log.Println("DeleteFav err:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

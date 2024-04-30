@@ -1,53 +1,31 @@
 import { useAppSelector } from '@store/store';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { useShowSharedMutation } from '@api/searchApi';
-import { transfromToSharedRequestParams } from '@api/transforms';
-import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
-import { transformToShowParams } from '@models/searchParams';
-import { changeDir, changeDisk } from '@store/currentDirectoryAndDisk';
 import { switchToShared } from '@store/whatToShow';
-import { RenderFields } from '@widgets/renderFields/renderFields';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import '../show.scss';
+import { changeDir, newValues } from '@store/showRequest';
+import { useNavigate } from 'react-router-dom';
+
+import { ShowGlobal } from '../showGlobal';
+import { useGetSharedFilesMutation } from '@api/filesApi';
+import { getSharedURLFront } from '@helpers/transformsToURL';
+import { useSharedParams } from '@helpers/hooks/useShowParams';
 
 interface ShowSharedFilesProps { }
 
-const getParamsFromURL = () => {
-	const [searchParams] = useSearchParams();
-
-	const searchParamsToObject = (params: URLSearchParams) => {
-		const result: Record<string, string> = {};
-		params.forEach((value, key) => {
-			result[key] = value;
-		});
-		return result;
-	};
-
-	return searchParamsToObject(searchParams)
-}
-
 
 export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
-	const [showShared, { data, ...searchResp }] = useShowSharedMutation({ fixedCacheKey: 'share' });
+	const [showShared, { data, ...searchResp }] = useGetSharedFilesMutation({ fixedCacheKey: 'shared' });
 	const dispatch = useDispatch();
-	const { currentDisk, dirs } = useAppSelector(
-		(state) => state.currentDirDisk
-	);
 
-	const location = useLocation()
+	useSharedParams()
+
+	const showReq = useAppSelector(state => state.showRequest)
 	const { isShared } = useAppSelector(state => state.whatToShow)
+	
 	const [valueToShow, setvalueToShow] = useState(data?.body);
 
 	const navigate = useNavigate()
-	const urlParams = getParamsFromURL()
-	const [params] = useState(transformToShowParams(urlParams))
-
-	useEffect(() => {
-		dispatch(changeDir({ dirs: params.dir }))
-		dispatch(changeDisk(params.disk))
-	}, [])
 
 	useEffect(() => {
 		setvalueToShow(data?.body)
@@ -55,12 +33,11 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 
 	useEffect(() => {
 		dispatch(switchToShared())
-		showShared({ limit: 10, offset: 0, disk: currentDisk, dir: dirs })
 	}, [])
 
 	useEffect(() => {
-		showShared({ limit: 10, offset: 0, disk: currentDisk, dir: dirs })
-	}, [location.key, location.hash, location.pathname])
+		showShared(showReq.dir.join('/'))
+	}, [showReq, isShared])
 
 	if (!isShared) {
 		dispatch(switchToShared())
@@ -71,42 +48,39 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 	}
 
 	return (
-		<div className="data-show" >
-			<BreadCrumps
-				dirs={['Shared', ...dirs]}
-				onClick={() => {
-					if (dirs.length !== 0) {
-						dispatch(changeDir({ dirs: dirs.slice(0, -1) }))
-						navigate(-1)
+		<ShowGlobal
+            getValue={() => showShared(showReq.dir.join('/'))} 
+            whatShow={isShared} 
+            switchToWhatShow={() => dispatch(switchToShared())} 
+            firstElementInBreadCrumbs={'Shared'} 
+            dirs={[...showReq.dir]} 
+            breadCrumbsReactions={(dir, index) => {
+					return () => {
+						let dirToSet: string[] = []
+						if (index !== 0) 
+							dirToSet = showReq.dir.slice(0, index)
 
-						return
+						const url = getSharedURLFront(dirToSet)
+						dispatch(changeDir(dirToSet))
+						navigate(url, { replace: true })
 					}
-				}}
-				reactOnElements={[]}
-			/>
-			<div className="data-show__header">
-				<p>Результаты поиска:</p>
-			</div>
-			<RenderFields
-				data={valueToShow}
-				error={searchResp.error}
-				isError={searchResp.isError}
-				isLoading={searchResp.isLoading}
-				dispatch={dispatch}
-				deleteFile={() => { }}
-				openFolder={(path) => {
-					const pathWithValues = path.filter(val => val !== '')
+				}
+			}				
+            openFolder={(path, disk) => {
+				const pathWithValues = path.filter(val => val !== '')
 
-					dispatch(changeDir({ dirs: pathWithValues }))
-					dispatch(changeDisk('all'));
-					if (!isShared) {
-						dispatch(switchToShared());
-					}
+				dispatch(newValues({...showReq, dir: pathWithValues, disk: disk}))
+				if (!isShared) {
+					dispatch(switchToShared());
+				}
+				const url = getSharedURLFront(pathWithValues);
 
-					const url = transfromToSharedRequestParams({ limit: 10, offset: 0, dir: pathWithValues });
-					navigate(`/shared${url}`)
-				}}
-			/>
-		</div>
+				navigate(url)
+			}}
+            data={valueToShow}
+			error={searchResp.error}
+			isError={searchResp.isError}
+			isLoading={searchResp.isLoading}
+        />
 	);
 };

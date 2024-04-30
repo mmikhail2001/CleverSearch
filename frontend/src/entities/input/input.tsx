@@ -1,21 +1,24 @@
 import React, { FC } from 'react';
 import './input.scss';
+import { Paper, SxProps, TextFieldVariants, Theme, TextField as UIInput } from '@mui/material'
 
-export enum InputVariants {
-  default = 'default',
-}
+import CSS from 'csstype';
 
 interface InputProps {
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  disabled: boolean;
-  placeholder: string;
-  variant?: InputVariants;
-  className: string[];
-  type: string;
-  value: string;
-  multiple?: boolean;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  ref?: React.MutableRefObject<HTMLInputElement>
+	onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	disabled: boolean;
+	placeholder: string;
+	variant?: TextFieldVariants | 'text';
+	type: string;
+	value: string;
+	onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+	ref?: React.MutableRefObject<HTMLInputElement>
+	isError?: boolean;
+	size?: 'medium' | 'small';
+	isFullWidth?: boolean;
+	fontSize?: string;
+	style?: SxProps<Theme>,
+	border?:string,
 }
 
 export const Input: FC<InputProps> = ({
@@ -24,33 +27,51 @@ export const Input: FC<InputProps> = ({
 	disabled,
 	placeholder,
 	variant,
-	multiple,
 	type,
-	className,
 	value,
 	ref,
+	size,
+	isError,
+	isFullWidth,
+	fontSize,
+	style,
+	border,
 }) => {
 	let changeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	if (!disabled) {
 		changeHandler = onChange;
 	} else {
-		changeHandler = () => {};
+		changeHandler = () => { };
 	}
 
+	let cssProps: SxProps<Theme>= style || {};
+
 	return (
-		<input
-		ref={ref}
-			onKeyDown={onKeyDown}
+		<UIInput
+			// style={cssProps}
+			disabled={disabled}
+			ref={ref}
+			variant={variant === 'text' ? 'standard' : variant}
+			error={isError}
+			size={size}
+			fullWidth={isFullWidth}
 			value={value}
 			type={type}
-			multiple={multiple}
 			placeholder={placeholder}
-			disabled={disabled}
-			className={[
-				...className,
-				disabled ? 'disabled-input input ' : 'input',
-			].join(' ')}
+			onKeyDown={onKeyDown}
+			sx={{ 
+				fontSize: fontSize, 
+				...cssProps,
+			}}
+			InputProps={{
+				disableUnderline: variant === 'text',
+				style: { 
+					fontSize: fontSize, 
+					color: 'inherit',
+					border: border,
+				},
+			}}
 			onChange={changeHandler}
-		></input>
+		/>
 	);
 };

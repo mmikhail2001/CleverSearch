@@ -1,33 +1,38 @@
 import React, { FC } from 'react';
-import { SearchParamsLocal } from '@models/searchParams';
+import { SearchParams } from '@models/searchParams';
 import {
 	SelectorMulti,
 } from '@entities/selectors/selectorMulti/selectorMulti';
 
 import { fileValues, getFilesOptionFromValue, getFilesTypesToOptions, } from '@models/disk'
+import { Typography } from '@mui/material';
 
 
 export interface SearchFileTypeLineProps {
 	changeState: React.Dispatch<
-		React.SetStateAction<SearchParamsLocal>
+		React.SetStateAction<SearchParams>
 	>;
-	state: SearchParamsLocal;
+	state: SearchParams;
+	fontSize?: string,
 }
 
 export const SearchFileType: FC<SearchFileTypeLineProps> = ({
 	changeState,
 	state,
+	fontSize,
 }) => {
 	return (
 		<div className="line">
-			<p className="search-box__text">Тип файла</p>
+			<Typography fontSize={'var(--ft-body)'} className='line__name'>Type of file</Typography>
 			<SelectorMulti
+				fontSize={fontSize}
+				placeholder='Any'
 				options={getFilesTypesToOptions()}
 				isMulti={true}
 				onChange={(newVal) =>
 					changeState({ ...state, fileType: fileValues(newVal) })
 				}
-				defaultValue={state.fileType ? getFilesOptionFromValue(state.fileType[0]) : null}
+				defaultValue={state.fileType ? state.fileType.map(val => getFilesOptionFromValue(val)) : null}
 			/>
 		</div>
 	);

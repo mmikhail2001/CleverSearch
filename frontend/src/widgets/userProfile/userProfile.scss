@@ -1,5 +1,19 @@
 .profile {
-    background-color: var(--main-color-300);
+    background-color: var(--color-selected);
     width: 100px;
-    height: 30px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: var( --big-radius);
+
+    gap: var(--normal-padding);
+    padding: var(--normal-padding);
+}
+
+.profile-picture {
+    object-fit: cover;
+    height: var(--ft-paragraph);
+    width: var(--ft-paragraph);
+    border-radius: var(--big-radius);
 }

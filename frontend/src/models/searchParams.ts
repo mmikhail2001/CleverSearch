@@ -1,10 +1,7 @@
-export type diskTypes = 'google' | 'yandex' | 'own' | 'local' | 'all';
-
-/** if text of diskType return true */
-export const isDiskType = (text: string): boolean => {
-  if (['google', 'yandex', 'own', 'local', 'all'].includes(text)) return true;
-  return false;
-};
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
+import { diskTypes, isDiskType } from './disk';
+import { ConnectedClouds } from './user';
+import { fileFile } from './files';
 
 export const sharedType = {
   reader: 'reader',
@@ -20,74 +17,14 @@ export const isFileType = (text: string): boolean => {
 };
 
 
-export interface SearchParamsLocal {
+export interface SearchParams {
   smartSearch: boolean;
   fileType?: fileTypes[];
   query: string;
   dir?: string[];
-  disk?: diskTypes[];
   sharedReq?: boolean,
-  dirsReq?: boolean,
-  filesReq?: boolean,
-  nestingReq?: boolean,
-  personalReq?: boolean,
 }
 
-export const transformToSearchParams = (obj: {
-  query?: string, smartSearch?: boolean, limit?: number, offset?: number, file_type?: string, dir?: string, disk?: string
-}) => {
-  let fileType: fileTypes[];
-  if (obj.file_type) {
-    fileType = obj.file_type.split(',')?.filter(val => isFileType(val)) as fileTypes[] || ['all']
-  } else {
-    fileType = ['all']
-  }
-
-  return {
-    limit: obj.limit || 10,
-    offset: obj.offset || 0,
-    fileType: fileType || 'all',
-    dir: obj.dir ? obj.dir.split('/').filter(val => val !== '') : [],
-    disk: obj.disk?.split(',') || ['all'],
-    query: obj.query || '',
-    smartSearch: obj.smartSearch || false,
-  } as SearchParams
-}
-
-
-
-export interface SearchParams extends SearchParamsLocal {
-  limit?: number;
-  offset?: number;
-}
-
-export interface fileFile {
-  id: string;
-  filename: string;
-  user_id: string;
-  email: string,
-  path: string;
-  bucket: string,
-  is_dir: boolean;
-  file_type: fileTypes,
-  size: string;
-  'content_type': string;
-  extension: string;
-  status: string;
-  is_shared: boolean,
-  share_access: string,
-  share_link: string,
-  date: string;
-  link: string,
-  shared: {
-    author_id: string;
-    access: typeof sharedType;
-    is_owner: boolean;
-  };
-  duration?: number,
-  start_time?: number,
-  page_number?: number,
-}
 
 export interface SearchResponse {
   status: number;
@@ -95,36 +32,10 @@ export interface SearchResponse {
   body: fileFile[];
 }
 
-export const transformToShowParams = (obj: {
-  limit?: number, offset?: number, file_type?: string, dir?: string, disk?: string
-}) => {
-  let fileType: fileTypes[];
-  if (obj.file_type) {
-    fileType = obj.file_type.split(',')?.filter(val => isFileType(val)) as fileTypes[] || ['all']
-  } else {
-    fileType = ['all']
-  }
-
-  return {
-    limit: obj.limit || 10,
-    offset: obj.offset || 0,
-    fileType: fileType || 'all',
-    dir: obj.dir ? obj.dir.split('/').filter(val => val !== '') : [],
-    disk: obj.disk || 'all',
-  } as ShowParams
-}
-
 export interface ShowParams {
-  limit: number;
-  offset: number;
-  fileType?: fileTypes[];
   dir?: string[];
-  disk?: diskTypes;
-  sharedReq?: boolean,
-  dirsReq?: boolean,
-  filesReq?: boolean,
-  nestingReq?: boolean,
-  personalReq?: boolean,
+  disk?: diskTypes | ConnectedClouds;
+  query?:string;
 }
 
 export interface ShowResponse {

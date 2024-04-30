@@ -21,9 +21,10 @@ import (
 
 // можно не отвечать фронту, пока не загрузим файл PutObject
 func (r *Repository) UploadToStorage(ctx context.Context, fileReader io.Reader, file file.File) (file.File, error) {
+
 	exists, err := r.minio.BucketExists(ctx, file.Bucket)
 	if err != nil {
-		log.Println("Failed to check bucket existence:", err)
+		log.Println("Failed to check bucket [", file.Bucket, "] existence:", err)
 		return file, err
 	}
 
@@ -44,7 +45,7 @@ func (r *Repository) UploadToStorage(ctx context.Context, fileReader io.Reader, 
 		log.Println("Bucket created successfully:", file.Bucket)
 	}
 
-	_, err = r.minio.PutObject(ctx, file.Bucket, file.Path, fileReader, file.Size, minio.PutObjectOptions{ContentType: file.ContentType})
+	_, err = r.minio.PutObject(ctx, file.Bucket, file.Path, fileReader, int64(file.Size), minio.PutObjectOptions{ContentType: file.ContentType})
 	if err != nil {
 		log.Println("Failed to PutObject minio:", err)
 		return file, err
@@ -59,7 +60,34 @@ func (r *Repository) RemoveFromStorage(ctx context.Context, file file.File) erro
 		log.Println("Failed to RemoveObject from MinIO:", err)
 		return err
 	}
+	isEmpty, err := r.IsBucketEmpty(ctx, file.Bucket)
+	if err != nil {
+		log.Println("Failed to check if bucket is empty:", err)
+		return err
+	}
+
+	if isEmpty {
+		err := r.minio.RemoveBucket(ctx, file.Bucket)
+		if err != nil {
+			log.Println("Failed to remove empty bucket from MinIO:", err)
+			return err
+		}
+	}
+
 	return nil
+}
+
+func (r *Repository) IsBucketEmpty(ctx context.Context, bucketName string) (bool, error) {
+	objects := r.minio.ListObjects(ctx, bucketName, minio.ListObjectsOptions{Recursive: false})
+
+	for object := range objects {
+		if object.Err != nil {
+			log.Println("Failed to list object:", object.Err)
+			return false, object.Err
+		}
+		return false, nil
+	}
+	return true, nil
 }
 
 func (r *Repository) DownloadFile(ctx context.Context, filePath string) (io.ReadCloser, error) {

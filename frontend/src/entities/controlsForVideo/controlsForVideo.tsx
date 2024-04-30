@@ -11,6 +11,7 @@ import ForwardImg from '@icons/player/Forward.svg'
 import FullscreenImg from '@icons/player/FullScreen.svg'
 import VolumeLow from '@icons/player/Volume low.svg'
 import { DropDown } from '@entities/dropDown/dropDown';
+import { Box, Slider } from '@mui/material'
 
 interface ControlsForVideoProps {
 	currentTime: number,
@@ -51,7 +52,8 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 		return 0
 	}
 
-	const [isOpenVolume, setOpenVolume] = useState(false);
+	const [isOpenVolume, setOpenVolume] = useState(false)
+
 	return (
 		<div className='controls-container'>
 			<div className='progress-bar-container' style={{ position: 'relative' }}>
@@ -97,25 +99,50 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 					<p onClick={() => changeSpeed(2)}>x2</p>
 				</div>
 				<div className='volume-container'>
+					{/* TODO think about children */}
 					<DropDown
+						open={isOpenVolume}
+						toggleOpen={setOpenVolume}
 						variants='up'
-						onClick={() => setOpenVolume(true)}
-						close={() => setOpenVolume(false)}
-						isOpen={isOpenVolume}
-						classForDropdownBody='volume-control'
-						mainElement={< img className='volume-img contorl-img'
-							src={VolumeLow}
-							alt={'Volume-low'}
-							onClick={() => console.log('VolumeDropdown')  /**TODO open dropdown with volume */} />}
+						mainElement={
+							< img className='volume-img contorl-img'
+								src={VolumeLow}
+								alt={'Volume-low'}
+							/>}
 					>
-						<input
-							type='range'
-							value={currentVolume}
-							max={1}
-							min={0}
-							step={0.01}
-							onChange={(e) => setVolume(Number(e.target.value))}
-						/>
+						[
+							<Box sx={
+									{
+										height: 130,
+										overflow: 'hidden',
+										'boxSizing': 'border-box',
+									}
+								}
+									display={'flex'}
+									alignItems={'center'}
+								>
+									<Slider
+										sx={{
+											height: 105,
+											'& input[type="range"]': {
+												WebkitAppearance: 'slider-vertical',
+											},
+										}}
+										orientation="vertical"
+										value={currentVolume}
+										max={1}
+										min={0}
+										step={0.01}
+										onChange={(e, val) => {
+											if ('value' in e.target) {
+												let value = Array.isArray(val) ? val[0] : val;
+												if (isNaN(value)) value = 0.5
+												setVolume(value)
+											}
+										}}
+									/>
+								</Box>
+						]
 					</DropDown>
 				</div>
 				<div className='fullscreen-container'>

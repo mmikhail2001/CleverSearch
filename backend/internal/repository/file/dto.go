@@ -19,12 +19,22 @@ type fileDTO struct {
 	ContentType string          `bson:"content_type"`
 	Extension   string          `bson:"extension"`
 	Status      file.StatusType `bson:"status"`
-	IsShared    bool            `bson:"is_shared"`
-	ShareAccess file.AccessType `bson:"share_access"`
-	ShareLink   string          `bson:"share_link"`
-	Link        string          `bson:"link"`
-	MLData      interface{}     `bson:"ml_data"`
-	// Disk
+	Email       string          `bson:"email"`
+
+	IsShared       bool            `bson:"is_shared"`
+	ShareAccess    file.AccessType `bson:"share_access"`
+	ShareLink      string          `bson:"share_link"`
+	IsShareByEmail bool            `bson:"is_share_by_email"`
+
+	Link string `bson:"link"`
+
+	CloudID    string        `bson:"cloud_id"`
+	CloudEmail string        `bson:"cloud_email"`
+	Disk       file.DiskType `bson:"disk"`
+
+	Favs []string `bson:"favs"`
+
+	MLData interface{} `bson:"ml_data"`
 }
 
 type fileForQueueDTO struct {
@@ -42,8 +52,8 @@ type searchResponseDTO struct {
 }
 
 type searchTextItemDTO struct {
-	FileID string `json:"file_uuid"`
-	Page   int    `json:"page"`
+	FileID     string `json:"file_uuid"`
+	PageNumber int    `json:"page_number"`
 }
 
 type searchImageItemDTO struct {
@@ -52,13 +62,14 @@ type searchImageItemDTO struct {
 
 type searchAudioVideoItemDTO struct {
 	FileID    string `json:"file_uuid"`
-	Timestart string `json:"timestart"`
+	Timestart int    `json:"timestart"`
 }
 
 type sharedDirDTO struct {
-	ID          string          `bson:"_id"`
-	FileID      string          `bson:"file_id"`
-	UserID      string          `bson:"user_id"`
-	ShareAccess file.AccessType `bson:"share_access"`
-	Path        string          `bson:"path"`
+	ID          string `bson:"_id"`
+	FileID      string `bson:"file_id"`
+	UserID      string `bson:"user_id"`
+	Accepted    bool   `bson:"accepted"`
+	ShareAccess string `bson:"share_access"`
+	Path        string `bson:"path"`
 }

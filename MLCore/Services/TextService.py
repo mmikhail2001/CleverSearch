@@ -48,7 +48,7 @@ class TextService(IDataService):
             local_file_path
         )
 
-        proc_list = self.worker.process(local_file_path)
+        proc_list, pages = self.worker.process(local_file_path)
 
         os.remove(local_file_path)
 
@@ -56,7 +56,8 @@ class TextService(IDataService):
             '$set':
             {
                 'ml_data': {
-                    'text_repr': proc_list
+                    'text_repr': proc_list,
+                    'page_number': pages
                 }
             }
         }

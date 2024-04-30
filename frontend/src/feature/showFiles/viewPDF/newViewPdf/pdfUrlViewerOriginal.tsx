@@ -1,8 +1,11 @@
 import * as pdfjs from 'pdfjs-dist';
-import { PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
+import { DocumentInitParameters, PDFDocumentLoadingTask, PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { VariableSizeList } from 'react-window';
 import PdfViewer from './pdfViewerOriginal';
+import { Typography } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 export interface PdfUrlViewerProps {
   url: string,
@@ -19,9 +22,12 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
   const scrollToItem = () => {
     windowRef?.current && windowRef.current.scrollToItem(page - 1, 'start');
   };
-  
+
   useEffect(() => {
-    const loadingTask = pdfjs.getDocument(url);
+    let loadingTask: PDFDocumentLoadingTask;
+
+    loadingTask = pdfjs.getDocument(url);
+
     loadingTask.promise.then(
       pdf => {
         pdfRef.current = pdf;
@@ -29,7 +35,6 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
         setItemCount(pdf._pdfInfo.numPages);
       },
       reason => {
-        // PDF loading error
         console.error(reason);
       }
     );
@@ -53,10 +58,31 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
         scale={settedScale}
         gap={40}
       />
-      <div>
-        Scale
-        <div onClick={() => setsettedScale(p => p + 0.5)}>+</div>
-        <div onClick={() => setsettedScale(p => p - 0.5)}>-</div>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Typography fontSize={'var(--ft-body)'}>Scale</Typography>
+        <div style={{
+          display: 'flex',
+          fontSize: 'calc(var(--ft-body) - 0.3rem)',
+          alignItems: 'center',
+        }}>
+          <RemoveIcon
+            style={{ background: 'var(--main-color-100)', borderRadius: 'var(--small-radius)' }}
+            fontSize='inherit'
+            onClick={() => setsettedScale(p => p - 0.25)}
+          />
+          <Typography fontSize={'var(--ft-body)'}>{settedScale}</Typography>
+          <AddIcon
+            style={{ background: 'var(--main-color-100)', borderRadius: 'var(--small-radius)' }}
+            fontSize='inherit'
+            onClick={() => setsettedScale(p => p + 0.25)}
+          />
+        </div>
       </div>
     </>
   );

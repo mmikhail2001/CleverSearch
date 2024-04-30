@@ -8,10 +8,27 @@ import { Option } from '@models/additional';
 import {
 	OptionWithImg
 } from '@models/additional';
-import { MultiValue, SingleValue } from 'react-select';
-import { SearchResponse, diskTypes, fileTypes, isFileType } from './searchParams';
+import { SearchResponse, fileTypes, isFileType } from './searchParams';
+
+export type diskTypes = 'google' | 'yandex' | 'own' | 'internal';
+
+/** if text of diskType return true */
+export const isDiskType = (text: string): text is diskTypes => {
+	if (['google', 'yandex', 'own', 'internal'].includes(text)) return true;
+	return false;
+};
+
+// not check, if not correct return all
+export const toDiskType = (text: string): diskTypes => {
+	const diskTypeFound: diskTypes =
+		['google', 'yandex', 'own', 'internal']
+			.find(val => val === text) as diskTypes
+	if (diskTypeFound) return diskTypeFound;
+	return 'internal';
+}
 
 export interface DiskType {
+	diskName: string,
 	src: string;
 	altText: string;
 }
@@ -20,6 +37,7 @@ export const diskImgSrc = new Map([
 	[
 		'google',
 		{
+			diskName: 'google',
 			src: GoogleSVG,
 			altText: 'text',
 		},
@@ -27,6 +45,7 @@ export const diskImgSrc = new Map([
 	[
 		'yandex',
 		{
+			diskName: 'yandex',
 			src: YandexSVG,
 			altText: 'text',
 		},
@@ -34,20 +53,15 @@ export const diskImgSrc = new Map([
 	[
 		'own',
 		{
+			diskName: 'own',
 			src: DiskSVG,
 			altText: 'text',
 		},
 	],
 	[
-		'local',
+		'internal',
 		{
-			src: MonitorSVG,
-			altText: 'text',
-		},
-	],
-	[
-		'all',
-		{
+			diskName: 'internal',
 			src: MonitorSVG,
 			altText: 'text',
 		}
@@ -90,28 +104,25 @@ export const diskValueToOption = (value: diskTypes): OptionWithImg => {
 				value: 'own',
 				imgSrc: DiskSVG,
 			}
-		case 'local':
+		case 'internal':
 			return {
-				label: 'local',
-				value: 'local',
-				imgSrc: MonitorSVG,
-			}
-		case 'all':
-			return {
-				label: 'all',
-				value: 'all',
+				label: 'internal',
+				value: 'internal',
 				imgSrc: MonitorSVG,
 			}
 	}
 }
 
 export const diskVal = (
-	newVal: MultiValue<OptionWithImg> | SingleValue<OptionWithImg>
+	newVal: string[] | string
 ): diskTypes[] => {
-	if ('length' in newVal) {
+	if (typeof newVal === 'string') {
+		if (newVal) {
+			return [newVal] as diskTypes[];
+		}
+	}
+	if (newVal && Array.isArray(newVal)) {
 		const diskValuesInString = newVal
-			.map((val) => val.value)
-			.filter((val) => val !== null) as diskTypes[];
 
 		let newDiskValuesInString;
 		if (!Array.isArray(diskValuesInString)) {
@@ -122,33 +133,28 @@ export const diskVal = (
 
 		return newDiskValuesInString as diskTypes[];
 	}
-	if (newVal) {
-		const diskType = newVal.value;
-		if (diskType) {
-			return [diskType] as diskTypes[];
-		}
-	}
 
-	return ['all'];
+
+	return ['internal'];
 };
 
 
 export const getFilesTypesToOptions = (): Option[] => {
 	return [
 		{
-			label: 'Изображение',
+			label: 'Image',
 			value: 'img',
 		},
 		{
-			label: 'Текст',
+			label: 'Text',
 			value: 'text',
 		},
 		{
-			label: 'Видео',
+			label: 'Video',
 			value: 'video',
 		},
 		{
-			label: 'Аудио',
+			label: 'Audio',
 			value: 'audio',
 		},
 	];
@@ -158,37 +164,37 @@ export const getFilesOptionFromValue = (value: string): Option => {
 	switch (value) {
 		case 'img':
 			return {
-				label: 'Изображение',
+				label: 'Image',
 				value: 'img',
 			}
 		case 'video':
 			return {
-				label: 'Видео',
+				label: 'Video',
 				value: 'video',
 			}
 		case 'audio':
 			return {
-				label: 'Аудио',
+				label: 'Audio',
 				value: 'audio',
 			}
 		case 'text':
 			return {
-				label: 'Текст',
+				label: 'Text',
 				value: 'text',
 			}
 	}
 }
 
 export const fileValues = (
-	newVal: MultiValue<Option> | SingleValue<Option> | OptionWithImg
+	newVal: string[]
 ): fileTypes[] => {
 	if ('length' in newVal) {
 		// @ts-expect-error Nothing will happen because isFileType 
 		// checks on type of file 
 		const diskValuesInString: fileTypes[] = newVal
-			.filter((val) => isFileType(val.value))
+			.filter((val) => isFileType(val))
 			.filter((val) => val !== null)
-			.map(val => val.value);
+			.map(val => val);
 
 		let newDiskValuesInString;
 		if (!Array.isArray(diskValuesInString)) {
@@ -200,23 +206,25 @@ export const fileValues = (
 		return newDiskValuesInString.map((type) => type);
 	}
 	if (newVal) {
-		if (isFileType(newVal.value)) {
+		if (isFileType(newVal)) {
 			// @ts-expect-error  Nothing will happen because isFileType 
 			// checks on type of file 
 			return [newVal.value];
 		}
 	}
 
-	return ['all' as fileTypes];
+	return ['internal' as fileTypes];
 };
 
 export const transformOptionsToDirs = (
-	newVal: SingleValue<Option> | MultiValue<Option>
+	newVal: string[]
 ): string[] => {
 	if ('length' in newVal) {
-		return newVal.map((val) => val.value);
+		return newVal.length === 1 && newVal[0] === '/' 
+		? [] 
+		: newVal.map((val) => val)
 	}
-	if (newVal) return [newVal.value];
+	if (newVal) return [newVal];
 	return [];
 };
 
@@ -229,3 +237,7 @@ export const transformToOptions = (folders: SearchResponse): Option[] => {
 		};
 	});
 };
+
+export interface DiskConnectResp {
+	redirect: string;
+}

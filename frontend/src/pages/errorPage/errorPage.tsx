@@ -1,8 +1,8 @@
 import { Link, isRouteErrorResponse, useRouteError } from 'react-router-dom';
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { changeDisk } from '@store/currentDirectoryAndDisk';
 import { switchToShow } from '@store/whatToShow';
+import { changeDisk } from '@store/showRequest';
 
 export default function ErrorPage() {
 	let errorMessage = '';
@@ -34,7 +34,7 @@ export default function ErrorPage() {
 				<i>{errorMessage}</i>
 			</p>
 			<Link to={'/'} onClick={() => {
-				dispatch(changeDisk('all'));
+				dispatch(changeDisk('internal'));
 				dispatch(switchToShow())
 			}}>На главную</Link>
 		</div>

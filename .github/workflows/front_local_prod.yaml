@@ -1,0 +1,63 @@
+name: Build and Store Artifact
+
+on:
+  push:
+    branches:
+      - 'dev*'
+      - '*FRONT-CLEVER*'
+
+jobs:
+  build_and_test_prod:
+    if: startsWith(github.ref, 'refs/heads/dev')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - name: Install Dependencies
+        run: npm install
+        working-directory: frontend
+
+      - name: npm build (Production)
+        run: npm run build:prod
+        working-directory: frontend
+      
+      - name: Archive build artifacts (Production)
+        uses: actions/upload-artifact@v4
+        with:
+          name: buildProd
+          path: frontend/build/
+          overwrite: true
+          retention-days: 14
+
+  build_and_test_dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - name: Install Dependencies
+        run: npm install
+        working-directory: frontend
+
+      - name: npm build (Development)
+        run: npm run build:dev
+        working-directory: frontend
+      
+      - name: Archive build artifacts (Development)
+        uses: actions/upload-artifact@v4
+        with:
+          name: buildLocal
+          path: frontend/build/
+          overwrite: true
+          retention-days: 14

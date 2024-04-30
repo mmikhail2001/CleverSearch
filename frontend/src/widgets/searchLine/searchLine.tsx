@@ -1,7 +1,7 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useSearchMutation } from '@api/searchApi';
-import { diskTypes, fileTypes } from '@models/searchParams';
-import { Input, InputVariants } from '@entities/input/input';
+import { SearchParams, fileTypes } from '@models/searchParams';
+import { Input } from '@entities/input/input';
 import './searchLine.scss';
 
 import React from 'react';
@@ -9,93 +9,183 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { switchToSearch } from '@store/whatToShow';
 import { SearchBox } from './searchBox/searchBox';
-import { changeDir } from '@store/currentDirectoryAndDisk';
-import { newValues } from '@store/searchRequest';
+import { newSearchValues } from '@store/searchRequest';
 
-import SearchSVG from '@icons/Search.svg';
-import FilterSVG from '@icons/Filter.svg';
 import { useNavigate } from 'react-router-dom';
 import { transformToSearchRequestString } from '@api/transforms';
+
+import SearchIcon from '@mui/icons-material/Search';
+import TuneIcon from '@mui/icons-material/Tune';
+import { PopOver } from '@entities/popover/popover';
+import { useMobile } from 'src/mobileProvider';
+import DehazeIcon from '@mui/icons-material/Dehaze';
+import { diskTypes } from '@models/disk';
+import { ConnectedClouds } from '@models/user';
+
+import { useAppSelector } from '@store/store';
+import { compareArrays } from '@helpers/hooks/useShowParams';
+import { newValues } from '@store/showRequest';
+import { changeOpenFilter } from '@store/searchFilter';
+import { getSearchURLFront } from '@helpers/transformsToURL';
 
 export interface searchStateValue {
 	smartSearch: boolean;
 	fileType: fileTypes[];
 	query: string;
 	dir: string[];
-	disk: diskTypes[];
+	disk: diskTypes[] | ConnectedClouds[];
 }
 
 interface SearchLineProps {
-	searchValue: searchStateValue,
-	setSearchValue: React.Dispatch<React.SetStateAction<searchStateValue>>,
+	onIconClick?: () => void,
+	width: string,
 }
 
 export const SearchLine: FC<SearchLineProps> = ({
-	searchValue, setSearchValue
+	onIconClick,
+	width
 }) => {
-	const [isBoxOpen, setisBoxOpen] = useState(false);
-
-	const [search, response] = useSearchMutation({ fixedCacheKey: 'search' });
+	const [isBoxOpen, setisBoxOpen] = useState<boolean>(false);
+	const [, response] = useSearchMutation({ fixedCacheKey: 'search' });
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+	
+	const {isOpen} = useAppSelector(state => state.searchFilter)
+
+	const { whatDisplay } = useMobile();
+
+	const {isShow} = useAppSelector(state => state.whatToShow)
+
+	const searchReq = useAppSelector(state => state.searchRequest)
+	const showReq = useAppSelector(state => state.showRequest)
+	const [searchValue, setSearchValue] = useState<SearchParams>({
+		query: '',
+		smartSearch: false,
+	})
+	
+	useEffect(() => {
+		setSearchValue({
+			query: searchReq.query,
+			smartSearch: searchReq.smartSearch,
+			dir: searchReq.dir,
+			fileType: searchReq.fileType,
+		})
+	}, [searchReq])
+
+	if (isShow && !compareArrays(showReq.dir, searchValue.dir)){
+		setSearchValue({ ...searchValue, dir: showReq.dir })
+	}
+
+	useEffect(() => {
+		setSearchValue({...searchValue, dir: searchReq.dir})
+	}, [])
+
+	if (isOpen !== isBoxOpen ) {
+		dispatch(changeOpenFilter(isBoxOpen))
+	}
 
 	function mySearch(): void {
-		search(searchValue);
-		dispatch(newValues(searchValue));
 		dispatch(switchToSearch());
-		dispatch(changeDir({ dirs: [] }));
+		dispatch(newSearchValues(searchValue));
+		dispatch(newValues({...showReq, dir: []}))
 
-		const url = transformToSearchRequestString({ ...searchValue, limit: 10, offset: 0 })
+		setTimeout(
+			() => setisBoxOpen(false),
+			0
+		)
+
+		const url = getSearchURLFront(searchValue.fileType,searchValue.smartSearch, searchValue.dir, searchValue.query)
 		navigate(url)
 	}
 
+	const renderOpenBox = (): React.ReactNode => {
+		return (
+			<SearchBox
+				width={width}
+				key={'searchbox'}
+				fontSize={'var(--ft-body)'}
+				changeState={(obj: searchStateValue) => {
+					setSearchValue({ ...obj, dir: obj.dir })
+				}}
+				state={searchValue}
+				onClick={() => setisBoxOpen(false)}
+				search={() => {
+					mySearch()
+				}}
+			></SearchBox>
+		)
+	}
+
 	return (
-		<div className="search-line">
-			<div className="icon-with-text">
-				<div className="search-icon-container">
-					<img alt="search icon" className="search-icon" src={SearchSVG}></img>
-				</div>
-				<div className="search-text">
-					<Input
-						onKeyDown={(e) => {
-							if (e.key.toLowerCase() === 'enter') {
-								mySearch()
+		<PopOver
+			background={'transparent'}
+			marginTop={'2.4rem'}
+			whatCorner='left'
+			variants={'down'}
+			key={'search-popover-with-box'}
+			open={isBoxOpen}
+			toggleOpen={setisBoxOpen}
+			isCloseOnSelect={false}
+			mainElement={
+				<div 
+					className={['search-line', isBoxOpen ? 'open-search-line' : ''].join(' ')}
+					style={{ width: width }}
+				>
+					<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
+						<div className="search-icon-container"
+							onClick={whatDisplay === 1 ? onIconClick : () => {
+								setisBoxOpen(false)
+								onIconClick()
+							} }
+							style={{ fontSize: 'var(--ft-paragraph)' }}>
+							{whatDisplay === 1 ?
+								<SearchIcon fontSize='inherit' />
+								: <DehazeIcon sx={{ cursor: 'pointer' }} fontSize='inherit' />
 							}
-						}}
-						onChange={(e) =>
-							setSearchValue({ ...searchValue, query: e.target.value })
+						</div>
+						<div className="search-text">
+							<Input
+								style={{backgroundColor: 'var(--color-active)'}}
+								fontSize={'var(--ft-paragraph)'}
+								isFullWidth
+								variant='text'
+								onKeyDown={(e) => {
+									if (e.key.toLowerCase() === 'enter') {
+										mySearch()
+									}
+								}}
+								onChange={(e) =>
+									setSearchValue({ ...searchValue, query: e.target.value })
+								}
+								disabled={response.isLoading}
+								placeholder={'Find any file'}
+								type={'search'}
+								value={searchValue?.query || ''}
+							/>
+						</div>
+					</div>
+					<div
+						className="filter-icon-container"
+						onClick={() => {
+								setTimeout(
+									() => setisBoxOpen(!isBoxOpen),
+									0
+								)
+							}
 						}
-						disabled={response.isLoading}
-						placeholder={'Найдём любой файл'}
-						variant={InputVariants.default}
-						type={'search'}
-						className={['search-input']}
-						value={searchValue.query}
-					/>
-				</div>
-			</div>
-			<div
-				className="filter-icon-container"
-				onClick={() => setisBoxOpen(!isBoxOpen)}
-			>
-				<img alt="filter icon" className="filter-icon" src={FilterSVG}></img>
-			</div>
-			{isBoxOpen ? (
-				<div className="place-for-search-box">
-					<SearchBox
-						changeState={(obj: searchStateValue) => {
-							setSearchValue({ ...obj, dir: obj.dir })
+						style={{ 
+							fontSize: 'var(--ft-paragraph)',
+							marginLeft: 'var(--normal-padding)',
 						}}
-						state={searchValue}
-						closeDrop={() => setisBoxOpen(false)}
-						search={() => {
-							mySearch()
-						}}
-					></SearchBox>
-				</div>
-			) : (
-				''
-			)}
-		</div>
+					>
+						<TuneIcon
+							fontSize='inherit' 
+						/>
+					</div>
+				</div >
+			}
+		>
+			{[renderOpenBox()]}
+		</PopOver>
 	);
 };

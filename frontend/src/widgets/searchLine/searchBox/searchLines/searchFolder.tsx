@@ -1,16 +1,18 @@
-import { useGetFoldersMutation } from '@api/filesApi';
-import { SearchParamsLocal } from '@models/searchParams';
+import { SearchParams } from '@models/searchParams';
 import { SelectorAsync } from '@entities/selectors/selectorAsync/selectorAsync';
 import React, { FC } from 'react';
 import { Option } from '@models/additional'
 
 import { transformOptionsToDirs, transformToOptions } from '@models/disk'
+import { Typography } from '@mui/material';
+import { useGetDirsMutation } from '@api/filesApi';
 
 export interface SearchFolderLineProps {
 	changeState: (React.Dispatch<
-		React.SetStateAction<SearchParamsLocal>
+		React.SetStateAction<SearchParams>
 	>);
-	state: SearchParamsLocal;
+	state: SearchParams;
+	fontSize: string,
 }
 
 
@@ -18,32 +20,38 @@ export interface SearchFolderLineProps {
 export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 	changeState,
 	state,
+	fontSize,
 }) => {
-	const [searchFolder] = useGetFoldersMutation();
+	const [searchFolder] = useGetDirsMutation();
 
 	const changeDir = (dirs: string[]) => {
 		changeState({ ...state, dir: dirs })
 	}
 
-	const lastDir = state.dir[state.dir.length - 1]
+	const lastDir = state.dir && state.dir.length > 0 ? state.dir[state.dir.length - 1] : null
 	const splitFolders = lastDir?.split('/')
 
 	return (
 		<div className="line">
-			<p className="search-box__text">Директория</p>
+			<Typography fontSize={'var(--ft-body)'} className='line__name'>Directory</Typography>
 			<SelectorAsync
-				selectedValue={lastDir ?
+				style={{
+					borderColor: 'rgba(255,255,255,0.4)',
+					color: 'rgb(255,255,255)',
+				}}
+				color='#102C50'
+				fontSize={fontSize}
+				placeholder={'All folders'}
+				defaultOption={lastDir ?
 					{
 						label: splitFolders[splitFolders.length - 1],
 						value: lastDir,
 					} : null
 				}
-				cacheOptions={true}
 				onChange={(newVal) => {
 					changeDir([transformOptionsToDirs(newVal).join('...')])
 				}
 				}
-				defaultOptions={true}
 				loadFunction={async (query: string): Promise<Option[]> => {
 					try {
 						const result = await searchFolder(query).unwrap();
@@ -53,7 +61,10 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 								value: '',
 							},
 						]
-						return val
+						return [{
+							label: 'All folders',
+							value: '/',
+						}].concat(val)
 					} catch (error) {
 						console.error(error);
 					}

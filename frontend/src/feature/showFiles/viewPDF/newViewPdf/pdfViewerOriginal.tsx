@@ -29,7 +29,7 @@ const PdfViewer: FC<PdfViewerProps> = ({
   const {
     ref,
     width: internalWidth = 400,
-    height: internalHeight = 600
+    height: internalHeight = 900
   } = useResizeObserver();
 
   const fetchPage = useCallback(
@@ -87,8 +87,7 @@ const PdfViewer: FC<PdfViewerProps> = ({
   const renderPage: FC<ListChildComponentProps> = ({ index, style }) => {
     fetchPage(index);
     return (
-      // @ts-ignore
-      // HACK
+      // @ts-expect-error HACK
       <Page style={style}>
         <PdfPage page={pages[index]} scale={scale} />
       </Page>
@@ -103,7 +102,6 @@ const PdfViewer: FC<PdfViewerProps> = ({
         height={internalHeight}
         itemCount={itemCount}
         itemSize={handleItemSize}
-
       >
         {renderPage}
       </VariableSizeList>
