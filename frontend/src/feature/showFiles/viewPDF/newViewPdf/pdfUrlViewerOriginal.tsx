@@ -10,10 +10,9 @@ import RemoveIcon from '@mui/icons-material/Remove';
 export interface PdfUrlViewerProps {
   url: string,
   page: number,
-  authToken?: string,
 }
 
-const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, authToken, page }) => {
+const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
   const pdfRef = useRef<PDFDocumentProxy>();
   const windowRef = useRef<VariableSizeList>(null)
   const [itemCount, setItemCount] = useState(0);
@@ -27,15 +26,7 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, authToken, page }) => {
   useEffect(() => {
     let loadingTask: PDFDocumentLoadingTask;
 
-    if (authToken !== '' || authToken !== null) {
-      const docInitParams = new Object() as DocumentInitParameters;
-      docInitParams.url = url;
-      docInitParams.httpHeaders = { 'Authorization': `Bearer ${authToken}` };
-
-      loadingTask = pdfjs.getDocument(docInitParams);
-    } else {
-      loadingTask = pdfjs.getDocument(url);
-    }
+    loadingTask = pdfjs.getDocument(url);
 
     loadingTask.promise.then(
       pdf => {

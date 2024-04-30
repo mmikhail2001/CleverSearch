@@ -6,7 +6,7 @@ import {
 	ShowParams,
 	ShowResponse,
 } from '@models/searchParams';
-import { transformToSearchRequestString, transfromToProcessedRequestParams, transfromToSharedRequestParams, transfromToShowRequestString } from './transforms'
+import { transformToSearchRequestString } from './transforms'
 
 export const searchAPi = createApi({
 	reducerPath: 'searchAPi',
@@ -22,37 +22,18 @@ export const searchAPi = createApi({
 				method: 'GET',
 			}),
 		}),
-		show: builder.mutation<ShowResponse, ShowParams>({
-			query: (showReq: ShowParams) => ({
-				url: transfromToShowRequestString(showReq),
-				method: 'GET',
-			}),
-		}),
+		
 		showSharedByID: builder.mutation<SharedUUIDResponse, string>({
 			query: (dirUUID: string) => ({
 				url: `files/${dirUUID}`,
 				method: 'GET',
 			}),
 		}),
-		showShared: builder.mutation<ShowResponse, ShowParams>({
-			query: (req: ShowParams) => ({
-				url: `/files${transfromToSharedRequestParams(req)}`,
-				method: 'GET',
-			}),
-		}),
-		showProcessed: builder.mutation<ShowResponse, ShowParams>({
-			query: (req: ShowParams) => ({
-				url: `/files${transfromToProcessedRequestParams(req)}`,
-				method: 'GET',
-			}),
-		})
+	
 	}),
 });
 
 export const { 
 	useSearchMutation, 
-	useShowMutation, 
-	useShowSharedMutation,
 	useShowSharedByIDMutation,
-	useShowProcessedMutation,
 } = searchAPi;

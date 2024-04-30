@@ -1,4 +1,6 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { diskTypes } from '@models/disk';
+import { ConnectedClouds } from '@models/user';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 const showSlice = createSlice({
 	name: 'whatToShow',
@@ -8,6 +10,8 @@ const showSlice = createSlice({
 		isProccessed: false,
 		isShared: false,
 		isLoved: false,
+		isDrive: false,
+		whatDiskToShow: '' as diskTypes | ConnectedClouds,
 	},
 	reducers: {
 		switchToSearch(state) {
@@ -16,6 +20,7 @@ const showSlice = createSlice({
 			state.isProccessed = false;
 			state.isShared = false;
 			state.isLoved = false;
+			state.isDrive = false
 		},
 		switchToShow(state) {
 			state.isShow = true;
@@ -23,6 +28,7 @@ const showSlice = createSlice({
 			state.isProccessed = false;
 			state.isShared = false;
 			state.isLoved = false;
+			state.isDrive = false
 		},
 		switchToProcessed(state) {
 			state.isShow = false;
@@ -30,6 +36,7 @@ const showSlice = createSlice({
 			state.isProccessed = true;
 			state.isShared = false;
 			state.isLoved = false;
+			state.isDrive = false
 		},
 		switchToShared(state) {
 			state.isShow = false;
@@ -37,6 +44,7 @@ const showSlice = createSlice({
 			state.isProccessed = false;
 			state.isShared = true;
 			state.isLoved = false;
+			state.isDrive = false
 		},
 		switchToLoved(state) {
 			state.isShow = false;
@@ -44,13 +52,36 @@ const showSlice = createSlice({
 			state.isProccessed = false;
 			state.isShared = false;
 			state.isLoved = true;
+			state.isDrive = false
 		},
+		switchToDrive(state) {
+			state.isShow = false;
+			state.isSearch = false;
+			state.isProccessed = false;
+			state.isShared = false;
+			state.isLoved = false;
+			state.isDrive = true
+		},
+		switchDisk(state, action: PayloadAction<diskTypes | ConnectedClouds>) {
+			return {
+				...state,
+				whatDiskToShow: action.payload
+			}
+		}
 	},
 });
 
 // Extract the action creators object and the reducer
 const { actions, reducer } = showSlice;
 // Extract and export each action creator by name
-export const { switchToSearch, switchToShow, switchToProcessed, switchToShared } = actions;
+export const { 
+	switchToSearch,
+	switchToShow,
+	switchToProcessed,
+	switchToShared,
+	switchToLoved ,
+	switchDisk,
+	switchToDrive,
+	} = actions;
 // Export the reducer, either as a default or named export
 export default reducer;

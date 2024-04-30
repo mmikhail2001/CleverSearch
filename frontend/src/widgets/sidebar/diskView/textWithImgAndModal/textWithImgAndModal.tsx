@@ -105,7 +105,6 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
                     if (emailSelectCloud[0] && currentSelectedDisk === emailSelectCloud[0].disk)
                         setOpen(true)
                 }}
-                subText={subText}
                 rightIconProp={<RefreshIcon ref={ref}  onClick={(e) => {
                     e.preventDefault()
                     refreshDisk(currentDiskSelected[0])

@@ -12,7 +12,7 @@ import { useMobile } from 'src/mobileProvider';
 import { Button } from '@entities/button/button';
 import { changeDir, changeDisk } from '@store/showRequest';
 
-const drawerWidth = '240px'
+const drawerWidth = '294px'
 
 export const MainPage: FC = () => {
 	const { whatDisplay } = useMobile()
@@ -53,7 +53,7 @@ export const MainPage: FC = () => {
 					buttonText='Домашняя'
 					clickHandler={() => {
 						dispatch(switchToShow())
-						dispatch(changeDisk('all'))
+						dispatch(changeDisk('internal'))
 						dispatch(changeDir( [] ))
 						navigate('/files')
 					}}
@@ -64,7 +64,7 @@ export const MainPage: FC = () => {
 					buttonText='Доступные'
 					clickHandler={() => {
 						dispatch(switchToShow())
-						dispatch(changeDisk('all'))
+						dispatch(changeDisk('internal'))
 						navigate('/shared')
 					}}
 					variant='outlined'

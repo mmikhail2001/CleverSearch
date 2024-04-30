@@ -24,10 +24,10 @@ export const TextWithImg: FC<TextWithImgProps> = ({
 	rightIconProp,
 }) => {
 	return (
-		<div className={['text-with-img', className].join(' ')} onClick={onClick}>
+		<div className={['text-with-img', className].join(' ')}  onClick={onClick}>
 			{leftIconProp}
 			{typeof imgSrc === 'string'
-			? <img className="text-image" src={imgSrc} alt={altImgText}></img>
+			? <img className="text-image" src={imgSrc} alt={altImgText}/>
 			: imgSrc
 			}
 			<div className="text-option">

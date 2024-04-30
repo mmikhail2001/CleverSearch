@@ -32,6 +32,13 @@ export const userApi = createApi({
 				body: body,
 			}),
 		}),
+		setAvatar: builder.mutation<null,FormData>({
+			query: (avatar: FormData) => ({
+				url: `/avatars`,
+				method: 'POST',
+				body: avatar,
+			}),
+		}),
 
 		profile: builder.query<UserProfileResponse, null>({ query: () => '/profile' }),
 	}),
@@ -43,4 +50,10 @@ export const {
 	useLoginMutation,
 	useRegisterMutation,
 	useLogoutMutation,
+	useSetAvatarMutation,
 } = userApi;
+
+
+export const getAvatarByEmail = (email:string):string => {
+	return `${process.env.protocol}://${process.env.adress}/api/users/avatars/${email}`
+}

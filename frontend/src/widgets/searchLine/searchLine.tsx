@@ -25,6 +25,8 @@ import { ConnectedClouds } from '@models/user';
 import { useAppSelector } from '@store/store';
 import { compareArrays } from '@helpers/hooks/useShowParams';
 import { newValues } from '@store/showRequest';
+import { changeOpenFilter } from '@store/searchFilter';
+import { getSearchURLFront } from '@helpers/transformsToURL';
 
 export interface searchStateValue {
 	smartSearch: boolean;
@@ -47,6 +49,8 @@ export const SearchLine: FC<SearchLineProps> = ({
 	const [, response] = useSearchMutation({ fixedCacheKey: 'search' });
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+	
+	const {isOpen} = useAppSelector(state => state.searchFilter)
 
 	const { whatDisplay } = useMobile();
 
@@ -64,7 +68,6 @@ export const SearchLine: FC<SearchLineProps> = ({
 			query: searchReq.query,
 			smartSearch: searchReq.smartSearch,
 			dir: searchReq.dir,
-			disk: searchReq.disk,
 			fileType: searchReq.fileType,
 		})
 	}, [searchReq])
@@ -77,28 +80,29 @@ export const SearchLine: FC<SearchLineProps> = ({
 		setSearchValue({...searchValue, dir: searchReq.dir})
 	}, [])
 
+	if (isOpen !== isBoxOpen ) {
+		dispatch(changeOpenFilter(isBoxOpen))
+	}
+
 	function mySearch(): void {
 		dispatch(switchToSearch());
 		dispatch(newSearchValues(searchValue));
 		dispatch(newValues({...showReq, dir: []}))
 
 		setTimeout(
-			() => setisBoxOpen(!isBoxOpen),
+			() => setisBoxOpen(false),
 			0
 		)
 
-		const url = transformToSearchRequestString({ ...searchValue, limit: 10, offset: 0 })
+		const url = getSearchURLFront(searchValue.fileType,searchValue.smartSearch, searchValue.dir, searchValue.query)
 		navigate(url)
 	}
+
 	const renderOpenBox = (): React.ReactNode => {
 		return (
 			<SearchBox
 				key={'searchbox'}
 				fontSize={'var(--ft-body)'}
-				style={{
-					width: width,
-					background: 'var(--main-color-100)'
-				}}
 				changeState={(obj: searchStateValue) => {
 					setSearchValue({ ...obj, dir: obj.dir })
 				}}
@@ -113,6 +117,10 @@ export const SearchLine: FC<SearchLineProps> = ({
 
 	return (
 		<PopOver
+			background={'transparent'}
+			marginTop={'2.4rem'}
+			whatCorner='left'
+			variants={'down'}
 			key={'search-popover-with-box'}
 			open={isBoxOpen}
 			toggleOpen={setisBoxOpen}
@@ -124,8 +132,11 @@ export const SearchLine: FC<SearchLineProps> = ({
 				>
 					<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
 						<div className="search-icon-container"
-							onClick={onIconClick}
-							style={{ fontSize: 'var(--ft-title)' }}>
+							onClick={whatDisplay === 1 ? onIconClick : () => {
+								setisBoxOpen(false)
+								onIconClick()
+							} }
+							style={{ fontSize: 'var(--ft-paragraph)' }}>
 							{whatDisplay === 1 ?
 								<SearchIcon fontSize='inherit' />
 								: <DehazeIcon sx={{ cursor: 'pointer' }} fontSize='inherit' />
@@ -133,9 +144,10 @@ export const SearchLine: FC<SearchLineProps> = ({
 						</div>
 						<div className="search-text">
 							<Input
-								fontSize={'var(--ft-body)'}
+								style={{backgroundColor: 'var(--color-active)'}}
+								fontSize={'var(--ft-paragraph)'}
 								isFullWidth
-								variant='standard'
+								variant='text'
 								onKeyDown={(e) => {
 									if (e.key.toLowerCase() === 'enter') {
 										mySearch()
@@ -145,7 +157,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 									setSearchValue({ ...searchValue, query: e.target.value })
 								}
 								disabled={response.isLoading}
-								placeholder={'Найдём любой файл'}
+								placeholder={'Find any file'}
 								type={'search'}
 								value={searchValue?.query || ''}
 							/>
@@ -161,14 +173,11 @@ export const SearchLine: FC<SearchLineProps> = ({
 							}
 						}
 						style={{ 
-							fontSize: 'var(--ft-title)',
+							fontSize: 'var(--ft-paragraph)',
 							marginLeft: 'var(--normal-padding)',
 						}}
 					>
 						<TuneIcon
-							sx={{
-								fill: 'var(--Bg-dark)',
-							}}
 							fontSize='inherit' 
 						/>
 					</div>

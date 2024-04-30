@@ -1,5 +1,5 @@
+import { fileFile } from '@models/files';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { fileFile } from '@models/searchParams';
 
 const fileWsSlice = createSlice({
 	name: 'searchReq',

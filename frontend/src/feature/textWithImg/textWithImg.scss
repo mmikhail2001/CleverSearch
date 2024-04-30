@@ -5,11 +5,14 @@
     border-radius: var(--big-radius);
     padding-left: var(--big-padding);
     padding-right: var(--big-padding);
-    padding-top: var(--normal-padding);
-    padding-bottom: var(--normal-padding);
+    padding-top: var(--small-padding);
+    padding-bottom: var(--small-padding);
 
     align-items: center;
     cursor: pointer;
+    
+    max-width: 100%;
+    overflow: hidden
 }
 
 .text-image {
@@ -18,16 +21,12 @@
 }
 
 .text-with-img-row {
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: minmax(0, 0.5fr) minmax(0, 3fr) minmax(0, 0.25fr);
 }
 
 .text-option{
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.text-with-img {
-    max-width: 100%;
-    overflow: hidden
 }

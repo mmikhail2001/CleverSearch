@@ -1,18 +1,27 @@
 .login-form {
     display: flex;
     flex-direction: column;
-    width: auto;
     height: auto;
+    width: auto;
     justify-content: center;
     align-items: center;
     padding: 1rem;
 }
 
 .login-form__inputs {
+    width: 200px;
     padding: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+}
+
+.login-form__buttons {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    gap: var(--normal-padding);
+    padding: 1rem;
 }
 
 .input-login, .input-password {

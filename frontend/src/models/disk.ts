@@ -10,21 +10,21 @@ import {
 } from '@models/additional';
 import { SearchResponse, fileTypes, isFileType } from './searchParams';
 
-export type diskTypes = 'google' | 'yandex' | 'own' | 'all';
+export type diskTypes = 'google' | 'yandex' | 'own' | 'internal';
 
 /** if text of diskType return true */
 export const isDiskType = (text: string): text is diskTypes => {
-	if (['google', 'yandex', 'own', 'all'].includes(text)) return true;
+	if (['google', 'yandex', 'own', 'internal'].includes(text)) return true;
 	return false;
 };
 
 // not check, if not correct return all
 export const toDiskType = (text: string): diskTypes => {
 	const diskTypeFound: diskTypes =
-		['google', 'yandex', 'own', 'all']
+		['google', 'yandex', 'own', 'internal']
 			.find(val => val === text) as diskTypes
 	if (diskTypeFound) return diskTypeFound;
-	return 'all';
+	return 'internal';
 }
 
 export interface DiskType {
@@ -59,9 +59,9 @@ export const diskImgSrc = new Map([
 		},
 	],
 	[
-		'all',
+		'internal',
 		{
-			diskName: 'all',
+			diskName: 'internal',
 			src: MonitorSVG,
 			altText: 'text',
 		}
@@ -104,10 +104,10 @@ export const diskValueToOption = (value: diskTypes): OptionWithImg => {
 				value: 'own',
 				imgSrc: DiskSVG,
 			}
-		case 'all':
+		case 'internal':
 			return {
-				label: 'all',
-				value: 'all',
+				label: 'internal',
+				value: 'internal',
 				imgSrc: MonitorSVG,
 			}
 	}
@@ -135,26 +135,26 @@ export const diskVal = (
 	}
 
 
-	return ['all'];
+	return ['internal'];
 };
 
 
 export const getFilesTypesToOptions = (): Option[] => {
 	return [
 		{
-			label: 'Изображение',
+			label: 'Image',
 			value: 'img',
 		},
 		{
-			label: 'Текст',
+			label: 'Text',
 			value: 'text',
 		},
 		{
-			label: 'Видео',
+			label: 'Video',
 			value: 'video',
 		},
 		{
-			label: 'Аудио',
+			label: 'Audio',
 			value: 'audio',
 		},
 	];
@@ -164,22 +164,22 @@ export const getFilesOptionFromValue = (value: string): Option => {
 	switch (value) {
 		case 'img':
 			return {
-				label: 'Изображение',
+				label: 'Image',
 				value: 'img',
 			}
 		case 'video':
 			return {
-				label: 'Видео',
+				label: 'Video',
 				value: 'video',
 			}
 		case 'audio':
 			return {
-				label: 'Аудио',
+				label: 'Audio',
 				value: 'audio',
 			}
 		case 'text':
 			return {
-				label: 'Текст',
+				label: 'Text',
 				value: 'text',
 			}
 	}
@@ -213,7 +213,7 @@ export const fileValues = (
 		}
 	}
 
-	return ['all' as fileTypes];
+	return ['internal' as fileTypes];
 };
 
 export const transformOptionsToDirs = (

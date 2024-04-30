@@ -67,7 +67,7 @@ export const Shared: FC<SharedProps> = ({
                         .writeText(`${process.env.protocol}://${process.env.adress}` +
                         link)
                 }}>
-                    {link}
+                    {`${process.env.protocol}://${process.env.adress}` + link}
                 </p>
                 {isCopied ? <div style={{ position: 'absolute' }}>Ссылка скопирована в ваш буфер!</div> : null}
             </div>)
@@ -89,12 +89,11 @@ export const Shared: FC<SharedProps> = ({
                 disabled={false}
                 fontSize='var(--ft-body)'
                 onChange={(e) => {
-                    setCurrentEmail(e.target.value)
                     e.preventDefault()
+                    setCurrentEmail(e.target.value)
                 }
                 }
                 onKeyDown={(e) => {
-                    e.preventDefault()
                     if (e.key.toLowerCase() === 'enter') {
                         setEmail([...emails, currentEmail])
                         setCurrentEmail('')
@@ -193,11 +192,13 @@ export const Shared: FC<SharedProps> = ({
                 disabled={resp.isLoading}
                 clickHandler={(event) => {
                     event.stopPropagation();
+                    let emailsToSet = currentEmail !== "" ? [...emails, currentEmail] : emails
+
                     share({
                         access_type: accessType,
-                        by_emails: emails.length > 0 ? true : false,
+                        by_emails: emailsToSet.length > 0 ? true : false,
                         dir: dirPath,
-                        emails: emails,
+                        emails: emailsToSet,
                     })
                 }}
             />

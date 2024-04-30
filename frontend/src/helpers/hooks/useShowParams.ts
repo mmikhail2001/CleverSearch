@@ -1,41 +1,16 @@
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
-import { diskTypes } from '@models/disk';
-import { fileTypes, transformToShowParams } from '@models/searchParams';
+import { diskTypes, isDiskType } from '@models/disk';
+import { fileTypes } from '@models/searchParams';
 import { ConnectedClouds } from '@models/user';
 import { useEffect } from 'react';
 import { useAppSelector } from '@store/store';
 import { useDispatch } from 'react-redux';
-import { changeDisk, newValues } from '@store/showRequest';
+import { newValues } from '@store/showRequest';
 import { useParamsFromURL } from './useParamsFromURL';
 import { selectCloud } from '@store/userDisks';
+import { switchDisk } from '@store/whatToShow';
+import { useNavigate } from 'react-router-dom';
 
-export interface searchStateValue {
-    fileType: fileTypes[];
-    query: string;
-    dir: string[];
-    disk: diskTypes[] | ConnectedClouds[];
-    externalDiskRequired: boolean;
-    internalDiskRequired: boolean;
-}
-
-export const isDiskEqual = (prevDisk: ConnectedClouds | string, currentDisk: ConnectedClouds | string) => {
-    if (typeof prevDisk !== typeof currentDisk) {
-        return false
-    }
-    if (
-        typeof prevDisk === 'string'
-        && typeof currentDisk === 'string'
-    ) {
-        return prevDisk === currentDisk;
-    }
-
-    if (!prevDisk && !!currentDisk) return false
-    if (!!prevDisk && !currentDisk) return false
-    if (!prevDisk && !currentDisk) return true
-
-    return (prevDisk as ConnectedClouds).cloud_email === (currentDisk as ConnectedClouds).cloud_email
-        && (prevDisk as ConnectedClouds).disk === (currentDisk as ConnectedClouds).disk
-}
 
 export const compareArrays = (a: any[], b: any[]): boolean =>
     a
@@ -43,73 +18,121 @@ export const compareArrays = (a: any[], b: any[]): boolean =>
     && a.length === b.length &&
     a.every((element: any, index: number) => element === b[index]);
 
-export const useShowParams = () => {
-    const disks = useAppSelector(state => state.disks)
+export const useShowInternalParams = () => {
     const showRequest = useAppSelector(state => state.showRequest)
-
-    const showState = {} as {
-        fileType: fileTypes[];
-        dir: string[];
-        disk: diskTypes[] | ConnectedClouds[];
-        externalDiskRequired?: boolean;
-        internalDiskRequired?: boolean;
-    }
-
-    const urlParams = useParamsFromURL()
-    const params = transformToShowParams(urlParams)
-
     const dispatch = useDispatch()
 
-    const settedDisk = isNullOrUndefined(params.disk)
-        || params.disk === 'all' as diskTypes
-        ? 'all' as diskTypes
-        : disks.clouds
-            .find(
-                val => params.disk === val.cloud_email
-            )
-
-    showState.externalDiskRequired = params.externalDiskRequired
-    showState.internalDiskRequired = params.internalDiskRequired
-
-    let settedDir: string[];
-    if (params.dir.length === 0) {
-        settedDir = []
+    const urlParams = useParamsFromURL()
+    let dir: string[] = []
+    if ("dir" in urlParams) {
+        dir = urlParams.dir.split('/')
     } else {
-        settedDir = params.dir
+        dir = []
     }
     
     useEffect(() => {
+        dispatch(switchDisk('internal'))
+
         if (!
             (
-                compareArrays(showRequest.dir,settedDir) 
-                &&isDiskEqual(showRequest.disk, settedDisk)
-                && showRequest.limit === Number(params.limit)
-                && showRequest.offset === Number(params.offset) 
-                && showRequest.externalDiskRequired === params.externalDiskRequired
-                && showRequest.internalDiskRequired === params.internalDiskRequired
+                compareArrays(showRequest.dir,dir) 
             )
         ){
             dispatch(
                 newValues({
-                    limit: Number(params.limit),
-                    offset: Number(params.offset),
-                    dir: settedDir,
-                    disk: settedDisk,
-                    externalDiskRequired: params.externalDiskRequired,
-                    internalDiskRequired: params.internalDiskRequired,
+                    ...showRequest,
+                    dir: dir,
                 })
             )
             
-            if (typeof settedDisk !== 'string') {
-                dispatch(selectCloud(settedDisk))
-            }
         }
     }, [])
-    showState.disk = typeof settedDisk === 'string'
-        ? [settedDisk]
-        : [settedDisk]
 
-    showState.dir = settedDir
+    return dir 
+}
 
-    return { showState }
+export const useShowDriveParams = () => {
+    const showRequest = useAppSelector(state => state.showRequest)
+    const userDisks = useAppSelector(state => state.disks)
+
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+
+    let dir: string[] = []
+    let disk: ConnectedClouds = {} as ConnectedClouds
+    
+    const urlParams = useParamsFromURL()
+
+    if ("dir" in urlParams) {
+        dir = urlParams.dir.split('/')
+    }
+
+    if ('cloud_email' in urlParams) {
+        let email = urlParams.cloud_email
+        const diskFound = userDisks.clouds.find(
+            (val) => val.cloud_email === email
+        )
+        disk = diskFound
+    }
+    
+    useEffect(() => {
+        if (disk.cloud_email === '') {
+            console.warn("can't find cloud email in drive")
+            dispatch(switchDisk('internal'))
+            navigate('/internal')
+            
+            return
+        } else {
+            dispatch(switchDisk(disk))
+        }
+
+        if (!
+            (
+                compareArrays(showRequest.dir,dir) 
+            )
+        ){
+            dispatch(
+                newValues({
+                    ...showRequest,
+                    dir: dir,
+                })
+            )
+            
+        }
+    }, [])
+
+    return dir 
+}
+
+export const useSharedParams = () => {
+    const showRequest = useAppSelector(state => state.showRequest)
+    const dispatch = useDispatch()
+
+    const urlParams = useParamsFromURL()
+    let dir: string[] = []
+    if ("dir" in urlParams) {
+        dir = urlParams.dir.split('/')
+    } else {
+        dir = []
+    }
+    
+    useEffect(() => {
+        dispatch(switchDisk('internal'))
+
+        if (!
+            (
+                compareArrays(showRequest.dir,dir) 
+            )
+        ){
+            dispatch(
+                newValues({
+                    ...showRequest,
+                    dir: dir,
+                })
+            )
+            
+        }
+    }, [])
+
+    return dir 
 }

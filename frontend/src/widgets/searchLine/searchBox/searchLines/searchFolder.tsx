@@ -1,17 +1,17 @@
-import { useGetFoldersMutation } from '@api/filesApi';
-import { SearchParamsLocal } from '@models/searchParams';
+import { SearchParams } from '@models/searchParams';
 import { SelectorAsync } from '@entities/selectors/selectorAsync/selectorAsync';
 import React, { FC } from 'react';
 import { Option } from '@models/additional'
 
 import { transformOptionsToDirs, transformToOptions } from '@models/disk'
 import { Typography } from '@mui/material';
+import { useGetDirsMutation } from '@api/filesApi';
 
 export interface SearchFolderLineProps {
 	changeState: (React.Dispatch<
-		React.SetStateAction<SearchParamsLocal>
+		React.SetStateAction<SearchParams>
 	>);
-	state: SearchParamsLocal;
+	state: SearchParams;
 	fontSize: string,
 }
 
@@ -22,7 +22,7 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 	state,
 	fontSize,
 }) => {
-	const [searchFolder] = useGetFoldersMutation();
+	const [searchFolder] = useGetDirsMutation();
 
 	const changeDir = (dirs: string[]) => {
 		changeState({ ...state, dir: dirs })
@@ -33,10 +33,15 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 
 	return (
 		<div className="line">
-			<Typography fontSize={'var(--ft-body)'}>Директория</Typography>
+			<Typography fontSize={'var(--ft-body)'} className='line__name'>Directory</Typography>
 			<SelectorAsync
+				style={{
+					borderColor: 'rgba(255,255,255,0.4)',
+					color: 'rgb(255,255,255)',
+				}}
+				color='#102C50'
 				fontSize={fontSize}
-				placeholder={'Все папки'}
+				placeholder={'All folders'}
 				defaultOption={lastDir ?
 					{
 						label: splitFolders[splitFolders.length - 1],
@@ -57,7 +62,7 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 							},
 						]
 						return [{
-							label: 'Все папки',
+							label: 'All folders',
 							value: '/',
 						}].concat(val)
 					} catch (error) {

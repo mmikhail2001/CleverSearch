@@ -34,7 +34,7 @@ export default function ErrorPage() {
 				<i>{errorMessage}</i>
 			</p>
 			<Link to={'/'} onClick={() => {
-				dispatch(changeDisk('all'));
+				dispatch(changeDisk('internal'));
 				dispatch(switchToShow())
 			}}>На главную</Link>
 		</div>

@@ -27,6 +27,7 @@ export const LoginForm: FC<LoginFormProps> = () => {
 	return (
 		<div className="login-form">
 			<div className="login-form__inputs">
+				<p>Authorization:</p>
 				<Input
 					disabled={loginResp.isLoading}
 					type="email"
@@ -42,17 +43,29 @@ export const LoginForm: FC<LoginFormProps> = () => {
 					onChange={(e) => setPassword(e.target.value)}
 				></Input>
 			</div>
-			<Button
-				variant={'contained'}
-				buttonText="Lets go"
-				clickHandler={
-					() => {
-						login({ email: loginField, password: passwordField });
-
+			<div className='login-form__buttons'>
+				<Button
+					variant={'contained'}
+					buttonText="Lets go"
+					clickHandler={
+						() => {
+							login({ email: loginField, password: passwordField });
+						}
 					}
-				}
-				disabled={(loginField && passwordField) || loginResp.isLoading ? false : true}
-			></Button>
+					isFullSize={true}
+					disabled={!(loginField !== "" && passwordField !== "") || loginResp.isLoading ? true : false}
+				/>
+				<Button
+					variant={'contained'}
+					buttonText="Register"
+					isFullSize={true}
+					clickHandler={
+						() => {
+							navigate('/register')
+						}
+					}
+				/>
+			</div>
 		</div>
 	);
 };
