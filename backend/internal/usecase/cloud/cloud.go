@@ -284,6 +284,7 @@ func (uc *Usecase) GetToken(ctx context.Context, cloudEmail string, cloudID stri
 		}
 	}
 
+	// TODO:
 	if cloudFile.UserID != user.ID && !isShare {
 		log.Println("request to file, but owner invalid")
 		return "", fmt.Errorf("request to file, but owner invalid")

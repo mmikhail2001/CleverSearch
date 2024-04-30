@@ -34,6 +34,10 @@ type Repository interface {
 	GetFavs(ctx context.Context, userID string) ([]file.File, error)
 	AddFav(ctx context.Context, userID string, fileID string) error
 	DeleteFav(ctx context.Context, userID string, fileID string) error
+
+	// v2
+	GetFilesV2(ctx context.Context, options file.FileOptionsV2) ([]file.File, error)
+	SmartSearchV2(ctx context.Context, options file.FileOptionsV2) ([]file.File, error)
 }
 
 type UserUsecase interface {

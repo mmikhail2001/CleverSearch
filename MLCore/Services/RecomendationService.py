@@ -49,7 +49,7 @@ class SearchService():
             raise HTTPException(status_code=400, detail=f"bad file type")
 
     def get_data_array(self, params):
-        response = requests.get("http://backend:8080/api/ml/files", params=params)
+        response = requests.get("http://backend:8080/api/v2/files/processed", params=params)
 
         if response.status_code != 200:
             print("Error /api/ml/files:", response.status_code)
@@ -90,11 +90,10 @@ class SearchService():
 def setup_search_handler(args):
     search_service = SearchService()
     @app.get('/search')
-    def search(query, file_type, user_id, dir, disk, number_of_results=5):
+    def search(query, file_type, user_id, dir, number_of_results=5):
         
         params = {
             'file_type': file_type,
-            'status': "processed",
             'dir': "/",
             'user_id': user_id
         }

@@ -27,50 +27,13 @@ import (
 )
 
 // TODO:
-// нужный ws.conn должен выбираться исходя из cookie пользователя (сейчас заглушка userID = 1)
-// не работает ограничение на размер файла
 // в доменную сущность поместился Conn *websocket.Conn
 // конфиг файл
 // контексты, таймауты
 
 // можно ли беку следить, как мл обрабатывает очередь ? нужно ли?
-// (не замечал больше) если в поле директории указать /dir, то 2024/03/04 21:49:12 Failed to PutObject minio: Object name contains unsupported characters.
-
-// имеет смысл разделить репозиторий на fileStorage, db....
-
-// ручка getFiles - общее количество файлов (limit)
-// ручка поиск - общее количестов + поиск в рамках директории + остальные фильтры
-
-// кривое выделение текста в pdf
-
-// ava позже
 
 // конверт png, txt to jpg, pdf
-// response search
-
-// что, если токен доступа истечет? где в коде перезапрос?
-// profile отдавать список доступный
-// прямая ссылка на скачивание с гугл диска
-// profile
-// refresh
-
-// --- emails sharing
-// нужно в БД записывать, как пошерились
-// потому что если по email, то нужно сразу добавлять пользователя в shared_dirs, а далее при запросе ссылки смотреть
-// если директория была пошерена только для определенных пользователей (sharing_by_emails=true), то нужно проверять пользователя
-// если директория была пошерена для всех (sharing_by_emails=false), то нужно сразу добавлять пользователя в shared_dirs
-
-// --- writer sharing
-
-// проверять директорию, в которую upload (delete)
-// если она shared_dirs для данного пользователя (значит ее нет в files у данного пользователя)
-// то проверять в shared_dirs, какие права у пользователя на нее (writer или reader)
-// если права пользователяют, то нужно добоавить файл в общую директорию
-
-// 1. добавление файла - автор - текущий пользователь
-// 			проверка всех поддиректорий (они созданы другим пользователем)
-// 2. создание директории
-// 3. удаление - не смотреть на автора
 
 // apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
 // apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
@@ -81,12 +44,10 @@ import (
 
 // нельзя добавлять в файлы, которые из интеграции внешней
 
-// корневая - это шеринг? то проверка на то, что ее пошарели и на то, что writer
-// если надо удалить корневую, то проверка, автор ли это?
-//
-
 // входит ли в зону ответственности usecase проверять context и доставать оттуда user?
 // может быть, это стоит делать в delivery и передавать user в методы usecase явно через параметры?
+
+// shared_dirs -> добавить author_id
 
 var staticDir string = "/app/frontend/build"
 var staticDirMinio string = "/app/minio_files"
@@ -173,8 +134,20 @@ func Run() error {
 	apiAuth := api.Methods("GET", "POST").Subrouter()
 	apiAuth.Use(middleware.AuthMiddleware)
 
+	filesMLRouter := api.Methods("GET").Subrouter()
+	filesMLRouter.Use(middleware.GetUserIDMiddleware)
+	filesMLRouter.HandleFunc("/ml/files", fileHandler.GetFiles).Methods("GET")
+
 	apiAuth.HandleFunc("/files", fileHandler.GetFiles).Methods("GET")
 	apiAuth.HandleFunc("/files/search", fileHandler.GetFiles).Methods("GET")
+
+	filesMLRouter.HandleFunc("/v2/files/processed", fileHandler.Processed).Methods("GET")
+	apiAuth.HandleFunc("/v2/files/uploaded", fileHandler.Uploaded).Methods("GET")
+	apiAuth.HandleFunc("/v2/files/shared", fileHandler.Shared).Methods("GET")
+	apiAuth.HandleFunc("/v2/files/drive", fileHandler.Drive).Methods("GET")
+	apiAuth.HandleFunc("/v2/files/internal", fileHandler.Internal).Methods("GET")
+	apiAuth.HandleFunc("/v2/files/search", fileHandler.Search).Methods("GET")
+	apiAuth.HandleFunc("/v2/files/dirs", fileHandler.Dirs).Methods("GET")
 
 	apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
 	apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
@@ -201,10 +174,6 @@ func Run() error {
 	apiAuth.HandleFunc("/users/avatars/{user_email}", userHandler.GetAvatar).Methods("GET")
 
 	api.HandleFunc("/ml/complete", fileHandler.CompleteProcessingFile).Methods("POST")
-
-	filesMLRouter := api.Methods("GET").Subrouter()
-	filesMLRouter.Use(middleware.GetUserIDMiddleware)
-	filesMLRouter.HandleFunc("/ml/files", fileHandler.GetFiles).Methods("GET")
 
 	apiAuth.HandleFunc("/ws", notifyHandler.ConnectNotifications).Methods("GET")
 

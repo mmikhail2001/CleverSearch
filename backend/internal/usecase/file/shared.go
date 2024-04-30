@@ -1,11 +1,16 @@
 package file
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"strings"
 
+	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 	fileDomain "github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+	"github.com/WindowsKonon1337/CleverSearch/internal/domain/sharederrors"
 )
 
 var fileTypeMap = map[string]file.FileType{
@@ -58,4 +63,24 @@ func printPaths(files []fileDomain.File, message string) {
 		fmt.Printf("%v\n", file.Path)
 	}
 	fmt.Printf("\n\n")
+}
+
+func handleDirSetUser(ctx context.Context, options *fileDomain.FileOptionsV2) (cleveruser.User, error) {
+	if options.Dir != "" && !strings.HasPrefix(options.Dir, "/") {
+		log.Printf("Directory path [%s] does not start with /\n", options.Dir)
+		return cleveruser.User{}, fileDomain.ErrDirectoryNotStartsWithSlash
+	}
+	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
+	if !ok {
+		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
+		return cleveruser.User{}, sharederrors.ErrUserNotFoundInContext
+	}
+
+	options.UserID = user.ID
+
+	if options.Dir == "" {
+		options.Dir = "/"
+	}
+
+	return user, nil
 }
