@@ -5,9 +5,11 @@ import { DropDown } from '@entities/dropDown/dropDown'
 import { Typography } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useMobile } from 'src/mobileProvider';
+import { getAvatarByEmail } from '@api/userApi';
+import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
 
 interface FileShowProps {
-	iconSrc: string;
+	iconSrc: string | React.ReactNode;
 	altText?: string;
 	filename: string;
 	date: string;
@@ -16,7 +18,7 @@ interface FileShowProps {
 	onDelete: () => void;
 	dirPath?: string
 	author: string,
-	config: { isDelete?: boolean, isShare?: boolean },
+	config: { isDelete?: boolean, isShare?: boolean, isLoved?: boolean, isCanBeLoved?: boolean },
 	onFavourite?: () => void,
 }
 
@@ -45,7 +47,6 @@ export const FileShow: FC<FileShowProps> = ({
 			onClick();
 	}
 
-
 	const renderDropDown = (): React.ReactNode => {
 		return <DropDown
 			variants='down-center'
@@ -67,21 +68,23 @@ export const FileShow: FC<FileShowProps> = ({
 					event.stopPropagation();
 					onDelete();
 					setOpenDropDown(false)
-				}}>Удалить</div>
+				}}>Remove</div>
 				: null}
-			<div className={'not-done'} onClick={onFavourite}>
-				В Избранное
+			{config.isCanBeLoved ? 
+			<div onClick={onFavourite}>
+				{!config.isLoved ? 'To Favourite' : 'Remove from Favourite'}
 			</div>
+			: null
+			}
 			{config.isShare ?
 				<React.Fragment>
 					<div
 						onClick={(event) => {
 							event.stopPropagation();
 							setOpen(true);
-							// setOpenDropDown(false)
 						}}
 					>
-						Поделиться
+						Share
 					</div>
 				</React.Fragment>
 				: null}
@@ -93,14 +96,54 @@ export const FileShow: FC<FileShowProps> = ({
 			<div className="file-show-line" ref={ref} onClick={handleClickFile} >
 				<div className='container-file-info'>
 					<div className="icon-placement">
-						<img className="icon" src={iconSrc} alt={altText ? altText : ''}></img>
+						{
+							typeof iconSrc ==='string' 
+							? <img className="icon" src={iconSrc} alt={altText ? altText : ''}></img>
+							: iconSrc
+						}
+						{config.isLoved 
+						? <FavoriteRoundedIcon 
+							fontSize='medium' 
+							sx={{
+								boxShadow: 'inset 0px 0px 7px 10px rgba(0, 0, 0, 0.12)',
+    							borderRadius: '2.5rem',
+								color: '#F8021F',
+								position: 'absolute',
+								bottom:"0px",
+								right: '0px',
+							}}
+						/>
+						: null}
 					</div>
 					<div className="filename-with-date">
 						<Typography fontSize={'var(--ft-body)'} className="filename">{filename}</Typography>
-						<Typography fontSize={'var(--ft-body)'} className="date">{date}</Typography>
+						{
+							isMobile 
+							?<Typography fontSize={'var(--ft-body)'} className="date">{date}</Typography>
+							:null 
+						}
+						
 					</div>
 				</div>
-				<Typography fontSize={'var(--ft-body)'}>{author}</Typography>
+				
+				{isMobile ? null :
+					<div className='file-show__date'>
+						{date}
+					</div>
+				}
+
+				<div className='file-show__author-position'>
+				{author !== '' 
+				? <img className='file-show__author' src={getAvatarByEmail(author)} /> 
+				: null
+				}
+				</div>
+				
+				{isMobile
+				? null 
+				: <Typography fontSize={'var(--ft-body)'} className="size">{size === '0 B' ? null : size}</Typography> 
+				}
+
 				<div className='additional-functions-file'>
 					{renderDropDown()}
 				</div>
@@ -116,10 +159,7 @@ export const FileShow: FC<FileShowProps> = ({
 				/>
 				: null
 				}
-				{isMobile
-				? null 
-				: <Typography fontSize={'var(--ft-body)'} className="size">{size === '0 B' ? null : size}</Typography> 
-				}
+				
 			</div>
 		</>
 	);

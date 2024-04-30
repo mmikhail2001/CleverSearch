@@ -1,23 +1,21 @@
 import { useAppSelector } from '@store/store';
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useDeleteFileMutation } from '@api/filesApi';
 import { useSearchMutation } from '@api/searchApi';
 import { RenderFields } from '@widgets/renderFields/renderFields';
 import { useNavigate } from 'react-router-dom';
-import { switchToSearch, switchToShow } from '@store/whatToShow';
-import { transfromToShowRequestString } from '@api/transforms';
-import '../show.scss'
+import { switchToDrive, switchToSearch, switchToShow } from '@store/whatToShow';
 import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
 import { useSearchParams } from '@helpers/hooks/useSearchParams';
 import { newValues } from '@store/showRequest';
+import { ShowGlobal } from '../showGlobal';
+import { getDriveURLFront, getInternalURLFront } from '@helpers/transformsToURL';
 
 interface ShowSearchedFilesProps { }
 
-
 export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
-    const [deleteFile] = useDeleteFileMutation();
     const [search, { data, ...searchResp }] = useSearchMutation({ fixedCacheKey: 'search' });
     const dispatch = useDispatch();
 
@@ -29,7 +27,7 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     const { isSearch } = useAppSelector(state => state.whatToShow)
 
     useEffect(() => {
-        if (searchParams.limit)
+        if (searchParams.query)
             search(searchParams)
     }, [searchParams])
 
@@ -40,39 +38,34 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     const paramsSearch = useAppSelector((state) => state.searchRequest);
 
     return (
-        <div className="data-show" >
-            <div className="data-show__header">
-                <BreadCrumps
-                    dirs={['Search']}
-                    onClick={() => {
-                        navigate(-1)
-                    }}
-                    reactOnElements={[
-                        // TODO если сделаем поиск папки, то нужно доделать это место
-                    ]}
-                />
-            </div>
-            <RenderFields
-                data={data?.body}
-                error={searchResp.error}
-                isError={searchResp.isError}
-                isLoading={searchResp.isLoading}
-                dispatch={dispatch}
-                deleteFile={
-                    (fileName: string): void => {
-                        deleteFile([fileName]);
-                        setTimeout(() =>
-                            search(paramsSearch),
-                            100);
-                    }}
-                openFolder={(path) => {
-                    dispatch(newValues({...showReq, dir: path, disk: 'all'}))
+        <ShowGlobal
+            firstElementInBreadCrumbs='Search'
+            breadCrumbsReactions={() => { return () => { }; } }
+            dirs={[]}
+            getValue={() => search(paramsSearch)}
+            data={data?.body}
+            error={searchResp.error}
+            isError={searchResp.isError}
+            isLoading={searchResp.isLoading}
+            openFolder={(path, disk) => {
+                if (disk === 'internal') {
+                    dispatch(newValues({ ...showReq, dir: path, disk: 'internal' }));
                     dispatch(switchToShow());
-
-                    const url = transfromToShowRequestString({ limit: 10, offset: 0, dir: path });
-                    navigate(url)
-                }}
+                    const url = getInternalURLFront(path);
+                    navigate(url);
+                    
+                    return
+                }
+                    
+                dispatch(newValues({ ...showReq, dir: path, disk: disk }));
+                dispatch(switchToDrive());
+                if (typeof disk !== 'string') {
+                    const url = getDriveURLFront(path, disk.cloud_email);
+                    navigate(url);
+                }
+            } }
+            whatShow={isSearch}
+            switchToWhatShow={() => dispatch(switchToSearch())}
             />
-        </div>
     );
 };

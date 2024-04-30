@@ -3,6 +3,8 @@ import React, { FC, useEffect, useState } from 'react';
 import { Option } from '@models/additional'
 import { debounce } from '@helpers/debounce';
 import { Autocomplete, TextField } from '@mui/material';
+import CSS from 'csstype'
+
 
 interface SelectorAsyncProps {
 	loadFunction: (inputValue: string) => Promise<Option[]>;
@@ -15,6 +17,8 @@ interface SelectorAsyncProps {
 	noOptionsText?: string,
 	placeholder?: string,
 	fontSize?: string,
+	style?: CSS.Properties,
+	color?: string,
 }
 
 export const SelectorAsync: FC<SelectorAsyncProps> = ({
@@ -26,6 +30,8 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 	noOptionsText,
 	placeholder,
 	fontSize,
+	style,
+	color,
 }) => {
 	const [open, setOpen] = useState<boolean>(false)
 	const [loading, setLoading] = useState<boolean>(false)
@@ -71,8 +77,21 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 
 	return (
 		<Autocomplete
-			sx={{fontSize: fontSize}}
+			sx={{
+				fontSize: fontSize, 
+				...style, 
+				height:'100%',
+				'& > fieldset' : {border: 'none'},
+			}}
 			fullWidth
+			slotProps={
+				{paper:{style:{
+					backgroundColor: color,
+					borderColor: 'rgba(255,255,255,0.4)',
+					color: 'rgb(255,255,255)',
+				}},
+				}
+			}
 			multiple={isMulti}
 			noOptionsText={noOptionsText}
 			options={options}
@@ -91,7 +110,10 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 			renderOption={(props, option, state) => {
 				return <li 
 					{...props}
-					style={{fontSize: fontSize}}
+					style={{
+						fontSize: fontSize, 
+						color: 'inherits', 
+					}}
 				>
 					{option.label}
 				</li>
@@ -103,7 +125,46 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 						...params.InputProps,
 						style: {
 							fontSize: fontSize,
+							color: 'inherit',
+							outline: 'none',
+							height:"100%",
 						},
+					}}
+					sx={{
+						height: '100%',
+						border: '1px solid rgba(255,255,255,0.4)',
+						color: 'rgb(255,255,255)',
+						borderRadius: 'var(--big-radius)',
+						"& .MuiOutlinedInput-root": {
+							borderRadius: "var(--big-radius)",
+							border: '1px solid rgba(255,255,255,0.4)',
+			
+							legend: {
+							  marginLeft: "20px"
+							}
+						  },
+						"& .MuiButtonBase-root": {
+							color: 'white',
+						},
+						"& .MuiAutocomplete-inputRoot": {
+							paddingLeft: "20px !important",
+							borderRadius: "var(--big-radius)",
+							border: '1px solid rgba(255,255,255,0.4)',
+						},
+						"& .MuiInputLabel-outlined": {
+							paddingLeft: "20px",
+						},
+						"& .Mui-focused": {
+							border: '1px solid rgba(255,255,255,1)',
+							outline:"none",
+						},
+						'& MuiOutlinedInput-notchedOutline': {
+							// border: 'none',
+							borderColor: 'rgba(255,255,255,0.4) !important',
+						},
+						'& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+							border: 'none',
+						}
 					}}
 					placeholder={placeholder}
 					variant="outlined"

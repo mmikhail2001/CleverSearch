@@ -23,6 +23,7 @@ export const DiskView: FC<DiskViewProps> = ({
 }) => {
     const dispatch = useDispatch();
     const disks = useAppSelector(state => state.disks)
+    
     const showReq = useAppSelector(state => state.showRequest)
     const [refresh, refreshResp] = useUpdateDiskMutation()
     
@@ -59,7 +60,7 @@ export const DiskView: FC<DiskViewProps> = ({
             }
         )
 
-    const allDiskInfo = diskImgSrc.get('all')
+    const allDiskInfo = diskImgSrc.get('internal')
 
     disksToShow.push(
         <TextWithImg
@@ -80,9 +81,6 @@ export const DiskView: FC<DiskViewProps> = ({
     )
 
     return (
-        <div className="disk-show">
-            <h2 className="disk-show-label">Ваши диски</h2>
-            <div className="disks">{disksToShow}</div>
-        </div>
+        <div className="disks">{disksToShow}</div>
     )
 };

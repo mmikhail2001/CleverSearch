@@ -34,16 +34,14 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
 		dispatch(logoutAction());
 	} else {
 		if (isSuccess) {
-			// setTimeout(() => {
-				authState = true;
-				if (data.connected_clouds) {
-					data.connected_clouds.forEach(element => {
-						dispatch(addDisk(element))
-					});
-				}
-				dispatch(setUserEmail({ email: data.email }))
-				dispatch(loginAction());
-			// }, 0)
+			authState = true;
+			if (data.connected_clouds) {
+				data.connected_clouds.forEach(element => {
+					dispatch(addDisk(element))
+				});
+			}
+			dispatch(setUserEmail({ email: data.email }))
+			dispatch(loginAction());
 		}
 	}
 

@@ -1,14 +1,13 @@
-import { SearchParamsLocal } from '@models/searchParams';
+import { SearchParams } from '@models/searchParams';
 import React, { FC } from 'react';
 
-import { SearchDiskLine } from './searchLines/searchDisk';
 import { SearchFileType } from './searchLines/searchFilteType';
 import { SearchFolderLine } from './searchLines/searchFolder';
 import { Switch } from '@entities/switch/switch'
 
 interface AllSearchLinesProps {
-	changeState: React.Dispatch<React.SetStateAction<SearchParamsLocal>>;
-	state: SearchParamsLocal;
+	changeState: React.Dispatch<React.SetStateAction<SearchParams>>;
+	state: SearchParams;
 	closeDrop: () => void;
 	search: () => void;
 	fontSize?: string;
@@ -21,7 +20,8 @@ export const AllSearchLines: FC<AllSearchLinesProps> = ({
 }) => {
 	return (
 		<>
-			<div className="line">
+			<div className='line'>
+				<p className='line__name'>Smart search</p>
 				<Switch
 					checked={state.smartSearch}
 					disabled={false}
@@ -29,8 +29,6 @@ export const AllSearchLines: FC<AllSearchLinesProps> = ({
 						changeState({ ...state, smartSearch: !state.smartSearch })
 					}
 					fontSize={fontSize}
-					label='Умный поиск'
-					labelPlacement='start'
 				/>
 			</div>
 			<SearchFolderLine
@@ -38,10 +36,6 @@ export const AllSearchLines: FC<AllSearchLinesProps> = ({
 				changeState={changeState}
 				state={state}
 			/>
-			<SearchDiskLine
-				fontSize={fontSize}
-				changeState={changeState}
-				state={state} />
 			<SearchFileType
 				fontSize={fontSize}
 				changeState={changeState}

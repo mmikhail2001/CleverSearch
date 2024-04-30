@@ -1,15 +1,15 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import './userProfile.scss';
 import { DropDown } from '@entities/dropDown/dropDown';
 import { useDispatch } from 'react-redux';
-import { useLazyProfileQuery } from '@api/userApi'
+import { getAvatarByEmail, useLazyProfileQuery } from '@api/userApi'
 import { setUserEmail } from '@store/userAuth';
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 import { useLogout } from '@helpers/hooks/logout';
 import { Typography } from '@mui/material';
 import { useMobile } from 'src/mobileProvider';
 import { useNavigate } from 'react-router-dom';
-import PersonIcon from '@mui/icons-material/Person';
+import { useSetAvatarMutation } from '@api/userApi';
 
 interface UserProfileProps {
 	email: string;
@@ -24,10 +24,24 @@ export const UserProfile: FC<UserProfileProps> = ({
 	const dispatch = useDispatch()
 	const logout = useLogout()
 	const { whatDisplay } = useMobile()
+	const [, respSetAvatar] = useSetAvatarMutation({fixedCacheKey: 'profilePicture'})
 
 	const navigate = useNavigate()
-
 	const [profile, profileResp] = useLazyProfileQuery()
+
+	const [image, setImage] = useState<string>()
+
+	useEffect(() => {
+		if (respSetAvatar.isSuccess) {
+			setImage(getAvatarByEmail(respSetAvatar.data))
+		}
+	}, [respSetAvatar])
+
+	useEffect(() => {
+		if (email !== '') {
+			setImage(getAvatarByEmail(email))
+		}
+	}, [email])
 
 	if (email === '') {
 		if (!profileResp.isSuccess && !profileResp.isLoading && !profileResp.isError) {
@@ -43,7 +57,11 @@ export const UserProfile: FC<UserProfileProps> = ({
 		return (
 			<div className='profile'>
 				<div style={{fontSize:'var(--ft-paragraph)'}}>
-					<PersonIcon fontSize={'inherit'}/>
+					{email !== '' 
+					? <img className='profile-picture' src={image} />
+					: null
+					}
+					
 				</div>
 				<Typography
 					fontSize={'var(--ft-body)'}
@@ -61,10 +79,10 @@ export const UserProfile: FC<UserProfileProps> = ({
 			toggleOpen={setOpen}
 			mainElement={profileMain()}
 		>
-			[
-				<div onClick={() => navigate('/settings')}>Настройки</div>,
-				<div onClick={logout}>Выйти</div>,
-			]
+			{[
+				<div onClick={() => navigate('/settings')}>Settings</div>,
+				<div onClick={logout}>Logout</div>,
+			]}
 		</DropDown >)
 	}
 

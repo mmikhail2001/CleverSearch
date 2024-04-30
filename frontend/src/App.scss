@@ -1,3 +1,5 @@
+@import './index.scss';
+
 .App {
     display: flex;
     flex-direction: column;
@@ -6,11 +8,6 @@
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-}
-
-.main-app {
-    display: flex;
-    padding: var(--big-padding);
-    gap: var(--huge-padding);
-    flex-direction: column;
+	background: linear-gradient(to bottom, $color-top, $color-bottom);
+    color: var(--text-color-light);
 }

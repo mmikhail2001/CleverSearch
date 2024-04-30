@@ -1,13 +1,13 @@
 import { diskTypes } from '@models/disk';
-import { switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
+import { switchDisk, switchToLoved, switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import './sidebar.scss';
 import { ButtonWithInput } from '@feature/buttonWithInput/buttonWithInput';
-import { usePushFileMutation } from '@api/filesApi';
+import { useGetInternalFilesMutation, useGetSharedFilesMutation, usePushFileMutation } from '@api/filesApi';
 import { useAppSelector } from '@store/store';
-import { useSearchMutation, useShowMutation } from '@api/searchApi';
+import { useSearchMutation } from '@api/searchApi';
 
 import { useNavigate } from 'react-router-dom';
 import { debounce } from '@helpers/debounce'
@@ -16,12 +16,11 @@ import { Drawer } from '@entities/drawer/drawer';
 import { Modal } from '@feature/modal/modal';
 import { UserProfile } from '@widgets/userProfile/userProfile';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Popover, Typography } from '@mui/material';
+import { Popover, Typography, createTheme } from '@mui/material';
 import { useLogout } from '@helpers/hooks/logout';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import { DiskView } from './diskView/diskView'
 import { ConnectedClouds } from '@models/user';
-import { transfromToShowRequestString } from '@api/transforms';
 import { newValues } from '@store/showRequest';
 import {FileUploadNotification} from '@feature/fileUploadNotification/fileUploadNotification'
 import { PopOver } from '@entities/popover/popover';
@@ -29,8 +28,11 @@ import { Button } from '@entities/button/button';
 
 import RobotSVG from '@icons/Robot.svg';
 import DownloadSVG from '@icons/Download.svg';
-import CleverSVG from '@icons/disks/Disk.svg';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import AddIcon from '@mui/icons-material/Add';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import { transformFromDiskToDiskName } from '@helpers/transformFromDiskToDiskName';
+import { getDriveURLFront, getInternalURLFront } from '@helpers/transformsToURL';
 
 interface SidebarProps {
 	width: string;
@@ -45,16 +47,24 @@ export const Sidebar: FC<SidebarProps> = ({
 	toggleShow,
 	isOpen,
 }) => {
-	const { isSearch, isShow, isProccessed, isShared, isLoved } = useAppSelector((state) => state.whatToShow);
+	const { 
+		isSearch,
+		isShow,
+		isProccessed,
+		isShared,
+		isLoved,
+		whatDiskToShow,
+		} = useAppSelector((state) => state.whatToShow);
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate()
 
 	const [search] = useSearchMutation({ fixedCacheKey: 'search' });
-	const [show] = useShowMutation({ fixedCacheKey: 'show' });
-	const showParam = useAppSelector(state => state.showRequest)
+	const [show] = useGetInternalFilesMutation({ fixedCacheKey: 'show' });
+	const [showShared] = useGetSharedFilesMutation({ fixedCacheKey: 'shared' });
+	
 	const showReq = useAppSelector(state => state.showRequest)
-
+	const disks = useAppSelector(state => state.disks)
 	const param = useAppSelector((state) => state.searchRequest);
 
 	const [send, sendResp] = usePushFileMutation();
@@ -69,20 +79,17 @@ export const Sidebar: FC<SidebarProps> = ({
 			if (isSearch) {
 				search(param);
 			} else if (isShow) {
-				show({...showParam, disk: showReq.disk, dir: showReq.dir });
-				dispatch(newValues({...showParam, disk: showReq.disk, dir: showReq.dir}))
+				show(showReq.dir.join('/'));
+				dispatch(newValues({...showReq}))
+			} else if (isShared) {
+				showShared(showReq.dir.join('/'));
+				dispatch(newValues({...showReq}))
 			}
+
 			setFilesWasSend(false)
 		}
 
 	}, [filesWasSend,sendResp])
-
-	let nameOfDisk: diskTypes;
-	if (typeof showReq.disk === 'string') {
-		nameOfDisk = showReq.disk
-	} else {
-		nameOfDisk = showReq.disk.disk
-	}
 
 	const renderSidebar = (): React.ReactNode => {
 		return (
@@ -92,23 +99,22 @@ export const Sidebar: FC<SidebarProps> = ({
 						{isMobile ?
 							<UserProfile email={email} isDropdownExist={false} />
 							:
-							<TextWithImg
+							<Typography
 								onClick={() => dispatch(switchToShow())}
-								text="CleverSearch"
-								className={['our-name', 'text-with-img-row'].join(' ')}
-								imgSrc={CleverSVG}
-								altImgText="our-logo"
-							/>
+								className={['our-name'].join(' ')}
+							>CleverSearch</Typography>
 						}
 					</div>
 					<div className='button_sidebar'>
 						<PopOver
-							styleMain={{width: '100%'}}
+							background={'#961062'}
+							styleMain={{width: '179px'}}
 							mainElement={
 								<Button
+									endIcon={<AddIcon fontSize='inherit'/>}
 									isFullSize={true}
-									fontSize={'var(--ft-body)'}
-									buttonText={'Создать'} 
+									fontSize={'var(--ft-paragraph)'}
+									buttonText={'Add'} 
 									clickHandler={() => setCreationPopOpen(!isCreationPopOpen) } 
 									variant={'contained'}								 
 								/>
@@ -128,7 +134,7 @@ export const Sidebar: FC<SidebarProps> = ({
 									}}
 								>
 									<ButtonWithInput
-										buttonText="Добавить файл"
+										buttonText="File"
 										onChange={(files: FileList) => {
 											const debouncFunc = debounce(() => {
 												setFilesWasSend(true)
@@ -144,16 +150,19 @@ export const Sidebar: FC<SidebarProps> = ({
 											});
 										}}
 										disabled={false}
-										variant={'contained'}
+										variant={'text'}
 									></ButtonWithInput>
 									<FolderCreation
 										dirs={showReq.dir}
 										onFolderCreation={() => {
 											if (isSearch) {
 												search(param);
-											} else {
-												show({...showParam, disk: showReq.disk, dir: showReq.dir });
-												dispatch(newValues({...showParam, disk: showReq.disk, dir: showReq.dir}))
+											} else if(isShow) {
+												show(showReq.dir.join('/'));
+												dispatch(newValues({...showReq}))
+											} else if (isShared) {
+												showShared(showReq.dir.join('/'));
+												dispatch(newValues({...showReq}))
 											}
 										}}
 									/>
@@ -161,63 +170,63 @@ export const Sidebar: FC<SidebarProps> = ({
 							]}
 						</PopOver>
 					</div>
-					<DiskView
-						needSelect={isShow}
-						setSelectedState={(disk: diskTypes | ConnectedClouds
-						) => {
-							let internal = false;
-							let external = false;
-							if (typeof disk === 'string') {
-								internal = true
-								external = false
-							} else {
-								internal = false
-								external = true
-							}
+					<div className='disk-show'>
+						<DiskView
+							needSelect={isShow}
+							setSelectedState={(disk: diskTypes | ConnectedClouds
+							) => {
+								dispatch(switchDisk(disk))
 
-							if (!isShow) dispatch(switchToShow())
-								const url = transfromToShowRequestString({
-								dir: [],
-								disk: disk,
-								limit: 10,
-								offset: 0,
-								externalDiskRequired: external,
-								internalDiskRequired: internal,
-							})
-							navigate(url)
-							dispatch(newValues({...showReq,dir:[], disk: disk}))
-						}}
-						nameOfSelectedDisk={nameOfDisk}
-					/>
-					<div className="under-disks">
+								if (!isShow) {
+									dispatch(switchToShow())
+								}
+
+								if (typeof disk === 'string') {
+
+									const url = getInternalURLFront([])
+									navigate(url)
+									dispatch(newValues({...showReq,dir:[], disk: disk}))	
+									
+									return
+								}
+									
+								const email = disks.clouds.find((val) => val.disk === disk.disk).cloud_email
+								const url = getDriveURLFront([], email)
+								navigate(url)
+								dispatch(newValues({...showReq,dir:[], disk: disk}))
+							}}
+							nameOfSelectedDisk={typeof whatDiskToShow === 'string' ? whatDiskToShow : whatDiskToShow.disk}
+						/>
 						<TextWithImg
-							text="В обработке"
+							text="in process"
 							className={['text-with-img', 'work-in-progress', isProccessed ? 'selected' : '', 'text-with-img-row'].join(' ')}
-							imgSrc={RobotSVG}
+							imgSrc={<img src={RobotSVG} style={{color: 'inherit'}}/>}
 							altImgText="Робот"
 							onClick={() => {
 								dispatch(switchToProcessed());
-								dispatch(newValues({...showReq, disk: 'all'}))
-								navigate('/processed')
+								dispatch(newValues({...showReq, disk: 'internal'}))
+								navigate('/uploaded')
 							}}
 						/>
 						<TextWithImg
-							text="Общие"
+							text="shared"
 							className={['shared', isShared ? 'selected' : '', 'text-with-img-row'].join(' ')}
-							imgSrc={DownloadSVG} // TODO
+							imgSrc={<PeopleAltIcon />} // TODO
 							altImgText="Картинка с двумя людьми"
 							onClick={() => {
 								dispatch(switchToShared())
-								dispatch(newValues({...showReq, disk: 'all'}))
+								dispatch(newValues({...showReq, disk: 'internal'}))
 								navigate('/shared')
 							}}
 						/>
 						<TextWithImg
-							text="Общие"
-							className={['loved', isLoved ? 'selected' : '', 'text-with-img-row', 'not-done'].join(' ')}
-							imgSrc={<FavoriteIcon/>} 
+							text="favorites"
+							className={['loved', isLoved ? 'selected' : '', 'text-with-img-row'].join(' ')}
+							imgSrc={<FavoriteIcon sx={{color:"#FF4444", width:'var(--ft-paragraph)',height:'var(--ft-paragraph)'}}/>} 
 							altImgText="Сердце"
 							onClick={() => {
+								dispatch(switchToLoved())
+								navigate('/loved')
 							}}
 						/>
 					</div>

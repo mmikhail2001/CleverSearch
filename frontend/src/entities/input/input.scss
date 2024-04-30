@@ -17,3 +17,10 @@
     outline: none
 }
 
+.non-before-after::after, .non-before-after::before {
+    content:"",
+}
+
+.MuiInputBase-input {
+    padding: 0 !important;
+}

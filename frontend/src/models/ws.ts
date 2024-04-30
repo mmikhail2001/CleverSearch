@@ -1,4 +1,4 @@
-import { fileFile } from './searchParams'
+import { fileFile } from "./files"
 
 const eventChangeStatus = 'changeStatus'
 export const events = eventChangeStatus
