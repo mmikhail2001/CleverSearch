@@ -10,9 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import './settings.scss'
 import { useSetAvatarMutation } from '@api/userApi';
 import { Input } from '@entities/input/input';
-import { ButtonWithInput } from '@feature/buttonWithInput/buttonWithInput';
+import { TextWithInput } from '@feature/buttonWithInput/buttonWithInput';
 
-// TODO maybe another file?
 const getTextWithImg = (
 	selected: boolean,
 	disk: DiskType,
@@ -72,9 +71,12 @@ export const SettingsPage: FC = () => {
 					})
 			}
 		</div>
-		<div>
-			<ButtonWithInput
-				buttonText='Set avatar'
+		<div style={{display:'flex',flexDirection:"column", justifyContent:'center', gap:'1.2rem', alignItems:'center'}}>
+			<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>
+				Avatar
+			</Typography>
+			<TextWithInput
+				buttonText='Change profile'
 				onChange={(files) => {
 					Array.from(files).forEach((file) => {
 						const formData = new FormData();

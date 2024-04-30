@@ -49,7 +49,7 @@ const UIButtonWithStyle = styled(UIButton)({
 	'&:active': {
 	  boxShadow: 'none',
 	  backgroundColor: 'var(--color-active-hover)',
-	  borderColor: 'none',
+	  borderColor: 'transparent',
 	},
 	'&:focus': {
 	  boxShadow: '4px 6px 6px 0 rgba(var(--color-active-shadow),.5)',
@@ -85,6 +85,7 @@ export const Button: FC<ButtonProps> = ({
 		justifyContent: variant === 'text' ? 'start' : null,
 		padding: variant === 'text' ? '0' : null,
 	};
+	console.log('variant', variant)
 	switch (variant) {
 		case 'contained':
 		break;
@@ -96,18 +97,26 @@ export const Button: FC<ButtonProps> = ({
 			}
 		break;
 		case 'text':
+			console.log('CSSS style text')
 			cssStyles= {
 				...cssStyles,
 				backgroundColor: 'transparent',
 				boxShadow: 'none',
 				'&:hover': {
 					background: 'transparent',
-				}
+				},
+				'&:active': {
+					background: 'transparent !important',
+					backgroundColor: "transparent !important",
+				},
+				'&:focus': {
+					background: 'transparent',
+					borderColor: "transparent",
+					boxShadow: 'none',
+				},
 			}
 			break;
 	}
-
-	const isText = variant ==='text'
 
 	return (
 		<UIButtonWithStyle

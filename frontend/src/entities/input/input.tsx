@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import './input.scss';
-import { TextFieldVariants, TextField as UIInput } from '@mui/material'
+import { Paper, SxProps, TextFieldVariants, Theme, TextField as UIInput } from '@mui/material'
 
 import CSS from 'csstype';
 
@@ -17,7 +17,8 @@ interface InputProps {
 	size?: 'medium' | 'small';
 	isFullWidth?: boolean;
 	fontSize?: string;
-	style?: CSS.Properties
+	style?: SxProps<Theme>,
+	border?:string,
 }
 
 export const Input: FC<InputProps> = ({
@@ -34,6 +35,7 @@ export const Input: FC<InputProps> = ({
 	isFullWidth,
 	fontSize,
 	style,
+	border,
 }) => {
 	let changeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	if (!disabled) {
@@ -42,11 +44,11 @@ export const Input: FC<InputProps> = ({
 		changeHandler = () => { };
 	}
 
-	let cssProps: CSS.Properties = style || {};
+	let cssProps: SxProps<Theme>= style || {};
 
 	return (
 		<UIInput
-			style={cssProps}
+			// style={cssProps}
 			disabled={disabled}
 			ref={ref}
 			variant={variant === 'text' ? 'standard' : variant}
@@ -57,10 +59,17 @@ export const Input: FC<InputProps> = ({
 			type={type}
 			placeholder={placeholder}
 			onKeyDown={onKeyDown}
-			sx={{ fontSize: fontSize }}
+			sx={{ 
+				fontSize: fontSize, 
+				...cssProps,
+			}}
 			InputProps={{
 				disableUnderline: variant === 'text',
-				style: { fontSize: fontSize, color: 'inherit'}
+				style: { 
+					fontSize: fontSize, 
+					color: 'inherit',
+					border: border,
+				},
 			}}
 			onChange={changeHandler}
 		/>
