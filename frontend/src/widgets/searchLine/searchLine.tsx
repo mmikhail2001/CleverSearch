@@ -117,6 +117,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 
 	return (
 		<PopOver
+			background={'transparent'}
 			marginTop={'2.4rem'}
 			whatCorner='left'
 			variants={'down'}

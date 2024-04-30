@@ -107,6 +107,7 @@ export const Sidebar: FC<SidebarProps> = ({
 					</div>
 					<div className='button_sidebar'>
 						<PopOver
+							background={'#961062'}
 							styleMain={{width: '179px'}}
 							mainElement={
 								<Button
