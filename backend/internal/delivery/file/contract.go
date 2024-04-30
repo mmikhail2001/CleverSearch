@@ -22,4 +22,12 @@ type Usecase interface {
 	GetFavs(ctx context.Context) ([]file.File, error)
 	AddFav(ctx context.Context, fileID string) error
 	DeleteFav(ctx context.Context, fileID string) error
+
+	// v2
+	ProccessedUploaded(ctx context.Context, options file.FileOptionsV2) ([]file.File, error)
+	Shared(ctx context.Context, options file.FileOptionsV2) ([]file.File, error)
+	Drive(ctx context.Context, options file.FileOptionsV2) ([]file.File, error)
+	Internal(ctx context.Context, options file.FileOptionsV2) ([]file.File, error)
+	SearchV2(ctx context.Context, options file.FileOptionsV2) ([]file.File, error)
+	Dirs(ctx context.Context, options file.FileOptionsV2) ([]file.File, error)
 }

@@ -123,6 +123,27 @@ type FileOptions struct {
 	InternalDisklRequired bool
 }
 
+type FileOptionsV2 struct {
+	FileType FileType
+
+	Dir string
+
+	DirsRequired  bool
+	FilesRequired bool
+
+	CloudEmail       string
+	IgnoreCloudEmail bool
+
+	UserID string
+
+	Status StatusType
+
+	FirstNesting bool
+
+	Query string
+	Smart bool
+}
+
 type RequestToShare struct {
 	Path        string
 	ShareAccess AccessType

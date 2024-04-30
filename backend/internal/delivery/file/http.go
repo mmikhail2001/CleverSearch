@@ -140,11 +140,6 @@ func (h *Handler) GetFileByID(w http.ResponseWriter, r *http.Request) {
 	var fileDTO FileDTO
 	dto.Map(&fileDTO, &foundFile)
 	fileDTO.Size = foundFile.Size.ToDTO()
-	// fileDTO, err = setUserEmailToFile(r.Context(), fileDTO)
-	// if err != nil {
-	// 	json.NewEncoder(w).Encode(shared.NewResponse(-1, err.Error(), nil))
-	// 	w.WriteHeader(http.StatusBadGateway)
-	// }
 	json.NewEncoder(w).Encode(shared.NewResponse(0, "", fileDTO))
 }
 
@@ -179,35 +174,9 @@ func (h *Handler) GetFiles(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	// [ file.FileOptions{FileType:"all", Dir:"/Double", UserID:"", CloudEmail:"", Disk:"",
-	// Limit:10, Offset:0, Query:"", Status:"", IsSmartSearch:false,
-	// FirstNesting:true, DirsRequired:true, FilesRequired:true, SharedRequired:true,
-	// PersonalRequired:true, ExternalDisklRequired:false, InternalDisklRequired:true} ]
-
-	// заплатка
-	// user, ok := r.Context().Value(shared.UserContextName).(cleveruser.User)
-	// if !ok {
-	// 	log.Println(sharederrors.ErrUserNotFoundInContext.Error())
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// }
 	log.Printf("\n\n [ %#v ] \n\n ", options)
 
 	var results []file.File
-	// if strings.Contains(r.URL.Path, "ml/files") {
-	// 	options.DirsRequired = false
-	// 	options.FirstNesting = false
-	// 	var resultsTmp []file.File
-	// 	resultsTmp, err = h.usecase.GetFiles(r.Context(), options)
-	// 	results = append(results, resultsTmp...)
-	// 	for _, cloud := range user.ConnectedClouds {
-	// 		options.InternalDisklRequired = false
-	// 		options.Disk = string(cloud.Cloud)
-	// 		options.CloudEmail = cloud.CloudEmail
-	// 		resultsTmp, err = h.usecase.GetFiles(r.Context(), options)
-	// 		results = append(results, resultsTmp...)
-	// 	}
-	// 	log.Println("len(results) === ", len(results))
-	// } else
 	if strings.Contains(r.URL.Path, "search") {
 		if options.Query == "" {
 			log.Println("search with empty query")
@@ -372,12 +341,6 @@ func (h *Handler) ShareDir(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(shared.NewResponse(0, "", ResponseShareLinkDTO{ShareLink: shareLink}))
 }
-
-// /files/favs
-// /files/favs/add/{file_uuid}
-// /files/favs/delete/{file_uuid}
-
-// файлы нужно отдавать с полем (is_fav)
 
 func (h *Handler) GetFavs(w http.ResponseWriter, r *http.Request) {
 	results, err := h.usecase.GetFavs(r.Context())

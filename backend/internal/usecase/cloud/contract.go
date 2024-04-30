@@ -31,4 +31,5 @@ type UserRepository interface {
 	AddTokenToUser(ctx context.Context, token *oauth2.Token, cloudEmail string, disk file.DiskType, user cleveruser.User) error
 	CheckCloudExists(ctx context.Context, cloudEmail string, user cleveruser.User) (bool, error)
 	UpdateUser(ctx context.Context, user cleveruser.User) error
+	GetUserByID(ctx context.Context, userID string) (cleveruser.User, error)
 }

@@ -163,6 +163,9 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 	if options.Dir == "" {
 		options.Dir = "/"
 	}
+
+	// если имеется статус в параметрах, то отвечаем без папок, всеми файлами (внутренними, расшаренными, внешними)
+	// кажется, что расшаренные здесь не возвратятся, т.к. выше options.UserID = user.ID
 	if options.Status != fileDomain.StatusType("") {
 		var files []fileDomain.File
 		options.DirsRequired = false
@@ -170,12 +173,14 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 		var resultsTmp []file.File
 		options.CloudEmail = ""
 		options.Disk = ""
+		// запрос на все внутренние файлы
 		resultsTmp, err := uc.repo.GetFiles(ctx, options)
 		if err != nil {
 			log.Println("GetFiles: err:", err)
 			return []fileDomain.File{}, err
 		}
 		files = append(files, resultsTmp...)
+		// запрос на все внешние файлы
 		for _, cloud := range user.ConnectedClouds {
 			options.InternalDisklRequired = false
 			options.Disk = string(cloud.Cloud)
@@ -272,22 +277,17 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 
 	// если запрошен не корень, то нужно проверить, корневой каталог является расшаренным данному пользователю
 	rootDir := strings.Split(options.Dir, "/")[1]
-	// log.Println("rootDir ===", rootDir)
 	_, err := uc.repo.GetSharedDirs(ctx, "/"+rootDir, user.ID, true)
-	// log.Println("err ===", errors.Is(err, file.ErrNotFound))
 	if err != nil && !errors.Is(err, file.ErrNotFound) {
 		log.Println("GetSharedDir error:", err)
 		return []fileDomain.File{}, err
 	}
 	if options.PersonalRequired && errors.Is(err, file.ErrNotFound) {
 		options.UserID = user.ID
-		// log.Println("1")
 		files, err = uc.repo.GetFiles(ctx, options)
 	}
 	if options.SharedRequired && err == nil {
 		options.UserID = ""
-		// log.Println("2")
-		// log.Printf("\n\n options = %#v \n\n", options)
 		files, err = uc.repo.GetFiles(ctx, options)
 
 		options.ExternalDisklRequired = true
