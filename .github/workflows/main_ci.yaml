@@ -49,7 +49,8 @@ jobs:
 
   deploy:
     name: Deploy on Server
-    needs: [build_backend, build_mlcore, build_frontend]
+    # needs: [build_backend, build_mlcore, build_frontend]
+    needs: [build_backend, build_frontend]
     runs-on: ubuntu-latest
     steps:
       - name: SSH and Restart Docker Compose
