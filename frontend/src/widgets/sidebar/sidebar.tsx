@@ -1,38 +1,37 @@
-import { diskTypes } from '@models/disk';
-import { switchDisk, switchToLoved, switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
+import { useGetInternalFilesMutation, useGetSharedFilesMutation, usePushFileMutation } from '@api/filesApi';
+import { useSearchMutation } from '@api/searchApi';
+import { TextWithInput } from '@feature/buttonWithInput/buttonWithInput';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
+import { diskTypes } from '@models/disk';
+import { useAppSelector } from '@store/store';
+import { switchDisk, switchToLoved, switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import './sidebar.scss';
-import { TextWithInput } from '@feature/buttonWithInput/buttonWithInput';
-import { useGetInternalFilesMutation, useGetSharedFilesMutation, usePushFileMutation } from '@api/filesApi';
-import { useAppSelector } from '@store/store';
-import { useSearchMutation } from '@api/searchApi';
 
-import { useNavigate } from 'react-router-dom';
-import { debounce } from '@helpers/debounce'
-import { FolderCreation } from './folderCreation/folderCreation'
-import { Drawer } from '@entities/drawer/drawer';
-import { Modal } from '@feature/modal/modal';
-import { UserProfile } from '@widgets/userProfile/userProfile';
-import LogoutIcon from '@mui/icons-material/Logout';
-import { Popover, Typography, createTheme } from '@mui/material';
-import { useLogout } from '@helpers/hooks/logout';
-import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
-import { DiskView } from './diskView/diskView'
-import { ConnectedClouds } from '@models/user';
-import { newValues } from '@store/showRequest';
-import {FileUploadNotification} from '@feature/fileUploadNotification/fileUploadNotification'
-import { PopOver } from '@entities/popover/popover';
 import { Button } from '@entities/button/button';
+import { Drawer } from '@entities/drawer/drawer';
+import { PopOver } from '@entities/popover/popover';
+import { FileUploadNotification } from '@feature/fileUploadNotification/fileUploadNotification';
+import { Modal } from '@feature/modal/modal';
+import { debounce } from '@helpers/debounce';
+import { useLogout } from '@helpers/hooks/logout';
+import { ConnectedClouds } from '@models/user';
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { Typography } from '@mui/material';
+import { newValues } from '@store/showRequest';
+import { UserProfile } from '@widgets/userProfile/userProfile';
+import { useNavigate } from 'react-router-dom';
+import { DiskView } from './diskView/diskView';
+import { FolderCreation } from './folderCreation/folderCreation';
 
-import RobotSVG from '@icons/Robot.svg';
-import DownloadSVG from '@icons/Download.svg';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import AddIcon from '@mui/icons-material/Add';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import { transformFromDiskToDiskName } from '@helpers/transformFromDiskToDiskName';
 import { getDriveURLFront, getInternalURLFront } from '@helpers/transformsToURL';
+import RobotSVG from '@icons/Robot.svg';
+import AddIcon from '@mui/icons-material/Add';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 
 interface SidebarProps {
 	width: string;
@@ -126,6 +125,18 @@ export const Sidebar: FC<SidebarProps> = ({
 						>
 							{[
 								<TextWithInput
+									startIcon={<InsertDriveFileRoundedIcon fontSize='inherit' sx={{color: "#0A9542", marginBottom: '3px'}}/>}
+									textStyles={{fontSize:'var(--ft-paragraph)'}}
+									stylesOnRoot={{
+										width: '185px', 
+										paddingLeft:'1.5rem', 
+										paddingTop: '1rem',
+										paddingBottom: '0.5rem',
+										fontSize: 'var(--ft-paragraph)',
+										display: 'grid',
+												gridTemplateColumns: "minmax(0, 0.5fr) minmax(0, 3fr) minmax(0, 0.25fr)",
+										alignItems:'center',
+									}}
 									buttonText="File"
 									onChange={(files: FileList) => {
 										const debouncFunc = debounce(() => {
@@ -143,7 +154,6 @@ export const Sidebar: FC<SidebarProps> = ({
 										setCreationPopOpen(false)
 									}}
 									disabled={false}
-									variant={'text'}
 								></TextWithInput>,
 								<FolderCreation
 									dirs={showReq.dir}
