@@ -40,7 +40,7 @@ func (fd *FileDTO) MarshalJSON() ([]byte, error) {
 	formattedDate := ""
 
 	if fd.TimeCreated.Format("2006-01-02") == now.Format("2006-01-02") {
-		formattedDate = "today at" + fd.TimeCreated.Format("15:04")
+		formattedDate = "today at " + fd.TimeCreated.Format("15:04")
 	} else {
 		formattedDate = fd.TimeCreated.Format("02 January 2006")
 	}
