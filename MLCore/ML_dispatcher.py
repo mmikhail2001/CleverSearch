@@ -59,7 +59,7 @@ class MLDispatcher:
 
             logging.critical(f'doc_uuid: {doc_uuid} || file type: {file_type}')
 
-            if file_type['status'] != 'processed':
+            if doc_meta['status'] != 'processed':
                 self.services[file_type].update_collection_file(
                     doc_uuid
                 )

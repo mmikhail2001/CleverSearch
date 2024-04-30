@@ -4,6 +4,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from Processors.TextProcessor import TextProcessor
 import sys
 import logging
+import numpy as np
 
 sys.path.insert(0, './MLCore/')
 sys.path.insert(1, './MLCore/utils')
@@ -24,23 +25,21 @@ class SearchService():
 
         data_array = self.get_data_array(params)
 
-        logger.info(data_array)
-
         text_processor = TextProcessor()
-        query_emb = [text_processor.process_query_string(kwargs['query'])]
+        query_emb = np.array(text_processor.process_query_string(kwargs['query'])).reshape(1, -1)
 
         list_embs = [[obj['ml_data'][0]['Value']] for obj in data_array]
 
         dists = []
 
-        
+        logger.info(query_emb.shape)
 
         for i in range(len(list_embs)):
             for j in range(len(list_embs[i][0])):
+                print(np.array(list_embs[i][0][j]).shape)
                 dists.append(
-                    (i, j, cosine_similarity([list_embs[i][0][j]], query_emb))
+                    (i, j, cosine_similarity(np.array(list_embs[i][0][j]).reshape(1, -1), query_emb)) # [list_embs[i][0][j]]
                 )
-        logger.info(dists)
         sorted_list = sorted(dists, key=lambda x: x[2], reverse=True)[:5]
 
         if params['file_type'] == 'audio' or params['file_type'] == 'video':
