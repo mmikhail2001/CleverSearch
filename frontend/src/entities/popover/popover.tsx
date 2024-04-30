@@ -81,7 +81,9 @@ export const PopOver: FC<PopOverProps> = ({
     const ref = useRef<HTMLDivElement>(null)
 
     const handleClick = () => {
-        toggleOpen(true)
+        if (!open) {
+            toggleOpen(true)
+        }
     };
 
     const handleClose = () => {
@@ -119,6 +121,7 @@ export const PopOver: FC<PopOverProps> = ({
                     background: background,
                 }}}}
                 disableAutoFocus
+                disableEnforceFocus
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
