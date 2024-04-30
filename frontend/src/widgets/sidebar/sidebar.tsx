@@ -4,7 +4,7 @@ import { TextWithImg } from '@feature/textWithImg/textWithimg';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import './sidebar.scss';
-import { ButtonWithInput } from '@feature/buttonWithInput/buttonWithInput';
+import { TextWithInput } from '@feature/buttonWithInput/buttonWithInput';
 import { useGetInternalFilesMutation, useGetSharedFilesMutation, usePushFileMutation } from '@api/filesApi';
 import { useAppSelector } from '@store/store';
 import { useSearchMutation } from '@api/searchApi';
@@ -107,7 +107,7 @@ export const Sidebar: FC<SidebarProps> = ({
 					</div>
 					<div className='button_sidebar'>
 						<PopOver
-							background={'#961062'}
+							background={'var(--color-selected)'}
 							styleMain={{width: '179px'}}
 							mainElement={
 								<Button
@@ -122,51 +122,44 @@ export const Sidebar: FC<SidebarProps> = ({
 							open={isCreationPopOpen}
 							toggleOpen={setCreationPopOpen}
 							isCloseOnSelect={false}
-							variants='down'
+							variants='center'
 						>
 							{[
-								<div
-									style={{
-										padding: 'var(--normal-padding)',
-										gap: 'var(--normal-padding)',
-										display: 'flex',
-										flexDirection: 'column',
-									}}
-								>
-									<ButtonWithInput
-										buttonText="File"
-										onChange={(files: FileList) => {
-											const debouncFunc = debounce(() => {
-												setFilesWasSend(true)
-											}, 300);
-											
-											Array.from(files).forEach((file) => {
-												const formData = new FormData();
+								<TextWithInput
+									buttonText="File"
+									onChange={(files: FileList) => {
+										const debouncFunc = debounce(() => {
+											setFilesWasSend(true)
+										}, 300);
+										
+										Array.from(files).forEach((file) => {
+											const formData = new FormData();
 
-												formData.append('file', file, file.name);
-												formData.append('dir', ['', ...showReq.dir].join('/'));
-												send(formData);
-												debouncFunc();
-											});
-										}}
-										disabled={false}
-										variant={'text'}
-									></ButtonWithInput>
-									<FolderCreation
-										dirs={showReq.dir}
-										onFolderCreation={() => {
-											if (isSearch) {
-												search(param);
-											} else if(isShow) {
-												show(showReq.dir.join('/'));
-												dispatch(newValues({...showReq}))
-											} else if (isShared) {
-												showShared(showReq.dir.join('/'));
-												dispatch(newValues({...showReq}))
-											}
-										}}
-									/>
-								</div>
+											formData.append('file', file, file.name);
+											formData.append('dir', ['', ...showReq.dir].join('/'));
+											send(formData);
+											debouncFunc();
+										});
+										setCreationPopOpen(false)
+									}}
+									disabled={false}
+									variant={'text'}
+								></TextWithInput>,
+								<FolderCreation
+									dirs={showReq.dir}
+									onFolderCreation={() => {
+										if (isSearch) {
+											search(param);
+										} else if(isShow) {
+											show(showReq.dir.join('/'));
+											dispatch(newValues({...showReq}))
+										} else if (isShared) {
+											showShared(showReq.dir.join('/'));
+											dispatch(newValues({...showReq}))
+										}
+										setCreationPopOpen(false)
+									}}
+								/>
 							]}
 						</PopOver>
 					</div>

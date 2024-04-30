@@ -39,7 +39,7 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
 
     return (
         <ShowGlobal
-            firstElementInBreadCrumbs='Search'
+            firstElementInBreadCrumbs='Search results'
             breadCrumbsReactions={() => { return () => { }; } }
             dirs={[]}
             getValue={() => search(paramsSearch)}

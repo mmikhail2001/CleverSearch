@@ -101,6 +101,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 	const renderOpenBox = (): React.ReactNode => {
 		return (
 			<SearchBox
+				width={width}
 				key={'searchbox'}
 				fontSize={'var(--ft-body)'}
 				changeState={(obj: searchStateValue) => {
