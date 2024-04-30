@@ -42,7 +42,7 @@ export const transformToInternalParams = (obj: {
 // Search
 export const transformToSearchParams = (obj: {
     query?: string,
-    is_smart_search?: string,
+    smart?: string,
     file_type?: string,
     dir?: string,
   }) => {
@@ -57,6 +57,6 @@ export const transformToSearchParams = (obj: {
       fileType: fileType || 'all',
       dir: obj.dir ? obj.dir.split('/').filter(val => val !== '') : [],
       query: obj.query || '',
-      smartSearch: obj.is_smart_search === 'true' ? true : false,
+      smartSearch: obj.smart === 'true' ? true : false,
     } as SearchParams
 }

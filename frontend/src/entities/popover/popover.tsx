@@ -4,7 +4,7 @@ import { Popover as UIPopover } from '@mui/material'
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 import CSS from 'csstype'
 
-export type WhereToPlace = 'up' | 'down'
+export type WhereToPlace = 'up' | 'down' | 'center'
 export type WhatCorner = 'left' | 'right'
 
 const getOrigins = (variant: WhereToPlace, whatCorner: WhatCorner ): PopoverOrigin[] => {
@@ -26,6 +26,16 @@ const getOrigins = (variant: WhereToPlace, whatCorner: WhatCorner ): PopoverOrig
 
             }
             break;
+        case 'center':
+            anchorOrigin={
+                vertical: 'top',
+                horizontal: 'left',
+              }
+              transformOrigin={
+                vertical: 'top',
+                horizontal: 'left',
+              }
+            break;
         case 'down':
         default:
             anchorOrigin = {
@@ -37,7 +47,6 @@ const getOrigins = (variant: WhereToPlace, whatCorner: WhatCorner ): PopoverOrig
                 vertical: 'top',
                 horizontal: 'left',
             }
-
     }
     return [transformOrigin, anchorOrigin]
 }
@@ -106,6 +115,9 @@ export const PopOver: FC<PopOverProps> = ({
                         color:'inherit',
                     }}
                 }
+                slotProps={{paper:{style: {
+                    background: background,
+                }}}}
                 disableAutoFocus
                 anchorEl={anchorEl}
                 open={open}

@@ -14,6 +14,7 @@ interface SearchBoxProps {
 	search: () => void;
 	fontSize?: string
 	style?: CSS.Properties,
+	width: string,
 }
 
 const setToInitial = (
@@ -32,13 +33,14 @@ const setToInitial = (
 export const SearchBox: FC<SearchBoxProps> = ({
 	changeState,
 	state,
+	width,
 	onClick,
 	search,
 	fontSize,
 	style,
 }) => {
 	return (
-		<div className="search-box" style={style}>
+		<div className="search-box" style={{...style, width: width}}>
 			<AllSearchLines
 				fontSize={fontSize}
 				changeState={changeState}
