@@ -2,17 +2,11 @@ import { useAppSelector } from '@store/store';
 import React, { FC, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { useDeleteFileMutation } from '@api/filesApi';
-import {  useShowProcessedMutation } from '@api/searchApi';
-import { RenderFields } from '@widgets/renderFields/renderFields';
+import { useDeleteFileMutation, useGetUploadedFilesMutation } from '@api/filesApi';
 import { useNavigate } from 'react-router-dom';
 import {  switchToProcessed } from '@store/whatToShow';
-import { transfromToShowRequestString } from '@api/transforms';
-import '../show.scss'
-import { BreadCrumps } from '@entities/breadCrumps/breadCrumps';
-import { useShowParams } from '@helpers/hooks/useShowParams';
 import { removeFiles } from '@store/fileProcess';
-import {transformFromDiskToDiskName} from '@helpers/transformFromDiskToDiskName'
+import { ShowGlobal } from '../showGlobal';
 
 interface ShowProcessedFilesProps { }
 
@@ -20,8 +14,8 @@ interface ShowProcessedFilesProps { }
 export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
     const { isProccessed, whatDiskToShow } = useAppSelector(state => state.whatToShow)
     const navigate = useNavigate();
-    const { showState } = useShowParams()
-    const [show, showResp] = useShowProcessedMutation({ fixedCacheKey: 'processed' });
+
+    const [show, showResp] = useGetUploadedFilesMutation({ fixedCacheKey: 'processed' });
 
     const {isOpen} = useAppSelector(state => state.searchFilter)
 
@@ -32,10 +26,7 @@ export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
 
     useEffect(() => {
         if (isProccessed) {
-            show({
-                limit: 10,
-                offset: 0,
-                });
+            show(null);
         }
 
         if (filesProcessed.fileOnProcess && filesProcessed.fileOnProcess.length > 1) {
@@ -63,62 +54,20 @@ export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
 		},[mainElement.current, headerElement.current])
 
     return (
-        <div className="data-show" ref={mainElement} style={{filter: isOpen ? 'blur(5px)' : ''}}>
-            <div className="data-show__header" ref={headerElement}>
-                <BreadCrumps
-                    dirs={['Processed']}
-                    onClick={() => {
-                        const url = transfromToShowRequestString(
-                            {
-                                fileType: showState.fileType,
-                                disk: 'all',
-                                dir: [],
-                                limit: 10,
-                                offset: 0,
-                                externalDiskRequired: showState.externalDiskRequired,
-                                internalDiskRequired: showState.internalDiskRequired,
-                            }
-                        )
-                        navigate(url+`&diskToShow=${transformFromDiskToDiskName(whatDiskToShow)}`, { replace: true })
-                    }}
-                    reactOnElements={[
-                        // TODO если сделаем папки в processed
-                    ]}
-                />
-            </div>
-            <RenderFields
-                height={heightToSet}
-                data={showResp.data?.body}
-                error={showResp.error}
-                isError={showResp.isError}
-                isLoading={showResp.isLoading}
-                deleteFile={
-                    (fileName: string): void => {
-                        deleteFile([fileName]);
-                        setTimeout(() =>{
-                            show({
-                                limit: 10,
-                                offset: 0,
-                            });
-                        },
-                            100)
-                        }
-                    }
-                openFolder={(path) => {
-                    const url = transfromToShowRequestString(
-                        {
-                            fileType: showState.fileType,
-                            disk: showState.disk[0],
-                            limit: 10,
-                            offset: 0,
-                            dir: path || [],
-                            externalDiskRequired: showState.externalDiskRequired,
-                            internalDiskRequired: showState.internalDiskRequired,
-                        }
-                    )
-                    navigate(url+`&diskToShow=${transformFromDiskToDiskName(whatDiskToShow)}`, { replace: true })
-                }}
-            />
-        </div>
-    );
+        <ShowGlobal
+        firstElementInBreadCrumbs='Uploaded'
+        breadCrumbsReactions={() => { return () => { }; } }
+        dirs={[]}
+        getValue={() => show(null)}
+        data={showResp.data?.body}
+        error={showResp.error}
+        isError={showResp.isError}
+        isLoading={showResp.isLoading}
+        openFolder={() => {
+            return () => {}
+        }}
+        whatShow={isProccessed}
+        switchToWhatShow={() => dispatch(switchToProcessed())}
+        />
+    )
 };

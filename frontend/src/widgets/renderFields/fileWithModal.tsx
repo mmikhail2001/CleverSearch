@@ -1,9 +1,9 @@
 import { FileShow } from '@feature/fileShow/fileShow';
-import { fileFile } from '@models/searchParams';
 import React, { FC, useState } from 'react';
 import './renderFields.scss';
 import { useAddToFavouriteMutation, useDeleteToFavouriteMutation } from '@api/filesApi';
 import { useAppSelector } from '@store/store';
+import { fileFile } from '@models/files';
 
 export interface renderReturns {
 	renderModal: () => React.ReactNode | null;

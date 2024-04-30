@@ -9,7 +9,7 @@ const searchSlice = createSlice({
 		fileType: ['all' as fileTypes],
 		query: '',
 		dir: [] as string[],
-		disk: ['all'] as diskTypes[],
+		disk: ['internal'] as diskTypes[],
 	} as SearchParams,
 	reducers: {
 		newSearchValues(state, action: PayloadAction<SearchParams>) {

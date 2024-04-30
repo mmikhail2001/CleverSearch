@@ -80,8 +80,8 @@ export const UserProfile: FC<UserProfileProps> = ({
 			mainElement={profileMain()}
 		>
 			{[
-				<div onClick={() => navigate('/settings')}>Настройки</div>,
-				<div onClick={logout}>Выйти</div>,
+				<div onClick={() => navigate('/settings')}>Settings</div>,
+				<div onClick={logout}>Logout</div>,
 			]}
 		</DropDown >)
 	}

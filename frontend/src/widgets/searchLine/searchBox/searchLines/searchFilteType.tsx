@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { SearchParamsLocal } from '@models/searchParams';
+import { SearchParams } from '@models/searchParams';
 import {
 	SelectorMulti,
 } from '@entities/selectors/selectorMulti/selectorMulti';
@@ -10,9 +10,9 @@ import { Typography } from '@mui/material';
 
 export interface SearchFileTypeLineProps {
 	changeState: React.Dispatch<
-		React.SetStateAction<SearchParamsLocal>
+		React.SetStateAction<SearchParams>
 	>;
-	state: SearchParamsLocal;
+	state: SearchParams;
 	fontSize?: string,
 }
 
@@ -23,10 +23,10 @@ export const SearchFileType: FC<SearchFileTypeLineProps> = ({
 }) => {
 	return (
 		<div className="line">
-			<Typography fontSize={'var(--ft-body)'} className='line__name'>Тип файла</Typography>
+			<Typography fontSize={'var(--ft-body)'} className='line__name'>Type of file</Typography>
 			<SelectorMulti
 				fontSize={fontSize}
-				placeholder='Любой'
+				placeholder='Any'
 				options={getFilesTypesToOptions()}
 				isMulti={true}
 				onChange={(newVal) =>

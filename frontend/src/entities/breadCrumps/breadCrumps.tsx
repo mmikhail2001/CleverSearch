@@ -11,11 +11,9 @@ export interface BreadCrumpsProps {
     dirs: string[];
     // Reactions on all breadcrumps
     reactOnElements?: VoidFunc[]
-    // Reaction on button on all breadcrumps, like back
-    onClick: () => void
 }
 
-export const BreadCrumps: FC<BreadCrumpsProps> = ({ dirs, reactOnElements, onClick }) => {
+export const BreadCrumps: FC<BreadCrumpsProps> = ({ dirs, reactOnElements }) => {
     return <div className='bread-crumbs-container'>
         <Breadcrumbs
             sx={{color:'inherit'}}

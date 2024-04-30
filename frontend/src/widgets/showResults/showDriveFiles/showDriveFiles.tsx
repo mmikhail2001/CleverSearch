@@ -2,21 +2,22 @@ import { useAppSelector } from '@store/store';
 import React,{ FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { getInternalURLFront } from '@helpers/transformsToURL';
+import { getDriveURLFront } from '@helpers/transformsToURL';
 import { changeDir, newValues } from '@store/showRequest';
 import { switchToShow } from '@store/whatToShow';
 import { useNavigate } from 'react-router-dom';
 import { ShowGlobal } from '../showGlobal';
-import { useGetInternalFilesMutation } from '@api/filesApi';
-import { useSharedParams } from '@helpers/hooks/useShowParams';
+import { useGetDriveFilesMutation, useGetInternalFilesMutation } from '@api/filesApi';
+import { useShowDriveParams } from '@helpers/hooks/useShowParams';
 
-interface ShowShowedFilesProps { }
 
-export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
+interface ShowDriveFilesProps { }
+
+export const ShowDriveFiles: FC<ShowDriveFilesProps> = () => {
     const navigate = useNavigate();
-    useSharedParams()
+    useShowDriveParams()
     
-    const [show, showResp] = useGetInternalFilesMutation({ fixedCacheKey: 'show' });
+    const [show, showResp] = useGetDriveFilesMutation({ fixedCacheKey: 'show' });
     const showReq = useAppSelector(state => state.showRequest)
     
     const { isShow, whatDiskToShow } = useAppSelector(state => state.whatToShow)
@@ -24,8 +25,11 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (isShow) {
-            show([showReq.dir].join('/'));
+        if (isShow && typeof whatDiskToShow !== 'string') {
+            show({
+                dir:[showReq.dir].join('/'),
+                email: whatDiskToShow.cloud_email,
+            });
         }
 
     }, [showReq, isShow])
@@ -36,28 +40,45 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
 
     return (
         <ShowGlobal
-            getValue={() => show(showReq.dir.join('/'))} 
+            getValue={() => {
+                if (typeof whatDiskToShow !== 'string') {
+                    show({
+                        dir:[showReq.dir].join('/'),
+                        email: whatDiskToShow.cloud_email,
+                    });
+                } else {
+                    console.error('whatDiskToShow is equal to string in driver page')
+                }
+            }} 
             whatShow={isShow} 
             switchToWhatShow={() => dispatch(switchToShow())} 
             firstElementInBreadCrumbs={'Show'} 
             dirs={[...showReq.dir]} 
             breadCrumbsReactions={(dir, index) => {
                 return () => {
-                    
+                    if (typeof whatDiskToShow === 'string') {
+                        console.warn("open folder with wrong disk")
+                        return
+                    }
+
                     let dirToSet: string[] = []
                     if (index !== 0) 
                         dirToSet = showReq.dir.slice(0, index)
-                    const url = getInternalURLFront(dirToSet)
+                    const url = getDriveURLFront(dirToSet,whatDiskToShow.cloud_email)
                     dispatch(changeDir(dirToSet))
                     navigate(url, { replace: true })
                 }}
             } 
-            openFolder={(path, disk) => {
-                const url = getInternalURLFront(path)
+            openFolder={(path) => {
+                if (typeof whatDiskToShow === 'string') {
+                    console.warn("open folder with wrong disk")
+                    return
+                }
+                const url = getDriveURLFront(path,whatDiskToShow.cloud_email)
                 dispatch(newValues({
                     ...showReq,
                     dir: path,
-                    disk: disk,
+                    disk: whatDiskToShow.cloud_email,
                     }))
                 navigate(url, { replace: true })
             }}

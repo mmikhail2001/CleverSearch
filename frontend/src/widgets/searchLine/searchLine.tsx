@@ -26,6 +26,7 @@ import { useAppSelector } from '@store/store';
 import { compareArrays } from '@helpers/hooks/useShowParams';
 import { newValues } from '@store/showRequest';
 import { changeOpenFilter } from '@store/searchFilter';
+import { getSearchURLFront } from '@helpers/transformsToURL';
 
 export interface searchStateValue {
 	smartSearch: boolean;
@@ -67,7 +68,6 @@ export const SearchLine: FC<SearchLineProps> = ({
 			query: searchReq.query,
 			smartSearch: searchReq.smartSearch,
 			dir: searchReq.dir,
-			disk: searchReq.disk,
 			fileType: searchReq.fileType,
 		})
 	}, [searchReq])
@@ -94,7 +94,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 			0
 		)
 
-		const url = transformToSearchRequestString({ ...searchValue, limit: 10, offset: 0 })
+		const url = getSearchURLFront(searchValue.fileType,searchValue.smartSearch, searchValue.dir, searchValue.query)
 		navigate(url)
 	}
 
@@ -156,7 +156,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 									setSearchValue({ ...searchValue, query: e.target.value })
 								}
 								disabled={response.isLoading}
-								placeholder={'Найдём любой файл'}
+								placeholder={'Find any file'}
 								type={'search'}
 								value={searchValue?.query || ''}
 							/>

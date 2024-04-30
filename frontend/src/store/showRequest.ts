@@ -6,18 +6,9 @@ import { ConnectedClouds } from '@models/user';
 const showSlice = createSlice({
 	name: 'searchReq',
 	initialState: {
-		limit: 10,
-        offset: 0,
         fileType: ['all' as fileTypes],
         dir: [] as string[],
         disk: 'all' as diskTypes,
-        sharedReq: true,
-        dirsReq: true,
-        filesReq: true,
-        nestingReq: true,
-        personalReq: true,
-        externalDiskRequired: true,
-        internalDiskRequired: true,
 	} as ShowParams,
 	reducers: {
 		newValues(state, action: PayloadAction<ShowParams>) {

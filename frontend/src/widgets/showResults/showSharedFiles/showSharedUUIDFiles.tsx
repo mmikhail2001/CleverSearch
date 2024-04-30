@@ -3,7 +3,6 @@ import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useShowSharedByIDMutation } from '@api/searchApi';
-import { transfromToSharedRequestParams } from '@api/transforms';
 import { switchToShared } from '@store/whatToShow';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -32,13 +31,8 @@ export const ShowSharedUUIDFiles: FC<ShowSharedUUIDFilesProps> = () => {
 	useEffect(() => {
 		if (searchRespUUID.isSuccess) {
 			navigate(
-				`/shared/${transfromToSharedRequestParams(
-					{
-						limit: 10,
-						offset: 0,
-						disk: 'all',
-						dir: data.body.path.split('/')
-					})}`)
+				`/shared?dir=${data.body.path}`
+			)
 		}
 	})
 

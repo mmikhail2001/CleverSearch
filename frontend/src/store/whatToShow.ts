@@ -10,6 +10,7 @@ const showSlice = createSlice({
 		isProccessed: false,
 		isShared: false,
 		isLoved: false,
+		isDrive: false,
 		whatDiskToShow: '' as diskTypes | ConnectedClouds,
 	},
 	reducers: {
@@ -19,6 +20,7 @@ const showSlice = createSlice({
 			state.isProccessed = false;
 			state.isShared = false;
 			state.isLoved = false;
+			state.isDrive = false
 		},
 		switchToShow(state) {
 			state.isShow = true;
@@ -26,6 +28,7 @@ const showSlice = createSlice({
 			state.isProccessed = false;
 			state.isShared = false;
 			state.isLoved = false;
+			state.isDrive = false
 		},
 		switchToProcessed(state) {
 			state.isShow = false;
@@ -33,6 +36,7 @@ const showSlice = createSlice({
 			state.isProccessed = true;
 			state.isShared = false;
 			state.isLoved = false;
+			state.isDrive = false
 		},
 		switchToShared(state) {
 			state.isShow = false;
@@ -40,6 +44,7 @@ const showSlice = createSlice({
 			state.isProccessed = false;
 			state.isShared = true;
 			state.isLoved = false;
+			state.isDrive = false
 		},
 		switchToLoved(state) {
 			state.isShow = false;
@@ -47,6 +52,15 @@ const showSlice = createSlice({
 			state.isProccessed = false;
 			state.isShared = false;
 			state.isLoved = true;
+			state.isDrive = false
+		},
+		switchToDrive(state) {
+			state.isShow = false;
+			state.isSearch = false;
+			state.isProccessed = false;
+			state.isShared = false;
+			state.isLoved = false;
+			state.isDrive = true
 		},
 		switchDisk(state, action: PayloadAction<diskTypes | ConnectedClouds>) {
 			return {
@@ -67,6 +81,7 @@ export const {
 	switchToShared,
 	switchToLoved ,
 	switchDisk,
+	switchToDrive,
 	} = actions;
 // Export the reducer, either as a default or named export
 export default reducer;

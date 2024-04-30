@@ -2,10 +2,7 @@ import { Modal } from '@feature/modal/modal';
 import { ViewImg } from '@feature/showFiles/viewImg/viewImg';
 import { ViewPDF } from '@feature/showFiles/viewPDF/pdfViewer';
 import { VideoPlayer } from '@feature/videoPlayer/videoPlayer';
-import documentIconPath from '@icons/files/Book.svg';
-import folderIconPath from '@icons/files/Folder.svg';
-import imageIconPath from '@icons/files/image.svg';
-import { AccessRights, fileFile, getAccessRights } from '@models/searchParams';
+import { AccessRights, getAccessRights } from '@models/searchParams';
 import { SerializedError, UnknownAction } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import React, { Dispatch, FC } from 'react';
@@ -22,6 +19,8 @@ import FolderIcon from '@mui/icons-material/Folder';
 import ArticleRoundedIcon from '@mui/icons-material/ArticleRounded';
 import VideoFileRoundedIcon from '@mui/icons-material/VideoFileRounded';
 import AccessibleForwardRoundedIcon from '@mui/icons-material/AccessibleForwardRounded';
+import { fileFile } from '@models/files';
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
 export interface RenderFieldsProps {
 	height?:string,
@@ -54,9 +53,9 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 			return <h1>{getErrorMessageFromErroResp(error)}</h1>;
 		}
 
-	if (!data || data.length === 0) {
+	if (isNullOrUndefined(data) || !data || data.length === 0) {
 		return <div className='show-all-files' style={{fontSize: 'var(--ft-body-plus)'}}>
-			К сожалению нет файлов :(
+			Nothing here :(
 			</div>;
 	}
 
@@ -64,7 +63,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 		const imgSrc = <FolderIcon fontSize='inherit' sx={{color: "#DB9713"}} />;
 		const clickHandler = () => {
 			const dirsPath = file.path.split('/')
-			let disk: diskTypes | ConnectedClouds = 'all';
+			let disk: diskTypes | ConnectedClouds = 'internal';
 			if (file.cloud_email !== '') {
 				disk = {
 					cloud_email:file.cloud_email, 
@@ -129,19 +128,19 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 			)
 		}
 		
-		const imgSrc = <VideoFileRoundedIcon fontSize='inherit' sx={{color: "#EA4335"}} />;
+		const imgSrc = <VideoFileRoundedIcon fontSize='inherit' sx={{color: "#DC15BC"}} />;
 		return { clickHandler: () => { }, imgSrc, renderModal }
 	};
 
 	return (
 		<div key={'rendered-list'} className='show-all-files' style={{height: height}}>
 			<div className='file-show-line' style={{cursor: 'default'}}>
-				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Название</Typography>
-				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Дата добавления</Typography>
-				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Автор</Typography>
+				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Name</Typography>
+				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Created date</Typography>
+				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Author</Typography>
 				{isMobile 
 				? null 
-				:<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Размер</Typography>
+				:<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Size</Typography>
 				}
 				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}></Typography>
 				

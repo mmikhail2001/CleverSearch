@@ -68,11 +68,11 @@ export const FileShow: FC<FileShowProps> = ({
 					event.stopPropagation();
 					onDelete();
 					setOpenDropDown(false)
-				}}>Удалить</div>
+				}}>Remove</div>
 				: null}
 			{config.isCanBeLoved ? 
 			<div onClick={onFavourite}>
-				{!config.isLoved ? 'В Избранное' : 'Убрать из избранного'}
+				{!config.isLoved ? 'To Favourite' : 'Remove from Favourite'}
 			</div>
 			: null
 			}
@@ -84,7 +84,7 @@ export const FileShow: FC<FileShowProps> = ({
 							setOpen(true);
 						}}
 					>
-						Поделиться
+						Share
 					</div>
 				</React.Fragment>
 				: null}

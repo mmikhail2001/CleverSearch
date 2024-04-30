@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Folder, FolderResp } from '@models/folder';
-import { SearchResponse, ShareRequest, ShareResponse, fileFile } from '@models/searchParams';
+import { SearchResponse, ShareRequest, ShareResponse } from '@models/searchParams';
+import {DriveReq, fileFile} from '@models/files'
 
 export const filesApi = createApi({
 	reducerPath: 'filesApi',
@@ -8,13 +9,6 @@ export const filesApi = createApi({
 		baseUrl: `${process.env.protocol}://${process.env.adress}/api/`,
 	}),
 	endpoints: (builder) => ({
-		getFolders: builder.mutation<SearchResponse, string>({
-			query: (folderSearch: string) => ({
-				// HACK cloud email
-				url: `files?query=${folderSearch}&dir=/&cloud_email&limit=20&offset=0&files_required=false&dirs_required=true`,
-				method: 'GET',
-			}),
-		}),
 		createDir: builder.mutation<FolderResp, string[]>({
 			query: (dirPath: string[]) => ({
 				url: `/dirs/create?dir_path=${['', ...dirPath].join('/')}`,
@@ -44,22 +38,59 @@ export const filesApi = createApi({
 				body: request
 			}),
 		}),
-		
+
 		addToFavourite: builder.mutation<ShareResponse, string>({
 			query: (id: string) => ({
 				url: `/files/favs/add/${id}`,
 				method: 'POST',
 			}),
 		}),
+
 		deleteToFavourite: builder.mutation<ShareResponse, string>({
 			query: (id: string) => ({
 				url: `/files/favs/delete/${id}`,
 				method: 'POST',
 			}),
 		}),
+
 		getFavourite: builder.mutation<SearchResponse, null>({
 			query: () => ({
 				url: '/files/favs',
+				method: 'GET',
+			}),
+		}),
+
+		getUploadedFiles: builder.mutation<SearchResponse, null>({
+			query: () => ({
+				url: `/v2/files/uploaded`,
+				method: 'GET',
+			}),
+		}),
+
+		getSharedFiles: builder.mutation<SearchResponse, string>({
+			query: (dir:string) => ({
+				url: `/v2/files/shared?dir=/${dir}`,
+				method: 'GET',
+			}),
+		}),
+
+		getDriveFiles: builder.mutation<SearchResponse, DriveReq>({
+			query: (request:DriveReq) => ({
+				url: `/v2/files/drive?dir=/${request.dir}&cloud_email=${request.email}`,
+				method: 'GET',
+			}),
+		}),
+
+		getInternalFiles: builder.mutation<SearchResponse, string>({
+			query: (dir:string) => ({
+				url: `/v2/files/internal?dir=/${dir}`,
+				method: 'GET',
+			}),
+		}),
+
+		getDirs: builder.mutation<SearchResponse, string>({
+			query: (query:string) => ({
+				url: `/v2/files/dirs?query=${query}`,
 				method: 'GET',
 			}),
 		}),
@@ -68,11 +99,15 @@ export const filesApi = createApi({
 
 export const {
 	useDeleteFileMutation,
-	useGetFoldersMutation,
 	usePushFileMutation,
 	useCreateDirMutation,
 	useGetShareUrlMutation,
 	useDeleteToFavouriteMutation,
 	useAddToFavouriteMutation,
 	useGetFavouriteMutation,
+	useGetDirsMutation,
+	useGetDriveFilesMutation,
+	useGetInternalFilesMutation,
+	useGetSharedFilesMutation,
+	useGetUploadedFilesMutation,
 } = filesApi;

@@ -27,8 +27,6 @@ export const DiskView: FC<DiskViewProps> = ({
     const showReq = useAppSelector(state => state.showRequest)
     const [refresh, refreshResp] = useUpdateDiskMutation()
     
-
-
     useEffect(() => {
         if (refreshResp.isSuccess &&  typeof showReq.disk !== 'string' && showReq.disk.disk === nameOfSelectedDisk) {
             dispatch(newValues({...showReq, disk: showReq.disk}))
@@ -62,7 +60,7 @@ export const DiskView: FC<DiskViewProps> = ({
             }
         )
 
-    const allDiskInfo = diskImgSrc.get('all')
+    const allDiskInfo = diskImgSrc.get('internal')
 
     disksToShow.push(
         <TextWithImg

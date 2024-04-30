@@ -53,6 +53,7 @@ interface PopOverProps {
     toggleOpen: (state: boolean) => void;
     // left-top right-top left-bottom right-bottom
     marginTop?: string,
+    background?: string,
 }
 
 export const PopOver: FC<PopOverProps> = ({
@@ -65,6 +66,7 @@ export const PopOver: FC<PopOverProps> = ({
     styleMain,
     marginTop,
     whatCorner,
+    background,
 }) => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const ref = useRef<HTMLDivElement>(null)
@@ -98,7 +100,7 @@ export const PopOver: FC<PopOverProps> = ({
                 sx={{
                     marginTop: marginTop, 
                     '& > div': {
-                        backgroundColor: 'transparent',
+                        backgroundColor: background,
                         borderRadius: 'var(--big-radius)',
                         boxShadow:'3px 3px 10px 4px rgba(0,0,0,0.1)',
                         color:'inherit',

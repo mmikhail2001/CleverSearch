@@ -53,7 +53,7 @@ export const MainPage: FC = () => {
 					buttonText='Домашняя'
 					clickHandler={() => {
 						dispatch(switchToShow())
-						dispatch(changeDisk('all'))
+						dispatch(changeDisk('internal'))
 						dispatch(changeDir( [] ))
 						navigate('/files')
 					}}
@@ -64,7 +64,7 @@ export const MainPage: FC = () => {
 					buttonText='Доступные'
 					clickHandler={() => {
 						dispatch(switchToShow())
-						dispatch(changeDisk('all'))
+						dispatch(changeDisk('internal'))
 						navigate('/shared')
 					}}
 					variant='outlined'

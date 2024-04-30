@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { SearchParamsLocal, fileTypes } from '@models/searchParams';
+import { SearchParams, fileTypes } from '@models/searchParams';
 import { Button } from '@entities/button/button';
 import './searchBox.scss';
 import { AllSearchLines } from './allSearchLines'
@@ -8,8 +8,8 @@ import { diskTypes } from '@models/disk';
 
 // TODO make this type not structs
 interface SearchBoxProps {
-	changeState: React.Dispatch<React.SetStateAction<SearchParamsLocal>>;
-	state: SearchParamsLocal;
+	changeState: React.Dispatch<React.SetStateAction<SearchParams>>;
+	state: SearchParams;
 	onClick: () => void;
 	search: () => void;
 	fontSize?: string
@@ -18,15 +18,14 @@ interface SearchBoxProps {
 
 const setToInitial = (
 	changeState: React.Dispatch<
-		React.SetStateAction<SearchParamsLocal>>,
-	state: SearchParamsLocal,
+		React.SetStateAction<SearchParams>>,
+	state: SearchParams,
 ) => {
 	changeState({
 		fileType: ['all' as fileTypes],
 		smartSearch: false,
 		query: state.query,
 		dir: [],
-		disk: ['all'] as diskTypes[],
 	});
 };
 
@@ -52,7 +51,7 @@ export const SearchBox: FC<SearchBoxProps> = ({
 					style={{color: 'rgba(255,255,255, 0.8)'}}
 					fontSize={fontSize}
 					variant={'text'}
-					buttonText="Сбросить"
+					buttonText="Clear"
 					clickHandler={() => setToInitial(changeState, state)}
 					disabled={false}
 				></Button>
@@ -60,7 +59,7 @@ export const SearchBox: FC<SearchBoxProps> = ({
 					style={{color: 'inherit'}}	
 					fontSize={fontSize}
 					variant={'contained'}
-					buttonText="Искать"
+					buttonText="Search"
 					clickHandler={() => {
 						search();
 						onClick();

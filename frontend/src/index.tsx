@@ -12,6 +12,7 @@ import { AuthProvider, RequireAuth, ProtectedFromAuthUser } from './authProvider
 import ErrorPage from '@pages/errorPage/errorPage';
 
 import { ShowShowedFiles } from '@widgets/showResults/showShowedFiles/showShowedFiles'
+import { ShowDriveFiles } from '@widgets/showResults/showDriveFiles/showDriveFiles'
 import { ShowSearchedFiles } from '@widgets/showResults/showSearchedFiles/showSearchedFiles'
 import { ShowSharedFiles } from '@widgets/showResults/showSharedFiles/showSharedFiles'
 import { ShowProcessedFiles } from '@widgets/showResults/showProcessed/showProcessed'
@@ -43,12 +44,13 @@ root.render(
 					<MobileProvider>
 						<Routes>
 							<Route path='/' errorElement={<ErrorPage />} element={<RequireAuth><MainPage /></RequireAuth>}>
-								<Route path={'/files'} element={<ShowShowedFiles></ShowShowedFiles>}></Route>
-								<Route path={'/files/search'} element={<ShowSearchedFiles></ShowSearchedFiles>}></Route>
+								<Route path={'/internal'} element={<ShowShowedFiles></ShowShowedFiles>}></Route>
+								<Route path={'/drive'} element={<ShowDriveFiles></ShowDriveFiles>}></Route>
+								<Route path={'/search'} element={<ShowSearchedFiles></ShowSearchedFiles>}></Route>
 								<Route index element={<ShowShowedFiles></ShowShowedFiles>}></Route>
 								<Route path='/dirs/:diruuid' element={<ShowSharedUUIDFiles />}></Route >
 								<Route path='/shared' element={<ShowSharedFiles />}></Route >
-								<Route path='/processed' element={<ShowProcessedFiles />}></Route >
+								<Route path='/uploaded' element={<ShowProcessedFiles />}></Route >
 								<Route path='/loved' element={<ShowLovedFiles />}></Route >
 								<Route path='*' element={<ErrorPage />}></Route>
 							</Route>
