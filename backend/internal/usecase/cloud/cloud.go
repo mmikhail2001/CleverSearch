@@ -249,12 +249,6 @@ func (uc *Usecase) GetToken(ctx context.Context, cloudEmail string, cloudID stri
 		return "", sharederrors.ErrUserNotFoundInContext
 	}
 
-	err := uc.UpdateAllTokens(ctx, &user)
-	if err != nil {
-		log.Println("UpdateAllTokens err:", err)
-		return "", err
-	}
-
 	cloudFile, err := uc.fileRepo.GetFileByCloudID(ctx, cloudID)
 	if err != nil {
 		return "", err
@@ -284,16 +278,34 @@ func (uc *Usecase) GetToken(ctx context.Context, cloudEmail string, cloudID stri
 		}
 	}
 
-	// TODO:
-	if cloudFile.UserID != user.ID && !isShare {
-		log.Println("request to file, but owner invalid")
-		return "", fmt.Errorf("request to file, but owner invalid")
+	var userWithToken cleveruser.User
+	if isShare {
+		userWithToken, err = uc.userRepo.GetUserByID(ctx, cloudFile.UserID)
+		if err != nil {
+			log.Println("GetUserByID err:", err)
+			return "", err
+		}
+	} else {
+		userWithToken = user
 	}
-	for _, cloud := range user.ConnectedClouds {
+
+	err = uc.UpdateAllTokens(ctx, &userWithToken)
+	if err != nil {
+		log.Println("UpdateAllTokens err:", err)
+		return "", err
+	}
+
+	// if cloudFile.UserID != user.ID && !isShare {
+	// 	log.Println("request to file, but owner invalid")
+	// 	return "", fmt.Errorf("request to file, but owner invalid")
+	// }
+
+	for _, cloud := range userWithToken.ConnectedClouds {
 		if cloud.CloudEmail == cloudEmail {
 			return cloud.Token.AccessToken, nil
 		}
 	}
+
 	log.Println("not found cloud email")
 	return "", fmt.Errorf("not found cloud email")
 
