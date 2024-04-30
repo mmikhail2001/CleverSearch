@@ -1,6 +1,7 @@
 package file
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
@@ -31,6 +32,26 @@ type FileDTO struct {
 	Timestart   int             `json:"timestart"`
 	Duration    time.Duration   `json:"duration"`
 	IsFav       bool            `json:"is_fav"`
+}
+
+func (fd *FileDTO) MarshalJSON() ([]byte, error) {
+	type Alias FileDTO
+	now := time.Now()
+	formattedDate := ""
+
+	if fd.TimeCreated.Format("2006-01-02") == now.Format("2006-01-02") {
+		formattedDate = "today at" + fd.TimeCreated.Format("15:04")
+	} else {
+		formattedDate = fd.TimeCreated.Format("02 January 2006")
+	}
+
+	return json.Marshal(&struct {
+		*Alias
+		TimeCreated string `json:"time_created"`
+	}{
+		Alias:       (*Alias)(fd),
+		TimeCreated: formattedDate,
+	})
 }
 
 type FileForMLDTO struct {

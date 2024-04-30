@@ -3,7 +3,6 @@ package file
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"regexp"
 
@@ -42,8 +41,6 @@ func (r *Repository) GetFilesV2(ctx context.Context, fileOptions file.FileOption
 	if !fileOptions.IgnoreCloudEmail {
 		filter["cloud_email"] = fileOptions.CloudEmail
 	}
-
-	fmt.Printf("fileOptions == %#v\n\n\n", fileOptions)
 
 	opts := options.Find().SetSort(bson.D{{Key: "filename", Value: 1}})
 

@@ -3,7 +3,6 @@ package file
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"strings"
 
@@ -25,8 +24,6 @@ func (uc *Usecase) ProccessedUploaded(ctx context.Context, options fileDomain.Fi
 		return []fileDomain.File{}, err
 	}
 	var files []fileDomain.File
-
-	fmt.Printf("options = %#v\n\n", options)
 
 	options.IgnoreCloudEmail = true
 	files, err = uc.SharedDriveInternal(ctx, options)
@@ -51,8 +48,6 @@ func (uc *Usecase) Shared(ctx context.Context, options fileDomain.FileOptionsV2)
 		return []fileDomain.File{}, err
 	}
 
-	fmt.Printf("shared options 1: %#v\n\n", options)
-
 	var files []fileDomain.File
 	options.IgnoreCloudEmail = true
 	if options.Dir == "/" {
@@ -75,7 +70,6 @@ func (uc *Usecase) Shared(ctx context.Context, options fileDomain.FileOptionsV2)
 				options.UserID = ""
 				tmpOptionsDir := options.Dir
 				options.Dir = sharedDir.Path
-				fmt.Printf("options into shared dir: %#v\n\n---\n", options)
 				filesTmp, err := uc.repo.GetFilesV2(ctx, options)
 				options.Dir = tmpOptionsDir
 
@@ -118,9 +112,6 @@ func (uc *Usecase) Drive(ctx context.Context, options fileDomain.FileOptionsV2) 
 		return []fileDomain.File{}, err
 	}
 	var files []fileDomain.File
-
-	log.Println("options.CloudEmail = ", options.CloudEmail)
-	fmt.Printf("user = %#v\n\n", user)
 
 	if options.CloudEmail != "" {
 		files, err = uc.repo.GetFilesV2(ctx, options)
@@ -175,6 +166,7 @@ smart = false
 smart = true
   - вызвать метод SmartSearch
 */
+
 func (uc *Usecase) SearchV2(ctx context.Context, options fileDomain.FileOptionsV2) ([]fileDomain.File, error) {
 	_, err := handleDirSetUser(ctx, &options)
 	if err != nil {
@@ -208,6 +200,7 @@ func (uc *Usecase) SearchV2(ctx context.Context, options fileDomain.FileOptionsV
 	- вызвать Drive 			(DirsRequired = true, 	FilesRequired = false)
 	- вызвать Internal 			(DirsRequired = true, 	FilesRequired = false)
 */
+
 func (uc *Usecase) Dirs(ctx context.Context, options fileDomain.FileOptionsV2) ([]fileDomain.File, error) {
 	_, err := handleDirSetUser(ctx, &options)
 	if err != nil {
@@ -239,7 +232,6 @@ func (uc *Usecase) SharedDriveInternal(ctx context.Context, options fileDomain.F
 	if err != nil && !errors.Is(err, file.ErrNotFound) {
 		return []fileDomain.File{}, err
 	}
-	printPaths(filesTmp, ">> shared")
 	files = append(files, filesTmp...)
 
 	// drive
@@ -247,7 +239,6 @@ func (uc *Usecase) SharedDriveInternal(ctx context.Context, options fileDomain.F
 	if err != nil && !errors.Is(err, file.ErrNotFound) {
 		return []fileDomain.File{}, err
 	}
-	printPaths(filesTmp, ">> drive")
 	files = append(files, filesTmp...)
 
 	// internal
@@ -255,7 +246,6 @@ func (uc *Usecase) SharedDriveInternal(ctx context.Context, options fileDomain.F
 	if err != nil && !errors.Is(err, file.ErrNotFound) {
 		return []fileDomain.File{}, err
 	}
-	printPaths(filesTmp, ">> internal")
 	files = append(files, filesTmp...)
 
 	return files, err
