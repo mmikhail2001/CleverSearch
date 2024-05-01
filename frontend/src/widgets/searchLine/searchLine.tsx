@@ -85,17 +85,18 @@ export const SearchLine: FC<SearchLineProps> = ({
 	}
 
 	function mySearch(): void {
-		dispatch(switchToSearch());
 		dispatch(newSearchValues(searchValue));
 		dispatch(newValues({...showReq, dir: []}))
-
+		
 		setTimeout(
 			() => setisBoxOpen(false),
 			0
 		)
-
+		
 		const url = getSearchURLFront(searchValue.fileType,searchValue.smartSearch, searchValue.dir, searchValue.query)
 		navigate(url)
+
+		dispatch(switchToSearch());
 	}
 
 	const renderOpenBox = (): React.ReactNode => {

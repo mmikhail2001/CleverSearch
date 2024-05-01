@@ -29,19 +29,15 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     const [query, setQuery] = useState<SearchParams>({} as SearchParams)
 
     useEffect(() => {
-        if (searchParams.query !== query.query
+        if (isSearch && (searchParams.query !== query.query
             || searchParams.dir !== query.dir
             || searchParams.fileType !== query.fileType
             || searchParams.smartSearch !== query.smartSearch
-        ) {
+        )) {
             search(searchParams)
             setQuery(searchParams)
         }
     }, [searchParams])
-
-    if (!isSearch) {
-        dispatch(switchToSearch())
-    }
 
     const paramsSearch = useAppSelector((state) => state.searchRequest);
 

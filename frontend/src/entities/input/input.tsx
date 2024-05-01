@@ -19,6 +19,7 @@ interface InputProps {
 	fontSize?: string;
 	style?: SxProps<Theme>,
 	border?:string,
+	sepecificVariant?: 'big-radius' | 'small-radius' | 'default',
 }
 
 export const Input: FC<InputProps> = ({
@@ -36,6 +37,7 @@ export const Input: FC<InputProps> = ({
 	fontSize,
 	style,
 	border,
+	sepecificVariant,
 }) => {
 	let changeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	if (!disabled) {
@@ -44,11 +46,60 @@ export const Input: FC<InputProps> = ({
 		changeHandler = () => { };
 	}
 
-	let cssProps: SxProps<Theme>= style || {};
+	let cssPropsMain: SxProps<Theme> = {};
+	let cssPropsInput: CSS.Properties = {};
+
+	switch (sepecificVariant) {
+		case 'big-radius':
+			cssPropsMain = {
+				color:'inherit',
+				"& .Mui-focused": {
+					border: '1px solid rgba(255,255,255,1)',
+					outline:"none",
+				},
+				'& .MuiOutlinedInput-notchedOutline': {
+					outline: 'none',
+					borderColor: 'rgba(255,255,255,0.4) !important',
+				},
+				'& input[type=email]': {
+					padding: '15px !important', 
+				},
+				'& input[type=password]': {
+					padding: '15px !important', 
+				},
+			}
+			cssPropsInput = {
+				fontSize: 'var(--ft-body)',
+			}
+			break;
+		case 'small-radius':
+			cssPropsMain = {
+				color:'inherit',
+				"& .Mui-focused": {
+					border: '1px solid rgba(255,255,255,1)',
+					outline:"none",
+				},
+				'& .MuiOutlinedInput-notchedOutline': {
+					outline: 'none',
+					borderColor: 'rgba(255,255,255,0.4) !important',
+				},
+				'& input[type=email]': {
+					padding: '15px !important', 
+				},
+				'& input[type=password]': {
+					padding: '15px !important', 
+				},
+			}
+			cssPropsInput = {
+				fontSize: 'var(--ft-body)',
+			}
+			break;
+		case 'default':
+		default:
+	}
 
 	return (
 		<UIInput
-			// style={cssProps}
 			disabled={disabled}
 			ref={ref}
 			variant={variant === 'text' ? 'standard' : variant}
@@ -61,11 +112,12 @@ export const Input: FC<InputProps> = ({
 			onKeyDown={onKeyDown}
 			sx={{ 
 				fontSize: fontSize, 
-				...cssProps,
+				...cssPropsMain,
 			}}
 			InputProps={{
 				disableUnderline: variant === 'text',
-				style: { 
+				style: {
+					...cssPropsInput,
 					fontSize: fontSize, 
 					color: 'inherit',
 					border: border,

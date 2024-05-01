@@ -85,7 +85,7 @@ export const Button: FC<ButtonProps> = ({
 		justifyContent: variant === 'text' ? 'start' : null,
 		padding: variant === 'text' ? '0' : null,
 	};
-	console.log('variant', variant)
+
 	switch (variant) {
 		case 'contained':
 		break;
@@ -97,7 +97,6 @@ export const Button: FC<ButtonProps> = ({
 			}
 		break;
 		case 'text':
-			console.log('CSSS style text')
 			cssStyles= {
 				...cssStyles,
 				backgroundColor: 'transparent',
