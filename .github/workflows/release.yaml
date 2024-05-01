@@ -21,7 +21,6 @@ jobs:
         run: docker push windowskonon1337/cleversearch_backend:latest
 
   build_mlcore:
-    if: false
     name: Build and Push MLCore Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -49,8 +48,8 @@ jobs:
 
   deploy:
     name: Deploy on Server
-    needs: [build_backend, build_mlcore, build_frontend]
-    # needs: [build_backend, build_frontend]
+    # needs: [build_backend, build_mlcore, build_frontend]
+    needs: [build_backend, build_frontend]
     runs-on: ubuntu-latest
     steps:
       - name: Update Docker Compose on Production
