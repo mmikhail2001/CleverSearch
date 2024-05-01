@@ -83,8 +83,8 @@ services:
       - backend
     volumes:
       # dd exec -it containerID nginx -s reload
-      - ./config/default.conf:/etc/nginx/conf.d/default.conf
-      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend/config/nginx_dev/default.conf:/etc/nginx/conf.d/default.conf
+      - ./frontend/config/nginx_dev/nginx.conf:/etc/nginx/nginx.conf
       - ./frontend:/app/frontend
     networks:
       clevernet:

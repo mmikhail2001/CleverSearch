@@ -53,6 +53,7 @@ services:
       - mongodb
       - minio
     volumes:
+      - ./creds.json:/app/creds.json
       - minio_data:/app/minio_files
     networks:
       clevernet.prod:
@@ -72,6 +73,7 @@ services:
   frontend:
     image: windowskonon1337/cleversearch_frontend
     ports:
+      - 80:80
       - 443:443
     restart: always
     volumes:
@@ -81,6 +83,7 @@ services:
     networks:
       clevernet.prod:
 
+# volumes :)
 volumes:
   minio_data:
   mongo_data:

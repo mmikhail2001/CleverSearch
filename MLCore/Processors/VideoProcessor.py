@@ -20,7 +20,7 @@ class VideoProcessor(IDataProcessor):
         video_path = video_path.replace(' ', '')
         audio_path = video_path.split('.')[0] + '.mp3'
 
-        logger.info(f'audio_path: {audio_path}')
+        # logger.info(f'audio_path: {audio_path}')
 
         os.system(f'ffmpeg -i {video_path} {audio_path} > /dev/null')
 
