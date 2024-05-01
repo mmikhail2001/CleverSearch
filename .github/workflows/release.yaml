@@ -20,18 +20,18 @@ jobs:
       - name: Push backend image to Docker Hub
         run: docker push windowskonon1337/cleversearch_backend:latest
 
-  # build_mlcore:
-  #   name: Build and Push MLCore Docker Image
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
-  #     - name: Login to Docker Hub
-  #       run: echo "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | docker login --username windowskonon1337 --password-stdin
-  #     - name: Build mlcore image
-  #       run: docker build -t windowskonon1337/cleversearch_mlcore:latest ./MLCore
-  #     - name: Push mlcore image to Docker Hub
-  #       run: docker push windowskonon1337/cleversearch_mlcore:latest
+  build_mlcore:
+    name: Build and Push MLCore Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | docker login --username windowskonon1337 --password-stdin
+      - name: Build mlcore image
+        run: docker build -t windowskonon1337/cleversearch_mlcore:latest ./MLCore
+      - name: Push mlcore image to Docker Hub
+        run: docker push windowskonon1337/cleversearch_mlcore:latest
 
   build_frontend:
     name: Build and Push Frontend Docker Image
@@ -48,8 +48,8 @@ jobs:
 
   deploy:
     name: Deploy on Server
-    # needs: [build_backend, build_mlcore, build_frontend]
-    needs: [build_backend, build_frontend]
+    needs: [build_backend, build_mlcore, build_frontend]
+    # needs: [build_backend, build_frontend]
     runs-on: ubuntu-latest
     steps:
       - name: SSH and Restart Docker Compose
