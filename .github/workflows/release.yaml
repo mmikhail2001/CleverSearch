@@ -12,6 +12,9 @@ jobs:
     name: Print Run Information
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+          uses: actions/checkout@v2
+          
       - name: Print Default Info
         run: |
           echo "GitHub Action initiated by: ${{ github.actor }}"
@@ -74,7 +77,7 @@ jobs:
 
   deploy:
     name: Deploy on Server
-    needs: [build_backend, build_mlcore, build_frontend]
+    needs: [build_backend, build_mlcore, build_frontend,print_info]
     runs-on: ubuntu-latest
     if: ${{ always() }} && ${{ success() }}
     steps:
