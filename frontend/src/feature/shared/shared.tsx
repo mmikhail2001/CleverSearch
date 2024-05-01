@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useRef, useState } from 'react';
 import { Input } from '@entities/input/input';
 import { Button } from '@entities/button/button'
 import { useGetShareUrlMutation } from '@api/filesApi';
@@ -165,7 +165,7 @@ export const Shared: FC<SharedProps> = ({
     const [share, resp] = useGetShareUrlMutation()
     const [isCopied, setCopied] = useCopyState()
     const [shareByEmail, setShareByEmail] = useState<boolean>(false)
- 
+    
     return (
         <div className={['shared-modal', className].join(' ')} onClick={(e) => e.preventDefault()}>
             {resp.isSuccess 
@@ -214,7 +214,7 @@ export const Shared: FC<SharedProps> = ({
                         placeholder={'Emails'}
                         type={'email'}
                         value={currentEmail}
-                        sepecificVariant={'big-radius'}
+                        specificRadius={'big-radius'}
                     ></Input>
                     {getEmailShow(emails, (newEmails) => setEmail(newEmails), true)}
                 </>
