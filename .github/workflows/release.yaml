@@ -9,20 +9,27 @@ on:
 
 jobs:
   print_info:
-      name: Print Run Information
-      runs-on: ubuntu-latest
-      steps:
-        - name: Print Default Info
-          run: |
-            echo "GitHub Action initiated by: ${{ github.actor }}"
-            echo "Repository: ${{ github.repository }}"
-            echo "Branch: ${{ github.ref }}"
-            echo "From: ${{ github.head_ref }}"
-            echo "Event name: ${{ github.event_name }}"
-            echo "Run ID: ${{ github.run_id }}"
+    name: Print Run Information
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Default Info
+        run: |
+          echo "GitHub Action initiated by: ${{ github.actor }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "From: ${{ github.head_ref }}"
+          echo "Event name: ${{ github.event_name }}"
+          echo "Run ID: ${{ github.run_id }}"
+        
+      - name: Get latest commit message
+        id: commit_message
+        run: |
+          COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.sha }})
+          echo "::set-output name=commit_message::$COMMIT_MESSAGE"
 
   build_backend:
-    if: contains(github.head_ref, 'BACK-CLEVER')
+    needs: [print_info]
+    if: contains(needs.print_info.outputs.commit_message, 'BACK-CLEVER')
     name: Build and Push Backend Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +43,8 @@ jobs:
         run: docker push windowskonon1337/cleversearch_backend:latest
 
   build_mlcore:
-    if: contains(github.head_ref, 'ML-CLEVER')
+    needs: [print_info]
+    if: contains(needs.print_info.outputs.commit_message, 'ML-CLEVER')
     name: Build and Push MLCore Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -50,7 +58,8 @@ jobs:
         run: docker push windowskonon1337/cleversearch_mlcore:latest
 
   build_frontend:
-    if: contains(github.head_ref, 'FRONT-CLEVER')
+    needs: [print_info]
+    if: contains(needs.print_info.outputs.commit_message, 'FRONT-CLEVER')
     name: Build and Push Frontend Docker Image
     runs-on: ubuntu-latest
     steps:
