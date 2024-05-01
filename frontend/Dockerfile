@@ -10,8 +10,8 @@ RUN npm run build:prod
 
 FROM nginx:latest
 
-COPY config/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY config/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY config/nginx_prod/default.conf /etc/nginx/conf.d/default.conf
+COPY config/nginx_prod/nginx.conf /etc/nginx/nginx.conf
 
 COPY --from=builder /app/frontend/build /app/frontend/build
 CMD ["nginx", "-g", "daemon off;"]

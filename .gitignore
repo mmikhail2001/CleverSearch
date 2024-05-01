@@ -24,6 +24,7 @@ yarn-error.log*
 
 tmp
 backend/vendor
+creds.json
 
 
 .venv
