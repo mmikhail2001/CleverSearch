@@ -8,6 +8,19 @@ on:
       - 'deploy_BACK-CLEVER-13'
 
 jobs:
+  print_info:
+      name: Print Run Information
+      runs-on: ubuntu-latest
+      steps:
+        - name: Print Default Info
+          run: |
+            echo "GitHub Action initiated by: ${{ github.actor }}"
+            echo "Repository: ${{ github.repository }}"
+            echo "Branch: ${{ github.ref }}"
+            echo "From: ${{ github.head_ref }}"
+            echo "Event name: ${{ github.event_name }}"
+            echo "Run ID: ${{ github.run_id }}"
+            
   build_backend:
     if: contains(github.ref, 'BACK-CLEVER')
     name: Build and Push Backend Docker Image
