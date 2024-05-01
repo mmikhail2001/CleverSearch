@@ -13,26 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-          uses: actions/checkout@v2
-          
+        uses: actions/checkout@v2
+
       - name: Print Default Info
         run: |
           echo "GitHub Action initiated by: ${{ github.actor }}"
           echo "Repository: ${{ github.repository }}"
           echo "Branch: ${{ github.ref }}"
-          echo "From: ${{ github.head_ref }}"
           echo "Event name: ${{ github.event_name }}"
           echo "Run ID: ${{ github.run_id }}"
-        
-      - name: Get latest commit message
-        id: commit_message
-        run: |
-          COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.sha }})
-          echo "::set-output name=commit_message::$COMMIT_MESSAGE"
 
   build_backend:
-    needs: [print_info]
-    if: contains(needs.print_info.outputs.commit_message, 'BACK-CLEVER')
+    if: contains(github.event.head_commit.message, 'BACK-CLEVER')
     name: Build and Push Backend Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -46,8 +38,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_backend:latest
 
   build_mlcore:
-    needs: [print_info]
-    if: contains(needs.print_info.outputs.commit_message, 'ML-CLEVER')
+    if: contains(github.event.head_commit.message, 'ML-CLEVER')
     name: Build and Push MLCore Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -61,8 +52,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_mlcore:latest
 
   build_frontend:
-    needs: [print_info]
-    if: contains(needs.print_info.outputs.commit_message, 'FRONT-CLEVER')
+    if: contains(github.event.head_commit.message, 'FRONT-CLEVER')
     name: Build and Push Frontend Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -77,7 +67,7 @@ jobs:
 
   deploy:
     name: Deploy on Server
-    needs: [build_backend, build_mlcore, build_frontend,print_info]
+    needs: [build_backend, build_mlcore, build_frontend]
     runs-on: ubuntu-latest
     if: ${{ always() }} && ${{ success() }}
     steps:
