@@ -21,6 +21,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_backend:latest
 
   build_mlcore:
+    if: false
     name: Build and Push MLCore Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +60,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_SERVER_KEY }}
           source: "docker-compose.prod.yml"
-          target: "/home/ubuntu/clever/docker-compose.yml"
+          target: "/home/ubuntu/clever"
       - name: SSH and Restart Docker Compose
         uses: appleboy/ssh-action@master
         with:
