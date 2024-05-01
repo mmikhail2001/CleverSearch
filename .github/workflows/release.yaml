@@ -8,8 +8,21 @@ on:
       - 'deploy_BACK-CLEVER-13'
 
 jobs:
+  print_info:
+      name: Print Run Information
+      runs-on: ubuntu-latest
+      steps:
+        - name: Print Default Info
+          run: |
+            echo "GitHub Action initiated by: ${{ github.actor }}"
+            echo "Repository: ${{ github.repository }}"
+            echo "Branch: ${{ github.ref }}"
+            echo "From: ${{ github.head_ref }}"
+            echo "Event name: ${{ github.event_name }}"
+            echo "Run ID: ${{ github.run_id }}"
+
   build_backend:
-    if: contains(github.ref, 'BACK-CLEVER')
+    if: contains(github.head_ref, 'BACK-CLEVER')
     name: Build and Push Backend Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -23,7 +36,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_backend:latest
 
   build_mlcore:
-    if: contains(github.ref, 'ML-CLEVER')
+    if: contains(github.head_ref, 'ML-CLEVER')
     name: Build and Push MLCore Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -37,7 +50,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_mlcore:latest
 
   build_frontend:
-    if: contains(github.ref, 'FRONT-CLEVER')
+    if: contains(github.head_ref, 'FRONT-CLEVER')
     name: Build and Push Frontend Docker Image
     runs-on: ubuntu-latest
     steps:
