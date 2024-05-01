@@ -5,9 +5,11 @@ on:
     branches:
       - main
       - 'dev*'
+      - 'deploy_BACK-CLEVER-13'
 
 jobs:
   build_backend:
+    if: contains(github.ref, 'BACK-CLEVER')
     name: Build and Push Backend Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -21,6 +23,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_backend:latest
 
   build_mlcore:
+    if: contains(github.ref, 'ML-CLEVER')
     name: Build and Push MLCore Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -34,6 +37,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_mlcore:latest
 
   build_frontend:
+    if: contains(github.ref, 'FRONT-CLEVER')
     name: Build and Push Frontend Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -49,8 +53,8 @@ jobs:
   deploy:
     name: Deploy on Server
     needs: [build_backend, build_mlcore, build_frontend]
-    # needs: [build_backend, build_frontend]
     runs-on: ubuntu-latest
+    if: ${{ always() }} && ${{ success() }}
     steps:
       - name: SSH and Restart Docker Compose
         uses: appleboy/ssh-action@master
