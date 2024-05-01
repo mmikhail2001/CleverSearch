@@ -8,7 +8,7 @@ export const useWebsoket = () => {
 
     useEffect(function() {
         const connect = function(prevTimes: number) {
-            const ws = new WebSocket(`ws://${process.env.wsAdress}/api/ws`);
+            const ws = new WebSocket(`wss://${process.env.wsAdress}/api/ws`);
 
             ws.onopen = (event) => console.info('WS: opened', event)
             ws.onerror = (event) => {

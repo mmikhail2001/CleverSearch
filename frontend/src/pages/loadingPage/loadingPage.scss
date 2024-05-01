@@ -1,0 +1,11 @@
+@import '../../index.scss';
+
+.loading-page {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(to bottom, $color-top, $color-bottom);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}

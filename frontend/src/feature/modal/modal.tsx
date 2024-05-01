@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import './modal.scss'
 import { DialogActions, DialogContent, Dialog as UIDialog } from '@mui/material'
+import CSS from 'csstype'
 
 interface ModalProps {
     isOpen: boolean;
@@ -11,6 +12,8 @@ interface ModalProps {
     bottomFrame?: React.ReactNode;
     isFullscreen?: boolean;
     isFullWidth?: boolean;
+    styleOnBackground?: CSS.Properties;
+    styleOnModal?: CSS.Properties;
 }
 
 export const Modal: FC<ModalProps> = ({
@@ -22,6 +25,8 @@ export const Modal: FC<ModalProps> = ({
     bottomFrame,
     isFullscreen,
     isFullWidth,
+    styleOnBackground,
+    styleOnModal,
 }) => {
     const handleClose = (event: React.MouseEvent<HTMLElement>) => {
         event.preventDefault();
@@ -30,6 +35,8 @@ export const Modal: FC<ModalProps> = ({
 
     return (
         <UIDialog
+            disableAutoFocus
+            disableEnforceFocus
             open={isOpen}
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
@@ -39,8 +46,9 @@ export const Modal: FC<ModalProps> = ({
             scroll='paper'
             fullScreen={isFullscreen}
             className={className}
+            PaperProps={{style:{...styleOnModal}}}
         >
-            <DialogContent>
+            <DialogContent sx={{...styleOnBackground}}>
                 {children}
             </DialogContent>
             {bottomFrame ?

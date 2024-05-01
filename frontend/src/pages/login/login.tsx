@@ -64,18 +64,18 @@ export const LoginForm: FC<LoginFormProps> = () => {
 							style={{
 								padding: 'var(--big-padding)',
 								border: 'none !important',
-							"& .Mui-focused": {
-								border: '1px solid rgba(255,255,255,1)',
-								outline:"none",
-							},
-							'& .MuiOutlinedInput-notchedOutline': {
-								outline: 'none',
-								borderColor: 'rgba(255,255,255,0.4) !important',
-							},
-							'& input[type=password]': {
-								padding: '15px !important', 
-							},
-						}}
+								"& .Mui-focused": {
+									border: '1px solid rgba(255,255,255,1)',
+									outline:"none",
+								},
+								'& .MuiOutlinedInput-notchedOutline': {
+									outline: 'none',
+									borderColor: 'rgba(255,255,255,0.4) !important',
+								},
+								'& input[type=password]': {
+									padding: '15px !important', 
+								},
+							}}
 							placeholder="password"
 							value={passwordField}
 							onChange={(e) => setPassword(e.target.value)}

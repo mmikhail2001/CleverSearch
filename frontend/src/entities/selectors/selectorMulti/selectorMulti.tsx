@@ -25,6 +25,7 @@ interface SelectorMultiProps {
 	isError?: boolean;
 	fontSize?: string;
 	menuStyle?: CSS.Properties,
+	height?: string,
 }
 
 const ITEM_HEIGHT = 48;
@@ -55,6 +56,7 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 	isError,
 	fontSize,
 	menuStyle,
+	height,
 }) => {
 	const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
 
@@ -96,7 +98,7 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 
 
 	return (
-		<FormControl sx={{ width: '100%' }}>
+		<FormControl sx={{ width: '100%', height: height }}>
 			<Select
 				sx={{ 
 					fontSize: fontSize,
@@ -113,6 +115,9 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 						outline: 'none',
 						borderColor: 'rgba(255,255,255,0.4) !important',
 					},
+					'& .MuiSelect-icon': {
+						color: 'inherit',
+					}
 				 }}
 				displayEmpty
 				error={isError}
