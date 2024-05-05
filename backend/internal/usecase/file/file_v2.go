@@ -177,7 +177,6 @@ func (uc *Usecase) SearchV2(ctx context.Context, options fileDomain.FileOptionsV
 	}
 
 	var files []fileDomain.File
-	options.IgnoreCloudEmail = true
 	files, err = uc.SharedDriveInternal(ctx, options)
 	if err != nil && !errors.Is(err, file.ErrNotFound) {
 		return []fileDomain.File{}, err
@@ -233,6 +232,7 @@ func (uc *Usecase) SharedDriveInternal(ctx context.Context, options fileDomain.F
 		return []fileDomain.File{}, err
 	}
 	files = append(files, filesTmp...)
+	// printPaths(filesTmp, "Shared files")
 
 	// drive
 	filesTmp, err = uc.Drive(ctx, options)
@@ -240,6 +240,7 @@ func (uc *Usecase) SharedDriveInternal(ctx context.Context, options fileDomain.F
 		return []fileDomain.File{}, err
 	}
 	files = append(files, filesTmp...)
+	// printPaths(filesTmp, "Drive files")
 
 	// internal
 	filesTmp, err = uc.Internal(ctx, options)
@@ -247,6 +248,7 @@ func (uc *Usecase) SharedDriveInternal(ctx context.Context, options fileDomain.F
 		return []fileDomain.File{}, err
 	}
 	files = append(files, filesTmp...)
+	// printPaths(filesTmp, "Internal files")
 
 	return files, err
 }
