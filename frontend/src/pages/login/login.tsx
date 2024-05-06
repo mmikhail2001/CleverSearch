@@ -2,18 +2,21 @@ import { useLoginMutation } from '@api/userApi';
 import { login as loginAction } from '@store/userAuth';
 import { Button } from '@entities/button/button';
 import { Input } from '@entities/input/input';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import './login.scss';
 import React from 'react';
 import { Typography } from '@mui/material';
+import { NotificationBar } from '@entities/notificationBar/notificationBar';
 
 interface LoginFormProps { }
 
 export const LoginForm: FC<LoginFormProps> = () => {
 	const [loginField, setLogin] = useState('');
 	const [passwordField, setPassword] = useState('');
+
+	const [error, setError] = useState('')
 
 	const [login, loginResp] = useLoginMutation();
 	const dispatch = useDispatch();
@@ -24,6 +27,26 @@ export const LoginForm: FC<LoginFormProps> = () => {
 		dispatch(loginAction());
 		navigate('/');
 	}
+	
+	useEffect(() => {
+		if (loginResp.isError 
+			&& 'status' in loginResp.error
+			&& loginResp.error.status === 500
+		) {
+			setError('Wrong password or login')
+		}
+
+		if (loginResp.isError 
+			&& 'data' in loginResp.error
+			&& typeof loginResp.error.data === 'object'
+			&& 'message' in loginResp.error.data
+			&& typeof loginResp.error.data.message === 'string'
+			&& loginResp.error.data.message === 'wrong credentials'
+		) {
+			setError('User not exist')
+		}
+
+	},  [loginResp])
 
 	return (
 		<div className='login-background'>
@@ -82,6 +105,17 @@ export const LoginForm: FC<LoginFormProps> = () => {
 				</div>
 			</div>
 		<div></div>
+		{
+				error !== '' ?
+					<NotificationBar
+						onClose={() => setError('')}
+						variant={'bad'}
+						className='notification-placement'
+						autoHideDuration={2000}
+					>
+						<p>{error}</p>
+					</NotificationBar>
+			: null }
 		</div>
 	);
 };
