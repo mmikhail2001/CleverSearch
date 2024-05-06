@@ -1,18 +1,2 @@
-# pika==1.3.2
-# aiormq==6.8.0
-# pymongo==4.6.2
-# fastapi
-# uvicorn
-# pandas
-# numpy==1.26.4
 torch==2.2.1
-# easyocr
 transformers
-# opencv-python
-# scikit-image
-# scipy
-# scikit-learn
-# minio
-# pypdf
-# pymorphy2
-# nltk
