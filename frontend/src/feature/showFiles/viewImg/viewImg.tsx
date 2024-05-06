@@ -1,8 +1,6 @@
 import React, { FC, useEffect, useRef, useState } from 'react';
 import './viewImg.scss'
 
-import AddRoundedIcon from '@mui/icons-material/AddRounded';
-import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded';
 
 import {
 	TransformWrapper,
@@ -14,25 +12,6 @@ import { IconButton } from '@mui/material';
 export interface ViewImgProps {
 	imgSrc: string,
 	altText?: string,
-}
-
-const controls = (zoomOut: () => void, zoomIn: ()=>void) => {
-	return (
-		<div className="modal-scale">
-			<IconButton 
-				onClick={() => zoomOut()}
-				sx={{color:'inherit'}}
-			>
-				<AddRoundedIcon sx={{color:'inherit'}} />
-			</IconButton>
-			<IconButton 
-				onClick={() => zoomIn()}
-				sx={{color:'inherit'}}
-			>
-				<RemoveRoundedIcon sx={{color:'inherit !'}} />
-			</IconButton>
-		</div>
-	)
 }
 
 export const ViewImg: FC<ViewImgProps> = React.memo(function viewImg({ imgSrc, altText }: ViewImgProps) {
@@ -103,7 +82,6 @@ export const ViewImg: FC<ViewImgProps> = React.memo(function viewImg({ imgSrc, a
 				>
 				{({ zoomIn, zoomOut, resetTransform, ...rest }) => (
 					<React.Fragment>
-						{/* {controls(() => zoomOut(), () => zoomIn())} */}
 						<TransformComponent
 						>
 							<img src={imgSrc} width={'100%'} height={'100%'} alt={altText} />

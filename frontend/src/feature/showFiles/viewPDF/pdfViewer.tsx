@@ -24,6 +24,6 @@ export const ViewPDF: FC<ViewPDFProps> = React.memo(function viewPdf({ pdfURL, o
 	// Good examples https://codesandbox.io/examples/package/react-virtualized-auto-sizer
 	// https://www.youtube.com/watch?v=UrgfPjX97Yg&ab_channel=LogRocket
 	// search with pdfjs = https://stackoverflow.com/questions/35501417/how-to-search-with-pdf-js/39770115#39770115
-	return < PdfUrlViewer url={pdfURL} page={openPageInPDF} />
+	return <PdfUrlViewer url={pdfURL} page={openPageInPDF} />
 });
 

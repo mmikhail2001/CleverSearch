@@ -84,6 +84,16 @@ export const getPdfProps = (
                 isOpen={state}
                 closeModal={() => changeState(false)}
                 bodyClassName={'modal-body__pdf'}
+                styleOnModal={{
+                    background: 'var(--color-dropdowns)',
+                    borderRadius:'15px',
+                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    color:'inherit',
+                }}
+                stylesOnContentBackground={{
+                    overflow:'hidden',
+                    height:'100dvh',
+                }}
             >
                 <ViewPDF
                     pdfURL={file.link}
