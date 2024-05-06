@@ -26,7 +26,7 @@ tmp
 backend/vendor
 creds.json
 
-
+# python
 .venv
 __py*
 
