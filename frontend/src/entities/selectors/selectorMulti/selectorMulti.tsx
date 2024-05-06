@@ -1,12 +1,16 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Option } from '@models/additional'
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { OutlinedInput } from '@mui/material';
+import Select, { SelectChangeEvent, SelectProps } from '@mui/material/Select';
+import { IconButton, Input, InputBase, OutlinedInput, Paper } from '@mui/material';
 import CSS from 'csstype'
 
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import './selector.scss';
+
+import ArrowDropDownRoundedIcon from '@mui/icons-material/ArrowDropDownRounded';
+import ArrowDropUpRoundedIcon from '@mui/icons-material/ArrowDropUpRounded';
 
 // https://react-select.com/components
 // https://www.youtube.com/watch?v=3u_ulMvTYZI&t=269s&ab_channel=MonsterlessonsAcademy
@@ -61,39 +65,37 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 	clear,
 }) => {
 	const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
-
+	const [isOpen, setOpen] = useState(false)
+	const [isFocus, setFocus] = useState(false)
+	
 	const handleChange = (e: SelectChangeEvent<Element>): void => {
 		const {
 			target: { value },
 		} = e;
 		if (Array.isArray(value) || typeof value === 'string') {
 			onChange(typeof value === 'string'
-				? value.split(',')
-				: value)
+			? value.split(',')
+			: value)
+
 			setSelectedValues(typeof value === 'string' ? value.split(',') : value)
 		}
 	}
 	const handlerRenderValues = (renderOptions: Element): React.ReactNode => {
-
+		
 		if (renderOptions === null || renderOptions === undefined) {
 			return <em>{placeholder}</em>
 		}
 		if (Array.isArray(renderOptions) && renderOptions.filter(val => val !== '').length === 0) {
 			return <em>{placeholder}</em>
 		}
-
+		
 		if (Array.isArray(renderOptions) && renderOptions.length !== 0) {
 			return changeFromValueToLabel(renderOptions, options).join(', ')
 		}
 		return <em>{placeholder}</em>
 	}
 	
-	useEffect(() => {
-		if (clear) {
-			setSelectedValues([])
-		}
-	}, [clear])
-
+	
 	useEffect(() => {
 		if (defaultValue && (
 			!selectedValues
@@ -104,10 +106,56 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 		}
 	}, [defaultValue])
 
+	useEffect(() => {
+		if (clear) {
+			setSelectedValues([])
+			onChange([])
+		}
+	}, [clear])
+
+	const renderInput = () => {
+		return (
+			<OutlinedInput
+				endAdornment={
+					<div style={{paddingRight: '10px', display: 'flex', alignItems:'center'}}>
+						{selectedValues?.length !== 0 && isFocus 
+						? <IconButton
+							sx={{color:'inherit'}}
+							onClick={
+								(e) => {
+									e.stopPropagation();
+									setSelectedValues([])
+									onChange([])
+								}
+							}	
+						>
+								<CloseRoundedIcon
+									sx={{p: '4px' }}
+									
+									fontSize='large'
+								/>
+						</IconButton> 
+						: null
+						}
+					</div>
+				}
+			/>
+		)
+	}
+
 
 	return (
 		<FormControl sx={{ width: '100%', height: height }}>
 			<Select
+				onMouseEnter={() => {
+					setFocus(true)
+				}}
+				onMouseLeave={() => {
+					setFocus(false)
+				}}
+				open={isOpen}
+				onClose={(e) => {setOpen(false)}}
+				onOpen={(e) => {setOpen(true)}}
 				sx={{ 
 					fontSize: fontSize,
 					height: '100%',
@@ -129,11 +177,10 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 				 }}
 				displayEmpty
 				error={isError}
-				maxMenuHeight={maxMenuHeight}
 				multiple={isMulti}
 				onChange={handleChange}
 				MenuProps={MenuProps}
-				input={<OutlinedInput />}
+				input={renderInput()}
 				renderValue={handlerRenderValues}
 				// @ts-expect-error Error because some bad typization inside
 				value={selectedValues}

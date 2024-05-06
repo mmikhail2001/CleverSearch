@@ -93,7 +93,10 @@ export const Sidebar: FC<SidebarProps> = ({
 	const renderSidebar = (): React.ReactNode => {
 		return (
 			<>
-				<div className="sidebar" style={{ width: width }}>
+				<div 
+					className="sidebar"
+					style={{ width: width }}
+				>
 					<div className="our-name-place">
 						{isMobile ?
 							<UserProfile email={email} isDropdownExist={false} />
@@ -240,7 +243,8 @@ export const Sidebar: FC<SidebarProps> = ({
 							marginTop: 'auto',
 							width: '100%',
 							fontSize: '2.4rem',
-						}}>
+						}}
+						>
 							<div onClick={logout} style={{
 								width: '100%',
 								alignItems: 'center',
@@ -277,6 +281,10 @@ export const Sidebar: FC<SidebarProps> = ({
 				closeModal={() => toggleShow(false)}
 				isFullscreen={true}
 				className={''}
+				styleOnBackground={{
+					background: 'linear-gradient(to bottom, #11344E, #700F49)',
+				}} 
+				styleOnModal={{color:"inherit"}}
 			>
 				{renderSidebar()}
 			</Modal>

@@ -19,6 +19,7 @@ interface SelectorAsyncProps {
 	fontSize?: string,
 	style?: CSS.Properties,
 	color?: string,
+	clear?: boolean,
 }
 
 export const SelectorAsync: FC<SelectorAsyncProps> = ({
@@ -32,6 +33,7 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 	fontSize,
 	style,
 	color,
+	clear,
 }) => {
 	const [open, setOpen] = useState<boolean>(false)
 	const [loading, setLoading] = useState<boolean>(false)
@@ -63,6 +65,12 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 		}
 	}, [defaultOption])
 
+	useEffect(() => {
+		if (clear) {
+			setSelectedValues([])
+		}
+	}, [clear])
+
 	const handleInputChange = (event: React.SyntheticEvent, value: string): void => {
 		debouncedOnInputChange(value)
 	}
@@ -74,6 +82,46 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 			setLoading(false)
 		})
 	}, [])
+
+	const getSelectedValueToOptions = (): null | Option[] => {
+		if (selectedValues.length === 0) {
+			return null
+		}
+
+		return selectedValues.map((val) => {
+			return {
+				label: val.replace(/^\//, ''),
+				value: val,
+			}
+		})
+	}
+	const selectedOptions = React.useMemo(getSelectedValueToOptions, [selectedValues])
+
+	const getOptionLabel = (opt: Option | Option[]): string => {
+		if (Array.isArray(opt))  {
+			return opt.map(val => val.label).join(', ')
+		}
+		return opt.label
+	}
+
+	const renderOption = (props: React.HTMLAttributes<HTMLLIElement>, option: Option | Option[]) => {
+		const transfromToOption = (opt: Option) => {
+			return <li 
+					{...props}
+					style={{
+						fontSize: fontSize, 
+						color: 'inherits', 
+					}}
+				>
+					{opt.label}
+				</li>
+		}
+
+		if (Array.isArray(option))  {
+			return option.map(val => transfromToOption(val))
+		}
+		return transfromToOption(option)
+	}
 
 	return (
 		<Autocomplete
@@ -93,6 +141,7 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 				}
 			}
 			multiple={isMulti}
+			value={selectedOptions}
 			noOptionsText={noOptionsText}
 			options={options}
 			open={open}
@@ -104,20 +153,10 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 			}
 			onChange={handleChange}
 			filterOptions={(x) => x} // cause fetch from back
-			getOptionLabel={(option) => option.label}
+			getOptionLabel={getOptionLabel}
 			defaultValue={defaultOption}
 			onInputChange={handleInputChange}
-			renderOption={(props, option, state) => {
-				return <li 
-					{...props}
-					style={{
-						fontSize: fontSize, 
-						color: 'inherits', 
-					}}
-				>
-					{option.label}
-				</li>
-			}}
+			renderOption={renderOption}
 			renderInput={(params) => (
 				<TextField
 					{...params}

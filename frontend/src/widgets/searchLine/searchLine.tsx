@@ -72,11 +72,14 @@ export const SearchLine: FC<SearchLineProps> = ({
 		})
 	}, [searchReq])
 
-	if (isShow && !compareArrays(showReq.dir, searchValue.dir)){
-		setSearchValue({ ...searchValue, dir: showReq.dir })
-	}
+	useEffect(() => {
+		if (isShow && !compareArrays(showReq.dir, searchValue.dir)){
+			setSearchValue({ ...searchValue, dir: showReq.dir })
+		}
+	}, [showReq.dir])
 
 	useEffect(() => {
+
 		setSearchValue({...searchValue, dir: searchReq.dir})
 	}, [])
 
