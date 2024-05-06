@@ -45,3 +45,12 @@
 .show-all-files::-webkit-scrollbar-thumb:hover {
     background: rgba(255,255,255,0.4); 
 }
+
+.modal-scale {
+    width: 100%;
+    color: inherit;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}

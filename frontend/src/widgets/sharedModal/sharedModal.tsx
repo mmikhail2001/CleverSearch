@@ -17,7 +17,7 @@ export const SharedModal: FC<SharedModalProps> = ({ dirPath, close, isOpen }) =>
 			closeModal={close}
 			className={'modal-shared'}
 			bodyClassName={'modal-body-shared'}
-			styleOnBackground={{backgroundColor: 'var(--color-dropdowns)', color:'inherit', borderRadius:'1.5rem'}}
+			stylesOnContentBackground={{backgroundColor: 'var(--color-dropdowns)', color:'inherit', borderRadius:'1.5rem'}}
 			styleOnModal={{backgroundColor: 'transparent',color:'inherit'}}
 		>
 			<Shared

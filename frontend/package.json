@@ -2,7 +2,7 @@
   "name": "production_project_code_course",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js", 
+  "main": "index.js",
   "scripts": {
     "start": "webpack serve --env protocol=http adress=localhost:8080 whereToBuild=/mnt/f/my_programs/Tecnopark/FrontReact/front/frontend/build buildLocalFolder=false",
     "start:watch": "webpack --env watch=true protocol=http adress=localhost whereToBuild=/mnt/f/my_programs/Tecnopark/FrontReact/back/frontend/build buildLocalFolder=false",
@@ -67,6 +67,7 @@
     "react-virtualized": "^9.22.5",
     "react-virtualized-auto-sizer": "^1.0.24",
     "react-window": "^1.8.10",
+    "react-zoom-pan-pinch": "^3.4.4",
     "screenfull": "^6.0.2",
     "use-resize-observer": "^9.1.0"
   }

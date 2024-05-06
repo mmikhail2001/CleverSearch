@@ -281,7 +281,7 @@ export const Sidebar: FC<SidebarProps> = ({
 				closeModal={() => toggleShow(false)}
 				isFullscreen={true}
 				className={''}
-				styleOnBackground={{
+				stylesOnContentBackground={{
 					background: 'linear-gradient(to bottom, #11344E, #700F49)',
 				}} 
 				styleOnModal={{color:"inherit"}}

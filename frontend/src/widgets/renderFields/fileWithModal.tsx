@@ -4,12 +4,7 @@ import './renderFields.scss';
 import { useAddToFavouriteMutation, useDeleteToFavouriteMutation } from '@api/filesApi';
 import { useAppSelector } from '@store/store';
 import { fileFile } from '@models/files';
-
-export interface renderReturns {
-	renderModal: () => React.ReactNode | null;
-	clickHandler: () => void;
-	imgSrc: string | React.ReactNode;
-}
+import { renderReturns } from '@helpers/getPropsForFile';
 
 export interface FileWithModalProps {
 	file: fileFile,

@@ -51,6 +51,9 @@ table {
 	border-spacing: 0;
 }
 
+
+// Styles
+
 $pc-width: 1000px;
 $tablet-width: 700px;
 $mobile-width: 300px;
@@ -129,6 +132,7 @@ html {
 }
 
 body {
+    overflow: hidden;
     font-size: 1.6rem;
     width: 100vw;
     height: 100dvh;
