@@ -23,7 +23,7 @@ const setToInitial = (
 	state: SearchParams,
 ) => {
 	changeState({
-		fileType: ['all' as fileTypes],
+		fileType: [],
 		smartSearch: false,
 		query: state.query,
 		dir: [],

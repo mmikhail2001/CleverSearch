@@ -26,6 +26,7 @@ interface SelectorMultiProps {
 	fontSize?: string;
 	menuStyle?: CSS.Properties,
 	height?: string,
+	clear?: boolean,
 }
 
 const ITEM_HEIGHT = 48;
@@ -57,6 +58,7 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 	fontSize,
 	menuStyle,
 	height,
+	clear,
 }) => {
 	const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
 
@@ -86,6 +88,12 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 		return <em>{placeholder}</em>
 	}
 	
+	useEffect(() => {
+		if (clear) {
+			setSelectedValues([])
+		}
+	}, [clear])
+
 	useEffect(() => {
 		if (defaultValue && (
 			!selectedValues

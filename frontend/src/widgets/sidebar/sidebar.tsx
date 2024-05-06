@@ -30,8 +30,8 @@ import { getDriveURLFront, getInternalURLFront } from '@helpers/transformsToURL'
 import RobotSVG from '@icons/Robot.svg';
 import AddIcon from '@mui/icons-material/Add';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
 
 interface SidebarProps {
 	width: string;

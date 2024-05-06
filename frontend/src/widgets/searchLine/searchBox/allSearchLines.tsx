@@ -4,6 +4,7 @@ import React, { FC } from 'react';
 import { SearchFileType } from './searchLines/searchFilteType';
 import { SearchFolderLine } from './searchLines/searchFolder';
 import { Switch } from '@entities/switch/switch'
+import { Typography } from '@mui/material';
 
 interface AllSearchLinesProps {
 	changeState: React.Dispatch<React.SetStateAction<SearchParams>>;
@@ -21,7 +22,7 @@ export const AllSearchLines: FC<AllSearchLinesProps> = ({
 	return (
 		<>
 			<div className='line'>
-				<p className='line__name'>Smart search</p>
+				<Typography fontSize={'var(--ft-body)'} className='line__name'>Smart search</Typography>
 				<Switch
 					checked={state.smartSearch}
 					disabled={false}
