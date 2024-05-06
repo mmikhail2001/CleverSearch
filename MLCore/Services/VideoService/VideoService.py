@@ -1,8 +1,14 @@
 from minio import Minio
+
+import sys
+sys.path.insert(1, 'MLCore/')
+sys.path.insert(2, 'MLCore/Services')
+sys.path.insert(3, 'MLCore/Processors')
+
 from Processors import IDataProcessor
 from Processors.VideoProcessor import VideoProcessor
 from pymongo.collection import Collection
-from MLCore.Services.AudioService.AudioService import AudioService
+from AudioService.AudioService import AudioService
 
 
 class VideoService(AudioService):

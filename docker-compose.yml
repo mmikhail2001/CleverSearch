@@ -120,6 +120,19 @@ services:
     networks:
       clevernet:
 
+  mlcore_video_service:
+    build:
+      context: ./MLCore
+      dockerfile: Services/VideoService/Dockerfile.video_service
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
+
   # mlcore:
   #   build:
   #     context: ./MLCore

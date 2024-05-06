@@ -1,5 +1,8 @@
 import os
 
+import sys
+sys.path.insert(4, 'MLCore/Processors')
+
 from AudioProcessor import AudioProcessor
 from IDataProcessor import IDataProcessor
 
