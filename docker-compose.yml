@@ -93,6 +93,19 @@ services:
     networks:
       clevernet:
 
+  mlcore_text_service:
+    build:
+      context: ./MLCore
+      dockerfile: Services/TextService/Dockerfile.text_service
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
+
   # mlcore:
   #   build:
   #     context: ./MLCore

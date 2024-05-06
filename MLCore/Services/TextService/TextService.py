@@ -1,15 +1,17 @@
 import os
 
+import sys
+sys.path.insert(1, 'MLCore/')
+sys.path.insert(2, 'MLCore/Services')
+sys.path.insert(3, 'MLCore/Processors')
+
 from minio import Minio
 import logging
-from Processors import IDataProcessor
 from Processors.TextProcessor import TextProcessor
 from pymongo.collection import Collection
 from service_interfaces import IDataService
-import sys
-sys.path.insert(0, './MLCore/utils')
 from utils.get_console_logger import get_console_logger
-
+from Processors import IDataProcessor
 
 logger = get_console_logger(
     __name__,
