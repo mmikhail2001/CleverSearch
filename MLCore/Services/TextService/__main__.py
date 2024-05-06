@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from ImageService import ImageService
+from TextService import TextService
 
 import sys
 sys.path.insert(0, 'MLCore/')
@@ -47,6 +47,6 @@ if __name__ == '__main__':
             mongo_collection=args.mongo_collection_name
     )
 
-    dispathcer.reg_service(ImageService, 'img')
+    dispathcer.reg_service(TextService, 'text')
 
-    dispathcer.run('img')
+    dispathcer.run('text')
