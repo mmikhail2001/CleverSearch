@@ -1,13 +1,14 @@
 from pymongo.collection import Collection
 from pymongo import MongoClient
-from service_interfaces import IDataService
 from PIL import Image
 from minio import Minio
 import os
 
 import sys
-sys.path.insert(3, './MLCore/')
-sys.path.insert(4, './MLCore/Processors')
+sys.path.insert(1, 'MLCore/')
+sys.path.insert(2, 'MLCore/Services')
+sys.path.insert(3, 'MLCore/Processors')
+from service_interfaces import IDataService
 from Processors.ImageProcessor import ImageProcessor
 from Processors import IDataProcessor
 

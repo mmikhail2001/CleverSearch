@@ -1,9 +1,7 @@
 requests
 fastapi
 uvicorn
-torch==2.2.1
 scikit-learn
-transformers
 pypdf
 pymorphy2
 nltk

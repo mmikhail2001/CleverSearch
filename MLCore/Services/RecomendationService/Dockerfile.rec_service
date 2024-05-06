@@ -1,4 +1,4 @@
-FROM mlcore_core
+FROM cleversearch_mlcore_core
 
 COPY ./Services/RecomendationService/requirements.txt /
 

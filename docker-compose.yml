@@ -60,6 +60,11 @@ services:
     networks:
       clevernet:
 
+  mlcore_core:
+    build:
+      context: ./MLCore
+      dockerfile: Dockerfile.core
+
   mlcore_rec_service:
     build:
       context: ./MLCore
@@ -68,23 +73,25 @@ services:
     ports:
       - 8081:8081
     depends_on:
+      - mlcore_core
       - rabbitmq
       - mongodb
       - minio
     networks:
       clevernet:
 
-  # mlcore_img_service:
-  #   build:
-  #     context: ./MLCore
-  #     dockerfile: Services/ImageService/Dockerfile.img_service
-  #   restart: always
-  #   depends_on:
-  #     - rabbitmq
-  #     - mongodb
-  #     - minio
-  #   networks:
-  #     clevernet:  
+  mlcore_img_service:
+    build:
+      context: ./MLCore
+      dockerfile: Services/ImageService/Dockerfile.img_service
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
 
   # mlcore:
   #   build:
