@@ -2,7 +2,7 @@ from minio import Minio
 from Processors import IDataProcessor
 from Processors.VideoProcessor import VideoProcessor
 from pymongo.collection import Collection
-from AudioService import AudioService
+from MLCore.Services.AudioService.AudioService import AudioService
 
 
 class VideoService(AudioService):

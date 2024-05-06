@@ -1,0 +1,9 @@
+FROM mlcore_core
+
+COPY ./Services/RecomendationService/requirements.txt /
+
+RUN pip install -r /requirements.txt && rm /requirements.txt
+
+COPY . /app/MLCore
+
+CMD ["python", "/app/MLCore/Services/RecomendationService/__main__.py"]

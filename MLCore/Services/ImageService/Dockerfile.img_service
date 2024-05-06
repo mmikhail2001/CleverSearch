@@ -1,0 +1,8 @@
+FROM mlcore_core
+
+RUN cd / && \
+    git clone https://github.com/WindowsKonon1337/CRAFT-pytorch
+
+COPY . /app/MLCore
+
+CMD ["python", "/app/MLCore/Services/ImageService/__main__.py"]

@@ -1,14 +1,14 @@
 import requests
 from fastapi import FastAPI, HTTPException
 from sklearn.metrics.pairwise import cosine_similarity
-from Processors.TextProcessor import TextProcessor
 import sys
 import logging
 
-sys.path.insert(0, './MLCore/')
-sys.path.insert(1, './MLCore/utils')
+sys.path.insert(0, 'MLCore')
+sys.path.insert(1, 'MLCore/utils')
+sys.path.insert(2, 'MLCore/Processors')
+from Processors.TextProcessor import TextProcessor
 from utils.get_console_logger import get_console_logger
-
 logger = get_console_logger(
     __name__,
     logging.INFO

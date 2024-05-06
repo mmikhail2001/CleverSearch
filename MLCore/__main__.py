@@ -3,11 +3,11 @@ from argparse import ArgumentParser
 import os
 import uvicorn
 from ML_dispatcher import MLDispatcher
-from Services.ImageService import ImageService
-from Services.TextService import TextService
-from Services.AudioService import AudioService
-from Services.VideoService import VideoService
-from Services.RecomendationService import setup_search_handler, app
+from MLCore.Services.ImageService.ImageService import ImageService
+from MLCore.Services.TextService.TextService import TextService
+from MLCore.Services.AudioService.AudioService import AudioService
+from MLCore.Services.VideoService.VideoService import VideoService
+from MLCore.Services.RecomendationService.RecomendationService import setup_search_handler, app
 sys.path.insert(1, './MLCore/')
 sys.path.insert(2, './MLCore/Services')
 
