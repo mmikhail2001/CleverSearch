@@ -10,8 +10,6 @@ import {
 	useControls,
 } from "react-zoom-pan-pinch";
 import { IconButton } from '@mui/material';
-import { Height } from '@mui/icons-material';
-
 
 export interface ViewImgProps {
 	imgSrc: string,
@@ -47,7 +45,6 @@ export const ViewImg: FC<ViewImgProps> = React.memo(function viewImg({ imgSrc, a
 	const img = new Image();
 
 	const readyState = (widthRatio:number, heightRatio: number) => {
-		console.log("IF RATIO",widthRatio, heightRatio)
 		const initialZoom = Math.max(widthRatio, heightRatio);
 	
 		setZoomLevel(initialZoom);
@@ -76,9 +73,6 @@ export const ViewImg: FC<ViewImgProps> = React.memo(function viewImg({ imgSrc, a
 				setheightCont(`${imgHeight}px`)
 				
 				readyState(1, 1)
-				
-				console.log("IF",maxContainerWidth, maxContainerHeight, imgWidth, imgHeight)
-
 				return
 			}
 
@@ -90,7 +84,6 @@ export const ViewImg: FC<ViewImgProps> = React.memo(function viewImg({ imgSrc, a
 			setWidthCont(`${maxContainerWidth}px`)
 			
 			readyState(widthRatio, heightRatio)
-			console.log("NOT IF",maxContainerWidth, maxContainerHeight, imgWidth, imgHeight)
 		};
 		img.src = imgSrc;
   	}, [imgSrc]);

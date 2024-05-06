@@ -15,6 +15,7 @@ interface DropDownProps {
 	toggleOpen: (state: boolean) => void;
 	className?: string;
 	styleOnMain?: CSS.Properties;
+	borderRadius?: "big" | 'small';
 }
 
 export const DropDown: FC<DropDownProps> = ({
@@ -26,6 +27,7 @@ export const DropDown: FC<DropDownProps> = ({
 	open,
 	toggleOpen,
 	styleOnMain,
+	borderRadius,
 }) => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const ref = useRef<HTMLDivElement>(null)
@@ -94,6 +96,8 @@ export const DropDown: FC<DropDownProps> = ({
 
 	}
 
+	if (isNullOrUndefined(borderRadius)) borderRadius = 'small'
+
 	useEffect(() => {
 		if (ref) {
 			setAnchorEl(ref.current)
@@ -101,6 +105,8 @@ export const DropDown: FC<DropDownProps> = ({
 	}, [ref])
 
 	const isNeedCloseOnSelect = isNullOrUndefined(isCloseOnSelect) || isCloseOnSelect
+
+	console.log("borderRadius",borderRadius)
 
 	return (
 		<>
@@ -116,7 +122,7 @@ export const DropDown: FC<DropDownProps> = ({
 				sx={{
 					'& > div': {
 						backgroundColor: 'transparent',
-						borderRadius: 'var(--big-radius)',
+						borderRadius: borderRadius === 'big' ? 'var(--big-radius)' : 'var(--small-radius)',
 						border: 'none',
 						boxShadow:'3px 3px 10px 4px rgba(0,0,0,0.1)',
 						color:'inherit',

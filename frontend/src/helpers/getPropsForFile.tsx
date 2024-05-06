@@ -104,10 +104,23 @@ export const getVideoProps = (
     changeState: (whatToState: boolean) => void,
 ): renderReturns => {
     const renderModal = () => {
-        // TODO видео уезжает, зажать по высоте
         return (
-            <Modal className={'modal__video-show'} isOpen={state} closeModal={() => changeState(false)}>
+            <Modal 
+                className={'modal__video-show'} 
+                isOpen={state} 
+                closeModal={() => changeState(false)}
+                styleOnModal={{
+                    background: 'var(--color-dropdowns)',
+                    borderRadius:'15px',
+                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    color:'inherit',
+                }}
+                stylesOnContentBackground={{
+                    overflow:'hidden',
+                }}
+            >
                 <VideoPlayer
+                    isAudio={file.file_type === 'audio'}                
                     url={file.link}
                     duration={file.duration || 0}
                     start_time={file.timestart || 0}

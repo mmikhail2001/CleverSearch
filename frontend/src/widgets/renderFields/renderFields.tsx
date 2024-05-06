@@ -84,13 +84,15 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 							case 'audio':
 								fileProp = getVideoProps(file, isOpen, changeState);
 								break;
+							default:
+								fileProp = {
+									clickHandler: () => {},
+									imgSrc: <AccessibleForwardRoundedIcon fontSize='inherit' sx={{color:'#4285F4'}}/>,
+									renderModal: () => {return <></>}
+								}
 						}
 					}
 					
-					if (fileProp.imgSrc === '') {
-						fileProp.imgSrc = <AccessibleForwardRoundedIcon fontSize='inherit' sx={{color:'#4285F4'}}/>;
-					}
-
 					return {
 						...fileProp,
 					}

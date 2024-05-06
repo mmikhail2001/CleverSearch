@@ -4,14 +4,24 @@ import React, { FC, useState } from 'react';
 // https://github.com/cookpete/react-player?tab=readme-ov-file#usage
 import './controlsForVideo.scss'
 
-import PlayImg from '@icons/player/Play.svg'
-import StopImg from '@icons/player/Stop.svg'
-import BackwardImg from '@icons/player/Backward.svg'
-import ForwardImg from '@icons/player/Forward.svg'
-import FullscreenImg from '@icons/player/FullScreen.svg'
-import VolumeLow from '@icons/player/Volume low.svg'
+import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
+import PauseRoundedIcon from '@mui/icons-material/PauseRounded';
+
+import FastForwardRoundedIcon from '@mui/icons-material/FastForwardRounded';
+import FastRewindRoundedIcon from '@mui/icons-material/FastRewindRounded';
+
+import FullscreenExitRoundedIcon from '@mui/icons-material/FullscreenExitRounded';
+import FullscreenRoundedIcon from '@mui/icons-material/FullscreenRounded';
+
+import VolumeOffRoundedIcon from '@mui/icons-material/VolumeOffRounded';
+import VolumeDownRoundedIcon from '@mui/icons-material/VolumeDownRounded';
+import VolumeUpRoundedIcon from '@mui/icons-material/VolumeUpRounded';
+
+import SpeedRoundedIcon from '@mui/icons-material/SpeedRounded';
+
 import { DropDown } from '@entities/dropDown/dropDown';
 import { Box, Slider } from '@mui/material'
+import { useMobile } from 'src/mobileProvider';
 
 interface ControlsForVideoProps {
 	currentTime: number,
@@ -19,6 +29,7 @@ interface ControlsForVideoProps {
 	setTime: (timeToSet: number) => void,
 	start: () => void,
 	stop: () => void,
+	isFullScreen?: boolean,
 	toggleFullScreen?: () => void,
 	changeSpeed: (desiredSpeed: number) => void,
 	currentVolume: number,
@@ -34,11 +45,17 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 	start,
 	stop,
 	toggleFullScreen,
+	isFullScreen,
 	changeSpeed,
 	currentVolume,
 	setVolume,
 	isPlaying,
 }) => {
+	const [isOpenVolume, setOpenVolume] = useState(false)
+	const [speedOpen, setSpeedOpen] = useState(false)
+
+	const {whatDisplay} = useMobile()
+
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (Number(e.target.value)) {
 			setTime(Number(e.target.value))
@@ -52,7 +69,18 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 		return 0
 	}
 
-	const [isOpenVolume, setOpenVolume] = useState(false)
+
+	const getVolumeIcon = (volume: number): React.ReactNode => {
+		console.log(volume)
+		if (volume >= 0.5) {
+			return <VolumeUpRoundedIcon fontSize='inherit' className='contorl-img'/>
+		}
+		if (volume < 0.5 && volume !== 0) {
+			return <VolumeDownRoundedIcon fontSize='inherit' className='contorl-img'/>
+		}
+
+		return <VolumeOffRoundedIcon fontSize='inherit' className='contorl-img'/>
+	}
 
 	return (
 		<div className='controls-container'>
@@ -67,50 +95,55 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 					style={{ width: '100%', height: '100%' }}
 					onChange={handleChange} />
 			</div>
-			<div className='controls'>
+			<div className='controls' style={{gap: whatDisplay !== 1 ? null : '8px'}}>
 				<div className='start-stop-container'>
 					{!isPlaying ?
-						< img className='start-img contorl-img' src={PlayImg} alt={'Start'} onClick={start} />
+						<PlayArrowRoundedIcon onClick={start} fontSize='inherit'/>
 						:
-						< img className='stop-img contorl-img' src={StopImg} alt={'Stop'} onClick={stop} />
+						<PauseRoundedIcon className='contorl-img' fontSize='inherit' onClick={stop}/>
 					}
 				</div>
 				<div className='rewind-container'>
 					<div className='rewind-back-container'>
-						< img
-							className='rewind-back-img contorl-img'
-							src={BackwardImg}
-							alt={'Go back'}
+						<FastRewindRoundedIcon
+							fontSize='inherit'
+							className='contorl-img'
 							onClick={() => setTime(currentTime - 5)}
 						/>
 					</div>
 					<div className='rewind-forward-container'>
-						< img
-							className='rewind-forward-img contorl-img'
-							src={ForwardImg}
-							alt={'Go forward'}
+						<FastForwardRoundedIcon
+							fontSize='inherit'
+							className='contorl-img'
 							onClick={() => setTime(currentTime + 5)}
 						/>
 					</div>
 				</div>
 				<div className='speed-container'>
-					{/* TODO make speed dropdown */}
-					<p onClick={() => changeSpeed(1)}>x1</p>
-					<p onClick={() => changeSpeed(2)}>x2</p>
+					<DropDown
+						borderRadius='small'
+						open={speedOpen}
+						toggleOpen={setSpeedOpen}
+						variants='up'
+						mainElement={<SpeedRoundedIcon fontSize='inherit'/>}
+					>
+						{[
+							<p key={'speed-x1'} onClick={() => changeSpeed(1)}>x1</p>,
+							<p key={'speed-x2'} onClick={() => changeSpeed(2)}>x2</p>
+						]}
+					</DropDown>
+					
 				</div>
-				<div className='volume-container'>
+				{whatDisplay !== 1 ? null 
+				: <div className='volume-container'>
 					{/* TODO think about children */}
 					<DropDown
 						open={isOpenVolume}
 						toggleOpen={setOpenVolume}
 						variants='up'
-						mainElement={
-							< img className='volume-img contorl-img'
-								src={VolumeLow}
-								alt={'Volume-low'}
-							/>}
+						mainElement={getVolumeIcon(currentVolume)}
 					>
-						[
+						{[
 							<Box sx={
 									{
 										height: 130,
@@ -142,11 +175,15 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 										}}
 									/>
 								</Box>
-						]
+						]}
 					</DropDown>
 				</div>
+				}
 				<div className='fullscreen-container'>
-					< img className='fullscreen-img contorl-img' src={FullscreenImg} alt={'Fullscreen'} onClick={toggleFullScreen} />
+					{isFullScreen 
+					? <FullscreenRoundedIcon fontSize='inherit' onClick={() => toggleFullScreen()}/>
+					: <FullscreenExitRoundedIcon fontSize='inherit' onClick={() => toggleFullScreen()}/>
+					}
 				</div>
 			</div>
 		</div>
