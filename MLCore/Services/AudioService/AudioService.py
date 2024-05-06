@@ -1,5 +1,10 @@
 import os
 
+import sys
+sys.path.insert(1, 'MLCore/')
+sys.path.insert(2, 'MLCore/Services')
+sys.path.insert(3, 'MLCore/Processors')
+
 from minio import Minio
 from Processors import IDataProcessor
 from Processors.AudioProcessor import AudioProcessor

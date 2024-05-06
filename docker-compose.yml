@@ -106,6 +106,20 @@ services:
     networks:
       clevernet:
 
+
+  mlcore_audio_service:
+    build:
+      context: ./MLCore
+      dockerfile: Services/AudioService/Dockerfile.audio_service
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
+
   # mlcore:
   #   build:
   #     context: ./MLCore
