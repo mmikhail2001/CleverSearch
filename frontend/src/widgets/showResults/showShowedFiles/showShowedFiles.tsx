@@ -30,9 +30,6 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
 
     }, [showReq, isShow])
 
-    if (!isShow) {
-        dispatch(switchToShow())
-    }
 
     return (
         <ShowGlobal

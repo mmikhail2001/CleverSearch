@@ -167,6 +167,32 @@ func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions)
 	if options.Dir == "" {
 		options.Dir = "/"
 	}
+	if options.Status != fileDomain.StatusType("") {
+		var files []fileDomain.File
+		options.DirsRequired = false
+		options.FirstNesting = false
+		var resultsTmp []file.File
+		options.CloudEmail = ""
+		options.Disk = ""
+		resultsTmp, err := uc.repo.GetFiles(ctx, options)
+		if err != nil {
+			log.Println("GetFiles: err:", err)
+			return []fileDomain.File{}, err
+		}
+		files = append(files, resultsTmp...)
+		for _, cloud := range user.ConnectedClouds {
+			options.InternalDisklRequired = false
+			options.Disk = string(cloud.Cloud)
+			options.CloudEmail = cloud.CloudEmail
+			resultsTmp, err := uc.repo.GetFiles(ctx, options)
+			if err != nil {
+				log.Println("GetFiles: err:", err)
+				return []fileDomain.File{}, err
+			}
+			files = append(files, resultsTmp...)
+		}
+		return files, nil
+	}
 
 	// если имеется статус в параметрах, то отвечаем без папок, всеми файлами (внутренними, расшаренными, внешними)
 	// кажется, что расшаренные здесь не возвратятся, т.к. выше options.UserID = user.ID
@@ -403,7 +429,9 @@ func (uc *Usecase) Search(ctx context.Context, options fileDomain.FileOptions) (
 	}
 
 	if options.IsSmartSearch {
-		return uc.repo.SmartSearch(ctx, options)
+		filesSmartSearch, err := uc.repo.SmartSearch(ctx, options)
+		printPaths(filesSmartSearch, "filesSmartSearch ===")
+		return filesSmartSearch, err
 	}
 
 	var files []fileDomain.File
@@ -499,10 +527,17 @@ func (uc *Usecase) DeleteFiles(ctx context.Context, filePaths []string) error {
 			}
 			stack = append(stack, retrievedFiles...)
 		} else {
-			err := uc.repo.RemoveFromStorage(ctx, currentFile)
+			exists, err := uc.repo.BucketExists(ctx, currentFile.Bucket)
 			if err != nil {
-				log.Println("Error removing from storage:", currentFile.Path, ", error:", err)
+				log.Println("BucketExists error:", err)
 				return err
+			}
+			if exists {
+				err = uc.repo.RemoveFromStorage(ctx, currentFile)
+				if err != nil {
+					log.Println("Error removing from storage:", currentFile.Path, ", error:", err)
+					return err
+				}
 			}
 			err = uc.repo.DeleteFile(ctx, currentFile)
 			if err != nil {

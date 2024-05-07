@@ -75,7 +75,7 @@ type File struct {
 
 	PageNumber int
 	Timestart  int
-	Duration   time.Duration
+	Duration   int
 
 	IsFav bool
 

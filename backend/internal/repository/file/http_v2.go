@@ -32,6 +32,8 @@ func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOpt
 	queryParams.Set("user_id", fileOptions.UserID)
 	url := apiServiceMLSearch + "?" + queryParams.Encode()
 
+	log.Println("url =====", url)
+
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("http.Get error:", err)

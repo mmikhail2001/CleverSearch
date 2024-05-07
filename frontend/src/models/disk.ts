@@ -43,14 +43,6 @@ export const diskImgSrc = new Map([
 		},
 	],
 	[
-		'yandex',
-		{
-			diskName: 'yandex',
-			src: YandexSVG,
-			altText: 'text',
-		},
-	],
-	[
 		'own',
 		{
 			diskName: 'own',

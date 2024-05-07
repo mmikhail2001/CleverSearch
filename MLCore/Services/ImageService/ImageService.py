@@ -73,7 +73,7 @@ class ImageService(IDataService):
             '$set':
             {
                 'ml_data': {
-                    'text_repr': emds_vec
+                    'text_repr': text_embeddings
                 }
             }
         }

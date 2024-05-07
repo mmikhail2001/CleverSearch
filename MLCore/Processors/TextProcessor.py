@@ -32,6 +32,7 @@ class TextProcessor(IDataProcessor):
 
         for i, text_page in text:
             # logger.info(f'preprocessed text: {text_page}')
+            # logger.info(f'preprocessed text: {text_page}')
 
             for sentence in text_page:
                 encodes = self.tokenizer(
@@ -40,6 +41,7 @@ class TextProcessor(IDataProcessor):
                     padding=True)
 
                 embedding = self.model(**encodes).last_hidden_state[:, 0, :]
+                # logger.info(embedding.shape)
                 # logger.info(embedding.shape)
                 embeddings.append(embedding.squeeze(0).tolist())
                 pages.append(i)

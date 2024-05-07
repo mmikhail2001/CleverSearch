@@ -27,63 +27,39 @@ export const RegisterForm: FC<RegisterProps> = () => {
 	return (
 		<div className='register-background'>
 			<div className="register-form">
-				<div className="register-form__inputs">
-					<Typography className='register-form__name'>Registration:</Typography>
-					<Input
-						size='medium'
-						border="none"
-						style={{
-								padding: 'var(--big-padding)',
-								border: 'none !important',
-							"& .Mui-focused": {
-								border: '1px solid rgba(255,255,255,1)',
-								outline:"none",
-							},
-							'& .MuiOutlinedInput-notchedOutline': {
-								outline: 'none',
-								borderColor: 'rgba(255,255,255,0.4) !important',
-							},
-							'& input[type=email]': {
-								padding: '15px !important', 
-							},
-						}}
-						fontSize='var(--ft-paragraph)'
-						disabled={registerResp.isLoading}
-						type="email"
-						placeholder="email"
-						value={loginField}
-						onChange={(e) => setLogin(e.target.value)}
-					></Input>
-					<Input
-						disabled={registerResp.isLoading}
-						size='medium'
-						border="none"
-						type="password"
-						fontSize='var(--ft-paragraph)'
-						style={{
-							padding: 'var(--big-padding)',
-							border: 'none !important',
-						"& .Mui-focused": {
-							border: '1px solid rgba(255,255,255,1)',
-							outline:"none",
-						},
-						'& .MuiOutlinedInput-notchedOutline': {
-							outline: 'none',
-							borderColor: 'rgba(255,255,255,0.4) !important',
-						},
-						'& input[type=password]': {
-							padding: '15px !important', 
-						},
-					}}
-						placeholder="password"
-						value={passwordField}
-						onChange={(e) => setPassword(e.target.value)}
-					></Input>
+				<div className="register-form__main">
+					<Typography className='register-form__name'>Registration</Typography>
+					<div className='register-form__inputs'>
+						<Input
+							specificRadius='small-radius'
+							size='medium'
+							border="none"
+							fontSize='var(--ft-paragraph)'
+							disabled={registerResp.isLoading}
+							type="email"
+							placeholder="email"
+							value={loginField}
+							specificPaddingInside='small-padding'
+							onChange={(e) => setLogin(e.target.value)}
+						></Input>
+						<Input
+							specificRadius='small-radius'
+							disabled={registerResp.isLoading}
+							size='medium'
+							border="none"
+							type="password"
+							fontSize='var(--ft-paragraph)'
+							placeholder="password"
+							specificPaddingInside='small-padding'
+							value={passwordField}
+							onChange={(e) => setPassword(e.target.value)}
+						></Input>
+					</div>
 				</div>
 				<div className='register-form__buttons'>
 					<Button
 						variant={'contained'}
-						buttonText="Lets go"
+						buttonText="Register"
 						isFullSize={true}
 						clickHandler={
 							() => {
@@ -91,12 +67,12 @@ export const RegisterForm: FC<RegisterProps> = () => {
 							}
 						}
 						disabled={!(loginField !== "" && passwordField !== "") 
-							&& registerResp.isLoading ? true : false
+							|| registerResp.isLoading
 						}
 					/>
 					<Button
 						variant={'contained'}
-						buttonText="To Login"
+						buttonText="To Login page"
 						isFullSize={true}
 						clickHandler={
 							() => {

@@ -39,9 +39,9 @@ export const Switch: FC<SwitchProps> = ({
             labelPlacement={labelPlacement}
             control={
                 <UISwitch
+                    onClick={onChange}
                     disabled={disabled}
                     checked={checked}
-                    onChange={onChange}
                     size={size}
                 />
             }

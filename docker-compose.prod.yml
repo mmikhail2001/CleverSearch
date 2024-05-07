@@ -1,0 +1,83 @@
+version: '3.7'
+
+services:
+  minio:
+    image: minio/minio:latest
+    # for DNS resolve
+    restart: always
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server --console-address ":9090" /data
+    networks:
+      clevernet.prod:
+
+  mongodb:
+    image: mongo:5.0
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: PASSWORD
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      clevernet.prod:
+
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      clevernet.prod:
+
+  # docker compose stop backend && docker compose up --build backend
+  backend:
+    image: windowskonon1337/cleversearch_backend
+    restart: always
+    depends_on:
+      - rabbitmq
+      - mongodb
+      - minio
+    volumes:
+      - ./creds.json:/app/creds.json
+      - minio_data:/app/minio_files
+    networks:
+      clevernet.prod:
+
+  mlcore:
+    image: windowskonon1337/cleversearch_mlcore
+    restart: always
+    depends_on:
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet.prod:
+
+  frontend:
+    image: windowskonon1337/cleversearch_frontend
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    volumes:
+      - ./certs:/app/frontend/certs
+    depends_on:
+      - backend
+    networks:
+      clevernet.prod:
+
+# volumes :)
+volumes:
+  minio_data:
+  mongo_data:
+
+networks:
+  clevernet.prod:
+    driver: bridge
+    # dd network inspect clevernet.prod
+    name: clevernet.prod

@@ -1,24 +1,30 @@
 import React, { FC, useRef } from 'react';
 import { Button, VariantBtn } from '@entities/button/button';
-import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
 
 import './buttonWithInput.scss'
 import { Typography } from '@mui/material';
+import CSS from 'csstype'
 
 interface TextWithInputProps {
   onChange: (a: FileList) => void;
   disabled: boolean;
-  variant: VariantBtn;
   className?: string;
   buttonText: string;
+  startIcon?: React.ReactNode;
+  endIcon?: React.ReactNode;
+  stylesOnRoot?: CSS.Properties;
+  textStyles?:CSS.Properties;
 }
 
 export const TextWithInput: FC<TextWithInputProps> = ({
   onChange,
   disabled,
-  variant,
   className,
   buttonText,
+  startIcon,
+  endIcon,
+  stylesOnRoot,
+  textStyles,
 }) => {
   const hiddenFileInput = useRef(null);
   const handleClick = () => {
@@ -26,26 +32,20 @@ export const TextWithInput: FC<TextWithInputProps> = ({
   };
 
   return (
-    <div className={className || ''} style={{ 
-        width: '185px', 
-        paddingLeft:'1.5rem', 
-        paddingTop: '1rem',
-        paddingBottom: '0.5rem',
-        fontSize: 'var(--ft-paragraph)',
-        display: 'grid',
-				gridTemplateColumns: "minmax(0, 0.5fr) minmax(0, 3fr) minmax(0, 0.25fr)",
-        alignItems:'center',
-      }}>
-      <InsertDriveFileRoundedIcon fontSize='inherit' sx={{color: "#0A9542", marginBottom: '3px'}}/>
+    <div className={className || ''} style={{...stylesOnRoot}}>
+      {startIcon}
       <Typography
-        sx={{cursor: 'pointer'}}
-        fontSize='var(--ft-paragraph)'
+        sx={{
+          cursor: 'pointer',
+          color:'inherit',
+          ...textStyles,
+        }}
         onClick={(e) => {
           e.stopPropagation()
           handleClick()
         }}
-        style={{color:'inherit'}}
       >{buttonText}</Typography>
+      {endIcon}
       <input
         multiple={true}
         ref={hiddenFileInput}

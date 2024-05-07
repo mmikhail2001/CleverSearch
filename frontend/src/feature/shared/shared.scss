@@ -1,4 +1,6 @@
 .shared-modal {
+    min-width:  250px;
+    width: auto;
     display: flex;
     flex-direction: column;
     gap: var(--big-padding);
@@ -8,5 +10,6 @@
     padding-top: var(--normal-padding);
     padding-bottom: var(--normal-padding);
 
+    background-color: var(--color-dropdowns);
     align-items: center;
 }

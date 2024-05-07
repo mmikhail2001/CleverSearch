@@ -12,6 +12,7 @@ import { useSearchParams } from '@helpers/hooks/useSearchParams';
 import { newValues } from '@store/showRequest';
 import { ShowGlobal } from '../showGlobal';
 import { getDriveURLFront, getInternalURLFront } from '@helpers/transformsToURL';
+import { SearchParams } from '@models/searchParams';
 
 interface ShowSearchedFilesProps { }
 
@@ -25,15 +26,18 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     const showReq = useAppSelector(state => state.showRequest)
     const searchParams = useAppSelector(state => state.searchRequest)
     const { isSearch } = useAppSelector(state => state.whatToShow)
+    const [query, setQuery] = useState<SearchParams>({} as SearchParams)
 
     useEffect(() => {
-        if (searchParams.query)
+        if (isSearch && (searchParams.query !== query.query
+            || searchParams.dir !== query.dir
+            || searchParams.fileType !== query.fileType
+            || searchParams.smartSearch !== query.smartSearch
+        )) {
             search(searchParams)
+            setQuery(searchParams)
+        }
     }, [searchParams])
-
-    if (!isSearch) {
-        dispatch(switchToSearch())
-    }
 
     const paramsSearch = useAppSelector((state) => state.searchRequest);
 

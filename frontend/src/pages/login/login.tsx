@@ -28,26 +28,14 @@ export const LoginForm: FC<LoginFormProps> = () => {
 	return (
 		<div className='login-background'>
 			<div className="login-form">
-				<div className="login-form__inputs">
-					<Typography className='register-form__name'>Authorization:</Typography>
-					<Input
+				<div className="login-form__main">
+					<Typography className='login-form__name'>Authorization</Typography>
+					<div className='login-form__inputs'>
+						<Input
+							specificPaddingInside='small-padding'
 							size='medium'
 							border="none"
-							style={{
-									padding: 'var(--big-padding)',
-									border: 'none !important',
-								"& .Mui-focused": {
-									border: '1px solid rgba(255,255,255,1)',
-									outline:"none",
-								},
-								'& .MuiOutlinedInput-notchedOutline': {
-									outline: 'none',
-									borderColor: 'rgba(255,255,255,0.4) !important',
-								},
-								'& input[type=email]': {
-									padding: '15px !important', 
-								},
-							}}
+							specificRadius='small-radius'
 							fontSize='var(--ft-paragraph)'
 							disabled={loginResp.isLoading}
 							type="email"
@@ -56,46 +44,34 @@ export const LoginForm: FC<LoginFormProps> = () => {
 							onChange={(e) => setLogin(e.target.value)}
 						></Input>
 						<Input
+							specificPaddingInside='small-padding'
 							disabled={loginResp.isLoading}
 							size='medium'
 							border="none"
 							type="password"
 							fontSize='var(--ft-paragraph)'
-							style={{
-								padding: 'var(--big-padding)',
-								border: 'none !important',
-							"& .Mui-focused": {
-								border: '1px solid rgba(255,255,255,1)',
-								outline:"none",
-							},
-							'& .MuiOutlinedInput-notchedOutline': {
-								outline: 'none',
-								borderColor: 'rgba(255,255,255,0.4) !important',
-							},
-							'& input[type=password]': {
-								padding: '15px !important', 
-							},
-						}}
+							specificRadius='small-radius'
 							placeholder="password"
 							value={passwordField}
 							onChange={(e) => setPassword(e.target.value)}
 						></Input>
+					</div>
 				</div>
 				<div className='login-form__buttons'>
 					<Button
 						variant={'contained'}
-						buttonText="Lets go"
+						buttonText="Login"
 						clickHandler={
 							() => {
 								login({ email: loginField, password: passwordField });
 							}
 						}
 						isFullSize={true}
-						disabled={!(loginField !== "" && passwordField !== "") || loginResp.isLoading ? true : false}
+						disabled={!(loginField !== "" && passwordField !== "") || loginResp.isLoading}
 					/>
 					<Button
 						variant={'contained'}
-						buttonText="To Register"
+						buttonText="To Register page"
 						isFullSize={true}
 						clickHandler={
 							() => {

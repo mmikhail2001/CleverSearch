@@ -9,8 +9,9 @@ import { useNavigate } from 'react-router-dom';
 
 import './settings.scss'
 import { useSetAvatarMutation } from '@api/userApi';
-import { Input } from '@entities/input/input';
 import { TextWithInput } from '@feature/buttonWithInput/buttonWithInput';
+import { NotificationBar } from '@entities/notificationBar/notificationBar';
+import { Button } from '@entities/button/button';
 
 const getTextWithImg = (
 	selected: boolean,
@@ -21,18 +22,20 @@ const getTextWithImg = (
 	const { src, altText, diskName } = disk;
 
 	return (
-		<TextWithImg
-			key={diskName + src}
-			className={['text-with-img-row'].join(' ')}
-			text={diskName}
-			imgSrc={src}
-			altImgText={altText}
-			onClick={() => {
-				if (isDiskType(diskName)) {
-					setState(diskName as diskTypes);
-				}
-			}}
-		/>
+		<div className='settings__disk'>
+			<TextWithImg
+				key={diskName + src}
+				className={['text-with-img-row'].join(' ')}
+				text={diskName}
+				imgSrc={src}
+				altImgText={altText}
+				onClick={() => {
+					if (isDiskType(diskName)) {
+						setState(diskName as diskTypes);
+					}
+				}}
+			/>
+		</div>
 	);
 };
 
@@ -50,64 +53,97 @@ export const SettingsPage: FC = () => {
 		}
 	}, [resp])
 
-	return <div className="settings">
-		<div className='disk-show disks disk-connect-settings'>
-			<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>
-				Connect
-			</Typography>
-			{
-				Array.from(diskImgSrc)
-					.filter(val => val[1].diskName !== 'internal'
-						&& val[1].diskName !== 'own')
-					.map(val => {
-						return getTextWithImg(
-							false,
-							val[1],
-							(text: diskTypes) => {
-								connect(text)
-								setDiskToConnect(text)
-							}
-						)
-					})
-			}
-		</div>
-		<div style={{display:'flex',flexDirection:"column", justifyContent:'center', gap:'1.2rem', alignItems:'center'}}>
-			<Typography fontWeight={600} fontSize={'var(--ft-paragraph)'}>
-				Avatar
-			</Typography>
-			<TextWithInput
-				buttonText='Change profile'
-				onChange={(files) => {
-					Array.from(files).forEach((file) => {
-						const formData = new FormData();
+	const [open, setOpen] = useState(true)
 
-						formData.append('avatar', file, file.name);
-						sentAvatar(formData);
-					});
-				}}
-				variant='contained'
-				disabled={false}
-			/>
-			{respAvatar.isSuccess ? <p>Аватар установлен</p> : null}
-			{respAvatar.isError ? <p>Произошла ошибка при установке</p> : null}
-		</div>
-		<div style={{
-			display: 'flex',
-			justifyContent: 'space-between',
-			width: '300px',
-			fontSize: '2.4rem',
-		}}>
-			<div onClick={() => navigate('/')} style={{
-				width: '100%',
-				alignItems: 'center',
-				display: 'flex',
-				flexDirection: 'column',
-				cursor: 'pointer'
-			}}>
-				<KeyboardReturnIcon fontSize='inherit' />
-				<Typography fontSize={'var(--ft-body)'}>Back to main</Typography>
+	return <div className="settings-background">
+		<div className='settings'>
+			<div className='disk-show disks disk-connect-settings'>
+				<p 
+					className='settings__paragraph-name'
+				>
+					Connect external disks
+				</p>
+				{
+					Array.from(diskImgSrc)
+						.filter(val => val[1].diskName !== 'internal'
+							&& val[1].diskName !== 'own')
+						.map(val => {
+							return getTextWithImg(
+								false,
+								val[1],
+								(text: diskTypes) => {
+									connect(text)
+									setDiskToConnect(text)
+								}
+							)
+						})
+				}
 			</div>
-		</div >
-		
+			<div className='disk-connect-settings'>
+				<p 
+					className='settings__paragraph-name'
+				>
+					Change profile
+				</p>
+				<TextWithInput
+					textStyles={{
+						fontSize: 'var(--ft-paragraph)',
+						paddingLeft: 'var(--big-padding)',
+						paddingRight: 'var(--big-padding)',
+						paddingTop: 'var(--small-padding)',
+						paddingBottom: 'var(--small-padding)',
+					}}
+					stylesOnRoot={{
+						width: '100%',
+					}}
+					buttonText='Change profile'
+					onChange={(files) => {
+						Array.from(files).forEach((file) => {
+							const formData = new FormData();
+
+							formData.append('avatar', file, file.name);
+							sentAvatar(formData);
+						});
+					}}
+					disabled={false}
+				/>
+				
+				{respAvatar.isSuccess 
+				? <NotificationBar
+					isOpen={open}
+					setOpen={setOpen}
+					autoHideDuration={500}
+					className='settings__good-notification'
+				>
+					<p>Successful set</p>
+				</NotificationBar>
+				: null}
+				{respAvatar.isError 
+				? <NotificationBar
+					isOpen={open}
+					setOpen={setOpen}
+					autoHideDuration={5}
+					className='settings__bad-notification'
+				>
+					<p>Get error on set</p>
+				</NotificationBar>
+				: null}
+			</div>
+			<div style={{
+				display: 'flex',
+				justifyContent: 'space-between',
+				height: '47px',
+				width: '70%',
+			}}>
+				<Button
+					style={{padding: "1rem"}}
+					isFullSize={true} 
+					buttonText={'Back to main'} 
+					clickHandler={() => navigate('/')} 
+					variant={'contained'}
+				/>
+			</div >
+		</div>
+		<div></div>
 	</div >
 };

@@ -53,15 +53,18 @@ class MLDispatcher:
 
             logging.critical(f'decoded body: {body.decode()}')
 
-            file_type = self.collection.find_one({'_id': doc_uuid})['file_type']
+            doc_meta = self.collection.find_one({'_id': doc_uuid})
+
+            file_type = doc_meta['file_type']
 
             logging.critical(f'doc_uuid: {doc_uuid} || file type: {file_type}')
 
-            self.services[file_type].update_collection_file(
-                doc_uuid
-            )
+            if doc_meta['status'] != 'processed':
+                self.services[file_type].update_collection_file(
+                    doc_uuid
+                )
+                requests.post(f'http://backend:8080/api/ml/complete?file_uuid={doc_uuid}')
 
-            requests.post(f'http://backend:8080/api/ml/complete?file_uuid={doc_uuid}')
 
     def run(self, queue_name: str):
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port,\

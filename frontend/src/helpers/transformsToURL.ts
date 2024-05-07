@@ -12,5 +12,5 @@ export const getSharedURLFront = (dir: string[]):string => {
 }
 
 export const getSearchURLFront = (fileType: fileTypes[], isSmart: boolean, dir: string[], query: string):string => {
-    return `/search?dir=${dir.join('/')}&file_type=${fileType.join(',')}&smart=${isSmart}&query=${query}`
+    return `/search?dir=${Array.isArray(dir) ? dir.join('/'): '/'}&file_type=${Array.isArray(fileType) ? fileType.join(',') : 'all'}&smart=${isSmart}&query=${query}`
 }
