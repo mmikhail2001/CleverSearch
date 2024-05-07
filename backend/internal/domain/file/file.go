@@ -75,7 +75,7 @@ type File struct {
 
 	PageNumber int
 	Timestart  int
-	Duration   time.Duration
+	Duration   int
 
 	IsFav bool
 
@@ -124,7 +124,8 @@ type FileOptions struct {
 }
 
 type FileOptionsV2 struct {
-	FileType FileType
+	FileType  FileType
+	FileTypes []FileType
 
 	Dir string
 

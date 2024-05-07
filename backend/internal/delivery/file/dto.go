@@ -30,7 +30,7 @@ type FileDTO struct {
 	Disk        file.DiskType   `json:"disk"`
 	PageNumber  int             `json:"page_number"`
 	Timestart   int             `json:"timestart"`
-	Duration    time.Duration   `json:"duration"`
+	Duration    int             `json:"duration"`
 	IsFav       bool            `json:"is_fav"`
 }
 

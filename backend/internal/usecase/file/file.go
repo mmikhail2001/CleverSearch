@@ -126,6 +126,10 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 	file.IsShared = false
 	file.Email = user.Email
 
+	// if file.FileType == fileDomain.Audio || file.FileType == fileDomain.Video {
+	// TODO:
+	// }
+
 	file, err = uc.repo.UploadToStorage(ctx, fileReader, file)
 	if err != nil {
 		log.Println("UploadToStorage repo error:", err)
@@ -425,7 +429,9 @@ func (uc *Usecase) Search(ctx context.Context, options fileDomain.FileOptions) (
 	}
 
 	if options.IsSmartSearch {
-		return uc.repo.SmartSearch(ctx, options)
+		filesSmartSearch, err := uc.repo.SmartSearch(ctx, options)
+		printPaths(filesSmartSearch, "filesSmartSearch ===")
+		return filesSmartSearch, err
 	}
 
 	var files []fileDomain.File
@@ -521,10 +527,17 @@ func (uc *Usecase) DeleteFiles(ctx context.Context, filePaths []string) error {
 			}
 			stack = append(stack, retrievedFiles...)
 		} else {
-			err := uc.repo.RemoveFromStorage(ctx, currentFile)
+			exists, err := uc.repo.BucketExists(ctx, currentFile.Bucket)
 			if err != nil {
-				log.Println("Error removing from storage:", currentFile.Path, ", error:", err)
+				log.Println("BucketExists error:", err)
 				return err
+			}
+			if exists {
+				err = uc.repo.RemoveFromStorage(ctx, currentFile)
+				if err != nil {
+					log.Println("Error removing from storage:", currentFile.Path, ", error:", err)
+					return err
+				}
 			}
 			err = uc.repo.DeleteFile(ctx, currentFile)
 			if err != nil {

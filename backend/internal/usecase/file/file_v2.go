@@ -25,11 +25,20 @@ func (uc *Usecase) ProccessedUploaded(ctx context.Context, options fileDomain.Fi
 	}
 	var files []fileDomain.File
 
-	options.IgnoreCloudEmail = true
+	// options.IgnoreCloudEmail = true
+	// if options.Status == file.Processed {
+	// 	for _, fileType := range options.FileTypes {
+	// 		options.FileType = fileType
+	// 		options.FileType = fileType
 	files, err = uc.SharedDriveInternal(ctx, options)
 	if err != nil && !errors.Is(err, file.ErrNotFound) {
 		return []fileDomain.File{}, err
 	}
+	// 	files = append(files, filesTmp...)
+	// }
+	// } else {
+	// 	return uc.SharedDriveInternal(ctx, options)
+	// }
 	return files, nil
 }
 
