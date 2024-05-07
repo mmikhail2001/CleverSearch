@@ -147,13 +147,7 @@ jobs:
     if: ${{ always() }} && ${{ success() }}
     steps:
       - name: Actual Dockercompose.prod.yml flipping
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST_SERVER }}
-          ssh_username: ${{ secrets.USERNAME_SERVER }}
-          ssh_key: ${{ secrets.SSH_SERVER_KEY }}
-          source: docker-compose.prod.yml
-          target: ${{ secrets.PATH_DOCKER_PROD_TARGET }}
+        run: echo ${{ secrets.SSH_SERVER_KEY }} > ssh_key && chmod u+x ssh_key && scp -i ssh_key docker-compose.prod.yml ${{ secrets.USERNAME_SERVER }}@${{ secrets.HOST_SERVER }}:${{ secrets.PATH_DOCKER_PROD_TARGET }} && rm ssh_key
       - name: SSH and Restart Docker Compose
         uses: appleboy/ssh-action@master
         with:
