@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import './login.scss';
 import React from 'react';
 import { Typography } from '@mui/material';
-import { NotificationBar } from '@entities/notificationBar/notificationBar';
+import { notificationBar } from '@helpers/notificationBar';
 
 interface LoginFormProps { }
 
@@ -29,11 +29,13 @@ export const LoginForm: FC<LoginFormProps> = () => {
 	}
 	
 	useEffect(() => {
+		console.log(loginResp)
 		if (loginResp.isError 
 			&& 'status' in loginResp.error
 			&& loginResp.error.status === 500
 		) {
 			setError('Wrong password or login')
+			return
 		}
 
 		if (loginResp.isError 
@@ -47,6 +49,19 @@ export const LoginForm: FC<LoginFormProps> = () => {
 		}
 
 	},  [loginResp])
+
+	useEffect(() => {
+		if (error !== '') {
+			notificationBar(
+				{
+					children: error,
+					variant: "error",
+				}
+			)
+			setError('')
+		}
+	}, [error])
+
 
 	return (
 		<div className='login-background'>
@@ -105,17 +120,6 @@ export const LoginForm: FC<LoginFormProps> = () => {
 				</div>
 			</div>
 		<div></div>
-		{
-				error !== '' ?
-					<NotificationBar
-						onClose={() => setError('')}
-						variant={'bad'}
-						className='notification-placement'
-						autoHideDuration={2000}
-					>
-						<p>{error}</p>
-					</NotificationBar>
-			: null }
 		</div>
 	);
 };

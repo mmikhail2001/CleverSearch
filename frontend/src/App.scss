@@ -17,3 +17,9 @@
 .color-background {
     background: linear-gradient(to bottom, 11344E, 700F49);
 }
+
+.notification {
+    background: var(--color-dropdowns);
+    padding: 2rem;
+    border-radius: 1.5rem;
+}

@@ -149,7 +149,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 						</div>
 						<div className="search-text">
 							<Input
-								style={{backgroundColor: 'var(--color-active)', color: 'inherit'}}
+								style={{backgroundColor: 'var(--color-active)', color: 'inherit' }}
 								fontSize={'var(--ft-paragraph)'}
 								isFullWidth
 								variant='text'

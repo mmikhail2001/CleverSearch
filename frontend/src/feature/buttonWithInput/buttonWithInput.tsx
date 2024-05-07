@@ -4,6 +4,8 @@ import { Button, VariantBtn } from '@entities/button/button';
 import './buttonWithInput.scss'
 import { Typography } from '@mui/material';
 import CSS from 'csstype'
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
+import { correctFormats } from '@helpers/isCorrectFormat';
 
 interface TextWithInputProps {
   onChange: (a: FileList) => void;
@@ -14,6 +16,7 @@ interface TextWithInputProps {
   endIcon?: React.ReactNode;
   stylesOnRoot?: CSS.Properties;
   textStyles?:CSS.Properties;
+  accept?: string,
 }
 
 export const TextWithInput: FC<TextWithInputProps> = ({
@@ -25,6 +28,7 @@ export const TextWithInput: FC<TextWithInputProps> = ({
   endIcon,
   stylesOnRoot,
   textStyles,
+  accept,
 }) => {
   const hiddenFileInput = useRef(null);
   const handleClick = () => {
@@ -47,6 +51,7 @@ export const TextWithInput: FC<TextWithInputProps> = ({
       >{buttonText}</Typography>
       {endIcon}
       <input
+        accept={isNullOrUndefined(accept) ? correctFormats : accept}
         multiple={true}
         ref={hiddenFileInput}
         type="file"

@@ -23,6 +23,9 @@ import {ComponentWithInput} from '@entities/componentWithInput/componentWithInpu
 import { debounce } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetInternalFilesMutation, useGetSharedFilesMutation, usePushFileMutation } from '@api/filesApi';
+import { correctFormats, isCorrectFormat } from '@helpers/isCorrectFormat';
+import { notificationBar } from '@helpers/notificationBar';
+import { fileUploadNotification } from '@helpers/fileUploadNotification';
 
 const drawerWidth = '294px'
 
@@ -44,6 +47,7 @@ export const MainPage: FC = () => {
 	const [send, sendResp] = usePushFileMutation();
 
 	const [filesWasSend, setFilesWasSend] = useState<boolean>(false) 
+	const {fileToNotify} = useAppSelector(state => state.fileProcess)
 
 	useEffect(() =>{
 		if (sendResp && sendResp.isSuccess && filesWasSend) {
@@ -63,6 +67,7 @@ export const MainPage: FC = () => {
 	const isMobile = whatDisplay === 2
 	const widthToSet = isMobile ? '0px' : drawerWidth
 
+	fileUploadNotification(fileToNotify)
 
 	return <div className="App">
 		<Sidebar
@@ -100,6 +105,7 @@ export const MainPage: FC = () => {
 				}}
 			>
 				<ComponentWithInput
+					accept={correctFormats}
 					stylesOnComponent={{
 						display:'flex',
 						fontSize:'24px',
@@ -117,6 +123,14 @@ export const MainPage: FC = () => {
 							}, 300);
 							
 							Array.from(files).forEach((file) => {
+								if (!isCorrectFormat(file.type)) {
+									notificationBar({
+										children: `File type not supported. Can't upload file: ${file.name}`,
+										variant: 'error'
+									})
+									return
+								}
+								
 								const formData = new FormData();
 
 								formData.append('file', file, file.name);

@@ -7,9 +7,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import './register.scss';
 import { Typography } from '@mui/material';
-import { getErrorMessageFromErroResp } from '@helpers/getErrorMessageFromErroResp';
-import { NotificationBar } from '@entities/notificationBar/notificationBar';
-import { string32 } from 'pdfjs-dist/types/src/shared/util';
+import { notificationBar } from '@helpers/notificationBar';
 
 interface RegisterProps { }
 
@@ -55,6 +53,18 @@ export const RegisterForm: FC<RegisterProps> = () => {
 			login(sendCredentials)
 		}
 	}, [registerResp])
+
+	useEffect(() => {
+		if (error !== '') {
+			notificationBar(
+				{
+					children: error,
+					variant: "error",
+				}
+			)
+			setError('')
+		}
+	}, [error])
 
 	return (
 		<div className='register-background'>
@@ -117,17 +127,6 @@ export const RegisterForm: FC<RegisterProps> = () => {
 				</div>
 			</div>
 			<div></div>
-			{
-				error !== '' ?
-					<NotificationBar
-						onClose={() => setError('')}
-						variant={'bad'}
-						autoHideDuration={2000}
-						className='notification-placement'
-					>
-						<p>User with this nickname already exists</p>
-					</NotificationBar>
-			: null }
 		</div>
 	);
 };

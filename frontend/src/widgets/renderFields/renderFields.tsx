@@ -37,10 +37,6 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	const {whatDisplay} = useMobile()
 	const isMobile = whatDisplay !== 1
 
-	if (isLoading) {
-		return <h1>Подождите, загружаем файлы...</h1>;
-	}
-
 	if (isError) {
 			return <h1>{getErrorMessageFromErroResp(error)}</h1>;
 		}

@@ -1,16 +1,14 @@
 import { DiskType, diskImgSrc, diskTypes, isDiskType } from '@models/disk';
-import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
-import { Typography } from '@mui/material';
 import React, { FC, useEffect, useState } from 'react';
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
 import { useDiskLinkConnectMutation } from '@api/diskApi';
 import { useNavigate } from 'react-router-dom';
+import { notificationBar } from '@helpers/notificationBar';
 
 import './settings.scss'
 import { useSetAvatarMutation } from '@api/userApi';
 import { TextWithInput } from '@feature/buttonWithInput/buttonWithInput';
-import { NotificationBar } from '@entities/notificationBar/notificationBar';
 import { Button } from '@entities/button/button';
 
 const getTextWithImg = (
@@ -53,6 +51,21 @@ export const SettingsPage: FC = () => {
 		}
 	}, [resp])
 
+	useEffect(() => {
+		if(respAvatar.isSuccess) {
+			notificationBar({
+				children: "Successful set",
+				variant: "success"
+			})
+			if (respAvatar.isError) {
+				notificationBar({
+					children: "Get error on set",
+					variant: "error"
+				})
+			}
+		} 
+	}, [respAvatar])
+
 	return <div className="settings-background">
 		<div className='settings'>
 			<div className='disk-show disks disk-connect-settings'>
@@ -84,6 +97,7 @@ export const SettingsPage: FC = () => {
 					Change profile
 				</p>
 				<TextWithInput
+					accept='image/jpeg, image/png'
 					textStyles={{
 						fontSize: 'var(--ft-paragraph)',
 						paddingLeft: 'var(--big-padding)',
@@ -105,23 +119,6 @@ export const SettingsPage: FC = () => {
 					}}
 					disabled={false}
 				/>
-				
-				{respAvatar.isSuccess 
-				? <NotificationBar
-					autoHideDuration={2000}
-					className='settings__good-notification'
-				>
-					<p>Successful set</p>
-				</NotificationBar>
-				: null}
-				{respAvatar.isError 
-				? <NotificationBar
-					autoHideDuration={2000}
-					className='settings__bad-notification'
-				>
-					<p>Get error on set</p>
-				</NotificationBar>
-				: null}
 			</div>
 			<div style={{
 				display: 'flex',

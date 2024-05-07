@@ -7,7 +7,6 @@ import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 
 // Optimizations
 const TerserPlugin = require('terser-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 import 'webpack-dev-server';
 
@@ -86,8 +85,8 @@ export default (env: {
 			],
 		},
 		
-		optimization: isProd ? {
-			minimize: true, // Enable minification
+		optimization: {
+			minimize: isProd, // Enable minification
 			minimizer: [
 			  new TerserPlugin({
 				parallel: true, // Use multi-threading for faster minification
@@ -98,12 +97,11 @@ export default (env: {
 				  },
 				},
 			  }),
-			  new OptimizeCSSAssetsPlugin(), // Optimize CSS assets
 			],
 			splitChunks: {
 			  chunks: 'all', // Split code into separate files for better caching
 			},
-		} : null,
+		},
 		
 	};
 

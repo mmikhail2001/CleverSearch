@@ -50,7 +50,7 @@ const useCopyState = (): [boolean, () => void] => {
 const generatedLinkField = (isCopied:boolean, setCopied: () => void, navigator: Navigator, link:string): React.ReactNode => {
     return (
         <div>
-            <p>Ссылка:</p>
+            <p>Link:</p>
             <p onClick={(e) => {
                 e.preventDefault()
                 setCopied()
@@ -60,7 +60,7 @@ const generatedLinkField = (isCopied:boolean, setCopied: () => void, navigator: 
             }}>
                 {`${process.env.protocol}://${process.env.adress}` + link}
             </p>
-            {isCopied ? <div style={{ position: 'absolute' }}>Ссылка скопирована в ваш буфер!</div> : null}
+            {isCopied ? <div style={{ position: 'absolute' }}>Link copied to clipboard!</div> : null}
         </div>)
 }
 

@@ -12,7 +12,6 @@ import './sidebar.scss';
 import { Button } from '@entities/button/button';
 import { Drawer } from '@entities/drawer/drawer';
 import { PopOver } from '@entities/popover/popover';
-import { FileUploadNotification } from '@feature/fileUploadNotification/fileUploadNotification';
 import { Modal } from '@feature/modal/modal';
 import { debounce } from '@helpers/debounce';
 import { useLogout } from '@helpers/hooks/logout';
@@ -27,11 +26,11 @@ import { DiskView } from './diskView/diskView';
 import { FolderCreation } from './folderCreation/folderCreation';
 
 import { getDriveURLFront, getInternalURLFront } from '@helpers/transformsToURL';
-import RobotSVG from '@icons/Robot.svg';
 import AddIcon from '@mui/icons-material/Add';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
+import { isCorrectFormat } from '@helpers/isCorrectFormat';
+import { BottomButtons } from './bottomButtons';
+import { notificationBar } from '@helpers/notificationBar';
 
 interface SidebarProps {
 	width: string;
@@ -49,12 +48,10 @@ export const Sidebar: FC<SidebarProps> = ({
 	const { 
 		isSearch,
 		isShow,
-		isProccessed,
 		isShared,
-		isLoved,
 		whatDiskToShow,
 		isExternal,
-		} = useAppSelector((state) => state.whatToShow);
+	} = useAppSelector((state) => state.whatToShow);
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate()
@@ -91,7 +88,6 @@ export const Sidebar: FC<SidebarProps> = ({
 			refreshFiles()
 			setFilesWasSend(false)
 		}
-
 	}, [filesWasSend,sendResp])
 
 	const renderSidebar = (): React.ReactNode => {
@@ -152,6 +148,13 @@ export const Sidebar: FC<SidebarProps> = ({
 										}, 300);
 										
 										Array.from(files).forEach((file) => {
+											if (!isCorrectFormat(file.type)) {
+												notificationBar({
+													children: `File type not supported. Can't upload file: ${file.name}`,
+													variant: 'error'
+												})
+												return
+											}
 											const formData = new FormData();
 
 											formData.append('file', file, file.name);
@@ -205,38 +208,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							}}
 							nameOfSelectedDisk={typeof whatDiskToShow === 'string' ? whatDiskToShow : whatDiskToShow.disk}
 						/>
-						<TextWithImg
-							text="in process"
-							className={['text-with-img', 'work-in-progress', isProccessed ? 'selected' : '', 'text-with-img-row'].join(' ')}
-							imgSrc={<img src={RobotSVG} style={{color: 'inherit'}}/>}
-							altImgText="Робот"
-							onClick={() => {
-								dispatch(switchToProcessed());
-								dispatch(newValues({...showReq, disk: 'internal'}))
-								navigate('/uploaded')
-							}}
-						/>
-						<TextWithImg
-							text="shared"
-							className={['shared', isShared ? 'selected' : '', 'text-with-img-row'].join(' ')}
-							imgSrc={<PeopleAltIcon />} // TODO
-							altImgText="Картинка с двумя людьми"
-							onClick={() => {
-								dispatch(switchToShared())
-								dispatch(newValues({...showReq, disk: 'internal'}))
-								navigate('/shared')
-							}}
-						/>
-						<TextWithImg
-							text="favorites"
-							className={['loved', isLoved ? 'selected' : '', 'text-with-img-row'].join(' ')}
-							imgSrc={<FavoriteIcon sx={{color:"#FF4444", width:'var(--ft-paragraph)',height:'var(--ft-paragraph)'}}/>} 
-							altImgText="Сердце"
-							onClick={() => {
-								dispatch(switchToLoved())
-								navigate('/loved')
-							}}
-						/>
+						<BottomButtons/>
 					</div>
 					{isMobile
 						? <div style={{
@@ -268,8 +240,6 @@ export const Sidebar: FC<SidebarProps> = ({
 						</div >
 						: null
 					}
-					<FileUploadNotification
-					/>
 				</div >
 			</>
 		)

@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import './input.scss';
-import { Paper, SxProps, TextFieldVariants, Theme, TextField as UIInput } from '@mui/material'
+import { SxProps, TextFieldVariants, Theme, TextField as UIInput } from '@mui/material'
 
 import CSS from 'csstype';
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
