@@ -50,7 +50,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, cleveruser.ErrUserAlreadyExists):
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(0, cleveruser.ErrUserAlreadyExists.Error(), nil))
+			json.NewEncoder(w).Encode(shared.NewResponse(cleveruser.StatusUserAlreadyExists, cleveruser.ErrUserAlreadyExists.Error(), nil))
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
 		}
@@ -78,9 +78,9 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Login usecase error:", err)
 		switch {
-		case errors.Is(err, cleveruser.ErrUserNotFound) || errors.Is(err, cleveruser.ErrNotValidPassword):
+		case errors.Is(err, cleveruser.ErrUserNotFound) || errors.Is(err, cleveruser.ErrNotValidPassword) || errors.Is(err, cleveruser.ErrWrongCredentials):
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(0, cleveruser.ErrWrongCredentials.Error(), nil))
+			json.NewEncoder(w).Encode(shared.NewResponse(cleveruser.StatusWrongCredentials, cleveruser.ErrWrongCredentials.Error(), nil))
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
 
@@ -101,7 +101,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	sessionCookie, err := r.Cookie(shared.CookieName)
 	if err != nil {
 		log.Println("Logout without cookie:", err)
-		json.NewEncoder(w).Encode(shared.NewResponse(0, cleveruser.ErrCookieNotFound.Error(), nil))
+		json.NewEncoder(w).Encode(shared.NewResponse(cleveruser.StatusCookieNotFound, cleveruser.ErrCookieNotFound.Error(), nil))
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -119,7 +119,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, cleveruser.ErrSessionNotFound):
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(shared.NewResponse(0, cleveruser.ErrSessionNotFound.Error(), nil))
+			json.NewEncoder(w).Encode(shared.NewResponse(cleveruser.StatusSessionNotFound, cleveruser.ErrSessionNotFound.Error(), nil))
 			w.WriteHeader(http.StatusOK)
 		default:
 			w.WriteHeader(http.StatusInternalServerError)

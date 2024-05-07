@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
@@ -50,10 +51,30 @@ func (h *Handler) responseFiles(ctx context.Context, w http.ResponseWriter, file
 
 func (h *Handler) Processed(w http.ResponseWriter, r *http.Request) {
 	queryValues := r.URL.Query()
-	fileType := queryValues.Get("file_type")
 	dir := queryValues.Get("dir")
+
+	fileTypeParam := queryValues.Get("file_type")
+	var fileTypes []file.FileType
+	if fileTypeParam == "all" {
+		fileTypes = []file.FileType{file.Image, file.Video, file.Audio, file.Text}
+	} else if fileTypeParam != "" {
+		for _, ft := range strings.Split(fileTypeParam, ",") {
+			switch ft {
+			case "img":
+				fileTypes = append(fileTypes, file.Image)
+			case "video":
+				fileTypes = append(fileTypes, file.Video)
+			case "audio":
+				fileTypes = append(fileTypes, file.Audio)
+			case "text":
+				fileTypes = append(fileTypes, file.Text)
+			}
+		}
+	}
+
 	options := file.FileOptionsV2{
-		FileType:      file.FileType(fileType),
+		FileTypes: fileTypes,
+		// FileType:      file.FileType(fileType),
 		Dir:           dir,
 		Status:        "processed",
 		FilesRequired: true,
@@ -152,12 +173,31 @@ func (h *Handler) Internal(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) Search(w http.ResponseWriter, r *http.Request) {
 	queryValues := r.URL.Query()
-	fileType := queryValues.Get("file_type")
+	fileTypeParam := queryValues.Get("file_type")
 	dir := queryValues.Get("dir")
 	smart := queryValues.Get("smart") == "true"
 	query := queryValues.Get("query")
+
+	// Prepare FileType array
+	var fileTypes []file.FileType
+	if fileTypeParam == "all" {
+		fileTypes = []file.FileType{file.Image, file.Video, file.Audio, file.Text}
+	} else if fileTypeParam != "" {
+		for _, ft := range strings.Split(fileTypeParam, ",") {
+			switch ft {
+			case "img":
+				fileTypes = append(fileTypes, file.Image)
+			case "video":
+				fileTypes = append(fileTypes, file.Video)
+			case "audio":
+				fileTypes = append(fileTypes, file.Audio)
+			case "text":
+				fileTypes = append(fileTypes, file.Text)
+			}
+		}
+	}
 	options := file.FileOptionsV2{
-		FileType:      file.FileType(fileType),
+		FileTypes:     fileTypes,
 		Dir:           dir,
 		Query:         query,
 		Smart:         smart,

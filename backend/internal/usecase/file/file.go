@@ -126,6 +126,10 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 	file.IsShared = false
 	file.Email = user.Email
 
+	// if file.FileType == fileDomain.Audio || file.FileType == fileDomain.Video {
+	// TODO:
+	// }
+
 	file, err = uc.repo.UploadToStorage(ctx, fileReader, file)
 	if err != nil {
 		log.Println("UploadToStorage repo error:", err)

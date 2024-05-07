@@ -124,7 +124,8 @@ type FileOptions struct {
 }
 
 type FileOptionsV2 struct {
-	FileType FileType
+	FileType  FileType
+	FileTypes []FileType
 
 	Dir string
 
