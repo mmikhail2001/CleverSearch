@@ -20,7 +20,5 @@ if __name__ == '__main__':
     dispathcer.reg_service(TextService, 'text')
 
     dispathcer.run(
-        exchange_name=config['RABBITMQ']['ExchangeName'],
-        queue_name=config['TEXT_SERV']['QueueName'],
-        routing_key=config['TEXT_SERV']['RoutingKey']
+        queue_name=config['RABBITMQ']['TextQueue']
     )

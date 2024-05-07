@@ -20,7 +20,5 @@ if __name__ == '__main__':
     dispathcer.reg_service(VideoService, 'video')
 
     dispathcer.run(
-        exchange_name=config['RABBITMQ']['ExchangeName'],
-        queue_name=config['VIDEO_SERV']['QueueName'],
-        routing_key=config['VIDEO_SERV']['RoutingKey']
+        queue_name=config['RABBITMQ']['VideoQueue']
     )

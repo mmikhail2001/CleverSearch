@@ -90,7 +90,7 @@ class ImageProcessor(IDataProcessor):
 
     def __encode_processed_string(self, processed_string):
         embeddings = []
-        for sentence in processed_string:
+        for _, sentence in processed_string:
             tokens = self.bert_tokenizer(sentence, return_tensors='pt', padding=True)
             embeddings.append(
                 self.bert(**tokens).last_hidden_state[:, 0, :]

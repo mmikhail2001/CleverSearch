@@ -20,7 +20,5 @@ if __name__ == '__main__':
     dispathcer.reg_service(AudioService, 'audio')
 
     dispathcer.run(
-        exchange_name=config['RABBITMQ']['ExchangeName'],
-        queue_name=config['AUDIO_SERV']['QueueName'],
-        routing_key=config['AUDIO_SERV']['RoutingKey']
+        queue_name=config['RABBITMQ']['AudioQueue']
     )

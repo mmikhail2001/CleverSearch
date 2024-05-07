@@ -20,7 +20,5 @@ if __name__ == '__main__':
     dispathcer.reg_service(ImageService, 'img')
 
     dispathcer.run(
-        exchange_name=config['RABBITMQ']['ExchangeName'],
-        queue_name=config['IMG_SERV']['QueueName'],
-        routing_key=config['IMG_SERV']['RoutingKey']
+        queue_name=config['RABBITMQ']['ImgQueue']
     )

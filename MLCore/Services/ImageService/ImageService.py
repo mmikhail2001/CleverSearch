@@ -3,14 +3,22 @@ from pymongo import MongoClient
 from PIL import Image
 from minio import Minio
 import os
-
+import logging
 import sys
 sys.path.insert(1, 'MLCore/')
 sys.path.insert(2, 'MLCore/Services')
 sys.path.insert(3, 'MLCore/Processors')
+sys.path.insert(4, './MLCore/utils')
+from utils.get_console_logger import get_console_logger
 from service_interfaces import IDataService
 from Processors.ImageProcessor import ImageProcessor
 from Processors import IDataProcessor
+
+
+logger = get_console_logger(
+    __name__,
+    logging.INFO
+)
 
 
 class ImageService(IDataService):
@@ -59,7 +67,7 @@ class ImageService(IDataService):
 
     def __insert_text_repr_data(self, document, text_embeddings):
 
-        emds_vec = [embd.tolist() for embd in text_embeddings]
+        emds_vec = [embd.tolist()[0] for embd in text_embeddings]
 
         upd_query = {
             '$set':
