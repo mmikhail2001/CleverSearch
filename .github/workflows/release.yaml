@@ -142,7 +142,7 @@ jobs:
 
   deploy:
     name: Deploy on Server
-    needs: [build_backend, build_mlcore, build_frontend]
+    needs: [build_backend, build_frontend, build_mlcore_core, build_mlcore_text_service, build_mlcore_audio_service, build_mlcore_video_service, build_mlcore_img_service, build_mlcore_rec_service]
     runs-on: ubuntu-latest
     if: ${{ always() }} && ${{ success() }}
     steps:
