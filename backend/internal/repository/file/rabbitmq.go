@@ -8,7 +8,9 @@ import (
 	"github.com/streadway/amqp"
 )
 
-var queueName string = "transmit-queue"
+var (
+	exchangeName string = "direct_exchange"
+)
 
 func (r *Repository) PublishMessage(ctx context.Context, file file.File) error {
 	fileDTO := fileForQueueDTO{
@@ -23,9 +25,16 @@ func (r *Repository) PublishMessage(ctx context.Context, file file.File) error {
 		return err
 	}
 
+	routingKey := file.FileType
+	switch routingKey {
+	case "img", "video", "audio", "text":
+	default:
+		routingKey = "unknown"
+	}
+
 	err = r.channelRabbitMQ.Publish(
-		"",
-		queueName,
+		exchangeName,       // Use the configured exchange name
+		string(routingKey), // Use the file type as the routing key
 		false,
 		false,
 		amqp.Publishing{
