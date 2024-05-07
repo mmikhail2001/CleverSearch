@@ -146,14 +146,6 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ always() }} && ${{ success() }}
     steps:
-      - name: Actual Dockercompose.prod.yml flipping
-        uses: nogsantos/scp-deploy@master
-        with:
-          src: docker-compose.prod.yml
-          host: ${{ secrets.HOST_SERVER }}
-          remote: ${{ secrets.PATH_DOCKER_PROD_TARGET }}
-          user: ${{ secrets.USERNAME_SERVER }}
-          key: ${{ secrets.SSH_KEY }}
       - name: SSH and Restart Docker Compose
         uses: appleboy/ssh-action@master
         with:
