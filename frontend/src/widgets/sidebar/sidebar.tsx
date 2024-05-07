@@ -4,7 +4,7 @@ import { TextWithInput } from '@feature/buttonWithInput/buttonWithInput';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
 import { diskTypes } from '@models/disk';
 import { useAppSelector } from '@store/store';
-import { switchDisk, switchToLoved, switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
+import { switchDisk, switchToExternal, switchToLoved, switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import './sidebar.scss';
@@ -53,6 +53,7 @@ export const Sidebar: FC<SidebarProps> = ({
 		isShared,
 		isLoved,
 		whatDiskToShow,
+		isExternal,
 		} = useAppSelector((state) => state.whatToShow);
 
 	const dispatch = useDispatch();
@@ -73,18 +74,21 @@ export const Sidebar: FC<SidebarProps> = ({
 
 	const [isCreationPopOpen,setCreationPopOpen] = useState<boolean>(false)
 
+	const refreshFiles = () => {
+		if (isSearch) {
+			search(param);
+		} else if(isShow || isExternal) {
+			show(showReq.dir.join('/'));
+			dispatch(newValues({...showReq}))
+		} else if (isShared) {
+			showShared(showReq.dir.join('/'));
+			dispatch(newValues({...showReq}))
+		}
+	}
+
 	useEffect(() =>{
 		if (sendResp && sendResp.isSuccess && filesWasSend) {
-			if (isSearch) {
-				search(param);
-			} else if (isShow) {
-				show(showReq.dir.join('/'));
-				dispatch(newValues({...showReq}))
-			} else if (isShared) {
-				showShared(showReq.dir.join('/'));
-				dispatch(newValues({...showReq}))
-			}
-
+			refreshFiles()
 			setFilesWasSend(false)
 		}
 
@@ -113,6 +117,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							styleMain={{width: '179px'}}
 							mainElement={
 								<Button
+									disabled={!(isShared || isShow)}
 									endIcon={<AddIcon fontSize='inherit'/>}
 									isFullSize={true}
 									fontSize={'var(--ft-paragraph)'}
@@ -162,15 +167,7 @@ export const Sidebar: FC<SidebarProps> = ({
 									onClose={() => setCreationPopOpen(false)}
 									dirs={showReq.dir}
 									onFolderCreation={() => {
-										if (isSearch) {
-											search(param);
-										} else if(isShow) {
-											show(showReq.dir.join('/'));
-											dispatch(newValues({...showReq}))
-										} else if (isShared) {
-											showShared(showReq.dir.join('/'));
-											dispatch(newValues({...showReq}))
-										}
+										refreshFiles()
 										setCreationPopOpen(false)
 									}}
 								/>
@@ -179,16 +176,16 @@ export const Sidebar: FC<SidebarProps> = ({
 					</div>
 					<div className='disk-show'>
 						<DiskView
-							needSelect={isShow}
+							needSelect={isShow || isExternal}
+							externalView={isExternal}
 							setSelectedState={(disk: diskTypes | ConnectedClouds
 							) => {
 								dispatch(switchDisk(disk))
 
-								if (!isShow) {
-									dispatch(switchToShow())
-								}
-
 								if (typeof disk === 'string') {
+									if (!isShow) {
+										dispatch(switchToShow())
+									}
 
 									const url = getInternalURLFront([])
 									navigate(url)
@@ -196,7 +193,11 @@ export const Sidebar: FC<SidebarProps> = ({
 									
 									return
 								}
-									
+								
+								if (!isExternal) {
+									dispatch(switchToExternal())
+								}
+
 								const email = disks.clouds.find((val) => val.disk === disk.disk).cloud_email
 								const url = getDriveURLFront([], email)
 								navigate(url)

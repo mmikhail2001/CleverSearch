@@ -14,12 +14,14 @@ interface DiskViewProps {
     setSelectedState: (text: diskTypes) => void;
     nameOfSelectedDisk: diskTypes,
     needSelect: boolean,
+    externalView: boolean,
 }
 
 export const DiskView: FC<DiskViewProps> = ({
     setSelectedState,
     nameOfSelectedDisk,
     needSelect,
+    externalView,
 }) => {
     const dispatch = useDispatch();
     const disks = useAppSelector(state => state.disks)
@@ -52,6 +54,7 @@ export const DiskView: FC<DiskViewProps> = ({
                     selectCloud={(cloud) => {
                         dispatch(selectCloud(cloud))
                     }}
+                    isRefreshShow={externalView}
                     currentSelectedDisk={typeof showReq.disk === 'string' ? showReq.disk : showReq.disk.disk}
                     refreshDisk={(disk) => {
                             refresh(disk)

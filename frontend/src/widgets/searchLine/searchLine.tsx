@@ -54,7 +54,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 
 	const { whatDisplay } = useMobile();
 
-	const {isShow} = useAppSelector(state => state.whatToShow)
+	const {isShow, isExternal} = useAppSelector(state => state.whatToShow)
 
 	const searchReq = useAppSelector(state => state.searchRequest)
 	const showReq = useAppSelector(state => state.showRequest)
@@ -73,7 +73,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 	}, [searchReq])
 
 	useEffect(() => {
-		if (isShow && !compareArrays(showReq.dir, searchValue.dir)){
+		if ((isShow || isExternal) && !compareArrays(showReq.dir, searchValue.dir)){
 			setSearchValue({ ...searchValue, dir: showReq.dir })
 		}
 	}, [showReq.dir])

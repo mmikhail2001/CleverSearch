@@ -8,6 +8,7 @@ import { Option } from '@models/additional';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useMobile } from 'src/mobileProvider';
 import CSS from 'csstype'
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
 const isSelectedDisk =
     (disk: ConnectedClouds, selectedDisk: ConnectedClouds[]): boolean => {
@@ -25,6 +26,7 @@ export interface TextWithImgProps {
     selectCloud: (cloud: ConnectedClouds) => void,
     refreshDisk: (cloud: ConnectedClouds) => void,
     currentSelectedDisk: string,
+    isRefreshShow?: boolean,
 }
 
 export const TextWithImgAndModal: FC<TextWithImgProps> = (
@@ -37,12 +39,15 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
         selectCloud,
         refreshDisk,
         currentSelectedDisk,
+        isRefreshShow,
     }): React.ReactNode => {
     const [isOpen, setOpen] = useState<boolean>(false)
     const { src, altText, diskName } = disk;
     const ref = useRef(null)
     const {whatDisplay} = useMobile()
     const isMobile = whatDisplay === 2
+    
+    const showRefresh = isNullOrUndefined(isRefreshShow) ? 'true' : isRefreshShow
     
     const refSize = useRef<HTMLDivElement>(null)
 
@@ -58,7 +63,6 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
 
     const emailsInDisk = cloudValues.filter(val => val.disk === disk.diskName).map(val => val.cloud_email)
     const emailSelectCloud = currentDiskSelected?.filter(val => val.cloud_email !== '')
-    const subText = emailsInDisk.length === 1 ? emailsInDisk[0] : currentDiskSelected.map(val => val.cloud_email).join(', ')
 
     let cssForSelectorWithEmail: CSS.Properties;
     if (isMobile) {
@@ -105,10 +109,14 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
                     if (emailSelectCloud[0] && currentSelectedDisk === emailSelectCloud[0].disk)
                         setOpen(true)
                 }}
-                rightIconProp={<RefreshIcon ref={ref}  onClick={(e) => {
-                    e.preventDefault()
-                    refreshDisk(currentDiskSelected[0])
-                } }/>}
+                rightIconProp={
+                    showRefresh ? 
+                    <RefreshIcon ref={ref}  onClick={(e) => {
+                        e.preventDefault()
+                        refreshDisk(currentDiskSelected[0])
+                    } }/>
+                    : null
+                }
             />
             <Modal
                 isOpen={isOpen}
