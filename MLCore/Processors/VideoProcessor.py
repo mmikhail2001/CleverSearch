@@ -1,6 +1,9 @@
 import logging
 import os
 
+import sys
+sys.path.insert(4, 'MLCore/Processors')
+
 from AudioProcessor import AudioProcessor
 from IDataProcessor import IDataProcessor
 from utils.get_console_logger import get_console_logger

@@ -1,0 +1,13 @@
+FROM cleversearch_mlcore_core
+
+COPY ./Services/ImageService/requirements.txt /
+
+RUN pip install -r /requirements.txt && rm /requirements.txt && \
+    cd / && \
+    git clone https://github.com/WindowsKonon1337/CRAFT-pytorch && \
+    mv CRAFT-pytorch CRAFT && \
+    apt-get update && apt-get install ffmpeg libsm6 libxext6 -y
+
+COPY . /app/MLCore
+
+CMD ["python", "/app/MLCore/Services/ImageService/__main__.py"]

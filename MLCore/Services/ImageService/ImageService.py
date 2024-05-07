@@ -1,16 +1,24 @@
 from pymongo.collection import Collection
 from pymongo import MongoClient
-from service_interfaces import IDataService
 from PIL import Image
-import cv2 as cv
 from minio import Minio
 import os
-
+import logging
 import sys
-sys.path.insert(3, './MLCore/')
-sys.path.insert(4, './MLCore/Processors')
+sys.path.insert(1, 'MLCore/')
+sys.path.insert(2, 'MLCore/Services')
+sys.path.insert(3, 'MLCore/Processors')
+sys.path.insert(4, './MLCore/utils')
+from utils.get_console_logger import get_console_logger
+from service_interfaces import IDataService
 from Processors.ImageProcessor import ImageProcessor
 from Processors import IDataProcessor
+
+
+logger = get_console_logger(
+    __name__,
+    logging.INFO
+)
 
 
 class ImageService(IDataService):
@@ -24,7 +32,7 @@ class ImageService(IDataService):
             cpu: bool = True
             ):
         if mongo_collection is None:
-            raise ValueError('pizdec')
+            raise ValueError('Mongo collection instance error')
         
         self.mongo_collection = mongo_collection
         self.minio_client = minio_client
@@ -58,6 +66,8 @@ class ImageService(IDataService):
         os.remove(local_file_path)
 
     def __insert_text_repr_data(self, document, text_embeddings):
+
+        emds_vec = [embd.tolist()[0] for embd in text_embeddings]
 
         upd_query = {
             '$set':

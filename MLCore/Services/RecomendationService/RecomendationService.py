@@ -1,15 +1,14 @@
 import requests
 from fastapi import FastAPI, HTTPException
 from sklearn.metrics.pairwise import cosine_similarity
-from Processors.TextProcessor import TextProcessor
 import sys
 import logging
-import numpy as np
 
-sys.path.insert(0, './MLCore/')
-sys.path.insert(1, './MLCore/utils')
+sys.path.insert(0, 'MLCore')
+sys.path.insert(1, 'MLCore/utils')
+sys.path.insert(2, 'MLCore/Processors')
+from Processors.TextProcessor import TextProcessor
 from utils.get_console_logger import get_console_logger
-
 logger = get_console_logger(
     __name__,
     logging.INFO
@@ -21,35 +20,43 @@ class SearchService():
     def __init__(self):
         pass
 
-    def search_handler(self, params, **kwargs):
+    def search_handler(self, **kwargs):
 
-        data_array = self.get_data_array(params)
+        result = {}
 
-        text_processor = TextProcessor()
-        query_emb = np.array(text_processor.process_query_string(kwargs['query'])).reshape(1, -1)
+        for file_type in kwargs['splitted_file_types']:
+            params = {
+                'file_type': file_type,
+                'dir': "/",
+                'user_id': kwargs['user_id']
+            }
 
-        list_embs = [[obj['ml_data'][0]['Value']] for obj in data_array]
+            data_array = self.get_data_array(params)
 
-        dists = []
+            text_processor = TextProcessor()
+            query_emb = [text_processor.process_query_string(kwargs['query'])]
 
-        logger.info(query_emb.shape)
+            list_embs = [[obj['ml_data'][0]['Value']] for obj in data_array]
 
-        for i in range(len(list_embs)):
-            for j in range(len(list_embs[i][0])):
-                print(np.array(list_embs[i][0][j]).shape)
-                dists.append(
-                    (i, j, cosine_similarity(np.array(list_embs[i][0][j]).reshape(1, -1), query_emb)) # [list_embs[i][0][j]]
-                )
-        sorted_list = sorted(dists, key=lambda x: x[2], reverse=True)[:5]
+            dists = []
 
-        if params['file_type'] == 'audio' or params['file_type'] == 'video':
-            return self.find_audio_files(data_array, sorted_list, params['file_type'])
-        elif params['file_type'] == 'text':
-            return self.find_text_files(data_array, sorted_list, params['file_type'])
-        elif params['file_type'] == 'img':
-            return self.find_img_files(data_array, sorted_list, params['file_type'])
-        else:
-            raise HTTPException(status_code=400, detail=f"bad file type")
+            for i in range(len(list_embs)):
+                for j in range(len(list_embs[i][0])):
+                    dists.append(
+                        (i, j, cosine_similarity([list_embs[i][0][j]], query_emb))
+                    )
+            logger.info(dists)
+            sorted_list = sorted(dists, key=lambda x: x[2], reverse=True)[:5]
+
+            if params['file_type'] == 'audio' or params['file_type'] == 'video':
+                result.update(self.find_audio_files(data_array, sorted_list, params['file_type']))
+            elif params['file_type'] == 'text':
+                result.update(self.find_text_files(data_array, sorted_list, params['file_type']))
+            elif params['file_type'] == 'img':
+                result.update(self.find_img_files(data_array, sorted_list, params['file_type']))
+            else:
+                raise HTTPException(status_code=400, detail=f"bad file type")
+        return result
 
     def get_data_array(self, params):
         response = requests.get("http://backend:8080/api/v2/files/processed", params=params)
@@ -104,15 +111,13 @@ class SearchService():
 def setup_search_handler(args):
     search_service = SearchService()
     @app.get('/search')
-    def search(query, file_type, user_id, dir, number_of_results=5):
-        
-        params = {
-            'file_type': file_type,
-            'dir': "/",
-            'user_id': user_id
-        }
+    def search(query: str, file_type: str, user_id, dir, number_of_results=5):
 
-        logger.info(params)
+        splitted_file_types = file_type.split(',')
 
-        return search_service.search_handler(params, query=query)
+        return search_service.search_handler(
+            user_id=user_id,
+            splitted_file_types=splitted_file_types,
+            query=query
+        )
     return search

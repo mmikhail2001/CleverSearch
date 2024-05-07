@@ -1,27 +1,21 @@
 import os
 
+import sys
+sys.path.insert(1, 'MLCore/')
+sys.path.insert(2, 'MLCore/Services')
+sys.path.insert(3, 'MLCore/Processors')
+
 from minio import Minio
-import logging
 from Processors import IDataProcessor
-from Processors.TextProcessor import TextProcessor
+from Processors.AudioProcessor import AudioProcessor
 from pymongo.collection import Collection
 from service_interfaces import IDataService
-import sys
-sys.path.insert(0, './MLCore/utils')
-from utils.get_console_logger import get_console_logger
 
 
-logger = get_console_logger(
-    __name__,
-    logging.DEBUG
-)
-
-
-
-class TextService(IDataService):
+class AudioService(IDataService):
     def __init__(
             self,
-            proc_cls: IDataProcessor = TextProcessor,
+            proc_cls: IDataProcessor = AudioProcessor,
             num_of_insts: int = 1,
             mongo_collection: Collection = None,
             minio_client: Minio = None,
@@ -33,8 +27,6 @@ class TextService(IDataService):
         self.minio_client = minio_client
         self.num_of_insts = num_of_insts
         self.worker = proc_cls()
-
-        logger.info('Text Service ')
 
     def update_collection_file(self, uuid: str):
 
@@ -48,7 +40,7 @@ class TextService(IDataService):
             local_file_path
         )
 
-        proc_list, pages = self.worker.process(local_file_path)
+        proc_list, timestamps = self.worker.process(local_file_path)
 
         os.remove(local_file_path)
 
@@ -57,7 +49,7 @@ class TextService(IDataService):
             {
                 'ml_data': {
                     'text_repr': proc_list,
-                    'page_number': pages
+                    'timestart': list(map(lambda x: int(x), timestamps))
                 }
             }
         }

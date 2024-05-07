@@ -1,0 +1,7 @@
+requests
+fastapi
+uvicorn
+scikit-learn
+pypdf
+pymorphy2
+nltk

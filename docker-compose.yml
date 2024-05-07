@@ -60,19 +60,92 @@ services:
     networks:
       clevernet:
 
-  mlcore:
+  mlcore_core:
     build:
       context: ./MLCore
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.core
+
+  mlcore_rec_service:
+    build:
+      context: ./MLCore
+      dockerfile: Services/RecomendationService/Dockerfile.rec_service
     restart: always
     ports:
       - 8081:8081
     depends_on:
+      - mlcore_core
       - rabbitmq
       - mongodb
       - minio
     networks:
       clevernet:
+
+  mlcore_img_service:
+    build:
+      context: ./MLCore
+      dockerfile: Services/ImageService/Dockerfile.img_service
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
+
+  mlcore_text_service:
+    build:
+      context: ./MLCore
+      dockerfile: Services/TextService/Dockerfile.text_service
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
+
+
+  mlcore_audio_service:
+    build:
+      context: ./MLCore
+      dockerfile: Services/AudioService/Dockerfile.audio_service
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
+
+  mlcore_video_service:
+    build:
+      context: ./MLCore
+      dockerfile: Services/VideoService/Dockerfile.video_service
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
+
+  # mlcore:
+  #   build:
+  #     context: ./MLCore
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   ports:
+  #     - 8081:8081
+  #   depends_on:
+  #     - rabbitmq
+  #     - mongodb
+  #     - minio
+  #   networks:
+  #     clevernet:
 
   nginx:
     restart: always

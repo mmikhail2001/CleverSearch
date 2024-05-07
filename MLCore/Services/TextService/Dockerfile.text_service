@@ -1,0 +1,9 @@
+FROM cleversearch_mlcore_core
+
+COPY ./Services/TextService/requirements.txt /
+
+RUN pip install -r /requirements.txt && rm /requirements.txt
+
+COPY . /app/MLCore
+
+CMD ["python", "/app/MLCore/Services/TextService/__main__.py"]
