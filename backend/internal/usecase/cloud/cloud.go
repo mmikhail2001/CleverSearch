@@ -203,6 +203,9 @@ func (uc *Usecase) RefreshConnect(ctx context.Context, disk file.DiskType, cloud
 		}
 	}
 
+	log.Printf("filesToDelete = %#v\n\n", filesToDelete)
+	log.Printf("filesToAdd = %#v\n\n", filesToAdd)
+
 	if err := uc.fileUsecase.DeleteFiles(ctx, filesToDelete); err != nil {
 		log.Println("Failed to delete files:", err)
 		return err
@@ -225,19 +228,31 @@ func (uc *Usecase) RefreshConnect(ctx context.Context, disk file.DiskType, cloud
 				log.Println("Failed to create directory:", err)
 				return err
 			}
-		} else {
-			fileReader, err := srv.Files.Get(f.CloudID).Download()
-			if err != nil {
-				log.Printf("Unable to download file %s: %v", f.Path, err)
-				continue
-			}
-			_, err = uc.fileUsecase.Upload(ctx, fileReader.Body, f)
-			if err != nil {
-				log.Println("Failed to upload file:", err)
-				continue
-			}
 		}
 	}
+
+	for _, file := range filesToAdd {
+		err := uc.fileRepo.CreateFile(ctx, file)
+		if err != nil {
+			return err
+		}
+	}
+
+	uc.downloadAndUploadFiles(ctx, srv, filesToAdd)
+	// } else {
+	// 	uc.downloadAndUploadFiles(ctx, srv, )
+	// 	fileReader, err := srv.Files.Get(f.CloudID).Download()
+	// 	if err != nil {
+	// 		log.Printf("Unable to download file %s: %v", f.Path, err)
+	// 		continue
+	// 	}
+	// 	_, err = uc.fileUsecase.Upload(ctx, fileReader.Body, f)
+	// 	if err != nil {
+	// 		log.Println("Failed to upload file:", err)
+	// 		continue
+	// 	}
+	// }
+	// }
 
 	return nil
 }
