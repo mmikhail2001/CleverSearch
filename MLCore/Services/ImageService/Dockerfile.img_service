@@ -1,4 +1,4 @@
-FROM cleversearch_mlcore_core
+FROM windowskonon1337/cleversearch_mlcore_core
 
 COPY ./Services/ImageService/requirements.txt /
 
