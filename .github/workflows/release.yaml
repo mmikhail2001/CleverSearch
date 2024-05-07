@@ -147,12 +147,13 @@ jobs:
     if: ${{ always() }} && ${{ success() }}
     steps:
       - name: Actual Dockercompose.prod.yml flipping
-        env:
-          SSH_KEY: ${{ secrets.SSH_SERVER_KEY }}
-        run: | 
-          eval ssh-agent -s
-          ssh-add <(echo "$SSH_KEY")
-          scp -o "IdentityFile /dev/fd/63" docker-compose.prod.yml ${{ secrets.USERNAME_SERVER }}@${{ secrets.HOST_SERVER }}:${{ secrets.PATH_DOCKER_PROD_TARGET }}
+        uses: nogsantos/scp-deploy@master
+        with:
+          src: docker-compose.prod.yml
+          host: ${{ secrets.HOST_SERVER }}
+          remote: ${{ secrets.PATH_DOCKER_PROD_TARGET }}
+          user: ${{ secrets.USERNAME_SERVER }}
+          key: ${{ secrets.SSH_KEY }}
       - name: SSH and Restart Docker Compose
         uses: appleboy/ssh-action@master
         with:
