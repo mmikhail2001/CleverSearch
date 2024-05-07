@@ -24,7 +24,7 @@ jobs:
           echo "Run ID: ${{ github.run_id }}"
 
   build_backend:
-    if: contains(github.event.head_commit.message, 'BACK-CLEVER')
+    # if: contains(github.event.head_commit.message, 'BACK-CLEVER')
     name: Build and Push Backend Docker Image
     runs-on: ubuntu-latest
     steps:
@@ -38,7 +38,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_backend:latest
 
   build_mlcore_core:
-    if: contains(github.event.head_commit.message, 'ML-CLEVER')
+    # if: contains(github.event.head_commit.message, 'ML-CLEVER')
     name: Build and Push MLCore Core Image
     runs-on: ubuntu-latest
     steps:
@@ -52,7 +52,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_mlcore_core:latest
 
   build_mlcore_rec_service:
-    if: contains(github.event.head_commit.message, 'ML-CLEVER')
+    # if: contains(github.event.head_commit.message, 'ML-CLEVER')
     name: Build and Push MLCore Rec Service Image
     needs: [build_mlcore_core]
     runs-on: ubuntu-latest
@@ -67,7 +67,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_mlcore_rec_service:latest
 
   build_mlcore_img_service:
-    if: contains(github.event.head_commit.message, 'ML-CLEVER')
+    # if: contains(github.event.head_commit.message, 'ML-CLEVER')
     name: Build and Push MLCore Docker Img Service Image
     needs: [build_mlcore_core]
     runs-on: ubuntu-latest
@@ -82,7 +82,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_mlcore_img_service:latest
 
   build_mlcore_video_service:
-    if: contains(github.event.head_commit.message, 'ML-CLEVER')
+    # if: contains(github.event.head_commit.message, 'ML-CLEVER')
     name: Build and Push MLCore Docker Vid Service Image
     needs: [build_mlcore_core]
     runs-on: ubuntu-latest
@@ -97,7 +97,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_mlcore_video_service:latest
 
   build_mlcore_audio_service:
-    if: contains(github.event.head_commit.message, 'ML-CLEVER')
+    # if: contains(github.event.head_commit.message, 'ML-CLEVER')
     name: Build and Push MLCore Docker Aud Service Image
     needs: [build_mlcore_core]
     runs-on: ubuntu-latest
@@ -112,7 +112,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_mlcore_audio_service:latest
 
   build_mlcore_text_service:
-    if: contains(github.event.head_commit.message, 'ML-CLEVER')
+    # if: contains(github.event.head_commit.message, 'ML-CLEVER')
     name: Build and Push MLCore Docker Txt Service Image
     needs: [build_mlcore_core]
     runs-on: ubuntu-latest
@@ -127,7 +127,7 @@ jobs:
         run: docker push windowskonon1337/cleversearch_mlcore_text_service:latest
 
   build_frontend:
-    if: contains(github.event.head_commit.message, 'FRONT-CLEVER')
+    # if: contains(github.event.head_commit.message, 'FRONT-CLEVER')
     name: Build and Push Frontend Docker Image
     runs-on: ubuntu-latest
     steps:
