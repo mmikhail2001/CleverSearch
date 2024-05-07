@@ -71,7 +71,6 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 
 
 	const getVolumeIcon = (volume: number): React.ReactNode => {
-		console.log(volume)
 		if (volume >= 0.5) {
 			return <VolumeUpRoundedIcon fontSize='inherit' className='contorl-img'/>
 		}

@@ -33,8 +33,6 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 	const lastDir = !emptyDir ? state.dir[state.dir.length - 1] : null
 	const splitFolders = lastDir?.split('/')
 
-	console.log("LAST DIR", lastDir, emptyDir,state.dir)
-
 	return (
 		<div className="line">
 			<Typography fontSize={'var(--ft-body)'} className='line__name'>Directory</Typography>
