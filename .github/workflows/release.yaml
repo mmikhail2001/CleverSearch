@@ -150,7 +150,7 @@ jobs:
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST_SERVER }}
-          username: ${{ secrets.USERNAME_SERVER }}
+          ssh_username: ${{ secrets.USERNAME_SERVER }}
           ssh_key: ${{ secrets.SSH_SERVER_KEY }}
           source: docker-compose.prod.yml
           target: ${{ secrets.PATH_DOCKER_PROD_TARGET }}
