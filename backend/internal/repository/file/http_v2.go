@@ -3,11 +3,11 @@ package file
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
@@ -67,8 +67,9 @@ func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOpt
 		return nil, err
 	}
 
+	var filesGeneral []file.File
 	var files []file.File
-	if fileOptions.FileType == file.Text {
+	if slices.Contains(fileOptions.FileTypes, file.Text) {
 		for _, searchItem := range response.Text {
 			file, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
@@ -78,9 +79,9 @@ func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOpt
 			file.PageNumber = searchItem.PageNumber
 			files = append(files, file)
 		}
-		return files, nil
+		filesGeneral = append(filesGeneral, files...)
 	}
-	if fileOptions.FileType == file.Image {
+	if slices.Contains(fileOptions.FileTypes, file.Image) {
 		for _, searchItem := range response.Image {
 			file, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
@@ -89,9 +90,9 @@ func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOpt
 			}
 			files = append(files, file)
 		}
-		return files, nil
+		filesGeneral = append(filesGeneral, files...)
 	}
-	if fileOptions.FileType == file.Audio {
+	if slices.Contains(fileOptions.FileTypes, file.Audio) {
 		for _, searchItem := range response.Audio {
 			file, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
@@ -101,9 +102,9 @@ func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOpt
 			file.Timestart = searchItem.Timestart
 			files = append(files, file)
 		}
-		return files, nil
+		filesGeneral = append(filesGeneral, files...)
 	}
-	if fileOptions.FileType == file.Video {
+	if slices.Contains(fileOptions.FileTypes, file.Video) {
 		for _, searchItem := range response.Video {
 			file, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
@@ -113,7 +114,8 @@ func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOpt
 			file.Timestart = searchItem.Timestart
 			files = append(files, file)
 		}
-		return files, nil
+		filesGeneral = append(filesGeneral, files...)
 	}
-	return []file.File{}, fmt.Errorf("file type response from ml not correct")
+	return filesGeneral, nil
+	// return []file.File{}, fmt.Errorf("file type response from ml not correct")
 }
