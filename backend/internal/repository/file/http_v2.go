@@ -13,7 +13,7 @@ import (
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 )
 
-var apiServiceMLSearch = "http://mlcore:8081/search"
+var apiServiceMLSearch = "http://mlcore_rec_service:8081/search"
 
 func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOptionsV2) ([]file.File, error) {
 	queryParams := url.Values{}
