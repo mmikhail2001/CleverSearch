@@ -133,20 +133,6 @@ services:
     networks:
       clevernet:
 
-  # mlcore:
-  #   build:
-  #     context: ./MLCore
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   ports:
-  #     - 8081:8081
-  #   depends_on:
-  #     - rabbitmq
-  #     - mongodb
-  #     - minio
-  #   networks:
-  #     clevernet:
-
   nginx:
     restart: always
     image: nginx:latest
