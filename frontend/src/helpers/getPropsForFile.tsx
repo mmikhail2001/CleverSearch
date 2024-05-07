@@ -139,6 +139,6 @@ export const getVideoProps = (
         )
     }
     
-    const imgSrc = <VideoFileRoundedIcon fontSize='inherit' sx={{color: "#DC15BC"}} />;
+    const imgSrc = <VideoFileRoundedIcon fontSize='inherit' sx={{color: "#711CB4"}} />;
     return { clickHandler: () => { }, imgSrc, renderModal }
 };

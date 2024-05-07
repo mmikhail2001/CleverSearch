@@ -4,9 +4,10 @@ import { useAppSelector } from '@store/store';
 import { selectCloud } from '@store/userDisks';
 import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { TextWithImgAndModal } from './textWithImgAndModal/textWithImgAndModal';
+import { TextWithImgAndDropDown } from './textWithImgAndModal/textWithImgAndModal';
 import { useUpdateDiskMutation } from '@api/diskApi';
 import { newValues } from '@store/showRequest';
+import { notificationBar } from '@helpers/notificationBar';
 
 
 
@@ -44,7 +45,7 @@ export const DiskView: FC<DiskViewProps> = ({
                 if (alreadyShowed.find(disk => disk === val.disk)) return
                 alreadyShowed.push(val.disk)
                 
-                return <TextWithImgAndModal
+                return <TextWithImgAndDropDown
                     key={val.cloud_email + val.disk}
                     selected={nameOfSelectedDisk === val.disk && needSelect}
                     disk={diskImgSrc.get(val.disk)}
@@ -57,6 +58,10 @@ export const DiskView: FC<DiskViewProps> = ({
                     isRefreshShow={externalView}
                     currentSelectedDisk={typeof showReq.disk === 'string' ? showReq.disk : showReq.disk.disk}
                     refreshDisk={(disk) => {
+                            notificationBar({
+                                children: "Refresh files on disk",
+                                variant: 'info',
+                            })
                             refresh(disk)
                     }}
                 />

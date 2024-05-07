@@ -2,7 +2,7 @@ import { useGetInternalFilesMutation, useGetSharedFilesMutation, usePushFileMuta
 import { useSearchMutation } from '@api/searchApi';
 import { TextWithInput } from '@feature/buttonWithInput/buttonWithInput';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
-import { diskTypes } from '@models/disk';
+import { diskImgSrc, diskTypes, isExternalDisk } from '@models/disk';
 import { useAppSelector } from '@store/store';
 import { switchDisk, switchToExternal, switchToLoved, switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
 import React, { FC, useEffect, useState } from 'react';
@@ -31,6 +31,7 @@ import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRound
 import { isCorrectFormat } from '@helpers/isCorrectFormat';
 import { BottomButtons } from './bottomButtons';
 import { notificationBar } from '@helpers/notificationBar';
+import { DiskConnect } from '@widgets/diskConnect/diskConnect';
 
 interface SidebarProps {
 	width: string;
@@ -83,12 +84,36 @@ export const Sidebar: FC<SidebarProps> = ({
 		}
 	}
 
+	const goToInternal = (disk?: string) => {
+		if (!isShow) {
+			dispatch(switchToShow())
+		}
+
+		const url = getInternalURLFront([])
+		navigate(url)
+		dispatch(newValues({...showReq,dir:[], disk: disk || 'internal'}))	
+		
+		return
+	}
+
 	useEffect(() =>{
 		if (sendResp && sendResp.isSuccess && filesWasSend) {
 			refreshFiles()
 			setFilesWasSend(false)
 		}
 	}, [filesWasSend,sendResp])
+
+	const diskToConnect = ():React.ReactNode | null => {
+		return Array.from(diskImgSrc)
+		.filter(val => val[1].diskName !== 'internal'
+			&& val[1].diskName !== 'own')
+		.map((val) => {
+			if (isExternalDisk(val[1])) {
+				return <DiskConnect classname='show-add-line' disk={val[1]} />
+			}
+			return null
+		})
+	}
 
 	const renderSidebar = (): React.ReactNode => {
 		return (
@@ -102,9 +127,12 @@ export const Sidebar: FC<SidebarProps> = ({
 							<UserProfile email={email} isDropdownExist={false} />
 							:
 							<Typography
-								onClick={() => dispatch(switchToShow())}
+								style={{cursor: 'pointer'}}
+								onClick={() => goToInternal()}
 								className={['our-name'].join(' ')}
-							>CleverSearch</Typography>
+							>
+								CleverSearch
+							</Typography>
 						}
 					</div>
 					<div className='button_sidebar'>
@@ -173,7 +201,8 @@ export const Sidebar: FC<SidebarProps> = ({
 										refreshFiles()
 										setCreationPopOpen(false)
 									}}
-								/>
+								/>,
+								diskToConnect()
 							]}
 						</PopOver>
 					</div>
@@ -186,14 +215,7 @@ export const Sidebar: FC<SidebarProps> = ({
 								dispatch(switchDisk(disk))
 
 								if (typeof disk === 'string') {
-									if (!isShow) {
-										dispatch(switchToShow())
-									}
-
-									const url = getInternalURLFront([])
-									navigate(url)
-									dispatch(newValues({...showReq,dir:[], disk: disk}))	
-									
+									goToInternal(disk)
 									return
 								}
 								

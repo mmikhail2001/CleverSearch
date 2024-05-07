@@ -19,7 +19,7 @@ const isSelectedDisk =
         )
     }
 
-export interface TextWithImgProps {
+export interface TextWithImgAndDropDownProps {
     selected: boolean,
     disk: DiskType,
     cloudValues: ConnectedClouds[],
@@ -31,7 +31,7 @@ export interface TextWithImgProps {
     isRefreshShow?: boolean,
 }
 
-export const TextWithImgAndModal: FC<TextWithImgProps> = (
+export const TextWithImgAndDropDown: FC<TextWithImgAndDropDownProps> = (
     {
         selected,
         disk,
@@ -126,7 +126,7 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
                 rightIconProp={
                     showRefresh ? 
                     <RefreshIcon ref={ref}  onClick={(e) => {
-                        e.preventDefault()
+                        e.stopPropagation()
                         refreshDisk(currentDiskSelected[0])
                     } }/>
                     : null
@@ -138,15 +138,17 @@ export const TextWithImgAndModal: FC<TextWithImgProps> = (
         return (
             <>
                 <DropDown
+                    removeShadow={true}
                     mainElement={mainElementToRender()}
                     toggleOpen={handleOpen}
                     open={isOpen}
                     borderRadius='small'
                     isCloseOnSelect={true}
                     variants='down'
+                    isSameSize={true}
                 >
                     {[<div style={{ 
-                            width: isMobile ? null :'250px' ,
+                            width: isMobile ? '100%' :'250px' ,
                             height: '30px',
                         }}
                         ref={refSize}

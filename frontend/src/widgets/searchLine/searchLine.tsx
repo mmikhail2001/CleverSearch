@@ -141,7 +141,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 								setisBoxOpen(false)
 								onIconClick()
 							} }
-							style={{ fontSize: 'var(--ft-paragraph)' }}>
+							style={{ fontSize: 'var(--ft-pg-24)', paddingBottom: '25px' }}>
 							{whatDisplay === 1 ?
 								<SearchIcon fontSize='inherit' />
 								: <DehazeIcon sx={{ cursor: 'pointer' }} fontSize='inherit' />

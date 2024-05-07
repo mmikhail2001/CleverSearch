@@ -28,6 +28,8 @@ export const BreadCrumps: FC<BreadCrumpsProps> = ({ dirs, reactOnElements }) => 
                         sx={{
                             cursor: dirs.length !== index + 1 ? 'pointer' : 'default',
                             color: 'inherit',
+                            paddingRight: index === 0 ? '8px' : null,
+                            fontWeight: index === 0 ? '600' : null,
                         }}
                         key={value}
                         onClick={reactOnElements ? reactOnElements[index] : () => { }}

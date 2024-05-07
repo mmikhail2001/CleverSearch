@@ -13,6 +13,8 @@ import AccessibleForwardRoundedIcon from '@mui/icons-material/AccessibleForwardR
 import { fileFile } from '@models/files';
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
+import NothingSVG from '@icons/Nothing.svg'
+
 import {renderReturns, getDirProps, getPdfProps, getVideoProps, getImageProps} from '@helpers/getPropsForFile'
 
 export interface RenderFieldsProps {
@@ -43,7 +45,26 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 
 	if (isNullOrUndefined(data) || !data || data.length === 0) {
 		return <div className='show-all-files' style={{fontSize: 'var(--ft-body-plus)'}}>
-			Nothing here :(
+				<div style={{
+					width: '100%',
+					height: '100%',
+					paddingTop: '2rem',
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					gap: '8px',
+				}}>
+					<img
+						style={{
+							height: '100%',
+							width: '100%',
+							maxWidth: isMobile ? '200px' :'300px',
+							maxHeight:isMobile ? '200px' : '300px',
+						}} 
+						src={NothingSVG} 
+					/>
+					<Typography fontSize={'var(--ft-pg-24)'}>Nothing here</Typography>
+				</div>
 			</div>;
 	}
 

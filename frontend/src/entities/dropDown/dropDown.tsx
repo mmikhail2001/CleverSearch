@@ -16,6 +16,8 @@ interface DropDownProps {
 	className?: string;
 	styleOnMain?: CSS.Properties;
 	borderRadius?: "big" | 'small';
+	isSameSize?: boolean,
+	removeShadow?: boolean,
 }
 
 export const DropDown: FC<DropDownProps> = ({
@@ -28,9 +30,15 @@ export const DropDown: FC<DropDownProps> = ({
 	toggleOpen,
 	styleOnMain,
 	borderRadius,
+	isSameSize,
+	removeShadow,
 }) => {
+	if (isNullOrUndefined(isSameSize)) isSameSize = false
+
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const ref = useRef<HTMLDivElement>(null)
+
+	const [widthToSet, setWidthToSet] = useState<string | null>(null)
 
 	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
 		event.stopPropagation()
@@ -101,8 +109,11 @@ export const DropDown: FC<DropDownProps> = ({
 	useEffect(() => {
 		if (ref) {
 			setAnchorEl(ref.current)
+			setWidthToSet( isSameSize ? `${ref.current.clientWidth}px` : null)
 		}
 	}, [ref])
+
+
 
 	const isNeedCloseOnSelect = isNullOrUndefined(isCloseOnSelect) || isCloseOnSelect
 
@@ -122,8 +133,9 @@ export const DropDown: FC<DropDownProps> = ({
 						backgroundColor: 'transparent',
 						borderRadius: borderRadius === 'big' ? 'var(--big-radius)' : 'var(--small-radius)',
 						border: 'none',
-						boxShadow:'3px 3px 10px 4px rgba(0,0,0,0.1)',
+						boxShadow: removeShadow ? null : '3px 3px 10px 4px rgba(0,0,0,0.1)',
 						color:'inherit',
+						width: widthToSet,
 					}}
 				}
 				disableAutoFocusItem

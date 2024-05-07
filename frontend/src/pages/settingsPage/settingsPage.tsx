@@ -1,8 +1,5 @@
-import { DiskType, diskImgSrc, diskTypes, isDiskType } from '@models/disk';
-import React, { FC, useEffect, useState } from 'react';
-import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
-import { TextWithImg } from '@feature/textWithImg/textWithimg';
-import { useDiskLinkConnectMutation } from '@api/diskApi';
+import {  diskImgSrc, isExternalDisk } from '@models/disk';
+import React, { FC, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { notificationBar } from '@helpers/notificationBar';
 
@@ -10,46 +7,13 @@ import './settings.scss'
 import { useSetAvatarMutation } from '@api/userApi';
 import { TextWithInput } from '@feature/buttonWithInput/buttonWithInput';
 import { Button } from '@entities/button/button';
+import { DiskConnect } from '@widgets/diskConnect/diskConnect';
 
-const getTextWithImg = (
-	selected: boolean,
-	disk: DiskType,
-	setState: (text: diskTypes) => void,
-) => {
-	if (isNullOrUndefined(disk)) return null
-	const { src, altText, diskName } = disk;
-
-	return (
-		<div className='settings__disk'>
-			<TextWithImg
-				key={diskName + src}
-				className={['text-with-img-row'].join(' ')}
-				text={diskName}
-				imgSrc={src}
-				altImgText={altText}
-				onClick={() => {
-					if (isDiskType(diskName)) {
-						setState(diskName as diskTypes);
-					}
-				}}
-			/>
-		</div>
-	);
-};
 
 export const SettingsPage: FC = () => {
-	const [connect, resp] = useDiskLinkConnectMutation()
-	const [diskToConnect, setDiskToConnect] = useState<diskTypes>('internal')
-
 	const [sentAvatar, respAvatar] = useSetAvatarMutation()
 
 	const navigate = useNavigate()
-
-	useEffect(() => {
-		if (diskToConnect !== 'internal' && !resp.isLoading) {
-			window.location.href = resp.data.redirect;
-		}
-	}, [resp])
 
 	useEffect(() => {
 		if(respAvatar.isSuccess) {
@@ -78,15 +42,11 @@ export const SettingsPage: FC = () => {
 					Array.from(diskImgSrc)
 						.filter(val => val[1].diskName !== 'internal'
 							&& val[1].diskName !== 'own')
-						.map(val => {
-							return getTextWithImg(
-								false,
-								val[1],
-								(text: diskTypes) => {
-									connect(text)
-									setDiskToConnect(text)
-								}
-							)
+						.map((val) => {
+							if (isExternalDisk(val[1])) {
+								return <DiskConnect disk={val[1]} />
+							}
+							return <></>
 						})
 				}
 			</div>

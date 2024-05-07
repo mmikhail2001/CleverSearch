@@ -41,6 +41,7 @@ export const FolderCreation: FC<FolderCreationProps> = ({
 	return (
 		<div className={className} style={{
 				borderTop: '1px solid rgba(0, 0, 0, 0.2)',
+				borderBottom: '1px solid rgba(0, 0, 0, 0.2)',
 				paddingLeft:'1.5rem', 
 				paddingBottom: '1rem',
 				paddingTop: '0.5rem',

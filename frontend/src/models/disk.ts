@@ -27,6 +27,15 @@ export const toDiskType = (text: string): diskTypes => {
 	return 'internal';
 }
 
+export const isExternalDisk = (obj: any): obj is DiskType => {
+	if (!obj) return false
+	return ('diskName' in obj 
+		&& isDiskType(obj.diskName)
+		&& 'src' in obj
+		&& 'altText' in obj
+	)
+}
+
 export interface DiskType {
 	diskName: string,
 	src: string;
