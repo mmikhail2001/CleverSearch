@@ -56,7 +56,6 @@ export const TextWithInput: FC<TextWithInputProps> = ({
           const files = event.target.files;
           if (files) {
             onChange(files);
-
           }
           event.target.value = '';
         }}

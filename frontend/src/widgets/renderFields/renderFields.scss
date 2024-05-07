@@ -1,3 +1,6 @@
+@import '../../index.scss';
+
+
 .modal__img-show {
     display: flex;
     flex-direction: column;
@@ -20,7 +23,14 @@
     padding-left: 3rem;
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
+
+    @media screen and (max-width: $pc-width) {
+        gap: 1.6rem;
+    }
+    
+    @media screen and (min-width: $pc-width) {
+        gap: 1.2rem;
+    }
 
     margin-top: 2.8rem;
 }

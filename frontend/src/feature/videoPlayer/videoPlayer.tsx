@@ -62,7 +62,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 	const [firstTime, setFirstTime] = useState(true);
 	const fullScreen = useFullScreenHandle();
 
-	const isAudioTrack = !isNullOrUndefined(isAudio) || isAudio
+	const isAudioTrack = isNullOrUndefined(isAudio) || isAudio
 
 	const handleOnPlaybackRateChange = (speed: string) => {
 		setState({ ...state, playbackRate: parseFloat(speed) })

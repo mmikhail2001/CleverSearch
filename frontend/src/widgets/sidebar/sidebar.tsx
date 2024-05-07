@@ -159,6 +159,7 @@ export const Sidebar: FC<SidebarProps> = ({
 									disabled={false}
 								></TextWithInput>,
 								<FolderCreation
+									onClose={() => setCreationPopOpen(false)}
 									dirs={showReq.dir}
 									onFolderCreation={() => {
 										if (isSearch) {

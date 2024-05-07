@@ -83,6 +83,9 @@ export const Input: FC<InputProps> = ({
 				'& input[type=password]': {
 					padding: `${setPadding}px !important`, 
 				},
+				'& input[type=text]': {
+					padding: `${setPadding}px !important`, 
+				},
 			}
 			cssPropsInput = {
 				fontSize: 'var(--ft-body)',
@@ -104,6 +107,9 @@ export const Input: FC<InputProps> = ({
 					padding: `${setPadding}px !important`, 
 				},
 				'& input[type=password]': {
+					padding: `${setPadding}px !important`, 
+				},
+				'& input[type=text]': {
 					padding: `${setPadding}px !important`, 
 				},
 			}

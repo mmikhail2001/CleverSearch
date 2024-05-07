@@ -106,8 +106,6 @@ export const DropDown: FC<DropDownProps> = ({
 
 	const isNeedCloseOnSelect = isNullOrUndefined(isCloseOnSelect) || isCloseOnSelect
 
-	console.log("borderRadius",borderRadius)
-
 	return (
 		<>
 			<div

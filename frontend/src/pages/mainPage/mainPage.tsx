@@ -1,5 +1,5 @@
 import { Sidebar } from '@widgets/sidebar/sidebar';
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 
 import { useDispatch } from 'react-redux';
 import { switchToLoved, switchToShow } from '@store/whatToShow';
@@ -9,8 +9,7 @@ import { Navbar } from '@widgets/navbar/navbar';
 import { Outlet, useNavigate } from 'react-router-dom';
 import './mainPage.scss';
 import { useMobile } from 'src/mobileProvider';
-import { Button } from '@entities/button/button';
-import { changeDir, changeDisk } from '@store/showRequest';
+import { changeDir, changeDisk, newValues } from '@store/showRequest';
 
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
@@ -18,19 +17,52 @@ import MonitorSVG from '@icons/disks/Monitor.svg';
 import { getInternalURLFront } from '@helpers/transformsToURL';
 import { useAppSelector } from '@store/store';
 
+import Fab from '@mui/material/Fab';
+import CameraAltRoundedIcon from '@mui/icons-material/CameraAltRounded';
+import {ComponentWithInput} from '@entities/componentWithInput/componentWithInput'
+import { debounce } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
+import { useGetInternalFilesMutation, useGetSharedFilesMutation, usePushFileMutation } from '@api/filesApi';
+
 const drawerWidth = '294px'
 
 export const MainPage: FC = () => {
+	useWebsoket()
+
 	const { whatDisplay } = useMobile()
 	const {isLoved, isShow, isShared} = useAppSelector(state => state.whatToShow)
 	const [openSidebar, setOpenSidebar] = useState<boolean>(false)
+	
 	const navigate = useNavigate()
 	const dispatch = useDispatch()
 
-	useWebsoket()
+	
+	const showReq = useAppSelector(state => state.showRequest)
+	const [show] = useGetInternalFilesMutation({ fixedCacheKey: 'show' });
+	const [showShared] = useGetSharedFilesMutation({ fixedCacheKey: 'shared' });
+	
+	const [send, sendResp] = usePushFileMutation();
+
+	const [filesWasSend, setFilesWasSend] = useState<boolean>(false) 
+
+	useEffect(() =>{
+		if (sendResp && sendResp.isSuccess && filesWasSend) {
+			if (isShow) {
+				show(showReq.dir.join('/'));
+				dispatch(newValues({...showReq}))
+			} else if (isShared) {
+				showShared(showReq.dir.join('/'));
+				dispatch(newValues({...showReq}))
+			}
+
+			setFilesWasSend(false)
+		}
+
+	}, [filesWasSend,sendResp])
 
 	const isMobile = whatDisplay === 2
 	const widthToSet = isMobile ? '0px' : drawerWidth
+
 
 	return <div className="App">
 		<Sidebar
@@ -53,7 +85,57 @@ export const MainPage: FC = () => {
 			/>
 			<Outlet></Outlet>
 		</div>
-		{whatDisplay === 2
+		{whatDisplay !== 1 
+			? <Fab
+				variant='circular'
+				sx={{
+					position:'absolute',
+					height: '40px',
+					width: '40px',
+					bottom: '48px',
+					right: '16px',
+					background: 'var(--color-dropdowns)',
+					color: 'inherit',
+					border: '1px solid rgba(255, 255, 255, 0.5)',
+				}}
+			>
+				<ComponentWithInput
+					stylesOnComponent={{
+						display:'flex',
+						fontSize:'24px',
+						height:'100%',
+						width:'100%',
+						justifyContent: 'center',
+						alignItems: 'center',
+					}}
+					capture='environment'
+					disabled={false}
+					onChange={
+						(files: FileList) => {
+							const debouncFunc = debounce(() => {
+								setFilesWasSend(true)
+							}, 300);
+							
+							Array.from(files).forEach((file) => {
+								const formData = new FormData();
+
+								formData.append('file', file, file.name);
+								formData.append('dir', ['', ...showReq.dir].join('/'));
+								send(formData);
+								debouncFunc();
+							});
+						}
+					}
+				>
+					{filesWasSend 
+						? <CircularProgress color='inherit'/>
+						: <CameraAltRoundedIcon fontSize='inherit' />
+					}
+				</ComponentWithInput>
+			</Fab>
+			: null
+		}
+		{whatDisplay !== 1
 			? <div className='bottom-buttons'>
 				<div className={['bottom-button', isShow ? 'selected-bottom-button':null].join(' ')}>
 					<img

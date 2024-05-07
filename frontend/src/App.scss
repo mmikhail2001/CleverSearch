@@ -10,6 +10,7 @@
     box-sizing: border-box;
 	background: linear-gradient(to bottom, $color-top, $color-bottom);
     color: var(--text-color-light);
+    position: relative;
 }
 
 

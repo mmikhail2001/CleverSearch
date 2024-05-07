@@ -35,7 +35,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	openFolder,
 }) => {
 	const {whatDisplay} = useMobile()
-	const isMobile = whatDisplay === 2
+	const isMobile = whatDisplay !== 1
 
 	if (isLoading) {
 		return <h1>Подождите, загружаем файлы...</h1>;
@@ -55,11 +55,17 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 		<div key={'rendered-list'} className='show-all-files' style={{height: height}}>
 			<div className='file-show-line' style={{cursor: 'default'}}>
 				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Name</Typography>
-				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Created date</Typography>
+				
+				{isMobile ? null 
+				: <Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Created date</Typography>
+				}
+				
 				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Author</Typography>
+				
 				{isMobile 
 				? null 
 				:<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Size</Typography>
+				
 				}
 				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}></Typography>
 				

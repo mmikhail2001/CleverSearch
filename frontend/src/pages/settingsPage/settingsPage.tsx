@@ -53,8 +53,6 @@ export const SettingsPage: FC = () => {
 		}
 	}, [resp])
 
-	const [open, setOpen] = useState(true)
-
 	return <div className="settings-background">
 		<div className='settings'>
 			<div className='disk-show disks disk-connect-settings'>
@@ -110,9 +108,7 @@ export const SettingsPage: FC = () => {
 				
 				{respAvatar.isSuccess 
 				? <NotificationBar
-					isOpen={open}
-					setOpen={setOpen}
-					autoHideDuration={500}
+					autoHideDuration={2000}
 					className='settings__good-notification'
 				>
 					<p>Successful set</p>
@@ -120,9 +116,7 @@ export const SettingsPage: FC = () => {
 				: null}
 				{respAvatar.isError 
 				? <NotificationBar
-					isOpen={open}
-					setOpen={setOpen}
-					autoHideDuration={5}
+					autoHideDuration={2000}
 					className='settings__bad-notification'
 				>
 					<p>Get error on set</p>

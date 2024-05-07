@@ -1,3 +1,5 @@
+@import '../../index.scss';
+
 .video-player {
 	display: flex;
 	flex-direction: column;
@@ -12,6 +14,10 @@
 
 	max-height: 100%;
 	overflow: hidden;
+	@media screen and (max-width: $pc-width) {
+			justify-content: center;
+			background-color: var(--color-dropdowns);
+	}
 }
 
 .react-player {
