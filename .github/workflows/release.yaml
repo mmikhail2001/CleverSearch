@@ -149,7 +149,10 @@ jobs:
       - name: Actual Dockercompose.prod.yml flipping
         env:
           SSH_KEY: ${{ secrets.SSH_SERVER_KEY }}
-        run: echo $SSH_KEY > ssh_key && chmod 600 ssh_key && scp -i ssh_key docker-compose.prod.yml ${{ secrets.USERNAME_SERVER }}@${{ secrets.HOST_SERVER }}:${{ secrets.PATH_DOCKER_PROD_TARGET }}
+        run: | 
+          eval ssh-agent -s
+          ssh-add <(echo "$SSH_KEY")
+          scp -o "IdentityFile /dev/fd/63" docker-compose.prod.yml ${{ secrets.USERNAME_SERVER }}@${{ secrets.HOST_SERVER }}:${{ secrets.PATH_DOCKER_PROD_TARGET }}
       - name: SSH and Restart Docker Compose
         uses: appleboy/ssh-action@master
         with:
