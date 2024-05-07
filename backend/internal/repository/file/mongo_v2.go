@@ -34,8 +34,17 @@ func (r *Repository) GetFilesV2(ctx context.Context, fileOptions file.FileOption
 		filter["user_id"] = fileOptions.UserID
 	}
 
-	if fileOptions.FileType != "" && fileOptions.FileType != file.AllTypes {
-		filter["file_type"] = string(fileOptions.FileType)
+	if len(fileOptions.FileTypes) > 0 {
+		var types []string
+		for _, fileType := range fileOptions.FileTypes {
+			types = append(types, string(fileType))
+		}
+
+		filter["file_type"] = bson.M{"$in": types}
+	} else {
+		if fileOptions.FileType != "" && fileOptions.FileType != file.AllTypes {
+			filter["file_type"] = string(fileOptions.FileType)
+		}
 	}
 
 	if !fileOptions.IgnoreCloudEmail {
