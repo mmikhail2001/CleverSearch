@@ -146,11 +146,19 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ always() }} && ${{ success() }}
     steps:
+      - name: Actual Dockercompose.prod.yml flipping
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST_SERVER }}
+          username: ${{ secrets.USERNAME_SERVER }}
+          ssh_key: ${{ secrets.SSH_SERVER_KEY }}
+          source: docker-compose.prod.yml
+          target: ${{ secrets.PATH_DOCKER_PROD_TARGET }}
       - name: SSH and Restart Docker Compose
         uses: appleboy/ssh-action@master
         with:
-          host: 89.208.208.128
-          username: ubuntu
+          host: ${{ secrets.HOST_SERVER }}
+          username: ${{ secrets.USERNAME_SERVER }}
           key: ${{ secrets.SSH_SERVER_KEY }}
           script: |
             cd ~/clever
