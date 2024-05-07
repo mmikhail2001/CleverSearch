@@ -63,7 +63,7 @@ class MLDispatcher:
 
             requests.post(f'http://backend:8080/api/ml/complete?file_uuid={doc_uuid}')
 
-    def run(self, queue_name):
+    def run(self, exchange_name: str, queue_name: str, routing_key: str):
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port,\
             virtual_host='/',credentials=pika.PlainCredentials('guest', 'guest'), heartbeat=600, blocked_connection_timeout=300))
         channel = connection.channel()

@@ -1,52 +1,26 @@
-from argparse import ArgumentParser
+from configparser import ConfigParser
 from TextService import TextService
 
 import sys
 sys.path.insert(0, 'MLCore/')
 from ML_dispatcher import MLDispatcher
 
-arg_parser = ArgumentParser(
-        'MLCore_img_service'
-)
-
-arg_parser.add_argument(
-        '--mongo_addr',
-        type=str,
-        default='mongodb',
-        help='mongodb host address'
-    )
-
-arg_parser.add_argument(
-        '--mongo_port',
-        type=int,
-        default=27017,
-        help='port of mongoDB'
-    )
-
-arg_parser.add_argument(
-        '--mongo_DB_name',
-        type=str,
-        default='CLEVERSEARCH',
-        help='name of mongo database'
-    )
-
-arg_parser.add_argument(
-        '--mongo_collection_name',
-        type=str,
-        default='files',
-        help='name of mongo collection'
-    )
 
 if __name__ == '__main__':
-    args = arg_parser.parse_args()
+    config = ConfigParser()
+    config.read('./MLCore/Services/services_cfg.cfg')
 
     dispathcer = MLDispatcher(
-            mongo_ip=args.mongo_addr,
-            mongo_port=args.mongo_port,
-            mongo_db_name=args.mongo_DB_name,
-            mongo_collection=args.mongo_collection_name
+            mongo_ip=config['COMMON']['MongoDBHostAddr'],
+            mongo_port=config['COMMON']['MongoDBPort'],
+            mongo_db_name=config['COMMON']['MongoDBName'],
+            mongo_collection=config['COMMON']['MongoCollectionName']
     )
 
     dispathcer.reg_service(TextService, 'text')
 
-    dispathcer.run('text')
+    dispathcer.run(
+        exchange_name=config['RABBITMQ']['ExchangeName'],
+        queue_name=config['TEXT_SERV']['QueueName'],
+        routing_key=config['TEXT_SERV']['RoutingKey']
+    )
