@@ -2,6 +2,17 @@ import whisper
 from IDataProcessor import IDataProcessor
 from TextProcessor import TextProcessor
 
+import sys
+import logging
+sys.path.insert(3, './MLCore/')
+sys.path.insert(4, './MLCore/utils')
+from utils.get_console_logger import get_console_logger
+
+logger = get_console_logger(
+    __name__,
+    logging.DEBUG
+)
+
 
 class AudioProcessor(IDataProcessor):
     def __init__(self):
