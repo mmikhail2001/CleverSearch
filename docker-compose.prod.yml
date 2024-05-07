@@ -48,10 +48,63 @@ services:
     networks:
       clevernet.prod:
 
-  mlcore:
-    image: windowskonon1337/cleversearch_mlcore
+  mlcore_core:
+    image: windowskonon1337/cleversearch_mlcore_core:latest
+    restart: always
+    networks:
+      clevernet.prod:
+
+  mlcore_rec_service:
+    image: windowskonon1337/cleversearch_mlcore_rec_service:latest
+    ports:
+      - 8081:8081
     restart: always
     depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet.prod:
+
+  mlcore_img_service:
+    image: windowskonon1337/cleversearch_mlcore_img_service:latest
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet.prod:
+
+  mlcore_video_service:
+    image: windowskonon1337/cleversearch_mlcore_video_service:latest
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet.prod:
+
+  mlcore_audio_service:
+    image: windowskonon1337/cleversearch_mlcore_audio_service:latest
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet.prod:
+
+  mlcore_text_service:
+    image: windowskonon1337/cleversearch_mlcore_text_service:latest
+    restart: always
+    depends_on:
+      - mlcore_core
       - rabbitmq
       - mongodb
       - minio
