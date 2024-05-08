@@ -12,6 +12,7 @@ import ArticleRoundedIcon from '@mui/icons-material/ArticleRounded';
 import VideoFileRoundedIcon from '@mui/icons-material/VideoFileRounded';
 
 import React from 'react';
+import { useMobile } from "src/mobileProvider";
 
 export interface renderReturns {
 	renderModal: () => React.ReactNode | null;
@@ -76,10 +77,12 @@ export const getPdfProps = (
     state: boolean, 
     changeState: (whatToState: boolean) => void,
 ): renderReturns => {
+    const {whatDisplay} = useMobile()
+
     const renderModal = () => {
         return (
             <Modal
-                isFullWidth={true}
+                isFullWidth={whatDisplay !== 1}
                 className={'modal__pdf-show'}
                 isOpen={state}
                 closeModal={() => changeState(false)}
@@ -89,6 +92,7 @@ export const getPdfProps = (
                     borderRadius:'15px',
                     border: "1px solid rgba(255, 255, 255, 0.3)",
                     color:'inherit',
+                    minWidth: whatDisplay !== 1 ? '330px' : null,
                 }}
                 stylesOnContentBackground={{
                     overflow:'hidden',
