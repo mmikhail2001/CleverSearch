@@ -25,14 +25,14 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
 
     useEffect(() => {
         if (isShow) {
-            show([showReq.dir].join('/'));
+            show([...showReq.dir].join('/'));
         }
     }, [showReq, isShow])
 
 
     return (
         <ShowGlobal
-            getValue={() => show(showReq.dir.join('/'))} 
+            getValue={() => { show(showReq.dir.join('/'))}} 
             whatShow={isShow} 
             switchToWhatShow={() => dispatch(switchToShow())} 
             firstElementInBreadCrumbs={'Show'} 

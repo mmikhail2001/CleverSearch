@@ -7,7 +7,7 @@ import { changeDir, newValues } from '@store/showRequest';
 import { switchToExternal, switchToShow } from '@store/whatToShow';
 import { useNavigate } from 'react-router-dom';
 import { ShowGlobal } from '../showGlobal';
-import { useGetDriveFilesMutation, useGetInternalFilesMutation } from '@api/filesApi';
+import { useGetDriveFilesMutation } from '@api/filesApi';
 import { useShowDriveParams } from '@helpers/hooks/useShowParams';
 
 

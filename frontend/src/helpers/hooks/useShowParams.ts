@@ -30,7 +30,6 @@ export const useShowInternalParams = () => {
     } else {
         dir = []
     }
-    
     useEffect(() => {
         if (whatDiskToShow !== 'internal'){
             dispatch(switchDisk('internal'))
