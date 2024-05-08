@@ -10,6 +10,7 @@ import { ShowGlobal } from '../showGlobal';
 import { useGetSharedFilesMutation } from '@api/filesApi';
 import { getSharedURLFront } from '@helpers/transformsToURL';
 import { useSharedParams } from '@helpers/hooks/useShowParams';
+import { ShowParams } from '@models/searchParams';
 
 interface ShowSharedFilesProps { }
 
@@ -36,7 +37,9 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 	}, [])
 
 	useEffect(() => {
-		showShared(showReq.dir.join('/'))
+		if (isShared) {
+			showShared(showReq.dir.join('/'))
+		}
 	}, [showReq, isShared])
 
 	if (!isShared) {

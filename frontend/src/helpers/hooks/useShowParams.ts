@@ -13,14 +13,22 @@ import { useNavigate } from 'react-router-dom';
 
 
 export const compareArrays = (a: any[], b: any[]): boolean =>
-    a
+{
+    let tmpA = a;
+    if (a.length === 0) {
+        tmpA = ['']
+    } 
+    return tmpA
     && b
-    && a.length === b.length &&
-    a.every((element: any, index: number) => element === b[index]);
+    && tmpA.length === b.length &&
+    tmpA.every((element: any, index: number) => element === b[index]);
+}
+    
 
 export const useShowInternalParams = () => {
     const showRequest = useAppSelector(state => state.showRequest)
     const dispatch = useDispatch()
+    const {whatDiskToShow} = useAppSelector(state => state.whatToShow)
 
     const urlParams = useParamsFromURL()
     let dir: string[] = []
@@ -31,13 +39,15 @@ export const useShowInternalParams = () => {
     }
     
     useEffect(() => {
-        dispatch(switchDisk('internal'))
-
+        if (whatDiskToShow !== 'internal'){
+            dispatch(switchDisk('internal'))
+        }
         if (!
             (
                 compareArrays(showRequest.dir,dir) 
             )
         ){
+            console.log("SSS",showRequest.dir,dir)
             dispatch(
                 newValues({
                     ...showRequest,
@@ -78,6 +88,7 @@ export const useShowDriveParams = () => {
     useEffect(() => {
         if (disk.cloud_email === '') {
             console.warn("can't find cloud email in drive")
+
             dispatch(switchDisk('internal'))
             navigate('/internal')
             

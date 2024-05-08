@@ -2,7 +2,7 @@ import { useGetInternalFilesMutation, useGetSharedFilesMutation, usePushFileMuta
 import { useSearchMutation } from '@api/searchApi';
 import { TextWithInput } from '@feature/buttonWithInput/buttonWithInput';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
-import { diskImgSrc, diskTypes, isExternalDisk } from '@models/disk';
+import { diskImgSrc, diskTypes, isDiskType, isExternalDisk } from '@models/disk';
 import { useAppSelector } from '@store/store';
 import { switchDisk, switchToExternal, switchToLoved, switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
 import React, { FC, useEffect, useState } from 'react';
@@ -88,6 +88,8 @@ export const Sidebar: FC<SidebarProps> = ({
 		if (!isShow) {
 			dispatch(switchToShow())
 		}
+
+		if (isDiskType(disk))dispatch(switchDisk(disk))
 
 		const url = getInternalURLFront([])
 		navigate(url)
@@ -217,8 +219,6 @@ export const Sidebar: FC<SidebarProps> = ({
 							externalView={isExternal}
 							setSelectedState={(disk: diskTypes | ConnectedClouds
 							) => {
-								dispatch(switchDisk(disk))
-
 								if (typeof disk === 'string') {
 									goToInternal(disk)
 									return
@@ -227,6 +227,8 @@ export const Sidebar: FC<SidebarProps> = ({
 								if (!isExternal) {
 									dispatch(switchToExternal())
 								}
+
+								dispatch(switchDisk(disk))
 
 								const email = disks.clouds.find((val) => val.disk === disk.disk).cloud_email
 								const url = getDriveURLFront([], email)

@@ -1,5 +1,5 @@
 import { useAppSelector } from '@store/store';
-import React,{ FC, useEffect } from 'react';
+import React,{ FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { getInternalURLFront } from '@helpers/transformsToURL';
@@ -8,18 +8,18 @@ import { switchToShow } from '@store/whatToShow';
 import { useNavigate } from 'react-router-dom';
 import { ShowGlobal } from '../showGlobal';
 import { useGetInternalFilesMutation } from '@api/filesApi';
-import { useSharedParams } from '@helpers/hooks/useShowParams';
+import { useShowInternalParams } from '@helpers/hooks/useShowParams';
 
 interface ShowShowedFilesProps { }
 
 export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const navigate = useNavigate();
-    useSharedParams()
+    useShowInternalParams()
     
     const [show, showResp] = useGetInternalFilesMutation({ fixedCacheKey: 'show' });
     const showReq = useAppSelector(state => state.showRequest)
     
-    const { isShow, whatDiskToShow } = useAppSelector(state => state.whatToShow)
+    const { isShow } = useAppSelector(state => state.whatToShow)
 
     const dispatch = useDispatch();
 
@@ -27,7 +27,6 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
         if (isShow) {
             show([showReq.dir].join('/'));
         }
-
     }, [showReq, isShow])
 
 
