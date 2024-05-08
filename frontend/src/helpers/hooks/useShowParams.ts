@@ -1,6 +1,3 @@
-import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
-import { diskTypes, isDiskType } from '@models/disk';
-import { fileTypes } from '@models/searchParams';
 import { ConnectedClouds } from '@models/user';
 import { useEffect } from 'react';
 import { useAppSelector } from '@store/store';
@@ -14,14 +11,10 @@ import { useNavigate } from 'react-router-dom';
 
 export const compareArrays = (a: any[], b: any[]): boolean =>
 {
-    let tmpA = a;
-    if (a.length === 0) {
-        tmpA = ['']
-    } 
-    return tmpA
+    return a
     && b
-    && tmpA.length === b.length &&
-    tmpA.every((element: any, index: number) => element === b[index]);
+    && a.length === b.length &&
+    a.every((element: any, index: number) => element === b[index]);
 }
     
 
@@ -33,7 +26,7 @@ export const useShowInternalParams = () => {
     const urlParams = useParamsFromURL()
     let dir: string[] = []
     if ("dir" in urlParams) {
-        dir = urlParams.dir.split('/')
+        dir = urlParams.dir.split('/').filter(val => val !== '')
     } else {
         dir = []
     }
@@ -47,7 +40,6 @@ export const useShowInternalParams = () => {
                 compareArrays(showRequest.dir,dir) 
             )
         ){
-            console.log("SSS",showRequest.dir,dir)
             dispatch(
                 newValues({
                     ...showRequest,
@@ -74,7 +66,7 @@ export const useShowDriveParams = () => {
     const urlParams = useParamsFromURL()
 
     if ("dir" in urlParams) {
-        dir = urlParams.dir.split('/')
+        dir = urlParams.dir.split('/').filter(val => val !== '')
     }
 
     if ('cloud_email' in urlParams) {
@@ -123,7 +115,7 @@ export const useSharedParams = () => {
     const urlParams = useParamsFromURL()
     let dir: string[] = []
     if ("dir" in urlParams) {
-        dir = urlParams.dir.split('/')
+        dir = urlParams.dir.split('/').filter(val => val !== '')
     } else {
         dir = []
     }

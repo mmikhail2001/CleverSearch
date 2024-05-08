@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import { newSearchValues } from '@store/searchRequest';
 import { useParamsFromURL } from './useParamsFromURL';
 import { transformToSearchParams } from '@models/getParams';
+import { compareArrays } from './useShowParams';
 
 export interface searchStateValue {
     smartSearch: boolean;
@@ -17,6 +18,8 @@ export interface searchStateValue {
 }
 
 export const useSearchParams = () => {
+    const searchParams = useAppSelector(state => state.searchRequest)
+    
     const searchState = {} as {
         smartSearch: boolean;
         fileType: fileTypes[];
@@ -24,8 +27,6 @@ export const useSearchParams = () => {
         dir: string[];
         disk: diskTypes[] | ConnectedClouds[];
     }
-
-    const disks = useAppSelector(state => state.disks)
 
     const urlParams = useParamsFromURL()
     const params = transformToSearchParams(urlParams)
@@ -45,12 +46,20 @@ export const useSearchParams = () => {
     searchState.smartSearch = params.smartSearch
 
     useEffect(() => {
-        dispatch(newSearchValues({
-            query: searchState.query,
-            smartSearch: searchState.smartSearch,
-            dir: searchState.dir,
-            fileType: params.fileType,
-        }))
+        if (
+            searchParams.query !== searchState.query
+            || !compareArrays(searchParams.dir, searchState.dir)
+            || !compareArrays(searchParams.fileType, searchState.fileType)
+            || searchParams.smartSearch !== searchState.smartSearch
+        ) {
+            dispatch(newSearchValues({
+                query: searchState.query,
+                smartSearch: searchState.smartSearch,
+                dir: searchState.dir,
+                fileType: params.fileType,
+            }))    
+        }
+        
     }, [])
 
     return { searchState }
