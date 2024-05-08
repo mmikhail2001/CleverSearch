@@ -61,9 +61,9 @@ services:
       clevernet:
 
   mlcore_core:
-    build:
-      context: ./MLCore
-      dockerfile: Dockerfile.core
+    image: windowskonon1337/cleversearch_mlcore_core:latest
+    networks:
+      clevernet:
 
   mlcore_rec_service:
     build:
