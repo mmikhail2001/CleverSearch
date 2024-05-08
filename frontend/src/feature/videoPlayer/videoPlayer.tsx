@@ -7,6 +7,7 @@ import { ControlsForVideo } from '@entities/controlsForVideo/controlsForVideo'
 import { OnProgressProps } from 'react-player/base';
 import './videoPlayer.scss'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'; //https://levelup.gitconnected.com/how-to-implement-full-screen-functionality-in-react-%EF%B8%8F-1281803130f4
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
 // https://github.com/cookpete/react-player/blob/master/examples/react/src/App.js#L195
 // https://cookpete.github.io/react-player/
@@ -16,6 +17,7 @@ interface VideoPlayerProps {
 	duration: number,
 	start_time?: number,
 	authToken?: string,
+	isAudio?: boolean,
 }
 
 interface VideoPlayerState {
@@ -38,6 +40,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 	url,
 	start_time,
 	duration,
+	isAudio,
 }) => {
 	const player = useRef<ReactPlayer>(null)
 	const [state, setState] = useState<VideoPlayerState>({
@@ -55,8 +58,11 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 		loop: false,
 		seeking: false
 	});
+
 	const [firstTime, setFirstTime] = useState(true);
 	const fullScreen = useFullScreenHandle();
+
+	const isAudioTrack = isNullOrUndefined(isAudio) || isAudio
 
 	const handleOnPlaybackRateChange = (speed: string) => {
 		setState({ ...state, playbackRate: parseFloat(speed) })
@@ -81,6 +87,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 		setState({ ...state, duration })
 	}
 
+
 	return (
 		<div className='video-player'>
 			<FullScreen handle={fullScreen} className='fullscreen-player'>
@@ -88,7 +95,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 					ref={player}
 					className='react-player'
 					width='100%'
-					height='100%'
+					height={isAudioTrack ? '100px' :'100%'}
 					url={state.url}
 					pip={state.pip}
 					playing={state.playing}
@@ -114,6 +121,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 				>
 				</ReactPlayer>
 				<ControlsForVideo
+					isFullScreen={fullScreen.active}
 					isPlaying={state.playing}
 					currentTime={state.played}
 					maxTime={state.duration}

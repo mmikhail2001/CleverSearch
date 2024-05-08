@@ -7,11 +7,14 @@
   height: 5.6rem;
   min-height: 5.6rem;
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) minmax(0, 1fr) minmax(0, 2fr) minmax(0, 0.5fr);
   
-  // @media screen and (max-width: $tablet-width) {
-  //   grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) minmax(0, 1fr);  
-  // }
+  @media screen and (max-width: $pc-width) {
+    grid-template-columns:  minmax(0, 3fr) minmax(0, 0.55fr) minmax(0, 0.8fr);
+  }
+
+  @media screen and (min-width: $pc-width) {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) minmax(0, 1fr) minmax(0, 2fr) minmax(0, 0.5fr);
+  }
 
   justify-content: space-between;
   align-content: center;
@@ -32,7 +35,14 @@
   max-width: 100%;
   display: flex;
   gap: 12px;
-  flex-direction: row;
+
+  @media screen and (max-width: $pc-width) {
+    flex-direction: column;
+  }
+
+  @media screen and (min-width: $pc-width) {
+    flex-direction: row;
+  }
 }
 
 .icon {

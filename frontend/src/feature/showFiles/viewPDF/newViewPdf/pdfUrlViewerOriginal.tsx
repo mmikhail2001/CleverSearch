@@ -3,9 +3,13 @@ import { DocumentInitParameters, PDFDocumentLoadingTask, PDFDocumentProxy } from
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { VariableSizeList } from 'react-window';
 import PdfViewer from './pdfViewerOriginal';
-import { Typography } from '@mui/material';
+import { IconButton, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded';
+
 
 export interface PdfUrlViewerProps {
   url: string,
@@ -49,7 +53,7 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
   }, [isFirstPageLoaded])
 
   return (
-    <>
+    <div className='pdf-with-controls'>
       <PdfViewer
         windowRef={windowRef}
         itemCount={itemCount}
@@ -65,27 +69,41 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
           alignItems: 'center',
         }}
       >
-        <Typography fontSize={'var(--ft-body)'}>Scale</Typography>
         <div style={{
           display: 'flex',
           fontSize: 'calc(var(--ft-body) - 0.3rem)',
           alignItems: 'center',
         }}>
-          <RemoveIcon
-            style={{ background: 'var(--main-color-100)', borderRadius: 'var(--small-radius)' }}
-            fontSize='inherit'
-            onClick={() => setsettedScale(p => p - 0.25)}
-          />
-          <Typography fontSize={'var(--ft-body)'}>{settedScale}</Typography>
-          <AddIcon
-            style={{ background: 'var(--main-color-100)', borderRadius: 'var(--small-radius)' }}
-            fontSize='inherit'
-            onClick={() => setsettedScale(p => p + 0.25)}
-          />
+          {controls(
+            () => setsettedScale(p => p - 0.25),
+            () => setsettedScale(p => p + 0.25),
+            settedScale
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
+
+const controls = (zoomOut: () => void, zoomIn: ()=>void, scale: number) => {
+	return (
+		<div className="modal-scale">
+			<IconButton 
+				onClick={() => zoomOut()}
+				sx={{color:'inherit'}}
+			>
+				<AddRoundedIcon sx={{color:'inherit'}} />
+			</IconButton>
+      <Typography fontSize={'var(--ft-body)'}>{scale}</Typography>
+			<IconButton 
+				onClick={() => zoomIn()}
+				sx={{color:'inherit'}}
+			>
+				<RemoveRoundedIcon sx={{color:'inherit !'}} />
+			</IconButton>
+		</div>
+	)
+}
+
 
 export default PdfUrlViewer;

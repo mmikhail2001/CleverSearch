@@ -25,6 +25,7 @@
   },
   "ts-node": {
     "compilerOptions": {
+      "lib": ["ESNext.Array"],
       "module": "CommonJS"
     }
   },

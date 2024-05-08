@@ -27,8 +27,9 @@ export const TextWithImg: FC<TextWithImgProps> = ({
 	fontSize,
 }) => {
 	if (isNullOrUndefined(fontSize)) fontSize = 'var(--ft-paragraph)'
+
 	return (
-		<div className={['text-with-img', className].join(' ')}  onClick={onClick}>
+		<div className={[className, 'text-with-img'].join(' ')}  onClick={onClick}>
 			{leftIconProp}
 			{typeof imgSrc === 'string'
 			? <img className="text-image" src={imgSrc} alt={altImgText}/>

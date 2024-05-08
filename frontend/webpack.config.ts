@@ -1,7 +1,13 @@
 import webpack from 'webpack';
 import path from 'path';
+
+// Builds
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
+
+// Optimizations
+const TerserPlugin = require('terser-webpack-plugin');
+
 import 'webpack-dev-server';
 
 export default (env: {
@@ -14,6 +20,7 @@ export default (env: {
 	wsAdress?: string;
 }) => {
 	const mode = env.mode || 'development';
+	const isProd = mode === 'production'
 	const isWatch = env.watch === 'true' || false;
 	const adress = env.adress || 'localhost:8080';
 	const protocol = env.protocol || 'http';
@@ -77,9 +84,25 @@ export default (env: {
 				}),
 			],
 		},
+		
 		optimization: {
-			runtimeChunk: 'single',
+			minimize: isProd, // Enable minification
+			minimizer: [
+			  new TerserPlugin({
+				parallel: true, // Use multi-threading for faster minification
+				terserOptions: {
+				  ecma: 6, // Target ECMAScript 6
+				  output: {
+					comments: false, // Remove comments
+				  },
+				},
+			  }),
+			],
+			splitChunks: {
+			  chunks: 'all', // Split code into separate files for better caching
+			},
 		},
+		
 	};
 
 	return config;

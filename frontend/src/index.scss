@@ -51,6 +51,9 @@ table {
 	border-spacing: 0;
 }
 
+
+// Styles
+
 $pc-width: 1000px;
 $tablet-width: 700px;
 $mobile-width: 300px;
@@ -122,6 +125,8 @@ $color-top: #11344E;
     --huge-padding: 2.4rem;
     
     --color-dropdowns: #0E2643;
+    --color-error: #D56C6E;
+    --color-good: #59C454;
 }
 
 html {
@@ -129,6 +134,7 @@ html {
 }
 
 body {
+    overflow: hidden;
     font-size: 1.6rem;
     width: 100vw;
     height: 100dvh;

@@ -1,9 +1,10 @@
 import React, { FC } from 'react';
 import './input.scss';
-import { Paper, SxProps, TextFieldVariants, Theme, TextField as UIInput } from '@mui/material'
+import { SxProps, TextFieldVariants, Theme, TextField as UIInput } from '@mui/material'
 
 import CSS from 'csstype';
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 
 interface InputProps {
 	onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -22,6 +23,7 @@ interface InputProps {
 	border?:string,
 	specificRadius?: 'big-radius' | 'small-radius' | 'default',
 	specificPaddingInside?: 'big-padding' | 'small-padding' | 'default',
+	clearNeeded?: boolean,
 }
 
 export const Input: FC<InputProps> = ({
@@ -41,6 +43,7 @@ export const Input: FC<InputProps> = ({
 	border,
 	specificRadius,
 	specificPaddingInside,
+	clearNeeded,
 }) => {
 	let changeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	if (!disabled) {
@@ -61,7 +64,17 @@ export const Input: FC<InputProps> = ({
 			setPadding = 15
 	}
 
-	let cssPropsMain: SxProps<Theme> = {...style};
+	let cssPropsMain: SxProps<Theme> = {
+		...style, 
+		'& input[type="search"]::-webkit-search-cancel-button': {
+			"-webkit-appearance": 'none',
+			height: '0.8em',
+			width: '0.8em',
+			marginLeft: '.4em',
+			backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/></svg>")`,
+			cursor: 'pointer',
+		}
+	};
 	let cssPropsInput: CSS.Properties = {};
 
 	switch (specificRadius) {
@@ -83,6 +96,12 @@ export const Input: FC<InputProps> = ({
 				'& input[type=password]': {
 					padding: `${setPadding}px !important`, 
 				},
+				'& input[type=text]': {
+					padding: `${setPadding}px !important`, 
+				},
+				'& input[type="search"]::-webkit-search-cancel-button': {
+					color:'inherit',
+				}
 			}
 			cssPropsInput = {
 				fontSize: 'var(--ft-body)',
@@ -106,12 +125,30 @@ export const Input: FC<InputProps> = ({
 				'& input[type=password]': {
 					padding: `${setPadding}px !important`, 
 				},
+				'& input[type=text]': {
+					padding: `${setPadding}px !important`, 
+				},
+				'& input[type="search"]::-webkit-search-cancel-button': {
+					color:'inherit',
+				}
 			}
 			cssPropsInput = {
 				fontSize: 'var(--ft-body)',
 			}
 			break;
 		case 'default':
+			cssPropsMain = {
+				...cssPropsMain,
+				// '& input[type="search"]::-webkit-search-cancel-button': {
+				// 	"-webkit-appearance": 'none',
+				// 	height: '0.5em',
+				// 	width: '0.5em',
+				// 	marginLeft: '.4em',
+				// 	backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2' fill='%23777'><path d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/></svg>") no-repeat scroll 12px 12px`,
+				// 	cursor: 'pointer',
+				// 	backgroundSize: '12px',
+				// }
+			}
 		default:
 	}
 
@@ -141,6 +178,16 @@ export const Input: FC<InputProps> = ({
 				},
 			}}
 			onChange={changeHandler}
-		/>
+		>{clearNeeded 
+			? <CloseRoundedIcon 
+				fontSize='inherit' 
+				sx={{
+					color:"inherit",
+					position: 'absolute',
+					right: '5px',
+				}} 
+			/> 
+			: null} 
+		</UIInput>
 	);
 };

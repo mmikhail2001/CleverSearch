@@ -15,17 +15,40 @@
 
 	padding: var(--big-padding);
     padding-top: 3.7rem;
-	padding-right: 3.2rem;
-	padding-bottom: 3.2rem;
+
+	@media screen and (max-width: $pc-width) {
+		padding-right: var(--big-padding);
+		padding-bottom: var(--normal-padding);
+	}
+	@media screen and (min-width: $pc-width) {
+		padding-bottom: 3.2rem;
+		padding-right: 3.2rem;
+	}
+
 }
 
 .bottom-buttons {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-around;
-	background: var(--main-color-50);
 	padding: var(--normal-padding);
 	padding-bottom: var(--big-padding);
 
 	width: 100%;
+
+	font-size: 3.2rem;
+}
+
+
+.bottom-button {
+	height: 40px;
+    width: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+}
+
+.selected-bottom-button {
+    background: #1B509F;
 }

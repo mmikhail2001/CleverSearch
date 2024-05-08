@@ -12,7 +12,7 @@ interface ModalProps {
     bottomFrame?: React.ReactNode;
     isFullscreen?: boolean;
     isFullWidth?: boolean;
-    styleOnBackground?: CSS.Properties;
+    stylesOnContentBackground?: CSS.Properties;
     styleOnModal?: CSS.Properties;
 }
 
@@ -25,7 +25,7 @@ export const Modal: FC<ModalProps> = ({
     bottomFrame,
     isFullscreen,
     isFullWidth,
-    styleOnBackground,
+    stylesOnContentBackground,
     styleOnModal,
 }) => {
     const handleClose = (event: React.MouseEvent<HTMLElement>) => {
@@ -48,7 +48,7 @@ export const Modal: FC<ModalProps> = ({
             className={className}
             PaperProps={{style:{...styleOnModal}}}
         >
-            <DialogContent sx={{...styleOnBackground}}>
+            <DialogContent sx={{...stylesOnContentBackground}}>
                 {children}
             </DialogContent>
             {bottomFrame ?

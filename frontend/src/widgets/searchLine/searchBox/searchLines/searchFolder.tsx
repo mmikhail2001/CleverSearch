@@ -28,7 +28,9 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 		changeState({ ...state, dir: dirs })
 	}
 
-	const lastDir = state.dir && state.dir.length > 0 ? state.dir[state.dir.length - 1] : null
+	const emptyDir = !state.dir || state.dir.length === 0
+
+	const lastDir = !emptyDir ? state.dir[state.dir.length - 1] : null
 	const splitFolders = lastDir?.split('/')
 
 	return (
@@ -70,6 +72,7 @@ export const SearchFolderLine: FC<SearchFolderLineProps> = ({
 					}
 					return [{ label: '', value: '' }] as Option[];
 				}}
+				clear={emptyDir}
 			/>
 		</div>
 	);

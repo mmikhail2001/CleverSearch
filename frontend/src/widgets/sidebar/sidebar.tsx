@@ -2,9 +2,9 @@ import { useGetInternalFilesMutation, useGetSharedFilesMutation, usePushFileMuta
 import { useSearchMutation } from '@api/searchApi';
 import { TextWithInput } from '@feature/buttonWithInput/buttonWithInput';
 import { TextWithImg } from '@feature/textWithImg/textWithimg';
-import { diskTypes } from '@models/disk';
+import { diskImgSrc, diskTypes, isExternalDisk } from '@models/disk';
 import { useAppSelector } from '@store/store';
-import { switchDisk, switchToLoved, switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
+import { switchDisk, switchToExternal, switchToLoved, switchToProcessed, switchToShared, switchToShow } from '@store/whatToShow';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import './sidebar.scss';
@@ -12,7 +12,6 @@ import './sidebar.scss';
 import { Button } from '@entities/button/button';
 import { Drawer } from '@entities/drawer/drawer';
 import { PopOver } from '@entities/popover/popover';
-import { FileUploadNotification } from '@feature/fileUploadNotification/fileUploadNotification';
 import { Modal } from '@feature/modal/modal';
 import { debounce } from '@helpers/debounce';
 import { useLogout } from '@helpers/hooks/logout';
@@ -27,11 +26,12 @@ import { DiskView } from './diskView/diskView';
 import { FolderCreation } from './folderCreation/folderCreation';
 
 import { getDriveURLFront, getInternalURLFront } from '@helpers/transformsToURL';
-import RobotSVG from '@icons/Robot.svg';
 import AddIcon from '@mui/icons-material/Add';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import { isCorrectFormat } from '@helpers/isCorrectFormat';
+import { BottomButtons } from './bottomButtons';
+import { notificationBar } from '@helpers/notificationBar';
+import { DiskConnect } from '@widgets/diskConnect/diskConnect';
 
 interface SidebarProps {
 	width: string;
@@ -49,11 +49,10 @@ export const Sidebar: FC<SidebarProps> = ({
 	const { 
 		isSearch,
 		isShow,
-		isProccessed,
 		isShared,
-		isLoved,
 		whatDiskToShow,
-		} = useAppSelector((state) => state.whatToShow);
+		isExternal,
+	} = useAppSelector((state) => state.whatToShow);
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate()
@@ -73,35 +72,67 @@ export const Sidebar: FC<SidebarProps> = ({
 
 	const [isCreationPopOpen,setCreationPopOpen] = useState<boolean>(false)
 
-	useEffect(() =>{
-		if (sendResp && sendResp.isSuccess && filesWasSend) {
-			if (isSearch) {
-				search(param);
-			} else if (isShow) {
-				show(showReq.dir.join('/'));
-				dispatch(newValues({...showReq}))
-			} else if (isShared) {
-				showShared(showReq.dir.join('/'));
-				dispatch(newValues({...showReq}))
-			}
+	const refreshFiles = () => {
+		if (isSearch) {
+			search(param);
+		} else if(isShow || isExternal) {
+			show(showReq.dir.join('/'));
+			dispatch(newValues({...showReq}))
+		} else if (isShared) {
+			showShared(showReq.dir.join('/'));
+			dispatch(newValues({...showReq}))
+		}
+	}
 
-			setFilesWasSend(false)
+	const goToInternal = (disk?: string) => {
+		if (!isShow) {
+			dispatch(switchToShow())
 		}
 
+		const url = getInternalURLFront([])
+		navigate(url)
+		dispatch(newValues({...showReq,dir:[], disk: disk || 'internal'}))	
+		
+		return
+	}
+
+	useEffect(() =>{
+		if (sendResp && sendResp.isSuccess && filesWasSend) {
+			refreshFiles()
+			setFilesWasSend(false)
+		}
 	}, [filesWasSend,sendResp])
+
+	const diskToConnect = ():React.ReactNode | null => {
+		return Array.from(diskImgSrc)
+		.filter(val => val[1].diskName !== 'internal'
+			&& val[1].diskName !== 'own')
+		.map((val) => {
+			if (isExternalDisk(val[1])) {
+				return <DiskConnect classname='show-add-line' disk={val[1]} />
+			}
+			return null
+		})
+	}
 
 	const renderSidebar = (): React.ReactNode => {
 		return (
 			<>
-				<div className="sidebar" style={{ width: width }}>
+				<div 
+					className="sidebar"
+					style={{ width: width }}
+				>
 					<div className="our-name-place">
 						{isMobile ?
 							<UserProfile email={email} isDropdownExist={false} />
 							:
 							<Typography
-								onClick={() => dispatch(switchToShow())}
+								style={{cursor: 'pointer'}}
+								onClick={() => goToInternal()}
 								className={['our-name'].join(' ')}
-							>CleverSearch</Typography>
+							>
+								CleverSearch
+							</Typography>
 						}
 					</div>
 					<div className='button_sidebar'>
@@ -110,6 +141,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							styleMain={{width: '179px'}}
 							mainElement={
 								<Button
+									disabled={!(isShared || isShow)}
 									endIcon={<AddIcon fontSize='inherit'/>}
 									isFullSize={true}
 									fontSize={'var(--ft-paragraph)'}
@@ -144,6 +176,13 @@ export const Sidebar: FC<SidebarProps> = ({
 										}, 300);
 										
 										Array.from(files).forEach((file) => {
+											if (!isCorrectFormat(file.type)) {
+												notificationBar({
+													children: `File type not supported. Can't upload file: ${file.name}`,
+													variant: 'error'
+												})
+												return
+											}
 											const formData = new FormData();
 
 											formData.append('file', file, file.name);
@@ -156,43 +195,34 @@ export const Sidebar: FC<SidebarProps> = ({
 									disabled={false}
 								></TextWithInput>,
 								<FolderCreation
+									onClose={() => setCreationPopOpen(false)}
 									dirs={showReq.dir}
 									onFolderCreation={() => {
-										if (isSearch) {
-											search(param);
-										} else if(isShow) {
-											show(showReq.dir.join('/'));
-											dispatch(newValues({...showReq}))
-										} else if (isShared) {
-											showShared(showReq.dir.join('/'));
-											dispatch(newValues({...showReq}))
-										}
+										refreshFiles()
 										setCreationPopOpen(false)
 									}}
-								/>
+								/>,
+								diskToConnect()
 							]}
 						</PopOver>
 					</div>
 					<div className='disk-show'>
 						<DiskView
-							needSelect={isShow}
+							needSelect={isShow || isExternal}
+							externalView={isExternal}
 							setSelectedState={(disk: diskTypes | ConnectedClouds
 							) => {
 								dispatch(switchDisk(disk))
 
-								if (!isShow) {
-									dispatch(switchToShow())
-								}
-
 								if (typeof disk === 'string') {
-
-									const url = getInternalURLFront([])
-									navigate(url)
-									dispatch(newValues({...showReq,dir:[], disk: disk}))	
-									
+									goToInternal(disk)
 									return
 								}
-									
+								
+								if (!isExternal) {
+									dispatch(switchToExternal())
+								}
+
 								const email = disks.clouds.find((val) => val.disk === disk.disk).cloud_email
 								const url = getDriveURLFront([], email)
 								navigate(url)
@@ -200,38 +230,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							}}
 							nameOfSelectedDisk={typeof whatDiskToShow === 'string' ? whatDiskToShow : whatDiskToShow.disk}
 						/>
-						<TextWithImg
-							text="in process"
-							className={['text-with-img', 'work-in-progress', isProccessed ? 'selected' : '', 'text-with-img-row'].join(' ')}
-							imgSrc={<img src={RobotSVG} style={{color: 'inherit'}}/>}
-							altImgText="Робот"
-							onClick={() => {
-								dispatch(switchToProcessed());
-								dispatch(newValues({...showReq, disk: 'internal'}))
-								navigate('/uploaded')
-							}}
-						/>
-						<TextWithImg
-							text="shared"
-							className={['shared', isShared ? 'selected' : '', 'text-with-img-row'].join(' ')}
-							imgSrc={<PeopleAltIcon />} // TODO
-							altImgText="Картинка с двумя людьми"
-							onClick={() => {
-								dispatch(switchToShared())
-								dispatch(newValues({...showReq, disk: 'internal'}))
-								navigate('/shared')
-							}}
-						/>
-						<TextWithImg
-							text="favorites"
-							className={['loved', isLoved ? 'selected' : '', 'text-with-img-row'].join(' ')}
-							imgSrc={<FavoriteIcon sx={{color:"#FF4444", width:'var(--ft-paragraph)',height:'var(--ft-paragraph)'}}/>} 
-							altImgText="Сердце"
-							onClick={() => {
-								dispatch(switchToLoved())
-								navigate('/loved')
-							}}
-						/>
+						<BottomButtons/>
 					</div>
 					{isMobile
 						? <div style={{
@@ -240,7 +239,8 @@ export const Sidebar: FC<SidebarProps> = ({
 							marginTop: 'auto',
 							width: '100%',
 							fontSize: '2.4rem',
-						}}>
+						}}
+						>
 							<div onClick={logout} style={{
 								width: '100%',
 								alignItems: 'center',
@@ -262,8 +262,6 @@ export const Sidebar: FC<SidebarProps> = ({
 						</div >
 						: null
 					}
-					<FileUploadNotification
-					/>
 				</div >
 			</>
 		)
@@ -277,6 +275,10 @@ export const Sidebar: FC<SidebarProps> = ({
 				closeModal={() => toggleShow(false)}
 				isFullscreen={true}
 				className={''}
+				stylesOnContentBackground={{
+					background: 'linear-gradient(to bottom, #11344E, #700F49)',
+				}} 
+				styleOnModal={{color:"inherit"}}
 			>
 				{renderSidebar()}
 			</Modal>

@@ -25,6 +25,7 @@ export const SearchFileType: FC<SearchFileTypeLineProps> = ({
 		<div className="line">
 			<Typography fontSize={'var(--ft-body)'} className='line__name'>Type of file</Typography>
 			<SelectorMulti
+				clear={state.fileType && state.fileType.length === 0}
 				fontSize={fontSize}
 				placeholder='Any'
 				options={getFilesTypesToOptions()}

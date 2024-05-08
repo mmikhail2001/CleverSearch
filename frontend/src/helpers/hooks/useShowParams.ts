@@ -84,6 +84,7 @@ export const useShowDriveParams = () => {
             return
         } else {
             dispatch(switchDisk(disk))
+            dispatch(selectCloud(disk))
         }
 
         if (!

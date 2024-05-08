@@ -54,7 +54,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 
 	const { whatDisplay } = useMobile();
 
-	const {isShow} = useAppSelector(state => state.whatToShow)
+	const {isShow, isExternal} = useAppSelector(state => state.whatToShow)
 
 	const searchReq = useAppSelector(state => state.searchRequest)
 	const showReq = useAppSelector(state => state.showRequest)
@@ -72,11 +72,14 @@ export const SearchLine: FC<SearchLineProps> = ({
 		})
 	}, [searchReq])
 
-	if (isShow && !compareArrays(showReq.dir, searchValue.dir)){
-		setSearchValue({ ...searchValue, dir: showReq.dir })
-	}
+	useEffect(() => {
+		if ((isShow || isExternal) && !compareArrays(showReq.dir, searchValue.dir)){
+			setSearchValue({ ...searchValue, dir: showReq.dir })
+		}
+	}, [showReq.dir])
 
 	useEffect(() => {
+
 		setSearchValue({...searchValue, dir: searchReq.dir})
 	}, [])
 
@@ -138,7 +141,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 								setisBoxOpen(false)
 								onIconClick()
 							} }
-							style={{ fontSize: 'var(--ft-paragraph)' }}>
+							style={{ fontSize: 'var(--ft-pg-24)', paddingBottom: '25px' }}>
 							{whatDisplay === 1 ?
 								<SearchIcon fontSize='inherit' />
 								: <DehazeIcon sx={{ cursor: 'pointer' }} fontSize='inherit' />
@@ -146,7 +149,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 						</div>
 						<div className="search-text">
 							<Input
-								style={{backgroundColor: 'var(--color-active)'}}
+								style={{backgroundColor: 'var(--color-active)', color: 'inherit' }}
 								fontSize={'var(--ft-paragraph)'}
 								isFullWidth
 								variant='text'
