@@ -45,7 +45,7 @@ func (h *Handler) GetShering(w http.ResponseWriter, r *http.Request) {
 		}
 		err := h.usecase.AddSheringGrant(r.Context(), vars["dir_uuid"])
 		if err != nil {
-			log.Println("AddSheringGrant err", err)
+			log.Println("AddSheringGrant error:", err)
 			switch {
 			case errors.Is(err, fileDomain.ErrDirNotSharing):
 				w.WriteHeader(http.StatusBadRequest)
