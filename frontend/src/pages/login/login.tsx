@@ -9,6 +9,7 @@ import './login.scss';
 import React from 'react';
 import { Typography } from '@mui/material';
 import { notificationBar } from '@helpers/notificationBar';
+import { ShowInfoButton } from '@feature/showInfoButton/showInfoButton';
 
 interface LoginFormProps { }
 
@@ -62,7 +63,6 @@ export const LoginForm: FC<LoginFormProps> = () => {
 		}
 	}, [error])
 
-
 	return (
 		<div className='login-background'>
 			<div className="login-form">
@@ -108,8 +108,9 @@ export const LoginForm: FC<LoginFormProps> = () => {
 						disabled={!(loginField !== "" && passwordField !== "") || loginResp.isLoading}
 					/>
 					<Button
-						variant={'contained'}
-						buttonText="To Register page"
+						variant={'text'}
+						style={{justifyContent: 'center'}}
+						buttonText="Sign up"
 						isFullSize={true}
 						clickHandler={
 							() => {
@@ -119,7 +120,8 @@ export const LoginForm: FC<LoginFormProps> = () => {
 					/>
 				</div>
 			</div>
-		<div></div>
+			<div></div>
+			<ShowInfoButton></ShowInfoButton>
 		</div>
 	);
 };

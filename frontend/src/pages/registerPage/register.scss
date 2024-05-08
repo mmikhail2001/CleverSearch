@@ -9,6 +9,7 @@
     align-items: center;
     padding: 1rem;
     background: linear-gradient(to bottom, $color-top, $color-bottom);
+    overflow: auto;
 }
 
 .register-form {

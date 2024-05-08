@@ -81,6 +81,7 @@ export const FileWithModal: FC<FileWithModalProps> = ({
 				config={{
 					isDelete: canBeDeleted(file),
 					isShare: dirPath && dirPath.split('/').length == 2,
+					shareAccess: file.share_access,
 					isCanBeLoved: !file.is_dir,
 					isLoved: fileFav,
 				}}

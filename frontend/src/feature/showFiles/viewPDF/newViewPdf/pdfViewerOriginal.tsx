@@ -91,8 +91,7 @@ const PdfViewer: FC<PdfViewerProps> = ({
     width: `100%`,
     minWidth: '300px',
     height: '100%',
-    border: '1px solid #ccc',
-    background: '#ddd'
+    background: 'var(--color-dropdowns)'
   };
 
 
@@ -116,6 +115,7 @@ const PdfViewer: FC<PdfViewerProps> = ({
         height={internalHeight}
         itemCount={itemCount}
         itemSize={handleItemSize}
+        className='pdf-list-page'
       >
         {renderPage}
       </VariableSizeList>

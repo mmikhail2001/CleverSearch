@@ -70,7 +70,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 
 	return (
 		<div key={'rendered-list'} className='show-all-files' style={{height: height}}>
-			<div className='file-show-line' style={{cursor: 'default'}}>
+			<div className='file-show-line header-line' style={{cursor: 'default'}}>
 				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Name</Typography>
 				
 				{isMobile ? null 

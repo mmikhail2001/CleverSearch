@@ -146,12 +146,17 @@ export const Sidebar: FC<SidebarProps> = ({
 									isFullSize={true}
 									fontSize={'var(--ft-paragraph)'}
 									buttonText={'Add'} 
-									clickHandler={() => setCreationPopOpen(!isCreationPopOpen) } 
+									clickHandler={() => {
+										setCreationPopOpen(!isCreationPopOpen)} 
+									} 
 									variant={'contained'}								 
 								/>
 							}
 							open={isCreationPopOpen}
-							toggleOpen={setCreationPopOpen}
+							toggleOpen={(state) => {
+								if (!(isShared || isShow)) return
+								setCreationPopOpen(state)
+							}}
 							isCloseOnSelect={false}
 							variants='center'
 						>

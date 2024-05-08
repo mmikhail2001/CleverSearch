@@ -6,7 +6,10 @@ import { Typography } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useMobile } from 'src/mobileProvider';
 import { getAvatarByEmail } from '@api/userApi';
+
 import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
+import ModeRoundedIcon from '@mui/icons-material/ModeRounded';
+import LibraryBooksRoundedIcon from '@mui/icons-material/LibraryBooksRounded';
 
 interface FileShowProps {
 	iconSrc: string | React.ReactNode;
@@ -18,7 +21,13 @@ interface FileShowProps {
 	onDelete: () => void;
 	dirPath?: string
 	author: string,
-	config: { isDelete?: boolean, isShare?: boolean, isLoved?: boolean, isCanBeLoved?: boolean },
+	config: { 
+		isDelete?: boolean, 
+		isShare?: boolean, 
+		isLoved?: boolean, 
+		isCanBeLoved?: boolean,
+		shareAccess?: string,
+	},
 	onFavourite?: () => void,
 }
 
@@ -91,6 +100,38 @@ export const FileShow: FC<FileShowProps> = ({
 		</DropDown>
 	}
 
+	const renderShareIcon = (): null | React.ReactNode => {
+		if (!config.isShare || config.shareAccess === '') return null
+		switch(config.shareAccess) {
+			case 'writer': 
+			return <ModeRoundedIcon 
+					fontSize='medium' 
+					sx={{
+						borderRadius: '2.5rem',
+						color: 'var(--color-dropdowns)',
+						position: 'absolute',
+						top:"50%",
+						left: '50%',
+						transform: 'translate(-50%, -50%)',
+					}}
+				/>
+			case 'reader': 
+				return <LibraryBooksRoundedIcon 
+					fontSize='medium' 
+					sx={{
+						borderRadius: '2.5rem',
+						color: 'var(--color-dropdowns)',
+						position: 'absolute',
+						top:"50%",
+						left: '50%',
+						transform: 'translate(-50%, -50%)',
+					}}
+				/>
+			default:
+				return null
+		}
+	}
+
 	return (
 		<>
 			<div className="file-show-line" ref={ref} onClick={handleClickFile} >
@@ -114,6 +155,7 @@ export const FileShow: FC<FileShowProps> = ({
 							}}
 						/>
 						: null}
+						{renderShareIcon()}
 					</div>
 					<div className="filename-with-date">
 						<Typography fontSize={'var(--ft-body)'} className="filename">{filename}</Typography>
@@ -122,7 +164,6 @@ export const FileShow: FC<FileShowProps> = ({
 							?<Typography fontSize={'var(--ft-body)'} className="date">{date}</Typography>
 							:null 
 						}
-						
 					</div>
 				</div>
 				
