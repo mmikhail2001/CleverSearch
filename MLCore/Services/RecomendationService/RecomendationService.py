@@ -31,7 +31,10 @@ class SearchService():
                 'user_id': kwargs['user_id']
             }
 
-            data_array = self.get_data_array(params)
+            try:
+                data_array = self.get_data_array(params)
+            except:
+                continue
 
             text_processor = TextProcessor()
             query_emb = [text_processor.process_query_string(kwargs['query'])]
