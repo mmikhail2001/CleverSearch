@@ -653,9 +653,8 @@ func (uc *Usecase) AddSheringGrant(ctx context.Context, fileID string) error {
 		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
 		return sharederrors.ErrUserNotFoundInContext
 	}
-
-	log.Println("fileID = ", fileID)
-	log.Println("userID = ", user.ID)
+	// log.Println("fileID = ", fileID)
+	// log.Println("userID = ", user.ID)
 
 	if file.IsShareByEmail {
 		sharedDir, err := uc.repo.GetSharedDir(ctx, fileID, user.ID)
@@ -677,6 +676,7 @@ func (uc *Usecase) AddSheringGrant(ctx context.Context, fileID string) error {
 		return nil
 	} else {
 		_, err := uc.repo.GetSharedDir(ctx, fileID, user.ID)
+		log.Println("GetSharedDir, err:", err)
 		if err != nil {
 			if errors.Is(err, fileDomain.ErrNotFound) {
 				sharedDir := fileDomain.SharedDir{
@@ -697,6 +697,7 @@ func (uc *Usecase) AddSheringGrant(ctx context.Context, fileID string) error {
 			log.Println("GetSharedDir err:", err)
 			return err
 		}
+		log.Println("GetSharedDir, return nil")
 		return nil
 	}
 	// return uc.repo.AddUserToSharingDir(ctx, file, user.ID, file.ShareAccess)
