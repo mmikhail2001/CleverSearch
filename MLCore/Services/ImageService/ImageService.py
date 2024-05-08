@@ -67,7 +67,7 @@ class ImageService(IDataService):
 
     def __insert_text_repr_data(self, document, text_embeddings):
 
-        emds_vec = [embd.tolist()[0] for embd in text_embeddings]
+        emds_vec = [embd[0] for embd in text_embeddings]
 
         upd_query = {
             '$set':
