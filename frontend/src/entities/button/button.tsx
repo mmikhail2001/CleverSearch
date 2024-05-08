@@ -82,7 +82,6 @@ export const Button: FC<ButtonProps> = ({
 		...style,
 		textTransform: 'none',
 		fontSize: fontSize,
-		justifyContent: variant === 'text' ? 'start' : null,
 		padding: variant === 'text' ? '0' : null,
 	};
 

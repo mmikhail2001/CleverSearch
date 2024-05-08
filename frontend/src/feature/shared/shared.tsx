@@ -49,17 +49,21 @@ const useCopyState = (): [boolean, () => void] => {
 
 const generatedLinkField = (isCopied:boolean, setCopied: () => void, navigator: Navigator, link:string): React.ReactNode => {
     return (
-        <div>
-            <p>Link:</p>
-            <p onClick={(e) => {
-                e.preventDefault()
-                setCopied()
-                navigator.clipboard
-                    .writeText(`${process.env.protocol}://${process.env.adress}` +
-                    link)
-            }}>
+        <div style={{display: 'flex', flexDirection: 'column', gap: "8px"}}>
+            <Typography fontSize={'var(--ft-body)'}>Link:</Typography>
+            <Typography
+                fontSize={'var(--ft-body)'} 
+                onClick={(e) => {
+                    e.preventDefault()
+                    setCopied()
+                    navigator.clipboard
+                        .writeText(`${process.env.protocol}://${process.env.adress}` +
+                        link)
+                }}
+                style={{ paddingBottom: '6px'}}
+            >
                 {`${process.env.protocol}://${process.env.adress}` + link}
-            </p>
+            </Typography>
             {isCopied ? <div style={{ position: 'absolute' }}>Link copied to clipboard!</div> : null}
         </div>)
 }
@@ -73,10 +77,15 @@ const getSharedSuccess = (
     emails: string[],
 ):React.ReactNode => {
     let accessShowOut = accessType === 'writer' ? 'Writer' : 'Reader'
-    return <div style={{display:"flex", gap:'1rem', flexDirection: 'column'}}>
-        <Typography fontSize={'var(--ft-body)'}>
-            Role given: {accessShowOut}
-        </Typography>
+    return <div style={{display:"flex", gap:'1.2rem', flexDirection: 'column'}}>
+        <div style={{display: 'flex', flexDirection:'row', gap: '8px'}}>
+            <Typography fontSize={'var(--ft-body)'}>
+                Role given:
+            </Typography>
+            <Typography fontSize={'var(--ft-body)'} >
+                {accessShowOut}
+            </Typography>
+        </div>
         {getEmailShow(emails, () => {}, false)}
         {generatedLinkField(isCopied,setCopied, navigator, link)}
         <div style={{
@@ -114,12 +123,15 @@ const getEmailShow = (
             <Typography fontSize={'var(--ft-body)'}>
                 Access given:
             </Typography>
-            <List 
+            <List
+                className='email-list'
                 marker={'disc'}
                 style={{
-                    maxHeight: 'calc(3 * calc(var(--ft-body) + 0.2rem))',
+                    maxHeight: 'calc(3 * calc(var(--ft-body) + 2.6rem))',
                     overflowY: 'auto',
                     color:"inherit",
+                    gap: "8px",
+                    display: 'flex',
                 }}
             >
                 {emails.map(val => (
@@ -196,34 +208,50 @@ export const Shared: FC<SharedProps> = ({
                 </div>
                 {shareByEmail ? 
                 <>
-                    <Input
-                        isFullWidth={true}
-                        disabled={false}
-                        fontSize='var(--ft-body)'
-                        onChange={(e) => {
-                            e.preventDefault()
-                            setCurrentEmail(e.target.value)
-                        }
-                        }
-                        onKeyDown={(e) => {
-                            if (e.key.toLowerCase() === 'enter') {
+                    <div style={{display:'flex', flexDirection: 'row', gap: "8px"}}>
+                        <Input
+                            removeFocusedBorder={true}
+                            isFullWidth={true}
+                            disabled={false}
+                            fontSize='var(--ft-body)'
+                            onChange={(e) => {
+                                e.preventDefault()
+                                setCurrentEmail(e.target.value)
+                            }
+                            }
+                            onKeyDown={(e) => {
+                                if (e.key.toLowerCase() === 'enter') {
+                                    if (currentEmail === '') return
+                                    setEmail([...emails, currentEmail])
+                                    setCurrentEmail('')
+                                }
+                            }}
+                            placeholder={'Emails'}
+                            type={'email'}
+                            value={currentEmail}
+                            specificRadius={'small-radius'}
+                        ></Input>
+                        <Button
+                            disabled={currentEmail === ''}
+                            style={{width: '20%', color: 'inherit'}}
+                            buttonText={'Add'} 
+                            clickHandler={() => {
                                 setEmail([...emails, currentEmail])
                                 setCurrentEmail('')
-                            }
-                        }}
-                        placeholder={'Emails'}
-                        type={'email'}
-                        value={currentEmail}
-                        specificRadius={'big-radius'}
-                    ></Input>
+                            }} 
+                            variant={'text'}                        
+                        />
+                    </div>
                     {getEmailShow(emails, (newEmails) => setEmail(newEmails), true)}
                 </>
                 : null
                 }
                 <SelectorMulti
+                    removeFocusedBorder={true}
                     height='44.38px'
                     fontSize='var(--ft-body)'
                     isMulti={false}
+                    borderRadius='small'
                     options={[
                         { label: 'Writer', value: 'writer' },
                         { label: 'Reader', value: 'reader' }

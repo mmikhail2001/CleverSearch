@@ -1,22 +1,27 @@
 .PdfPage {
   position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+}
+.pdf-list-page::-webkit-scrollbar {
+  width: 12px;
 }
 
-// .PdfPage__textLayer {
-//   position: absolute;
-//   left: 0;
-//   top: 0;
-//   right: 0;
-//   bottom: 0;
-//   overflow: hidden;
-//   opacity: 0.2;
-//   line-height: 1;
-// }
+/* Track */
+.pdf-list-page::-webkit-scrollbar-track {
+  border-radius: 2.5rem;
+  background: #1E1B24;
+}
 
-// .PdfPage__textLayer > span {
-//   color: transparent;
-//   position: absolute;
-//   white-space: pre;
-//   cursor: text;
-//   transform-origin: 0% 0%;
-// }
+/* Handle */
+.pdf-list-page::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.6); 
+  border-radius: 2.5rem
+}
+
+/* Handle on hover */
+.pdf-list-page::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.4); 
+}

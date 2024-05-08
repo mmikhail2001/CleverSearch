@@ -16,8 +16,10 @@ export interface BreadCrumpsProps {
 export const BreadCrumps: FC<BreadCrumpsProps> = ({ dirs, reactOnElements }) => {
     return <div className='bread-crumbs-container'>
         <Breadcrumbs
-            sx={{color:'inherit'}}
             separator={<Typography sx={{color:'inherit'}} fontSize={'var(--ft-pg-24)'}>/</Typography>}
+            sx={{
+                    color:'inherit'
+            }}
         >
             {
                 dirs.map((value, index) => {
@@ -25,10 +27,13 @@ export const BreadCrumps: FC<BreadCrumpsProps> = ({ dirs, reactOnElements }) => 
 
                     return <Typography
                         fontSize={'var(--ft-pg-24)'}
+                        className={dirs.length !== index + 1 ? 'breadcrump-element': ''}
                         sx={{
                             cursor: dirs.length !== index + 1 ? 'pointer' : 'default',
                             color: 'inherit',
-                            paddingRight: index === 0 ? '8px' : null,
+                            marginRight: index === 0 ? '8px' : null,
+                            paddingRight: '4px',
+                            paddingLeft: '4px',
                             fontWeight: index === 0 ? '600' : null,
                         }}
                         key={value}

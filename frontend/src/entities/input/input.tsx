@@ -24,6 +24,7 @@ interface InputProps {
 	specificRadius?: 'big-radius' | 'small-radius' | 'default',
 	specificPaddingInside?: 'big-padding' | 'small-padding' | 'default',
 	clearNeeded?: boolean,
+	removeFocusedBorder?: boolean,
 }
 
 export const Input: FC<InputProps> = ({
@@ -44,6 +45,7 @@ export const Input: FC<InputProps> = ({
 	specificRadius,
 	specificPaddingInside,
 	clearNeeded,
+	removeFocusedBorder,
 }) => {
 	let changeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	if (!disabled) {
@@ -83,7 +85,7 @@ export const Input: FC<InputProps> = ({
 				...cssPropsMain,
 				color:'inherit',
 				"& .Mui-focused": {
-					border: '1px solid rgba(255,255,255,1)',
+					border: removeFocusedBorder? 'none': '1px solid rgba(255,255,255,1)',
 					outline:"none",
 				},
 				'& .MuiOutlinedInput-notchedOutline': {
@@ -101,6 +103,9 @@ export const Input: FC<InputProps> = ({
 				},
 				'& input[type="search"]::-webkit-search-cancel-button': {
 					color:'inherit',
+				},
+				'& fieldset': {
+					borderRadius: 'var(--big-radius)',
 				}
 			}
 			cssPropsInput = {
@@ -112,7 +117,7 @@ export const Input: FC<InputProps> = ({
 				...cssPropsMain,
 				color:'inherit',
 				"& .Mui-focused": {
-					border: '1px solid rgba(255,255,255,1)',
+					border: removeFocusedBorder? 'none': '1px solid rgba(255,255,255,1)',
 					outline:"none",
 				},
 				'& .MuiOutlinedInput-notchedOutline': {
@@ -130,6 +135,9 @@ export const Input: FC<InputProps> = ({
 				},
 				'& input[type="search"]::-webkit-search-cancel-button': {
 					color:'inherit',
+				},
+				'& fieldset': {
+					borderRadius: 'var(--small-radius)',
 				}
 			}
 			cssPropsInput = {
@@ -139,15 +147,6 @@ export const Input: FC<InputProps> = ({
 		case 'default':
 			cssPropsMain = {
 				...cssPropsMain,
-				// '& input[type="search"]::-webkit-search-cancel-button': {
-				// 	"-webkit-appearance": 'none',
-				// 	height: '0.5em',
-				// 	width: '0.5em',
-				// 	marginLeft: '.4em',
-				// 	backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2' fill='%23777'><path d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/></svg>") no-repeat scroll 12px 12px`,
-				// 	cursor: 'pointer',
-				// 	backgroundSize: '12px',
-				// }
 			}
 		default:
 	}

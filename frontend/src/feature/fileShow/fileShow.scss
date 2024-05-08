@@ -20,6 +20,9 @@
   align-content: center;
 
   cursor: pointer;
+  
+  border-radius: var(--small-radius);
+  padding-left: 0.5rem;
  };
 
 .icon-placement {
@@ -43,6 +46,10 @@
   @media screen and (min-width: $pc-width) {
     flex-direction: row;
   }
+}
+
+.file-show-line:hover {
+  background-color: rgb(50, 53, 72);
 }
 
 .icon {

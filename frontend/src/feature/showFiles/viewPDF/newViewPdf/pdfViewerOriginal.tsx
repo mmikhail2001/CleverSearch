@@ -14,7 +14,6 @@ export interface PdfViewerProps {
   onLoad: () => void
 }
 
-
 const PdfViewer: FC<PdfViewerProps> = ({
   itemCount,
   getPdfPage,
@@ -26,11 +25,23 @@ const PdfViewer: FC<PdfViewerProps> = ({
   const [pages, setPages] = useState([] as PDFPageProxy[]);
   const listRef = useRef<VariableSizeList>();
 
+  
   const {
     ref,
     width: internalWidth = 400,
     height: internalHeight = 900
   } = useResizeObserver();
+  
+  const [widthToSet, setWidthToSet] = useState(internalWidth)
+
+  useEffect(() => {
+    const maxWidth = pages.reduce((prev, current) => {
+      let currentWidth = current.getViewport().viewBox[2]
+      return currentWidth > prev ? currentWidth : prev
+    },0)
+    if (widthToSet !== maxWidth)
+      setWidthToSet(maxWidth)
+  }, [pages])
 
   const fetchPage = useCallback(
     (index: number) => {
@@ -77,10 +88,10 @@ const PdfViewer: FC<PdfViewerProps> = ({
 
   // TODO replace with class
   const style = {
-    width: '100%',
+    width: `100%`,
+    minWidth: '300px',
     height: '100%',
-    border: '1px solid #ccc',
-    background: '#ddd'
+    background: 'var(--color-dropdowns)'
   };
 
 
@@ -88,20 +99,23 @@ const PdfViewer: FC<PdfViewerProps> = ({
     fetchPage(index);
     return (
       // @ts-expect-error HACK
-      <Page style={style}>
+      <Page style={{...style, width:`fit-content`}}>
         <PdfPage page={pages[index]} scale={scale} />
       </Page>
     );
   }
 
+  const settedWidth = widthToSet * scale + 20 < 330 ? `330px` : `calc(calc(${widthToSet}px * var(--scale-factor)) + ${30}px)`
+
   return (
-    <div className="pdf-viewer" ref={ref} style={style}>
+    <div className="pdf-viewer" ref={ref} style={{...style, width: "fit-content", maxWidth: '100%'}}>
       <VariableSizeList
         ref={handleListRef}
-        width={internalWidth}
+        width={settedWidth}
         height={internalHeight}
         itemCount={itemCount}
         itemSize={handleItemSize}
+        className='pdf-list-page'
       >
         {renderPage}
       </VariableSizeList>

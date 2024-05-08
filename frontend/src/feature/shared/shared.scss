@@ -13,3 +13,28 @@
     background-color: var(--color-dropdowns);
     align-items: center;
 }
+
+.email-list {
+
+}
+
+.email-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+/* Track */
+.email-list::-webkit-scrollbar-track {
+    border-radius: 2.5rem;
+    background: #1E1B24;
+}
+
+/* Handle */
+.email-list::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.6); 
+    border-radius: 2.5rem
+}
+
+/* Handle on hover */
+.email-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.4); 
+}

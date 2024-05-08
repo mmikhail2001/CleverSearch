@@ -146,12 +146,17 @@ export const Sidebar: FC<SidebarProps> = ({
 									isFullSize={true}
 									fontSize={'var(--ft-paragraph)'}
 									buttonText={'Add'} 
-									clickHandler={() => setCreationPopOpen(!isCreationPopOpen) } 
+									clickHandler={() => {
+										setCreationPopOpen(!isCreationPopOpen)} 
+									} 
 									variant={'contained'}								 
 								/>
 							}
 							open={isCreationPopOpen}
-							toggleOpen={setCreationPopOpen}
+							toggleOpen={(state) => {
+								if (!(isShared || isShow)) return
+								setCreationPopOpen(state)
+							}}
 							isCloseOnSelect={false}
 							variants='center'
 						>
@@ -241,24 +246,16 @@ export const Sidebar: FC<SidebarProps> = ({
 							fontSize: '2.4rem',
 						}}
 						>
-							<div onClick={logout} style={{
-								width: '100%',
-								alignItems: 'center',
-								display: 'flex',
-								flexDirection: 'column',
-							}}>
-								<LogoutIcon fontSize='inherit' />
-								<Typography fontSize={'var(--ft-body)'}>Выйти</Typography>
-							</div>
-							<div onClick={() => toggleShow(!isOpen)} style={{
-								width: '100%',
-								alignItems: 'center',
-								display: 'flex',
-								flexDirection: 'column',
-							}}>
-								<KeyboardReturnIcon fontSize='inherit' />
-								<Typography fontSize={'var(--ft-body)'}>Вернуться</Typography>
-							</div>
+							<Button 
+								buttonText={'Logout'}
+								clickHandler={logout} 
+								variant={'contained'}
+							></Button>
+							<Button 
+								buttonText={'Back to main'}
+								clickHandler={() => toggleShow(!isOpen)} 
+								variant={'contained'}
+							></Button>
 						</div >
 						: null
 					}

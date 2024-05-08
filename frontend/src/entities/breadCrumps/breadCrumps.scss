@@ -12,3 +12,8 @@
     width: 70%;
     border-radius: var(--small-radius);
 }
+
+.breadcrump-element:hover {
+    background: rgba(157, 171, 182, 0.45);
+    border-radius: var(--small-radius);
+}

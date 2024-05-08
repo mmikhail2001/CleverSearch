@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import './register.scss';
 import { Typography } from '@mui/material';
 import { notificationBar } from '@helpers/notificationBar';
+import { ShowInfoButton } from '@feature/showInfoButton/showInfoButton';
 
 interface RegisterProps { }
 
@@ -114,9 +115,10 @@ export const RegisterForm: FC<RegisterProps> = () => {
 						}
 					/>
 					<Button
-						variant={'contained'}
-						buttonText="To Login page"
+						variant={'text'}
+						buttonText="Sign in"
 						isFullSize={true}
+						style={{justifyContent: 'center'}}
 						clickHandler={
 							() => {
 								navigate('/login')
@@ -127,6 +129,7 @@ export const RegisterForm: FC<RegisterProps> = () => {
 				</div>
 			</div>
 			<div></div>
+			<ShowInfoButton></ShowInfoButton>
 		</div>
 	);
 };

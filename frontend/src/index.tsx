@@ -38,7 +38,7 @@ const root = ReactDOM.createRoot(
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
 
 root.render(
-	<React.StrictMode>
+	// <React.StrictMode>
 		<Provider store={store}>
 			<BrowserRouter>
 				<AuthProvider>
@@ -65,5 +65,5 @@ root.render(
 				</AuthProvider>
 			</BrowserRouter>
 		</Provider>
-	</React.StrictMode>
+	// </React.StrictMode> 
 );

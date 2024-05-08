@@ -11,6 +11,7 @@ import './selector.scss';
 
 import ArrowDropDownRoundedIcon from '@mui/icons-material/ArrowDropDownRounded';
 import ArrowDropUpRoundedIcon from '@mui/icons-material/ArrowDropUpRounded';
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
 // https://react-select.com/components
 // https://www.youtube.com/watch?v=3u_ulMvTYZI&t=269s&ab_channel=MonsterlessonsAcademy
@@ -31,6 +32,8 @@ interface SelectorMultiProps {
 	menuStyle?: CSS.Properties,
 	height?: string,
 	clear?: boolean,
+	borderRadius?: 'big' | 'small',
+	removeFocusedBorder?: boolean,
 }
 
 const ITEM_HEIGHT = 48;
@@ -63,6 +66,8 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 	menuStyle,
 	height,
 	clear,
+	borderRadius,
+	removeFocusedBorder,
 }) => {
 	const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
 	const [isOpen, setOpen] = useState(false)
@@ -113,6 +118,8 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 		}
 	}, [clear])
 
+	if (isNullOrUndefined(borderRadius)) borderRadius = 'big'
+
 	const renderInput = () => {
 		return (
 			<OutlinedInput
@@ -159,17 +166,17 @@ export const SelectorMulti: FC<SelectorMultiProps> = ({
 				sx={{ 
 					fontSize: fontSize,
 					height: '100%',
-					borderRadius: "var(--big-radius)",
+					borderRadius: borderRadius === 'big' ? "var(--big-radius)" : "var(--small-radius)",
 					paddingLeft: '20px',
 					color: 'inherit',
 					border: '1px solid rgba(255,255,255,0.4)',
 					"& .Mui-focused": {
-						border: '1px solid rgba(255,255,255,1)',
+						border: removeFocusedBorder ? null : '1px solid rgba(255,255,255,1)',
 						outline:"none",
 					},
 					'& .MuiOutlinedInput-notchedOutline': {
 						outline: 'none',
-						borderColor: 'rgba(255,255,255,0.4) !important',
+						borderColor: removeFocusedBorder ? 'rgba(255,255,255,0) !important' : 'rgba(255,255,255,0.4) !important',
 					},
 					'& .MuiSelect-icon': {
 						color: 'inherit',
