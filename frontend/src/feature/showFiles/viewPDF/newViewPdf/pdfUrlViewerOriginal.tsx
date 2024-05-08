@@ -75,8 +75,8 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
           alignItems: 'center',
         }}>
           {controls(
-            () => setsettedScale(p => p - 0.25),
             () => setsettedScale(p => p + 0.25),
+            () => setsettedScale(p => p - 0.25),
             settedScale
           )}
         </div>

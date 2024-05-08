@@ -30,7 +30,6 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     useEffect(() => {
         if (isSearch 
         ) {
-            console.log("SEARCH???")
             search(searchParams)
         }
     }, [searchParams])
