@@ -3,6 +3,7 @@ package static
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"os"
 
@@ -44,6 +45,7 @@ func (h *Handler) GetShering(w http.ResponseWriter, r *http.Request) {
 		}
 		err := h.usecase.AddSheringGrant(r.Context(), vars["dir_uuid"])
 		if err != nil {
+			log.Println("AddSheringGrant err", err)
 			switch {
 			case errors.Is(err, fileDomain.ErrDirNotSharing):
 				w.WriteHeader(http.StatusBadRequest)
