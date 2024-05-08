@@ -63,7 +63,16 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	const isMobile = whatDisplay !== 1
 
 	if (isError) {
-			return <h1>{getErrorMessageFromErroResp(error)}</h1>;
+			return <Typography fontSize={'var(--ft-pg-24)'}
+				style={{
+					display:'flex',
+					width: '100%',
+					justifyContent: 'center',
+					marginTop: '2rem',
+				}}
+			>
+				{getErrorMessageFromErroResp(error)}
+				</Typography>;
 		}
 
 	if (isLoading) {

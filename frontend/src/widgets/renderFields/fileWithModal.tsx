@@ -19,6 +19,7 @@ export const FileWithModal: FC<FileWithModalProps> = ({
 }) => {
 	const [deleteFavourite, respDeleteFavourite] = useDeleteToFavouriteMutation()
 	const [addFavourite, respAddFavourite] = useAddToFavouriteMutation()
+	const {email} = useAppSelector(state => state.userAuth)
 
 	const [isOpen, setOpen] = useState(false)
 
@@ -31,8 +32,8 @@ export const FileWithModal: FC<FileWithModalProps> = ({
 	const {isLoved} = useAppSelector(state => state.whatToShow)
 
 	const canBeDeleted = (file: fileFile): boolean => {
-		return !file.is_shared
-			|| file.is_shared && file.share_access === 'writer'
+		return (!file.is_shared
+			|| file.is_shared && file.share_access === 'writer') && file.email === email || file.email === email
 	}
 
 	let fileFav: boolean;

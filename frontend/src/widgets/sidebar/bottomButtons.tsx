@@ -9,7 +9,8 @@ import RobotSVG from '@icons/Robot.svg';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { switchToLoved, switchToProcessed, switchToShared } from '@store/whatToShow';
-
+import { useMobile } from 'src/mobileProvider';
+import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 
 interface BottomButtonsProps {
 }
@@ -26,6 +27,9 @@ export const BottomButtons: FC<BottomButtonsProps> = ({
 		isShared,
 		isLoved,
 	} = useAppSelector((state) => state.whatToShow);
+
+    const {whatDisplay} = useMobile()
+    const isMobile = whatDisplay !== 1
 
     return (
         <>
@@ -61,6 +65,18 @@ export const BottomButtons: FC<BottomButtonsProps> = ({
                     navigate('/loved')
                 }}
             />
+            {isMobile ? 
+            <TextWithImg
+                text="settings"
+                className={['settings-button', isLoved ? 'selected' : '', 'text-with-img-row'].join(' ')}
+                imgSrc={<SettingsRoundedIcon sx={{color:"inherit", width:'var(--ft-paragraph)', height:'var(--ft-paragraph)'}}/>} 
+                altImgText="Сердце"
+                onClick={() => {
+                    navigate('/settings')
+                }}
+            />
+            :null}
+
         </>
     )
 };

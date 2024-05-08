@@ -30,7 +30,6 @@ export const LoginForm: FC<LoginFormProps> = () => {
 	}
 	
 	useEffect(() => {
-		console.log(loginResp)
 		if (loginResp.isError 
 			&& 'status' in loginResp.error
 			&& loginResp.error.status === 500
