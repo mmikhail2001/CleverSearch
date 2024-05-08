@@ -13,6 +13,7 @@ import AccessibleForwardRoundedIcon from '@mui/icons-material/AccessibleForwardR
 import { fileFile } from '@models/files';
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
+import CircularProgress from '@mui/material/CircularProgress';
 import NothingSVG from '@icons/Nothing.svg'
 
 import {renderReturns, getDirProps, getPdfProps, getVideoProps, getImageProps} from '@helpers/getPropsForFile'
@@ -25,6 +26,28 @@ export interface RenderFieldsProps {
 	isLoading: boolean,
 	deleteFile: (fileName: string, accessRights: AccessRights) => void,
 	openFolder: (dirToShow: string[], diskToShow: diskTypes | ConnectedClouds) => void,
+}
+
+const renderHeader = (isMobile: boolean):React.ReactNode => {
+	return (
+		<div className='file-show-line header-line' style={{cursor: 'default'}}>
+			<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Name</Typography>
+			
+			{isMobile ? null 
+			: <Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Created date</Typography>
+			}
+			
+			<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Author</Typography>
+			
+			{isMobile 
+			? null 
+			:<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Size</Typography>
+			
+			}
+			<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}></Typography>
+			
+		</div>
+	)
 }
 
 export const RenderFields: FC<RenderFieldsProps> = ({
@@ -43,7 +66,22 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 			return <h1>{getErrorMessageFromErroResp(error)}</h1>;
 		}
 
-	if (isNullOrUndefined(data) || !data || data.length === 0) {
+	if (isLoading) {
+		return (
+			<div key={'rendered-list'} className='show-all-files' style={{height: height}}>
+				{renderHeader(isMobile)}
+				<div style={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}>
+					<CircularProgress color='inherit' />
+				</div>
+			</div>
+		)
+	}
+
+	if ((isNullOrUndefined(data) || !data || data.length === 0) && !isLoading) {
 		return <div className='show-all-files' style={{fontSize: 'var(--ft-body-plus)'}}>
 				<div style={{
 					width: '100%',
@@ -70,23 +108,7 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 
 	return (
 		<div key={'rendered-list'} className='show-all-files' style={{height: height}}>
-			<div className='file-show-line header-line' style={{cursor: 'default'}}>
-				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Name</Typography>
-				
-				{isMobile ? null 
-				: <Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Created date</Typography>
-				}
-				
-				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Author</Typography>
-				
-				{isMobile 
-				? null 
-				:<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Size</Typography>
-				
-				}
-				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}></Typography>
-				
-			</div>
+			{renderHeader(isMobile)}
 			{data.map((file) => {
 				const getFileProps = (file: fileFile, isOpen: boolean, changeState: (isOpen: boolean) => void): renderReturns => {
 					let fileProp: renderReturns;

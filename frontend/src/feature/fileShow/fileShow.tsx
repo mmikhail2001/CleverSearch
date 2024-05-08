@@ -132,6 +132,7 @@ export const FileShow: FC<FileShowProps> = ({
 		}
 	}
 
+	console.log("filename", filename, config)
 	return (
 		<>
 			<div className="file-show-line" ref={ref} onClick={handleClickFile} >
