@@ -30,13 +30,11 @@ import (
 // в доменную сущность поместился Conn *websocket.Conn
 // конфиг файл
 // контексты, таймауты
+// метрики
 
 // можно ли беку следить, как мл обрабатывает очередь ? нужно ли?
 
 // конверт png, txt to jpg, pdf
-
-// apiAuth.HandleFunc("/files/upload", fileHandler.UploadFile).Methods("POST")
-// apiAuth.HandleFunc("/files/delete", fileHandler.DeleteFiles).Methods("POST")
 
 // удаление sharing папки (??????????7)
 
@@ -99,7 +97,7 @@ func Run() error {
 	fileUsecase := fileUsecase.NewUsecase(fileRepo, notifyUsecase, userUsecase)
 	cloudUsecase := cloudUsecase.NewUsecase(oauthConfig, fileRepo, fileUsecase, userRepo)
 
-	go fileUsecase.Async()
+	go fileUsecase.AsyncSendToQueue()
 
 	staticHandler := staticDelivery.NewHandler(staticDir, fileUsecase)
 	userHandler := userDelivery.NewHandler(userUsecase, cloudUsecase)
@@ -112,6 +110,7 @@ func Run() error {
 	r := mux.NewRouter()
 	headers := handlers.AllowedHeaders([]string{"Content-Type"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST"})
+	// TODO: not secure
 	origins := handlers.AllowedOrigins([]string{"*"})
 	r.Use(handlers.CORS(headers, methods, origins))
 	r.Use(middleware.AccessLogMiddleware)
@@ -125,7 +124,7 @@ func Run() error {
 	minioRouter.Use(middleware.AuthMiddleware)
 
 	// запрос на скачиваение файлы
-	// TODO: nginx выполняет
+	// TODO: nginx выполняет, т.к. bucket публичный
 	minioRouter.HandleFunc("/{path:.*}", fileHandler.DownloadFile).Methods("GET")
 
 	api := r.PathPrefix("/api").Subrouter()
@@ -136,8 +135,8 @@ func Run() error {
 
 	filesMLRouter := api.Methods("GET").Subrouter()
 	filesMLRouter.Use(middleware.GetUserIDMiddleware)
+	// deprecated
 	filesMLRouter.HandleFunc("/ml/files", fileHandler.GetFiles).Methods("GET")
-
 	apiAuth.HandleFunc("/files", fileHandler.GetFiles).Methods("GET")
 	apiAuth.HandleFunc("/files/search", fileHandler.GetFiles).Methods("GET")
 
@@ -166,6 +165,7 @@ func Run() error {
 	apiAuth.HandleFunc("/dirs/create", fileHandler.CreateDir).Methods("POST")
 	apiAuth.HandleFunc("/dirs/share", fileHandler.ShareDir).Methods("POST")
 
+	apiAuth.HandleFunc("/users/emails/check", userHandler.CheckEmails).Methods("GET")
 	apiAuth.HandleFunc("/users/profile", userHandler.Profile).Methods("GET")
 	api.HandleFunc("/users/logout", userHandler.Logout).Methods("POST")
 	api.HandleFunc("/users/login", userHandler.Login).Methods("POST")
@@ -178,7 +178,7 @@ func Run() error {
 	apiAuth.HandleFunc("/ws", notifyHandler.ConnectNotifications).Methods("GET")
 
 	shareLinkRouter := r.Methods("GET").Subrouter()
-	shareLinkRouter.Use(middleware.AuthMiddleware)
+	shareLinkRouter.Use(middleware.AuthMiddlewareSoft)
 	shareLinkRouter.HandleFunc("/dirs/{dir_uuid}", staticHandler.GetShering).Methods("GET")
 
 	r.PathPrefix("/").HandlerFunc(staticHandler.GetStatic)

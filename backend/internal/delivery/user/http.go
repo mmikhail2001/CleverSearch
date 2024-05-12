@@ -12,6 +12,7 @@ import (
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/cleveruser"
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
+	"github.com/dranikpg/dto-mapper"
 	"github.com/gorilla/mux"
 )
 
@@ -58,6 +59,27 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) CheckEmails(w http.ResponseWriter, r *http.Request) {
+	req := EmailsDTO{}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Println("Failed to decode json files to delete", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	reportsByEmail, err := h.usecase.CheckEmails(r.Context(), req.Emails)
+	if err != nil {
+		log.Println("Error CheckEmails usecase", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	reportsByEmailRes := make([]ReportEmailDTO, len(reportsByEmail))
+
+	dto.Map(&reportsByEmailRes, reportsByEmail)
+	json.NewEncoder(w).Encode(reportsByEmailRes)
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {

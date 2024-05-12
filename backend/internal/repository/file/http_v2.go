@@ -68,53 +68,56 @@ func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOpt
 	}
 
 	var filesGeneral []file.File
-	var files []file.File
 	if slices.Contains(fileOptions.FileTypes, file.Text) {
+		var filesTmp []file.File
 		for _, searchItem := range response.Text {
-			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			fileTmp, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
 				log.Println("GetFileByID (Text) error:", err)
 				return nil, err
 			}
-			file.PageNumber = searchItem.PageNumber
-			files = append(files, file)
+			fileTmp.PageNumber = searchItem.PageNumber
+			filesTmp = append(filesTmp, fileTmp)
 		}
-		filesGeneral = append(filesGeneral, files...)
+		filesGeneral = append(filesGeneral, filesTmp...)
 	}
 	if slices.Contains(fileOptions.FileTypes, file.Image) {
+		var filesTmp []file.File
 		for _, searchItem := range response.Image {
-			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			fileTmp, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
 				log.Println("GetFileByID (Image) error:", err)
 				return nil, err
 			}
-			files = append(files, file)
+			filesTmp = append(filesTmp, fileTmp)
 		}
-		filesGeneral = append(filesGeneral, files...)
+		filesGeneral = append(filesGeneral, filesTmp...)
 	}
 	if slices.Contains(fileOptions.FileTypes, file.Audio) {
+		var filesTmp []file.File
 		for _, searchItem := range response.Audio {
-			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			fileTmp, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
 				log.Println("GetFileByID (Audio) error:", err)
 				return nil, err
 			}
-			file.Timestart = searchItem.Timestart
-			files = append(files, file)
+			fileTmp.Timestart = searchItem.Timestart
+			filesTmp = append(filesTmp, fileTmp)
 		}
-		filesGeneral = append(filesGeneral, files...)
+		filesGeneral = append(filesGeneral, filesTmp...)
 	}
 	if slices.Contains(fileOptions.FileTypes, file.Video) {
+		var filesTmp []file.File
 		for _, searchItem := range response.Video {
-			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			fileTmp, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
 				log.Println("GetFileByID (Video) error:", err)
 				return nil, err
 			}
-			file.Timestart = searchItem.Timestart
-			files = append(files, file)
+			fileTmp.Timestart = searchItem.Timestart
+			filesTmp = append(filesTmp, fileTmp)
 		}
-		filesGeneral = append(filesGeneral, files...)
+		filesGeneral = append(filesGeneral, filesTmp...)
 	}
 	return filesGeneral, nil
 	// return []file.File{}, fmt.Errorf("file type response from ml not correct")

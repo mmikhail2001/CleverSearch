@@ -2,6 +2,7 @@ package cloud
 
 import (
 	"context"
+	"encoding/base32"
 	"fmt"
 	"log"
 	"strings"
@@ -69,9 +70,10 @@ func (uc *Usecase) fillFilesRecursively(ctx context.Context, srv *drive.Service,
 			UserID:      user.ID,
 			FileType:    uc.fileUsecase.GetFileTypeByContentType(file.MimeType),
 			Path:        currentPath + "/" + file.Name,
-			Bucket:      strings.Split(cloudUserEmail, "@")[0] + "---" + user.Bucket,
-			IsDir:       file.MimeType == "application/vnd.google-apps.folder",
-			Size:        fileDomain.SizeType(file.Size),
+			// Bucket:      strings.Split(cloudUserEmail, "@")[0] + "---" + user.Bucket,
+			Bucket: base32.StdEncoding.EncodeToString([]byte(cloudUserEmail)) + "---" + user.Bucket,
+			IsDir:  file.MimeType == "application/vnd.google-apps.folder",
+			Size:   fileDomain.SizeType(file.Size),
 		}
 
 		if !fileInfo.IsDir {

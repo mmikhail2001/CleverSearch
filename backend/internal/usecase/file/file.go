@@ -34,14 +34,6 @@ func NewUsecase(repo Repository, notifyUsecase NotifyUsecase, userUsecase UserUs
 	}
 }
 
-func getFileExtension(filename string) string {
-	parts := strings.Split(filename, ".")
-	if len(parts) > 1 {
-		return parts[len(parts)-1]
-	}
-	return ""
-}
-
 func (uc *Usecase) GetFileTypeByContentType(contentType string) fileDomain.FileType {
 	fileType, exists := fileTypeMap[contentType]
 	if !exists {
@@ -126,9 +118,21 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 	file.IsShared = false
 	file.Email = user.Email
 
-	// if file.FileType == fileDomain.Audio || file.FileType == fileDomain.Video {
-	// TODO:
-	// }
+	switch file.Extension {
+	case "doc", "docx", "odt", "ppt", "pptx", "odp", "txt", "md":
+		var size int64
+		fileReader, size, err = ConvertToPDF(ctx, fileReader, file)
+		if err != nil {
+			log.Println("ConvertToPDF repo error:", err)
+			return fileDomain.File{}, err
+		}
+		file.Extension = "pdf"
+		file.Size = fileDomain.SizeType(size)
+		file.Path = replaceExtension(file.Path, "pdf")
+		file.Filename = replaceExtension(file.Filename, "pdf")
+		file.Link = replaceExtension(file.Link, "pdf")
+		file.FileType = fileDomain.Text
+	}
 
 	file, err = uc.repo.UploadToStorage(ctx, fileReader, file)
 	if err != nil {
@@ -148,193 +152,6 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 		return fileDomain.File{}, err
 	}
 	return file, nil
-}
-
-func (uc *Usecase) GetFiles(ctx context.Context, options fileDomain.FileOptions) ([]fileDomain.File, error) {
-	if options.Dir != "" && !strings.HasPrefix(options.Dir, "/") {
-		log.Printf("Directory path [%s] does not start with /\n", options.Dir)
-		return []fileDomain.File{}, fileDomain.ErrDirectoryNotStartsWithSlash
-	}
-
-	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
-	if !ok {
-		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
-		return []fileDomain.File{}, sharederrors.ErrUserNotFoundInContext
-	}
-
-	options.UserID = user.ID
-
-	if options.Dir == "" {
-		options.Dir = "/"
-	}
-	if options.Status != fileDomain.StatusType("") {
-		var files []fileDomain.File
-		options.DirsRequired = false
-		options.FirstNesting = false
-		var resultsTmp []file.File
-		options.CloudEmail = ""
-		options.Disk = ""
-		resultsTmp, err := uc.repo.GetFiles(ctx, options)
-		if err != nil {
-			log.Println("GetFiles: err:", err)
-			return []fileDomain.File{}, err
-		}
-		files = append(files, resultsTmp...)
-		for _, cloud := range user.ConnectedClouds {
-			options.InternalDisklRequired = false
-			options.Disk = string(cloud.Cloud)
-			options.CloudEmail = cloud.CloudEmail
-			resultsTmp, err := uc.repo.GetFiles(ctx, options)
-			if err != nil {
-				log.Println("GetFiles: err:", err)
-				return []fileDomain.File{}, err
-			}
-			files = append(files, resultsTmp...)
-		}
-		return files, nil
-	}
-
-	// если имеется статус в параметрах, то отвечаем без папок, всеми файлами (внутренними, расшаренными, внешними)
-	// кажется, что расшаренные здесь не возвратятся, т.к. выше options.UserID = user.ID
-	if options.Status != fileDomain.StatusType("") {
-		var files []fileDomain.File
-		options.DirsRequired = false
-		options.FirstNesting = false
-		var resultsTmp []file.File
-		options.CloudEmail = ""
-		options.Disk = ""
-		// запрос на все внутренние файлы
-		resultsTmp, err := uc.repo.GetFiles(ctx, options)
-		if err != nil {
-			log.Println("GetFiles: err:", err)
-			return []fileDomain.File{}, err
-		}
-		files = append(files, resultsTmp...)
-		// запрос на все внешние файлы
-		for _, cloud := range user.ConnectedClouds {
-			options.InternalDisklRequired = false
-			options.Disk = string(cloud.Cloud)
-			options.CloudEmail = cloud.CloudEmail
-			resultsTmp, err := uc.repo.GetFiles(ctx, options)
-			if err != nil {
-				log.Println("GetFiles: err:", err)
-				return []fileDomain.File{}, err
-			}
-			files = append(files, resultsTmp...)
-		}
-		return files, nil
-	}
-
-	var files []fileDomain.File
-
-	// если запрос на внешние, то обязательно нужно указать диск
-	saveCloudEmail := options.CloudEmail
-
-	if options.ExternalDisklRequired && options.CloudEmail != "" {
-		filesExternal, err := uc.repo.GetFiles(ctx, options)
-		if err != nil {
-			log.Println("external requered, but cloud email is empty")
-			return []fileDomain.File{}, err
-		}
-		if options.FirstNesting {
-			files = append(files, filterFilesByNesting(filesExternal, options.Dir)...)
-		} else {
-			files = append(files, filesExternal...)
-		}
-		printPaths(files, "ExternalDisklRequired files:")
-	}
-
-	if options.InternalDisklRequired {
-		options.CloudEmail = ""
-		options.ExternalDisklRequired = false
-	} else {
-		return files, nil
-	}
-
-	// если путь корневой, то нужны (shared папки и все файлы и папки) данного пользователя
-	if options.Dir == "/" {
-		options.UserID = user.ID
-		// ищем файлы пользователя
-		if options.PersonalRequired {
-			filesTmp, err := uc.repo.GetFiles(ctx, options)
-			if err != nil && !errors.Is(err, file.ErrNotFound) {
-				log.Println("GetFiles error:", err)
-				return []fileDomain.File{}, err
-			}
-			files = append(files, filesTmp...)
-		}
-
-		// ищем директории, которыми с данным пользователем пошарены
-		if options.SharedRequired {
-			sharedDirs, err := uc.repo.GetSharedDirs(ctx, "", options.UserID, true)
-			if err != nil && !errors.Is(err, file.ErrNotFound) {
-				log.Println("GetSharedDirs error:", err)
-				return []fileDomain.File{}, err
-			}
-			if !errors.Is(err, file.ErrNotFound) {
-				for _, sharedDir := range sharedDirs {
-					// достаем сами эти пошаренные директории
-					// TODO: в GetSharedDirs у файлов нет автора, поэтому нужно отдельно по ID запрашивать
-					sharedDirFull, err := uc.repo.GetFileByID(ctx, sharedDir.ID)
-					if err != nil && !errors.Is(err, file.ErrNotFound) {
-						log.Println("GetFiles error:", err)
-						return []fileDomain.File{}, err
-					}
-					if options.DirsRequired && options.Status == "" && (options.FileType == "" || options.FileType == "all") {
-						files = append(files, sharedDirFull)
-					}
-					options.UserID = ""
-					tmpOptionsDir := options.Dir
-					options.Dir = sharedDir.Path
-					// достаем файлы из пошаренных директорий
-					filesTmp, err := uc.repo.GetFiles(ctx, options)
-					options.Dir = tmpOptionsDir
-
-					if err != nil && !errors.Is(err, file.ErrNotFound) {
-						log.Println("GetFiles error:", err)
-						return []fileDomain.File{}, err
-					}
-
-					files = append(files, filesTmp...)
-				}
-			}
-		}
-		if options.FirstNesting {
-			return filterFilesByNesting(files, options.Dir), nil
-		}
-		return files, nil
-	}
-
-	// если запрошен не корень, то нужно проверить, корневой каталог является расшаренным данному пользователю
-	rootDir := strings.Split(options.Dir, "/")[1]
-	_, err := uc.repo.GetSharedDirs(ctx, "/"+rootDir, user.ID, true)
-	if err != nil && !errors.Is(err, file.ErrNotFound) {
-		log.Println("GetSharedDir error:", err)
-		return []fileDomain.File{}, err
-	}
-	if options.PersonalRequired && errors.Is(err, file.ErrNotFound) {
-		options.UserID = user.ID
-		files, err = uc.repo.GetFiles(ctx, options)
-	}
-	if options.SharedRequired && err == nil {
-		options.UserID = ""
-		files, err = uc.repo.GetFiles(ctx, options)
-
-		options.ExternalDisklRequired = true
-		options.CloudEmail = saveCloudEmail
-
-		filesExternal, _ := uc.repo.GetFiles(ctx, options)
-		files = append(files, filesExternal...)
-		printPaths(files, "files:::")
-	}
-	if err != nil {
-		log.Println("GetFiles error:", err)
-		return []fileDomain.File{}, err
-	}
-	if options.FirstNesting {
-		return filterFilesByNesting(files, options.Dir), nil
-	}
-	return files, nil
 }
 
 func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDomain.File, error) {
@@ -420,51 +237,6 @@ func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDom
 		return file, err
 	}
 	return file, nil
-}
-
-func (uc *Usecase) Search(ctx context.Context, options fileDomain.FileOptions) ([]fileDomain.File, error) {
-	if !strings.HasPrefix(options.Dir, "/") {
-		log.Printf("Directory path [%s] does not start with /\n", options.Dir)
-		return []fileDomain.File{}, fmt.Errorf("directory path [%s] does not start with /", options.Dir)
-	}
-
-	if options.IsSmartSearch {
-		filesSmartSearch, err := uc.repo.SmartSearch(ctx, options)
-		printPaths(filesSmartSearch, "filesSmartSearch ===")
-		return filesSmartSearch, err
-	}
-
-	var files []fileDomain.File
-
-	if options.ExternalDisklRequired && options.CloudEmail != "" {
-		filesExternal, err := uc.repo.GetFiles(ctx, options)
-		if err != nil {
-			log.Println("external requered, but cloud email is empty")
-			return []fileDomain.File{}, err
-		}
-		files = append(files, filesExternal...)
-	}
-
-	if options.InternalDisklRequired {
-		options.CloudEmail = ""
-		options.ExternalDisklRequired = false
-		filesTmp, err := uc.GetFiles(ctx, options)
-		if err != nil && !errors.Is(err, file.ErrNotFound) {
-			return []fileDomain.File{}, nil
-		}
-
-		files = append(files, filesTmp...)
-	}
-
-	var filteredFiles []fileDomain.File
-
-	for _, file := range files {
-		if strings.Contains(file.Filename, options.Query) {
-			filteredFiles = append(filteredFiles, file)
-		}
-	}
-
-	return filteredFiles, nil
 }
 
 func (uc *Usecase) DeleteFiles(ctx context.Context, filePaths []string) error {
@@ -584,196 +356,6 @@ func (uc *Usecase) DownloadFile(ctx context.Context, filePath string) (io.ReadCl
 	return uc.repo.DownloadFile(ctx, filePath)
 }
 
-func (uc *Usecase) GetSharingLink(ctx context.Context, reqShare file.RequestToShare) (string, error) {
-	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
-	if !ok {
-		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
-		return "", sharederrors.ErrUserNotFoundInContext
-	}
-
-	file, err := uc.repo.GetFileByPath(ctx, reqShare.Path, user.ID)
-	if err != nil {
-		return "", err
-	}
-	file.IsShareByEmail = false
-
-	if reqShare.ByEmails {
-		file.IsShareByEmail = true
-		for _, email := range reqShare.Emails {
-			user, err := uc.userUsecase.GetUserByEmail(ctx, email)
-			if err != nil {
-				// TODO: если не найден email, нужно сообщать фронту о том, что пользователь не найден
-				if !errors.Is(err, cleveruser.ErrUserNotFound) {
-					return "", err
-				}
-			}
-			_, err = uc.repo.GetSharedDir(ctx, file.ID, user.ID)
-			if err != nil {
-				if !errors.Is(err, fileDomain.ErrNotFound) {
-					log.Println("GetSharedDir err:", err)
-					return "", err
-				}
-				if errors.Is(err, fileDomain.ErrNotFound) {
-					sharedDir := fileDomain.SharedDir{
-						ID:          uuid.New().String(),
-						FileID:      file.ID,
-						UserID:      user.ID,
-						Accepted:    false,
-						ShareAccess: reqShare.ShareAccess,
-						Path:        file.Path,
-					}
-					err = uc.repo.InsertSharedDir(ctx, sharedDir)
-					if err != nil {
-						log.Println("InsertSharedDir err:", err)
-						return "", err
-					}
-				}
-			}
-		}
-	}
-	file.IsShared = true
-	file.ShareLink = "/dirs/" + file.ID + "?sharing=true"
-	file.ShareAccess = reqShare.ShareAccess
-	uc.repo.Update(ctx, file)
-	return file.ShareLink, nil
-}
-
-func (uc *Usecase) AddSheringGrant(ctx context.Context, fileID string) error {
-	file, err := uc.repo.GetFileByID(ctx, fileID)
-	if err != nil {
-		log.Println("AddSheringGrant GetFileByID with error:", err)
-		return err
-	}
-	if !file.IsShared {
-		log.Println(fileDomain.ErrDirNotSharing.Error())
-		return fileDomain.ErrDirNotSharing
-	}
-	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
-	if !ok {
-		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
-		return sharederrors.ErrUserNotFoundInContext
-	}
-	// log.Println("fileID = ", fileID)
-	// log.Println("userID = ", user.ID)
-
-	if file.IsShareByEmail {
-		sharedDir, err := uc.repo.GetSharedDir(ctx, fileID, user.ID)
-		if err != nil {
-			if errors.Is(err, fileDomain.ErrNotFound) {
-				log.Println("access to the shared dir was not granted")
-				return fmt.Errorf("access to the shared dir was not granted")
-			}
-			return err
-		}
-		if !sharedDir.Accepted {
-			sharedDir.Accepted = true
-			_, err := uc.repo.UpdateSharedDir(ctx, sharedDir)
-			if err != nil {
-				log.Println("UpdateSharedDir err:", err)
-				return err
-			}
-		}
-		return nil
-	} else {
-		_, err := uc.repo.GetSharedDir(ctx, fileID, user.ID)
-		log.Println("GetSharedDir, err:", err)
-		if err != nil {
-			if errors.Is(err, fileDomain.ErrNotFound) {
-				sharedDir := fileDomain.SharedDir{
-					ID:          uuid.New().String(),
-					FileID:      file.ID,
-					UserID:      user.ID,
-					Accepted:    true,
-					ShareAccess: file.ShareAccess,
-					Path:        file.Path,
-				}
-				err = uc.repo.InsertSharedDir(ctx, sharedDir)
-				if err != nil {
-					log.Println("InsertSharedDir err:", err)
-					return err
-				}
-				return nil
-			}
-			log.Println("GetSharedDir err:", err)
-			return err
-		}
-		log.Println("GetSharedDir, return nil")
-		return nil
-	}
-	// return uc.repo.AddUserToSharingDir(ctx, file, user.ID, file.ShareAccess)
-}
-
 func (uc *Usecase) GetFileByID(ctx context.Context, fileID string) (file.File, error) {
 	return uc.repo.GetFileByID(ctx, fileID)
-}
-
-func (uc *Usecase) GetFavs(ctx context.Context) ([]file.File, error) {
-	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
-	if !ok {
-		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
-		return []fileDomain.File{}, sharederrors.ErrUserNotFoundInContext
-	}
-	return uc.repo.GetFavs(ctx, user.ID)
-}
-
-func (uc *Usecase) AddFav(ctx context.Context, fileID string) error {
-	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
-	if !ok {
-		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
-		return sharederrors.ErrUserNotFoundInContext
-	}
-	foundFile, err := uc.repo.GetFileByID(ctx, fileID)
-	if err != nil {
-		log.Println("AddFav: GetFileByID: err", err)
-		return err
-	}
-	if foundFile.IsDir {
-		log.Println("Dir wont be fav")
-		return fmt.Errorf("dir wont be fav")
-
-	}
-	return uc.repo.AddFav(ctx, user.ID, fileID)
-}
-
-func (uc *Usecase) DeleteFav(ctx context.Context, fileID string) error {
-	user, ok := ctx.Value(shared.UserContextName).(cleveruser.User)
-	if !ok {
-		log.Println(sharederrors.ErrUserNotFoundInContext.Error())
-		return sharederrors.ErrUserNotFoundInContext
-	}
-	foundFile, err := uc.repo.GetFileByID(ctx, fileID)
-	if err != nil {
-		log.Println("DeleteFav: GetFileByID: err", err)
-		return err
-	}
-	if foundFile.IsDir {
-		log.Println("Dir wont be fav")
-		return fmt.Errorf("dir wont be fav")
-	}
-	return uc.repo.DeleteFav(ctx, user.ID, fileID)
-}
-
-func (uc *Usecase) Async() {
-	ticker := time.NewTicker(1 * time.Minute)
-	defer ticker.Stop()
-
-	count := 0
-	for range ticker.C {
-		files, err := uc.repo.GetAllFiles()
-		log.Printf("Async task [%d], len files [%d]\n", count, len(files))
-		if err != nil {
-			log.Println("Async: err", err)
-			continue
-		}
-
-		for _, file := range files {
-			if file.TimeCreated.Before(time.Now().Add(-5*time.Minute)) && file.Status == "uploaded" {
-				err := uc.repo.PublishMessage(context.Background(), file)
-				if err != nil {
-					log.Println("PublishMessage in async task: err", err)
-				}
-			}
-		}
-		count = count + 1
-	}
 }

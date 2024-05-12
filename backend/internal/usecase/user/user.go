@@ -3,9 +3,9 @@ package user
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"io"
 	"log"
-	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -34,7 +34,7 @@ func (uc *Usecase) Register(ctx context.Context, user cleveruser.User) (cleverus
 		return user, cleveruser.ErrUserAlreadyExists
 	}
 	user.ID = uuid.New().String()
-	user.Bucket = strings.Split(user.Email, "@")[0]
+	user.Bucket = user.ID
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -119,4 +119,22 @@ func (uc *Usecase) AddAvatar(ctx context.Context, fileReader io.Reader, contentT
 
 func (uc *Usecase) GetAvatar(ctx context.Context, userEmail string) (string, string, error) {
 	return uc.repo.GetAvatar(ctx, userEmail)
+}
+
+func (uc *Usecase) CheckEmails(ctx context.Context, emails []string) ([]cleveruser.ReportEmail, error) {
+	reports := make([]cleveruser.ReportEmail, len(emails))
+	for i, email := range emails {
+		_, err := uc.GetUserByEmail(ctx, email)
+		if err != nil {
+			if errors.Is(err, cleveruser.ErrUserNotFound) {
+				reports[i].Email = email
+				reports[i].Exists = false
+				continue
+			}
+			return []cleveruser.ReportEmail{}, err
+		}
+		reports[i].Email = email
+		reports[i].Exists = true
+	}
+	return reports, nil
 }

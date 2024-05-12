@@ -29,6 +29,8 @@ var (
 	StatusDirNotSharing               = 10
 	ErrMLService                      = errors.New("ml service returns error")
 	StatusMLService                   = 11
+	ErrExtNotValid                    = errors.New("file extension is not suitable for processing")
+	StatusExtNotValid                 = 12
 )
 
 type AccessType string

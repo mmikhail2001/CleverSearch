@@ -1,9 +1,14 @@
 package file
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"log"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/delivery/shared"
@@ -55,6 +60,66 @@ func filterFilesByNesting(files []fileDomain.File, dir string) []fileDomain.File
 		}
 	}
 	return filteredFiles
+}
+
+func getFileExtension(filename string) string {
+	parts := strings.Split(filename, ".")
+	if len(parts) > 1 {
+		return parts[len(parts)-1]
+	}
+	return ""
+}
+
+func ConvertToPDF(ctx context.Context, reader io.Reader, file file.File) (io.Reader, int64, error) {
+	tmpFile, err := os.CreateTemp("", "tempfile*."+file.Extension)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to create temporary file: %v", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	if _, err := io.Copy(tmpFile, reader); err != nil {
+		return nil, 0, fmt.Errorf("failed to copy file contents to temporary file: %v", err)
+	}
+	tmpFile.Close()
+
+	loPath, err := exec.LookPath("libreoffice")
+	if err != nil {
+		return nil, 0, fmt.Errorf("libreoffice not found: %v", err)
+	}
+
+	log.Println("tmpFile.Name() ===", tmpFile.Name())
+	cmd := exec.CommandContext(ctx, loPath, "--headless", "--convert-to", "pdf", tmpFile.Name(), "--outdir", filepath.Dir(tmpFile.Name()))
+	if err := cmd.Run(); err != nil {
+		return nil, 0, fmt.Errorf("conversion to PDF failed: %v", err)
+	}
+
+	pdfFilePath := strings.TrimSuffix(tmpFile.Name(), filepath.Ext(tmpFile.Name())) + ".pdf"
+	pdfFile, err := os.Open(pdfFilePath)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to open PDF file: %v", err)
+	}
+	defer pdfFile.Close()
+
+	var buffer bytes.Buffer
+	size, err := io.Copy(&buffer, pdfFile)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to copy PDF contents to buffer: %v", err)
+	}
+
+	if err := os.Remove(pdfFilePath); err != nil {
+		return nil, 0, fmt.Errorf("failed to remove temporary PDF file: %v", err)
+	}
+
+	return &buffer, size, nil
+}
+
+func replaceExtension(fileName, newExtension string) string {
+	parts := strings.Split(fileName, ".")
+	if len(parts) > 1 {
+		parts[len(parts)-1] = newExtension
+		return strings.Join(parts, ".")
+	}
+	return fileName + "." + newExtension
 }
 
 func printPaths(files []fileDomain.File, message string) {

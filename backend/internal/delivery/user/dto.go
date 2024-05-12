@@ -18,3 +18,12 @@ type ConnectedCloud struct {
 	Disk        file.DiskType `json:"disk"`
 	AccessToken string        `json:"access_token"`
 }
+
+type EmailsDTO struct {
+	Emails []string `json:"emails"`
+}
+
+type ReportEmailDTO struct {
+	Email  string `json:"email"`
+	Exists bool   `json:"exists"`
+}

@@ -27,7 +27,7 @@ class SearchService():
         for file_type in kwargs['splitted_file_types']:
             params = {
                 'file_type': file_type,
-                'dir': "/",
+                'dir': kwargs['dir'],
                 'user_id': kwargs['user_id']
             }
 
@@ -121,6 +121,7 @@ def setup_search_handler(args):
         return search_service.search_handler(
             user_id=user_id,
             splitted_file_types=splitted_file_types,
-            query=query
+            query=query,
+            dir=dir,
         )
     return search
