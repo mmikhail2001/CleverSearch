@@ -56,7 +56,7 @@ const PdfPage: FC<PdfPageProps> = React.memo(function pdfPage({ page, scale }: P
     <div className="PdfPage">
       <canvas ref={canvasRef} />
       <div ref={textLayerRef} className='textLayer'/> {/* className="PdfPage__textLayer" /> */}
-      <div>{page?._pageIndex}</div>
+      <div>{page?._pageIndex + 1}</div>
     </div>
   );
 });

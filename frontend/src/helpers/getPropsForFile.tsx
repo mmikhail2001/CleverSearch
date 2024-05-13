@@ -87,6 +87,7 @@ export const getPdfProps = (
                 isOpen={state}
                 closeModal={() => changeState(false)}
                 bodyClassName={'modal-body__pdf'}
+                isFullHeight={true}
                 styleOnModal={{
                     background: 'transparent',
                     borderRadius:'15px',
@@ -98,6 +99,7 @@ export const getPdfProps = (
                 stylesOnContentBackground={{
                     overflow:'hidden',
                     height:'100dvh',
+                    justifyContent: 'start',
                 }}
             >
                 <ViewPDF

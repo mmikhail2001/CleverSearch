@@ -15,6 +15,7 @@ interface ModalProps {
     stylesOnContentBackground?: CSS.Properties;
     styleOnModal?: CSS.Properties;
     backgroundStyle?: 'black',
+    isFullHeight?: boolean,
 }
 
 export const Modal: FC<ModalProps> = ({
@@ -29,6 +30,7 @@ export const Modal: FC<ModalProps> = ({
     stylesOnContentBackground,
     styleOnModal,
     backgroundStyle,
+    isFullHeight,
 }) => {
     const handleClose = (event: React.MouseEvent<HTMLElement>) => {
         event.preventDefault();
@@ -47,7 +49,12 @@ export const Modal: FC<ModalProps> = ({
             disableAutoFocus
             disableEnforceFocus
             open={isOpen}
-            sx={{background: setBackground}}
+            sx={{
+                background: setBackground, 
+                '& .MuiDialog-container': {
+                    alignItems: isFullHeight ? 'flex-start': null,
+                }
+            }}
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
@@ -56,7 +63,7 @@ export const Modal: FC<ModalProps> = ({
             scroll='paper'
             fullScreen={isFullscreen}
             className={className}
-            PaperProps={{style:{...styleOnModal}}}
+            PaperProps={{style:{...styleOnModal, maxHeight: '100%', margin: '0px'}}}
         >
             <DialogContent sx={{...stylesOnContentBackground}}>
                 {children}

@@ -3,13 +3,7 @@ import { DocumentInitParameters, PDFDocumentLoadingTask, PDFDocumentProxy } from
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { VariableSizeList } from 'react-window';
 import PdfViewer from './pdfViewerOriginal';
-import { IconButton, Typography } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
-
-import AddRoundedIcon from '@mui/icons-material/AddRounded';
-import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded';
-
+import { PdfControls } from './pdfControls';
 
 export interface PdfUrlViewerProps {
   url: string,
@@ -23,8 +17,10 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
   const [isFirstPageLoaded, setFirstPageLoaded] = useState(false);
   const [settedScale, setsettedScale] = useState(1);
 
+  const [currentPage, setCurrentPage] = useState<number>(page || 0)
+
   const scrollToItem = () => {
-    windowRef?.current && windowRef.current.scrollToItem(page - 1, 'start');
+    windowRef?.current && windowRef.current.scrollToItem(currentPage, 'start');
   };
 
   useEffect(() => {
@@ -50,10 +46,18 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
 
   useEffect(() => {
     scrollToItem()
-  }, [isFirstPageLoaded])
+  }, [isFirstPageLoaded, currentPage])
 
   return (
     <div className='pdf-with-controls'>
+        <PdfControls
+        changePage={(page) => setCurrentPage(page-1)}
+        currentPage={currentPage + 1}
+        maxPage={itemCount}
+        scale={settedScale}
+        zoomIn={() => setsettedScale(p => p + 0.25)}
+        zoomOut={() => setsettedScale(p => p - 0.25)}
+      />
       <PdfViewer
         windowRef={windowRef}
         itemCount={itemCount}
@@ -62,48 +66,9 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
         scale={settedScale}
         gap={40}
       />
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <div style={{
-          display: 'flex',
-          fontSize: 'calc(var(--ft-body) - 0.3rem)',
-          alignItems: 'center',
-        }}>
-          {controls(
-            () => setsettedScale(p => p + 0.25),
-            () => setsettedScale(p => p - 0.25),
-            settedScale
-          )}
-        </div>
-      </div>
     </div>
   );
 };
-
-const controls = (zoomOut: () => void, zoomIn: ()=>void, scale: number) => {
-	return (
-		<div className="modal-scale">
-			<IconButton 
-				onClick={() => zoomOut()}
-				sx={{color:'inherit'}}
-			>
-				<AddRoundedIcon sx={{color:'inherit'}} />
-			</IconButton>
-      <Typography fontSize={'var(--ft-body)'}>{scale}</Typography>
-			<IconButton 
-				onClick={() => zoomIn()}
-				sx={{color:'inherit'}}
-			>
-				<RemoveRoundedIcon sx={{color:'inherit !'}} />
-			</IconButton>
-		</div>
-	)
-}
 
 
 export default PdfUrlViewer;
