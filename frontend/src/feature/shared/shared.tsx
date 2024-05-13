@@ -1,4 +1,4 @@
-import React, { FC, useRef, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import { Input } from '@entities/input/input';
 import { Button } from '@entities/button/button'
 import { useGetShareUrlMutation } from '@api/filesApi';
@@ -13,6 +13,8 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import './shared.scss'
 import { Switch } from '@entities/switch/switch';
+import { notificationBar } from '@helpers/notificationBar';
+import { useEmailCheckMutation } from '@api/userApi';
 
 interface SharedProps {
     dirPath: string,
@@ -47,73 +49,11 @@ const useCopyState = (): [boolean, () => void] => {
     }]
 }
 
-const generatedLinkField = (isCopied:boolean, setCopied: () => void, navigator: Navigator, link:string): React.ReactNode => {
-    return (
-        <div style={{display: 'flex', flexDirection: 'column', gap: "8px"}}>
-            <Typography fontSize={'var(--ft-body)'}>Link:</Typography>
-            <Typography
-                fontSize={'var(--ft-body)'} 
-                onClick={(e) => {
-                    e.preventDefault()
-                    setCopied()
-                    navigator.clipboard
-                        .writeText(`${process.env.protocol}://${process.env.adress}` +
-                        link)
-                }}
-                style={{ paddingBottom: '6px'}}
-            >
-                {`${process.env.protocol}://${process.env.adress}` + link}
-            </Typography>
-            {isCopied ? <div style={{ position: 'absolute' }}>Link copied to clipboard!</div> : null}
-        </div>)
-}
-
-const getSharedSuccess = (
-    isLoading:boolean, 
-    isCopied: boolean, 
-    setCopied: () => void,
-    link: string,
-    accessType: AccessRights,
-    emails: string[],
-):React.ReactNode => {
-    let accessShowOut = accessType === 'writer' ? 'Writer' : 'Reader'
-    return <div style={{display:"flex", gap:'1.2rem', flexDirection: 'column'}}>
-        <div style={{display: 'flex', flexDirection:'row', gap: '8px'}}>
-            <Typography fontSize={'var(--ft-body)'}>
-                Role given:
-            </Typography>
-            <Typography fontSize={'var(--ft-body)'} >
-                {accessShowOut}
-            </Typography>
-        </div>
-        {getEmailShow(emails, () => {}, false)}
-        {generatedLinkField(isCopied,setCopied, navigator, link)}
-        <div style={{
-            width:"100%", 
-            justifyContent:'center', 
-            display: 'flex',
-            paddingTop: '1rem',
-        }}>
-            <Button
-                fontSize='var(--ft-body)'
-                buttonText={isCopied ? "Copied" : "Copy"}
-                variant={'contained'}
-                disabled={isLoading}
-                clickHandler={() => {
-                        setCopied()
-                        navigator.clipboard
-                        .writeText(`${process.env.protocol}://${process.env.adress}` +
-                        link)
-                }}
-            />
-        </div>
-    </div>
-}
-
 const getEmailShow = (
     emails: string[],
     setEmails: (emails: string[]) => void,
     isCanBeDeleted: boolean,
+    incorrectEmails: string[]
 ): React.ReactNode => {
     if (emails.length === 0) {
         return null
@@ -125,7 +65,6 @@ const getEmailShow = (
             </Typography>
             <List
                 className='email-list'
-                marker={'disc'}
                 style={{
                     maxHeight: 'calc(3 * calc(var(--ft-body) + 2.6rem))',
                     overflowY: 'auto',
@@ -135,20 +74,34 @@ const getEmailShow = (
                 }}
             >
                 {emails.map(val => (
-                    <ListItem 
+                    <ListItem
+                        key={`${val}_list`}
+                        className={ incorrectEmails.find(incorrectEmail => val === incorrectEmail) ?
+                            'email-list__item-incorrect'
+                            :'email-list__item'
+                        }
                         sx={{
-                            fontSize: 'var(--ft-body)',
-                            width: '100%',
-                            color:"inherit",
+                            borderRadius: 'var(--small-radius)',
+                            color: 'inherit',
                         }}
                     >
                         <div style={{
                                 width: '100%',
                                 display: 'flex',
                                 justifyContent: 'space-between',
+                                alignItems: 'center',
                             }}
                         >
-                            {val}
+                            <Typography sx={{
+                                    maxWidth: '100%',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    textWrap: 'nowrap',
+                            }}
+                                fontSize={'inherit'}
+                            >
+                                    {val}
+                            </Typography>
                             {isCanBeDeleted 
                             ? <CloseIcon 
                                 sx={{cursor: 'pointer'}}
@@ -174,100 +127,148 @@ export const Shared: FC<SharedProps> = ({
     const [currentEmail, setCurrentEmail] = useState<string>('')
     const [emails, setEmail] = useState([] as string[])
     const [accessType, setAccessType] = useState<AccessRights>('reader' as AccessRights)
-    const [share, resp] = useGetShareUrlMutation()
     const [isCopied, setCopied] = useCopyState()
+    
+    const [incorrectEmails, setIncorrectEmails] = useState([] as string[])
+    
     const [shareByEmail, setShareByEmail] = useState<boolean>(false)
     
+    const [share, resp] = useGetShareUrlMutation()
+    const [checkEmails, respEmails] = useEmailCheckMutation()
+    
+    useEffect(() => {
+        if(respEmails.isSuccess) {
+            let respIncorrectEmails = respEmails.data.filter(val => val.exists)
+            
+            if (respIncorrectEmails.length === 0) {
+                notificationBar({
+                    children: 'All emails correct',
+                    variant: 'info'
+                })
+                share({
+                    access_type: accessType,
+                    by_emails: shareByEmail,
+                    dir: dirPath,
+                    emails: emails,
+                })
+                setIncorrectEmails([])
+            } else {
+                notificationBar({
+                    children: 'Some emails incorrect: ',
+                    variant: 'warning'
+                })
+                setIncorrectEmails(respIncorrectEmails.map(val => val.email))
+            }
+           
+        }
+    }, [respEmails])
+
     return (
         <div className={['shared-modal', className].join(' ')} onClick={(e) => e.preventDefault()}>
-            {resp.isSuccess 
-            ? getSharedSuccess(
-                resp.isLoading, 
-                isCopied, 
-                setCopied, 
-                resp.data.body.share_link, 
-                accessType, 
-                emails
-            )
-            :
+            <div style={{width:'100%'}}>
+                <Switch
+                    fontSize='var(--ft-body)'
+                    style={{
+                        display:"flex",
+                        justifyContent:"start",
+                        color:'inherit',
+                    }}
+                    labelPlacement='start'
+                    label='Share by email'
+                    checked={shareByEmail} 
+                    onChange={() => {setShareByEmail(!shareByEmail)}}
+                    disabled={false}
+                />
+            </div>
+            {shareByEmail ? 
             <>
-                <div style={{width:'100%'}}>
-                    <Switch
-                        fontSize='var(--ft-body)'
-                        style={{
-                            display:"flex",
-                            justifyContent:"start",
-                            color:'inherit',
-                        }}
-                        labelPlacement='start'
-                        label='Share by email'
-                        checked={shareByEmail} 
-                        onChange={() => {setShareByEmail(!shareByEmail)}}
+                <div style={{display:'flex', flexDirection: 'row', gap: "8px", width: '100%'}}>
+                    <Input
+                        removeFocusedBorder={true}
+                        isFullWidth={true}
                         disabled={false}
-                    />
-                </div>
-                {shareByEmail ? 
-                <>
-                    <div style={{display:'flex', flexDirection: 'row', gap: "8px"}}>
-                        <Input
-                            removeFocusedBorder={true}
-                            isFullWidth={true}
-                            disabled={false}
-                            fontSize='var(--ft-body)'
-                            onChange={(e) => {
-                                e.preventDefault()
-                                setCurrentEmail(e.target.value)
-                            }
-                            }
-                            onKeyDown={(e) => {
-                                if (e.key.toLowerCase() === 'enter') {
-                                    if (currentEmail === '') return
-                                    setEmail([...emails, currentEmail])
-                                    setCurrentEmail('')
-                                }
-                            }}
-                            placeholder={'Emails'}
-                            type={'email'}
-                            value={currentEmail}
-                            specificRadius={'small-radius'}
-                        ></Input>
-                        <Button
-                            disabled={currentEmail === ''}
-                            style={{width: '20%', color: 'inherit'}}
-                            buttonText={'Add'} 
-                            clickHandler={() => {
+                        fontSize='var(--ft-body)'
+                        onChange={(e) => {
+                            e.preventDefault()
+                            setCurrentEmail(e.target.value)
+                        }
+                        }
+                        onKeyDown={(e) => {
+                            if (e.key.toLowerCase() === 'enter') {
+                                if (currentEmail === '') return
                                 setEmail([...emails, currentEmail])
                                 setCurrentEmail('')
-                            }} 
-                            variant={'text'}                        
-                        />
-                    </div>
-                    {getEmailShow(emails, (newEmails) => setEmail(newEmails), true)}
-                </>
-                : null
+                            }
+                        }}
+                        placeholder={'Emails'}
+                        type={'email'}
+                        value={currentEmail}
+                        specificRadius={'small-radius'}
+                    ></Input>
+                    <Button
+                        disabled={currentEmail === ''}
+                        style={{width: '20%', color: 'inherit'}}
+                        buttonText={'Add'} 
+                        clickHandler={() => {
+                            setEmail([...emails, currentEmail])
+                            setCurrentEmail('')
+                        }} 
+                        variant={'text'}                        
+                    />
+                </div>
+                {getEmailShow(emails, (newEmails) => setEmail(newEmails), true, incorrectEmails)}
+            </>
+            : null
+            }
+            
+            <SelectorMulti
+                removeFocusedBorder={true}
+                height='44.38px'
+                fontSize='var(--ft-body)'
+                isMulti={false}
+                borderRadius='small'
+                options={[
+                    { label: 'Writer', value: 'writer' },
+                    { label: 'Reader', value: 'reader' }
+                ]}
+                defaultValue={[getOptionFromVal(accessType)]}
+                onChange={(newValue: string[]) => {
+                    switch (getValFromOption(newValue)) {
+                        case 'reader':
+                            setAccessType('reader');
+                            break;
+                        default:
+                            setAccessType('writer');
+                    }
                 }
-                <SelectorMulti
-                    removeFocusedBorder={true}
-                    height='44.38px'
+                }
+            />
+            
+            <div style={{
+                display: 'flex', 
+                flexDirection: 'row', 
+                justifyContent: 'space-between',
+                height: '36px',
+                width: '100%',
+            }}>
+                <Button
                     fontSize='var(--ft-body)'
-                    isMulti={false}
-                    borderRadius='small'
-                    options={[
-                        { label: 'Writer', value: 'writer' },
-                        { label: 'Reader', value: 'reader' }
-                    ]}
-                    defaultValue={[getOptionFromVal(accessType)]}
-                    onChange={(newValue: string[]) => {
-                        switch (getValFromOption(newValue)) {
-                            case 'reader':
-                                setAccessType('reader');
-                                break;
-                            default:
-                                setAccessType('writer');
-                        }
-                    }
-                    }
+                    buttonText='Copy'
+                    variant={'contained'}
+                    disabled={!resp.isSuccess}
+                    clickHandler={(event) => {
+                        event.stopPropagation();
+                        setCopied()
+                        navigator.clipboard
+                        .writeText(`${process.env.protocol}://${process.env.adress}` +
+                        resp.data.body.share_link)
+                        notificationBar({
+                            children: 'Link copied!',
+                            variant: 'success'    
+                        })
+                    }}
                 />
+
                 <Button
                     fontSize='var(--ft-body)'
                     buttonText='Share'
@@ -275,21 +276,17 @@ export const Shared: FC<SharedProps> = ({
                     disabled={resp.isLoading}
                     clickHandler={(event) => {
                         event.stopPropagation();
-                        let emailsToSet = currentEmail !== "" ? [...emails, currentEmail] : emails
+                        setEmail(currentEmail !== "" ? [...emails, currentEmail] : emails)
+
                         if (shareByEmail && emails.length === 0) {
-                            // TODO make error
+                            notificationBar({children: 'Write email to share', variant: 'warning'})
                             return
                         }
-                        share({
-                            access_type: accessType,
-                            by_emails: shareByEmail,
-                            dir: dirPath,
-                            emails: emailsToSet,
-                        })
+                        checkEmails(emails)
                     }}
                 />
-            </>
-            }
+            
+            </div>
         </div>
     );
 };

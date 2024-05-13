@@ -131,7 +131,7 @@ export const Button: FC<ButtonProps> = ({
 					...cssStyles,
 					"&.Mui-disabled": { 
 						color: 'inherit',
-						background: 'var(--color-active)',
+						background: variant === 'text' ? 'none' : 'var(--color-active)',
 						opacity: '0.3',
 					  },
 				}

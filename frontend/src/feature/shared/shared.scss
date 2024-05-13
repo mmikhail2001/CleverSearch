@@ -38,3 +38,30 @@
 .email-list::-webkit-scrollbar-thumb:hover {
     background: rgba(255,255,255,0.4); 
 }
+
+.email-list__item {
+    font-size: var(--ft-body);
+    color: inherit;
+    background: #103F76;
+    border-radius: var(--small-radius) !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+}
+
+.email-list__item:hover {
+    background: #0e3664;
+}
+
+
+.email-list__item-incorrect {
+    font-size: var(--ft-body);
+    color: inherit;
+    border-radius: var(--small-radius) !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    background-color: #c12629;
+}
+
+.email-list__item-incorrect:hover {
+    background: #7c1618;
+}

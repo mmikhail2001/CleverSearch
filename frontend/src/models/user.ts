@@ -11,3 +11,8 @@ export interface UserProfileResponse {
 	email: string,
 	connected_clouds: ConnectedClouds[]
 }
+
+export interface EmailChecksResp {
+	email: string,
+	exists: boolean,
+}
