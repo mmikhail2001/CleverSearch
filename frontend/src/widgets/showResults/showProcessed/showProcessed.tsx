@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import {  switchToProcessed } from '@store/whatToShow';
 import { removeFiles } from '@store/fileProcess';
 import { ShowGlobal } from '../showGlobal';
+import { GetShowNoFilesErrorElement } from '@feature/errorElements';
 
 interface ShowProcessedFilesProps { }
 
@@ -55,19 +56,20 @@ export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
 
     return (
         <ShowGlobal
-        firstElementInBreadCrumbs='Uploaded'
-        breadCrumbsReactions={() => { return () => { }; } }
-        dirs={[]}
-        getValue={() => show(null)}
-        data={showResp.data?.body}
-        error={showResp.error}
-        isError={showResp.isError}
-        isLoading={showResp.isLoading}
-        openFolder={() => {
-            return () => {}
-        }}
-        whatShow={isProccessed}
-        switchToWhatShow={() => dispatch(switchToProcessed())}
+            errorElement={<GetShowNoFilesErrorElement/>}
+            firstElementInBreadCrumbs='Uploaded'
+            breadCrumbsReactions={() => { return () => { }; } }
+            dirs={[]}
+            getValue={() => show(null)}
+            data={showResp.data?.body}
+            error={showResp.error}
+            isError={showResp.isError}
+            isLoading={showResp.isLoading}
+            openFolder={() => {
+                return () => {}
+            }}
+            whatShow={isProccessed}
+            switchToWhatShow={() => dispatch(switchToProcessed())}
         />
     )
 };

@@ -17,6 +17,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import NothingSVG from '@icons/Nothing.svg'
 
 import {renderReturns, getDirProps, getPdfProps, getVideoProps, getImageProps} from '@helpers/getPropsForFile'
+import { GetErrorElementOnBugShow } from '@feature/errorElements/index';
 
 export interface RenderFieldsProps {
 	height?:string,
@@ -26,6 +27,7 @@ export interface RenderFieldsProps {
 	isLoading: boolean,
 	deleteFile: (fileName: string, accessRights: AccessRights) => void,
 	openFolder: (dirToShow: string[], diskToShow: diskTypes | ConnectedClouds) => void,
+	noResultsElement?: React.ReactNode, 
 }
 
 const renderHeader = (isMobile: boolean):React.ReactNode => {
@@ -58,21 +60,15 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	isLoading,
 	deleteFile,
 	openFolder,
+	noResultsElement,
 }) => {
 	const {whatDisplay} = useMobile()
 	const isMobile = whatDisplay !== 1
 
 	if (isError) {
-			return <Typography fontSize={'var(--ft-pg-24)'}
-				style={{
-					display:'flex',
-					width: '100%',
-					justifyContent: 'center',
-					marginTop: '2rem',
-				}}
-			>
-				{getErrorMessageFromErroResp(error)}
-				</Typography>;
+			return <GetErrorElementOnBugShow 
+				error={getErrorMessageFromErroResp(error)}
+			/>
 		}
 
 	if (isLoading) {
@@ -90,29 +86,8 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 		)
 	}
 
-	if ((isNullOrUndefined(data) || !data || data.length === 0) && !isLoading) {
-		return <div className='show-all-files' style={{fontSize: 'var(--ft-body-plus)'}}>
-				<div style={{
-					width: '100%',
-					height: '100%',
-					paddingTop: '2rem',
-					display: 'flex',
-					flexDirection: 'column',
-					alignItems: 'center',
-					gap: '8px',
-				}}>
-					<img
-						style={{
-							height: '100%',
-							width: '100%',
-							maxWidth: isMobile ? '200px' :'300px',
-							maxHeight:isMobile ? '200px' : '300px',
-						}} 
-						src={NothingSVG} 
-					/>
-					<Typography fontSize={'var(--ft-pg-24)'}>Nothing here</Typography>
-				</div>
-			</div>;
+	if ((isNullOrUndefined(data) || !data || data.length === 0 && !isLoading)) {
+		return noResultsElement
 	}
 
 	return (

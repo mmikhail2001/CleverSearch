@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { ShowGlobal } from '../showGlobal';
 import { useGetDriveFilesMutation } from '@api/filesApi';
 import { useShowDriveParams } from '@helpers/hooks/useShowParams';
+import { GetShowNoFilesErrorElement } from '@feature/errorElements';
 
 
 interface ShowDriveFilesProps { }
@@ -40,6 +41,7 @@ export const ShowDriveFiles: FC<ShowDriveFilesProps> = () => {
 
     return (
         <ShowGlobal
+            errorElement={<GetShowNoFilesErrorElement/>}
             getValue={() => {
                 if (typeof whatDiskToShow !== 'string') {
                     show({

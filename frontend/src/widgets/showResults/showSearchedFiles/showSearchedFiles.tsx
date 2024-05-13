@@ -13,6 +13,7 @@ import { newValues } from '@store/showRequest';
 import { ShowGlobal } from '../showGlobal';
 import { getDriveURLFront, getInternalURLFront } from '@helpers/transformsToURL';
 import { SearchParams } from '@models/searchParams';
+import { GetSearchNoFilesErrorElement } from '@feature/errorElements';
 
 interface ShowSearchedFilesProps { }
 
@@ -38,6 +39,7 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
 
     return (
         <ShowGlobal
+            errorElement={<GetSearchNoFilesErrorElement/>}
             firstElementInBreadCrumbs='Search results'
             breadCrumbsReactions={() => { return () => { }; } }
             dirs={[]}

@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { ShowGlobal } from '../showGlobal';
 import { useGetInternalFilesMutation } from '@api/filesApi';
 import { useShowInternalParams } from '@helpers/hooks/useShowParams';
+import { GetShowNoFilesErrorElement } from '@feature/errorElements';
 
 interface ShowShowedFilesProps { }
 
@@ -32,6 +33,7 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
 
     return (
         <ShowGlobal
+            errorElement={<GetShowNoFilesErrorElement/>}
             getValue={() => { show(showReq.dir.join('/'))}} 
             whatShow={isShow} 
             switchToWhatShow={() => dispatch(switchToShow())} 

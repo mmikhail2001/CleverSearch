@@ -11,6 +11,7 @@ import { useGetSharedFilesMutation } from '@api/filesApi';
 import { getSharedURLFront } from '@helpers/transformsToURL';
 import { useSharedParams } from '@helpers/hooks/useShowParams';
 import { ShowParams } from '@models/searchParams';
+import { GetShowNoFilesErrorElement } from '@feature/errorElements';
 
 interface ShowSharedFilesProps { }
 
@@ -52,6 +53,7 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 
 	return (
 		<ShowGlobal
+			errorElement={<GetShowNoFilesErrorElement/>}
             getValue={() => showShared(showReq.dir.join('/'))} 
             whatShow={isShared} 
             switchToWhatShow={() => dispatch(switchToShared())} 

@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { useDeleteFileMutation, useGetFavouriteMutation } from '@api/filesApi';
 import { switchToLoved, switchToShow } from '@store/whatToShow';
 import { ShowGlobal } from '../showGlobal';
+import { GetShowNoFilesErrorElement } from '@feature/errorElements';
 
 interface ShowLovedFilesProps { }
 
@@ -24,6 +25,7 @@ export const ShowLovedFiles: FC<ShowLovedFilesProps> = () => {
 
     return (
         <ShowGlobal
+            errorElement={<GetShowNoFilesErrorElement/>}
             breadCrumbsReactions={() => () => {}}
             dirs={[]}
             firstElementInBreadCrumbs='Loved'
