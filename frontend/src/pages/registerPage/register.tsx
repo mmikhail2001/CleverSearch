@@ -9,6 +9,7 @@ import './register.scss';
 import { Typography } from '@mui/material';
 import { notificationBar } from '@helpers/notificationBar';
 import { ShowInfoButton } from '@feature/showInfoButton/showInfoButton';
+import { useMobile } from 'src/mobileProvider';
 
 interface RegisterProps { }
 
@@ -22,6 +23,8 @@ export const RegisterForm: FC<RegisterProps> = () => {
 	const [passwordField, setPassword] = useState('');
 
 	const [sendCredentials, setSendCredentials] = useState<credentials>({} as credentials)
+
+	const {whatDisplay} = useMobile()
 
 	const [login, loginResp] = useLoginMutation();
 	const [register, registerResp] = useRegisterMutation();
@@ -67,8 +70,21 @@ export const RegisterForm: FC<RegisterProps> = () => {
 		}
 	}, [error])
 
-	return (
-		<div className='register-background'>
+	const renderBlock = (child: React.ReactNode) => {
+		return <div
+			style={{
+				background:'rgba(0,0,0,0.1)',
+				borderRadius: 'var(--big-radius)',
+				display:'flex',
+				justifyContent:'center',
+			}}
+		>
+			{child}
+		</div>
+	}
+
+	const renderRegisterForm = () => {
+		return (
 			<div className="register-form">
 				<div className="register-form__main">
 					<Typography className='register-form__name'>Registration</Typography>
@@ -118,7 +134,7 @@ export const RegisterForm: FC<RegisterProps> = () => {
 						variant={'text'}
 						buttonText="Sign in"
 						isFullSize={true}
-						style={{justifyContent: 'center'}}
+						style={{justifyContent: 'center', color: 'inherit', opacity: '0.8'}}
 						clickHandler={
 							() => {
 								navigate('/login')
@@ -128,8 +144,52 @@ export const RegisterForm: FC<RegisterProps> = () => {
 					/>
 				</div>
 			</div>
+		)
+	}
+
+	const renderInfoBlock = () => {
+		return (
+			<div style={{display: 'flex', flexDirection: 'column', padding: '32px'}}>
+				<Typography fontSize={'var(--ft-title)'} style={{opacity: '0.8'}}>Info</Typography>
+				<Typography fontSize={'var(--ft-pg-24)'} style={{opacity: '0.6'}}>CleverSearch is a web application designed to revolutionize data management and retrieval. Users can store their data securely, effortlessly share it with others, and seamlessly integrate external drives for expanded storage options. The standout feature of CleverSearch is its intelligent semantic search capability, allowing users to search for meaning across all their files. Whether it's documents, images, or any other file type, CleverSearch's advanced search functionality ensures users can quickly locate the information they need, regardless of where it's stored. With CleverSearch, managing and accessing your data has never been easier or more intuitive.</Typography>
+			</div>
+		)
+	}
+
+	const isPC = whatDisplay === 1
+	return (
+		<div className='login-background' style={{position: 'relative'}}>
+			<div style={{
+			position: 'absolute',
+			top: '32px',
+			left: '24px'
+		}}>
+			<Typography
+				style={{cursor: 'default'}}
+				className={['our-name'].join(' ')}
+			>
+				CleverSearch
+			</Typography>
+		</div>
+		<div style={{
+				marginTop: '92px',
+				display: isPC ? 'grid' : 'flex',
+				gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)',
+				marginRight: isPC ?  '32px' : null,
+    			marginLeft:  isPC ? '32px' : null,
+				gap: '64px',
+				maxWidth: 'min(100%, 1134px)'
+			}}>
+			{
+				whatDisplay === 1 
+				? renderBlock(renderInfoBlock())
+				: null
+			}
+			{renderBlock(renderRegisterForm())}
+		</div>
+			
 			<div></div>
-			<ShowInfoButton></ShowInfoButton>
+			{whatDisplay === 1 ? null : <ShowInfoButton/>}
 		</div>
 	);
 };

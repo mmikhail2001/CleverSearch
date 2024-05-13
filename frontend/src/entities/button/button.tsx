@@ -127,7 +127,13 @@ export const Button: FC<ButtonProps> = ({
 			startIcon={startIconSrc ? <img src={startIconSrc} /> : null}
 			endIcon={endIcon ? endIcon : null}
 			sx={
-				{...cssStyles,
+				{
+					...cssStyles,
+					"&.Mui-disabled": { 
+						color: 'inherit',
+						background: 'var(--color-active)',
+						opacity: '0.3',
+					  },
 				}
 			}
 		>
