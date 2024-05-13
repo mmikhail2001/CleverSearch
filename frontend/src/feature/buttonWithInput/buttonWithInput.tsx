@@ -31,12 +31,13 @@ export const TextWithInput: FC<TextWithInputProps> = ({
   accept,
 }) => {
   const hiddenFileInput = useRef(null);
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
     hiddenFileInput.current.click();
   };
 
   return (
-    <div className={className || ''} style={{...stylesOnRoot}}>
+    <div onClick={handleClick} className={className || ''} style={{...stylesOnRoot}}>
       {startIcon}
       <Typography
         sx={{
@@ -44,10 +45,7 @@ export const TextWithInput: FC<TextWithInputProps> = ({
           color:'inherit',
           ...textStyles,
         }}
-        onClick={(e) => {
-          e.stopPropagation()
-          handleClick()
-        }}
+        onClick={handleClick}
       >{buttonText}</Typography>
       {endIcon}
       <input
