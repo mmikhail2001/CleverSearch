@@ -64,6 +64,12 @@ export const UserProfile: FC<UserProfileProps> = ({
 					
 				</div>
 				<Typography
+					sx={{
+						width: '100%',
+						overflow: 'hidden',
+						maxWidth: '100%',
+						textOverflow: 'ellipsis',
+					}}
 					fontSize={'var(--ft-body)'}
 				>
 					{email}
@@ -73,7 +79,11 @@ export const UserProfile: FC<UserProfileProps> = ({
 	}
 	const renderDropDown = (): React.ReactNode => {
 		return (<DropDown
-			styleOnMain={{ height: '100%', cursor: whatDisplay === 3 ? 'default' : 'pointer' }}
+			styleOnMain={{ 
+				height: '100%', 
+				cursor: whatDisplay === 3 ? 'default' : 'pointer',
+				maxWidth: '100%'
+			}}
 			variants='down-center'
 			open={isOpenProfile}
 			toggleOpen={setOpen}

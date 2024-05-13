@@ -27,6 +27,7 @@ import { compareArrays } from '@helpers/hooks/useShowParams';
 import { newValues } from '@store/showRequest';
 import { changeOpenFilter } from '@store/searchFilter';
 import { getSearchURLFront } from '@helpers/transformsToURL';
+import { SmartSwitch } from '@feature/searchSwitch/searchSwitch';
 
 export interface searchStateValue {
 	smartSearch: boolean;
@@ -79,7 +80,6 @@ export const SearchLine: FC<SearchLineProps> = ({
 	}, [showReq.dir])
 
 	useEffect(() => {
-
 		setSearchValue({...searchValue, dir: searchReq.dir})
 	}, [])
 
@@ -105,7 +105,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 	const renderOpenBox = (): React.ReactNode => {
 		return (
 			<SearchBox
-				width={width}
+				width={whatDisplay === 1 ? `calc(${width} - 136px)`  : width}
 				key={'searchbox'}
 				fontSize={'var(--ft-body)'}
 				changeState={(obj: searchStateValue) => {
@@ -120,76 +120,105 @@ export const SearchLine: FC<SearchLineProps> = ({
 		)
 	}
 
-	return (
-		<PopOver
-			background={'transparent'}
-			marginTop={'2.4rem'}
-			whatCorner='left'
-			variants={'down'}
-			key={'search-popover-with-box'}
-			open={isBoxOpen}
-			toggleOpen={setisBoxOpen}
-			isCloseOnSelect={false}
-			mainElement={
+	const renderSearchLine = () => {
+		return (
 				<div 
-					className={['search-line', isBoxOpen ? 'open-search-line' : ''].join(' ')}
-					style={{ width: width }}
-				>
-					<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
-						<div className="search-icon-container"
-							onClick={whatDisplay === 1 ? onIconClick : () => {
-								setisBoxOpen(false)
-								onIconClick()
-							} }
-							style={{ fontSize: 'var(--ft-pg-24)', paddingBottom: '25px' }}>
-							{whatDisplay === 1 ?
-								<SearchIcon fontSize='inherit' />
-								: <DehazeIcon sx={{ cursor: 'pointer' }} fontSize='inherit' />
-							}
-						</div>
-						<div className="search-text">
-							<Input
-								style={{backgroundColor: 'var(--color-active)', color: 'inherit' }}
-								fontSize={'var(--ft-paragraph)'}
-								isFullWidth
-								variant='text'
-								onKeyDown={(e) => {
-									if (e.key.toLowerCase() === 'enter') {
-										mySearch()
-									}
-								}}
-								onChange={(e) =>
-									setSearchValue({ ...searchValue, query: e.target.value })
+						className={['search-line', isBoxOpen ? 'open-search-line' : ''].join(' ')}
+						style={{ width: whatDisplay === 1 ? `calc(${width} - 136px)`  : width}}
+					>
+						<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
+							<div className="search-icon-container"
+								onClick={whatDisplay === 1 ? onIconClick : () => {
+									setisBoxOpen(false)
+									onIconClick()
+								} }
+								style={{ fontSize: 'var(--ft-pg-24)', paddingBottom: '25px' }}>
+								{whatDisplay === 1 ?
+									<SearchIcon fontSize='inherit' />
+									: <DehazeIcon sx={{ cursor: 'pointer' }} fontSize='inherit' />
 								}
-								disabled={response.isLoading}
-								placeholder={'Find any file'}
-								type={'search'}
-								value={searchValue?.query || ''}
+							</div>
+							<div className="search-text">
+								<Input
+									style={{backgroundColor: 'var(--color-active)', color: 'inherit' }}
+									fontSize={'var(--ft-paragraph)'}
+									isFullWidth
+									variant='text'
+									onKeyDown={(e) => {
+										if (e.key.toLowerCase() === 'enter') {
+											mySearch()
+										}
+									}}
+									onChange={(e) =>
+										setSearchValue({ ...searchValue, query: e.target.value })
+									}
+									disabled={response.isLoading}
+									placeholder={'Find any file'}
+									type={'search'}
+									value={searchValue?.query || ''}
+								/>
+							</div>
+						</div>
+						<div
+							className="filter-icon-container"
+							onClick={() => {
+									setTimeout(
+										() => setisBoxOpen(!isBoxOpen),
+										0
+									)
+								}
+							}
+							style={{ 
+								fontSize: 'var(--ft-paragraph)',
+								marginLeft: 'var(--normal-padding)',
+							}}
+						>
+							<TuneIcon
+								fontSize='inherit' 
 							/>
 						</div>
-					</div>
-					<div
-						className="filter-icon-container"
-						onClick={() => {
-								setTimeout(
-									() => setisBoxOpen(!isBoxOpen),
-									0
-								)
-							}
-						}
-						style={{ 
-							fontSize: 'var(--ft-paragraph)',
-							marginLeft: 'var(--normal-padding)',
+					</div >
+		)
+	}
+
+	return (
+		<div style={{
+			width: width,
+			display:'flex',
+			flexDirection: 'row',
+			gap: '16px',
+			alignItems: 'center',
+		}}>
+			<PopOver
+				background={'transparent'}
+				marginTop={'2.4rem'}
+				whatCorner='left'
+				variants={'down'}
+				key={'search-popover-with-box'}
+				open={isBoxOpen}
+				toggleOpen={() =>setisBoxOpen}
+				isCloseOnSelect={false}
+				mainElement={renderSearchLine()}
+			>
+				{[renderOpenBox()]}
+			</PopOver>
+			
+			{
+			whatDisplay === 1 ? 
+				<div style={{zIndex: isBoxOpen ? 1301 : null}}>
+					<SmartSwitch
+						isSmartSearch={searchValue.smartSearch}
+						changeSmartSearch={() => {
+							setSearchValue({
+								...searchValue,
+								smartSearch: !searchValue.smartSearch,
+							})
 						}}
-					>
-						<TuneIcon
-							fontSize='inherit' 
-						/>
-					</div>
-				</div >
+					/>
+				</div> 
+			: null
 			}
-		>
-			{[renderOpenBox()]}
-		</PopOver>
+		</div>
+
 	);
 };

@@ -32,6 +32,7 @@ import { isCorrectFormat } from '@helpers/isCorrectFormat';
 import { BottomButtons } from './bottomButtons';
 import { notificationBar } from '@helpers/notificationBar';
 import { DiskConnect } from '@widgets/diskConnect/diskConnect';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 interface SidebarProps {
 	width: string;
@@ -71,6 +72,8 @@ export const Sidebar: FC<SidebarProps> = ({
 	const [filesWasSend, setFilesWasSend] = useState<boolean>(false) 
 
 	const [isCreationPopOpen,setCreationPopOpen] = useState<boolean>(false)
+
+	const [aboutUsIsOpen, setAboutUsIsOpen] = useState(false)
 
 	const refreshFiles = () => {
 		if (isSearch) {
@@ -238,6 +241,30 @@ export const Sidebar: FC<SidebarProps> = ({
 							nameOfSelectedDisk={typeof whatDiskToShow === 'string' ? whatDiskToShow : whatDiskToShow.disk}
 						/>
 						<BottomButtons/>
+					</div>
+					<Modal
+						styleOnModal={{
+							backgroundColor: 'var(--color-dropdowns)',
+							color: 'inherit'
+						}}
+						isOpen={aboutUsIsOpen} 
+						closeModal={() => setAboutUsIsOpen(false)} 
+					>
+						<Typography>Something</Typography>
+					</Modal>
+					<div style={{
+						width: '100%', 
+						marginTop: 'auto', 
+						opacity: '0.6',
+						cursor: 'pointer'
+					}}>
+						<TextWithImg 
+							onClick={() =>setAboutUsIsOpen(true) } 
+							text={'AboutUs'} 
+							imgSrc={<InfoOutlinedIcon fontSize='inherit'></InfoOutlinedIcon>} 
+							altImgText={''} 
+							className={'text-with-img-row text-with-img'}
+						/>
 					</div>
 					{isMobile
 						? <div style={{

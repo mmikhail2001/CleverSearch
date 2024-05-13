@@ -33,8 +33,11 @@ export const DiskView: FC<DiskViewProps> = ({
     useEffect(() => {
         if (refreshResp.isSuccess &&  typeof showReq.disk !== 'string' && showReq.disk.disk === nameOfSelectedDisk) {
             dispatch(newValues({...showReq, disk: showReq.disk}))
+            notificationBar({
+                children: 'Refresh files successfully',
+                variant:'success',
+            })
         }
-
     }, [refreshResp])
 
 

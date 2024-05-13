@@ -1,6 +1,6 @@
 .profile {
     background-color: var(--color-selected);
-    width: 100px;
+    width: fit-content;
     height: 100%;
     display: flex;
     justify-content: center;
@@ -9,6 +9,8 @@
 
     gap: var(--normal-padding);
     padding: var(--normal-padding);
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .profile-picture {

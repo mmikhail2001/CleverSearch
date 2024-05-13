@@ -13,6 +13,7 @@ interface SwitchProps {
     fontSize?: string;
     className?: string;
     style?: CSS.Properties;
+    color?: 'secondary' | 'warning' | 'default'
 }
 
 export const Switch: FC<SwitchProps> = ({
@@ -25,6 +26,7 @@ export const Switch: FC<SwitchProps> = ({
     fontSize,
     className,
     style,
+    color,
 }) => {
     return (
         <FormControlLabel
@@ -39,6 +41,7 @@ export const Switch: FC<SwitchProps> = ({
             labelPlacement={labelPlacement}
             control={
                 <UISwitch
+                    color={color}
                     onClick={onChange}
                     disabled={disabled}
                     checked={checked}

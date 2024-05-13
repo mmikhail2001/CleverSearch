@@ -11,7 +11,7 @@ export const fileUploadNotification = (files: fileFile[]) => {
         const message = `File was processed: ${file.filename}`
         notificationBar({
             children: message,
-            variant: 'default'
+            variant: 'info'
         })
         dispatch(removeNotify([file]))
         dispatch(removeFiles([file]))
