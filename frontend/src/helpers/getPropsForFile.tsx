@@ -88,9 +88,10 @@ export const getPdfProps = (
                 closeModal={() => changeState(false)}
                 bodyClassName={'modal-body__pdf'}
                 styleOnModal={{
-                    background: 'var(--color-dropdowns)',
+                    background: 'transparent',
                     borderRadius:'15px',
-                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    boxShadow: 'none',
+                    border: 'none',
                     color:'inherit',
                     minWidth: whatDisplay !== 1 ? '330px' : null,
                 }}

@@ -91,7 +91,6 @@ const PdfViewer: FC<PdfViewerProps> = ({
     width: `100%`,
     minWidth: '300px',
     height: '100%',
-    background: 'var(--color-dropdowns)'
   };
 
 

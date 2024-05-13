@@ -14,6 +14,7 @@ interface ModalProps {
     isFullWidth?: boolean;
     stylesOnContentBackground?: CSS.Properties;
     styleOnModal?: CSS.Properties;
+    backgroundStyle?: 'black',
 }
 
 export const Modal: FC<ModalProps> = ({
@@ -27,10 +28,18 @@ export const Modal: FC<ModalProps> = ({
     isFullWidth,
     stylesOnContentBackground,
     styleOnModal,
+    backgroundStyle,
 }) => {
     const handleClose = (event: React.MouseEvent<HTMLElement>) => {
         event.preventDefault();
         closeModal();
+    }
+
+    let setBackground;
+    switch (backgroundStyle) {
+        case 'black':
+        default:
+            setBackground = 'rgba(0,0,0,0.6)'
     }
 
     return (
@@ -38,6 +47,7 @@ export const Modal: FC<ModalProps> = ({
             disableAutoFocus
             disableEnforceFocus
             open={isOpen}
+            sx={{background: setBackground}}
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
