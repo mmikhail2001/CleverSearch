@@ -78,7 +78,7 @@ func (h *Handler) AuthProviderCallback(w http.ResponseWriter, r *http.Request) {
 
 	if !exists {
 		log.Println("AuthProviderCallback: Invalid state")
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -91,11 +91,16 @@ func (h *Handler) AuthProviderCallback(w http.ResponseWriter, r *http.Request) {
 	token, err := h.oauthConfig.Exchange(context.Background(), code)
 	if err != nil {
 		log.Println("Unable to exchange code for token:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	h.usecase.CloudConnect(r.Context(), token)
+	err = h.usecase.CloudConnect(r.Context(), token)
+	if err != nil {
+		log.Println("CloudConnect err:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
 

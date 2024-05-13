@@ -81,6 +81,8 @@ type File struct {
 
 	IsFav bool
 
+	ConvertedToPDF bool
+
 	MLData interface{}
 }
 

@@ -34,6 +34,8 @@ type fileDTO struct {
 
 	Favs []string `bson:"favs"`
 
+	ConvertedToPDF bool `bson:"converted_to_pdf"`
+
 	MLData interface{} `bson:"ml_data"`
 }
 

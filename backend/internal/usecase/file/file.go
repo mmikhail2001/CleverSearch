@@ -1,11 +1,15 @@
 package file
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"io"
 	"log"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -121,7 +125,7 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 	switch file.Extension {
 	case "doc", "docx", "odt", "ppt", "pptx", "odp", "txt", "md":
 		var size int64
-		fileReader, size, err = ConvertToPDF(ctx, fileReader, file)
+		fileReader, size, err = uc.ConvertToPDF(ctx, fileReader, file)
 		if err != nil {
 			log.Println("ConvertToPDF repo error:", err)
 			return fileDomain.File{}, err
@@ -152,6 +156,48 @@ func (uc *Usecase) Upload(ctx context.Context, fileReader io.Reader, file fileDo
 		return fileDomain.File{}, err
 	}
 	return file, nil
+}
+
+func (uc *Usecase) ConvertToPDF(ctx context.Context, reader io.Reader, file file.File) (io.Reader, int64, error) {
+	tmpFile, err := os.CreateTemp("", "tempfile*."+file.Extension)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to create temporary file: %v", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	if _, err := io.Copy(tmpFile, reader); err != nil {
+		return nil, 0, fmt.Errorf("failed to copy file contents to temporary file: %v", err)
+	}
+	tmpFile.Close()
+
+	loPath, err := exec.LookPath("libreoffice")
+	if err != nil {
+		return nil, 0, fmt.Errorf("libreoffice not found: %v", err)
+	}
+
+	cmd := exec.CommandContext(ctx, loPath, "--headless", "--convert-to", "pdf", tmpFile.Name(), "--outdir", filepath.Dir(tmpFile.Name()))
+	if err := cmd.Run(); err != nil {
+		return nil, 0, fmt.Errorf("conversion to PDF failed: %v", err)
+	}
+
+	pdfFilePath := strings.TrimSuffix(tmpFile.Name(), filepath.Ext(tmpFile.Name())) + ".pdf"
+	pdfFile, err := os.Open(pdfFilePath)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to open PDF file: %v", err)
+	}
+	defer pdfFile.Close()
+
+	var buffer bytes.Buffer
+	size, err := io.Copy(&buffer, pdfFile)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to copy PDF contents to buffer: %v", err)
+	}
+
+	if err := os.Remove(pdfFilePath); err != nil {
+		return nil, 0, fmt.Errorf("failed to remove temporary PDF file: %v", err)
+	}
+
+	return &buffer, size, nil
 }
 
 func (uc *Usecase) CreateDir(ctx context.Context, file fileDomain.File) (fileDomain.File, error) {
@@ -336,7 +382,7 @@ func (uc *Usecase) CompleteProcessingFile(ctx context.Context, uuidFile string) 
 		return err
 	}
 
-	if string(file.Disk) != "" {
+	if string(file.Disk) != "" && !file.ConvertedToPDF {
 		err = uc.repo.RemoveFromStorage(ctx, file)
 		if err != nil {
 			log.Println("RemoveFromStorage err in CompleteProcessingFile:", err)

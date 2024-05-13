@@ -83,12 +83,12 @@ func (uc *Usecase) CloudConnect(ctx context.Context, token *oauth2.Token) error 
 
 	uc.fillFilesRecursively(ctx, srv, files.Files, "", user, cloudUserEmail, &fileList)
 
-	for _, file := range fileList {
-		err := uc.fileRepo.CreateFile(ctx, file)
-		if err != nil {
-			return err
-		}
-	}
+	// for _, file := range fileList {
+	// 	err := uc.fileRepo.CreateFile(ctx, file)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	go uc.downloadAndUploadFiles(context.Background(), srv, fileList)
 

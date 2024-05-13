@@ -24,7 +24,7 @@ func (r *Repository) UploadToStorage(ctx context.Context, fileReader io.Reader, 
 
 	exists, err := r.minio.BucketExists(ctx, file.Bucket)
 	if err != nil {
-		log.Println("Failed to check bucket [", file.Bucket, "] existence:", err)
+		log.Println("Failed to check bucket [", file.Bucket, "] existence:", exists, "err: ", err)
 		return file, err
 	}
 

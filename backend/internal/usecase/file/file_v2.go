@@ -149,6 +149,7 @@ func (uc *Usecase) Drive(ctx context.Context, options fileDomain.FileOptionsV2) 
 /*
 	запрос на файлы и папки пользователя (HasCloudEmail = false)
 */
+
 func (uc *Usecase) Internal(ctx context.Context, options fileDomain.FileOptionsV2) ([]fileDomain.File, error) {
 	_, err := handleDirSetUser(ctx, &options)
 	if err != nil {
@@ -160,6 +161,36 @@ func (uc *Usecase) Internal(ctx context.Context, options fileDomain.FileOptionsV
 		log.Println("GetFiles: err:", err)
 		return []fileDomain.File{}, err
 	}
+
+	// TODO: внутренние, но пошаренные с другими
+	// нужно достать и файлы, которые другие загрузили
+	if options.Dir != "/" {
+		rootDir := strings.Split(options.Dir, "/")[1]
+		rootDirFile, err := uc.repo.GetFileByPath(ctx, "/"+rootDir, options.UserID)
+		if err != nil {
+			log.Println("GetFileByPath [", rootDir, "]: err:", err)
+			return []fileDomain.File{}, err
+		}
+		if rootDirFile.IsShared && rootDirFile.ShareAccess == fileDomain.Writer {
+			// TODO: нужно по id директории найти всех пользователей, с которыми пошарили
+			// по id пользователей найти все файлы внутри данной папки
+			mainUser := options.UserID
+			options.UserID = ""
+			filesOtherUsers, err := uc.repo.GetFilesV2(ctx, options)
+			if err != nil && !errors.Is(err, fileDomain.ErrNotFound) {
+				log.Println("GetFilesV2 err:", err)
+				return []fileDomain.File{}, err
+			}
+			var filesOtherUsersWithoutMainUser []fileDomain.File
+			for _, file := range filesOtherUsers {
+				if file.UserID != mainUser {
+					filesOtherUsersWithoutMainUser = append(filesOtherUsersWithoutMainUser, file)
+				}
+			}
+			files = append(files, filesOtherUsersWithoutMainUser...)
+		}
+	}
+
 	if options.FirstNesting {
 		return filterFilesByNesting(files, options.Dir), nil
 	}

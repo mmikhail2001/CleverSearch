@@ -98,7 +98,6 @@ func (m *Middleware) GetUserIDMiddleware(next http.Handler) http.Handler {
 func (m *Middleware) AccessLogMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("request:", r.URL)
-		log.Println("query string:", r.URL.Query())
 		next.ServeHTTP(w, r)
 	})
 }
