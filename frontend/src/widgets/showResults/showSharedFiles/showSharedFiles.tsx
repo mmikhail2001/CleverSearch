@@ -32,7 +32,11 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 	const navigate = useNavigate()
 
 	useEffect(() => {
-		setvalueToShow(data?.body)
+		if (data?.body && !('length' in data?.body)) {
+			setvalueToShow([data?.body])
+		} else {
+			setvalueToShow(data?.body)
+		}
 		
 		if (searchResp.isSuccess) {
 			if (data?.body?.length > 1 && data?.body[0].disk === 'google') {
@@ -41,6 +45,7 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 				}
 			}
 		}
+
 	}, [data?.body])
 
 	useEffect(() => {
@@ -50,6 +55,10 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 	useEffect(() => {
 		if (isShared) {
 			showShared(showReq.dir.join('/'))
+		}
+
+		if (!isShared) {
+			dispatch(switchToShared())
 		}
 	}, [showReq, isShared])
 
@@ -64,14 +73,6 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 			}
 		}
 	},[showReq.dir])
-
-	if (!isShared) {
-		dispatch(switchToShared())
-	}
-
-	if (valueToShow && !('length' in valueToShow)) {
-		setvalueToShow([valueToShow])
-	}
 
 	return (
 		<ShowGlobal

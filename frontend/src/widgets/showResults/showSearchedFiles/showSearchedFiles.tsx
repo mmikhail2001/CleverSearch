@@ -30,7 +30,6 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     const { isSearch } = useAppSelector(state => state.whatToShow)
     const { isCanBeAdd } = useAppSelector(state => state.addPermission)
 
-
     useEffect(() => {
         if (isSearch 
         ) {

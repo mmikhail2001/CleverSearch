@@ -35,11 +35,11 @@ export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
         if (filesProcessed.fileOnProcess && filesProcessed.fileOnProcess.length > 1) {
             dispatch(removeFiles(filesProcessed.fileOnProcess))
         }
+        
+        if (!isProccessed) {
+            dispatch(switchToProcessed())
+        }
     }, [isProccessed,filesProcessed.fileOnProcess])
-
-    if (!isProccessed) {
-        dispatch(switchToProcessed())
-    }
 
     const mainElement = useRef<HTMLDivElement>(null)
     const headerElement = useRef<HTMLDivElement>(null)

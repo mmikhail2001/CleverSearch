@@ -34,26 +34,26 @@ export const RegisterForm: FC<RegisterProps> = () => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 
-	if (loginResp.isError && registerResp.isSuccess) {
-		dispatch(loginAction());
-		navigate('/login', {replace: true, state: location.state});
-	}
-
-	if (loginResp.isSuccess) {
-		dispatch(loginAction());
-		
+	useEffect(() => {
+		if (loginResp.isError && registerResp.isSuccess) {
+			dispatch(loginAction());
+			navigate('/login', {replace: true, state: location.state});
+		}
+	
 		if (loginResp.isSuccess) {
 			dispatch(loginAction());
-			console.log('location', location)
-			if (location.key === 'default') {
-				navigate('/');
-			} else {
-				const fromUrl = location.state.from
-				console.log('location.state.from', location.state.from,fromUrl.pathname+fromUrl.search )
-				navigate(fromUrl.pathname+fromUrl.search)
+			
+			if (loginResp.isSuccess) {
+				dispatch(loginAction());
+				if (location.key === 'default') {
+					navigate('/');
+				} else {
+					const fromUrl = location.state.from
+					navigate(fromUrl.pathname+fromUrl.search)
+				}
 			}
 		}
-	}
+	}, [loginResp])
 
 	useEffect(() => {
 		if (registerResp.isError 

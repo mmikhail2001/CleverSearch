@@ -46,7 +46,6 @@ export const ViewImg: FC<ViewImgProps> = React.memo(function viewImg({ imgSrc, a
 			let widthRatio: number;
 			let heightRatio: number;
 
-			console.log('width',maxContainerWidth, imgWidth,'height', maxContainerHeight, imgHeight)
 			if (maxContainerWidth >= imgWidth && maxContainerHeight >= imgHeight) {
 				// Image can be inside container
 				setWidthCont(`${imgWidth}px`)

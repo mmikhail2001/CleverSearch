@@ -12,7 +12,6 @@ import { SearchBox } from './searchBox/searchBox';
 import { newSearchValues } from '@store/searchRequest';
 
 import { useNavigate } from 'react-router-dom';
-import { transformToSearchRequestString } from '@api/transforms';
 
 import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -27,7 +26,7 @@ import { compareArrays } from '@helpers/hooks/useShowParams';
 import { newValues } from '@store/showRequest';
 import { changeOpenFilter } from '@store/searchFilter';
 import { getSearchURLFront } from '@helpers/transformsToURL';
-import { SmartSwitch } from '@feature/searchSwitch/searchSwitch';
+import { SmartSwitch } from '@feature/smartSwitch/smartSwitch';
 
 export interface searchStateValue {
 	smartSearch: boolean;
@@ -199,7 +198,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 				variants={'down'}
 				key={'search-popover-with-box'}
 				open={isBoxOpen}
-				toggleOpen={() =>setisBoxOpen}
+				toggleOpen={(state) =>setisBoxOpen(state)}
 				isCloseOnSelect={false}
 				mainElement={renderSearchLine()}
 			>

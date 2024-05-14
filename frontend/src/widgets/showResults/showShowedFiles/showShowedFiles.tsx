@@ -35,7 +35,6 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
         }
     }, [showReq, isShow])
 
-
     return (
         <ShowGlobal
             errorElement={<GetShowNoFilesErrorElement/>}

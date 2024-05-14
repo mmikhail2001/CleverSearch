@@ -32,9 +32,9 @@ export const Switch: FC<SwitchProps> = ({
         <FormControlLabel
             className={className}
             style={{ 
-                ...style,
                 marginLeft: '0',
                 width:'100%',
+                ...style,
             }}
             label={label}
             slotProps={{ typography: { fontSize: fontSize } }}

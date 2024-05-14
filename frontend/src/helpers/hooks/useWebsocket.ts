@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 
 const reconnectTimeout = 2000;
-const pingStatusTimeout = 5000;
+const pingStatusTimeout = 8000;
 
 
 export const useWebSocket = () => {
@@ -41,18 +41,19 @@ export const useWebSocket = () => {
                 };
 
                 ws.onmessage = (msg:MessageEvent<any>) => {
-                    console.info('WS: receive', event)
                     const jsonMsg = JSON.parse(msg.data)
                     let transfromMSG:Notify;
 
                     if ('event' in jsonMsg && 'file' in jsonMsg) {
                         transfromMSG = jsonMsg
                     } else {
+                        console.info('WS: receive and cant recognize: ', event)
                         return
                     }
 
                     switch (transfromMSG.event) {
                         case 'changeStatus': 
+                            console.info('WS: receive', event)
                             dispatch(addNewFiles([transfromMSG.file]))
                             break;
                         case "PONG":
@@ -85,7 +86,7 @@ export const useWebSocket = () => {
             const startPingPong = () => {
                 pingIntervalRef.current = setInterval(() => {
                     if (ws.readyState === WebSocket.OPEN) {
-                        const fiveSecondsAgo = lastPing - (5 * 1000);
+                        const fiveSecondsAgo = lastPing - pingStatusTimeout;
 
                         if (fiveSecondsAgo > lastPong) {
                             clearInterval(pingIntervalRef.current);

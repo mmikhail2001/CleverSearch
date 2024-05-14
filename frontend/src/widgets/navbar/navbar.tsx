@@ -4,7 +4,6 @@ import { UserProfile } from '@widgets/userProfile/userProfile'
 import { SearchLine } from '@widgets/searchLine/searchLine';
 import { useAppSelector } from '@store/store';
 import { useMobile } from 'src/mobileProvider';
-import { SmartSwitch } from '@feature/searchSwitch/searchSwitch';
 
 interface NavbarProps {
 	toggleSidebar?: () => void
@@ -30,14 +29,14 @@ export const Navbar: FC<NavbarProps> = ({
 
 	return (
 		<div className="navbar">
-			<div className="search-bar-place" style={{ width: 'fit-content' }}>
+			<div className="search-bar-place" key={'search-line-placement'} style={{ width: 'fit-content' }}>
 				<SearchLine
 					width={widthToSet}
 					onIconClick={toggleSidebar}
 				/>
 			</div>
-			{whatDisplay === 1 ? <div className="user-profile-place">
-				<UserProfile email={email} />
+			{whatDisplay === 1 ? <div className="user-profile-place" key={'user-profile-placement-navbar'}>
+				<UserProfile key={'user-profile-navbar'} email={email} />
 			</div> : null}
 		</div>
 	);

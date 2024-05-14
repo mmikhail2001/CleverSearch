@@ -7,7 +7,6 @@ import './settings.scss'
 import { getAvatarByEmail, useSetAvatarMutation } from '@api/userApi';
 import { TextWithInput } from '@feature/buttonWithInput/buttonWithInput';
 import { Button } from '@entities/button/button';
-import { DiskConnect } from '@widgets/diskConnect/diskConnect';
 import { Typography } from '@mui/material';
 import { useDiskLinkConnectMutation } from '@api/diskApi';
 import { useAppSelector } from '@store/store';

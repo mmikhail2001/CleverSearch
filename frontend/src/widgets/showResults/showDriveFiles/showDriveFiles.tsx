@@ -28,6 +28,12 @@ export const ShowDriveFiles: FC<ShowDriveFilesProps> = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
+        if (!isExternal) {
+            dispatch(switchToExternal())
+        }
+    },[])
+
+    useEffect(() => {
         if (isExternal && typeof whatDiskToShow !== 'string') {
             show({
                 dir:[showReq.dir].join('/'),
@@ -38,11 +44,11 @@ export const ShowDriveFiles: FC<ShowDriveFilesProps> = () => {
         if (isCanBeAdd) {
             dispatch(removeAddPermission())
         }
-    }, [showReq, isExternal])
 
-    if (!isExternal) {
-        dispatch(switchToExternal())
-    }
+        if (!isExternal) {
+            dispatch(switchToExternal())
+        }
+    }, [showReq, isExternal])
 
     return (
         <ShowGlobal

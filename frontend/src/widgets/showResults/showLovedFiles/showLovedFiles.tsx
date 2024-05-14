@@ -16,15 +16,18 @@ export const ShowLovedFiles: FC<ShowLovedFilesProps> = () => {
     const { isLoved } = useAppSelector(state => state.whatToShow)
     const dispatch = useDispatch();
     const [deleteFile, respDelete] = useDeleteFileMutation();
+
     const { isCanBeAdd } = useAppSelector(state => state.addPermission)
 
-    if (!isLoved) {
-        dispatch(switchToLoved())
-    }
-
-    if (isCanBeAdd) {
-        dispatch(removeAddPermission())
-    }
+    useEffect(() => {
+        if (!isLoved) {
+            dispatch(switchToLoved())
+        }
+    
+        if (isCanBeAdd) {
+            dispatch(removeAddPermission())
+        }
+    }, [isLoved, isCanBeAdd])
 
     useEffect(() => {
         loved(null);

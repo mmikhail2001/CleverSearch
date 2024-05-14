@@ -127,7 +127,7 @@ export const Sidebar: FC<SidebarProps> = ({
 			&& val[1].diskName !== 'own')
 		.map((val) => {
 			if (isExternalDisk(val[1])) {
-				return <DiskConnect classname='show-add-line' disk={val[1]} />
+				return <DiskConnect key={String(val[1])} classname='show-add-line' disk={val[1]} />
 			}
 			return null
 		})
@@ -140,7 +140,7 @@ export const Sidebar: FC<SidebarProps> = ({
 					className="sidebar"
 					style={{ width: width }}
 				>
-					<div className="our-name-place">
+					<div className="our-name-place" key={'our-name'}>
 						{isMobile ?
 							<UserProfile email={email} isDropdownExist={false} />
 							:
@@ -153,8 +153,9 @@ export const Sidebar: FC<SidebarProps> = ({
 							</Typography>
 						}
 					</div>
-					<div className='button_sidebar'>
+					<div className='button_sidebar' key={'add-button-sidebar'}>
 						<PopOver
+							key={'add-popover-sidebar'}
 							background={'var(--color-selected)'}
 							styleMain={{width: '179px'}}
 							mainElement={
@@ -180,6 +181,7 @@ export const Sidebar: FC<SidebarProps> = ({
 						>
 							{[
 								<TextWithInput
+									key={'file-input-sidebar'}
 									startIcon={<InsertDriveFileRoundedIcon fontSize='inherit' sx={{color: "#0A9542", marginBottom: '3px'}}/>}
 									textStyles={{fontSize:'var(--ft-paragraph)'}}
 									stylesOnRoot={{
@@ -218,6 +220,7 @@ export const Sidebar: FC<SidebarProps> = ({
 									disabled={false}
 								></TextWithInput>,
 								<FolderCreation
+									key={'folder-creation-sidebar'}
 									onClose={() => setCreationPopOpen(false)}
 									dirs={showReq.dir}
 									onFolderCreation={() => {
@@ -229,7 +232,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							]}
 						</PopOver>
 					</div>
-					<div className='disk-show'>
+					<div className='disk-show' key={'disk-show-sidebar'}>
 						<DiskView
 							needSelect={isShow || isExternal}
 							externalView={isExternal}
@@ -253,9 +256,10 @@ export const Sidebar: FC<SidebarProps> = ({
 							}}
 							nameOfSelectedDisk={typeof whatDiskToShow === 'string' ? whatDiskToShow : whatDiskToShow.disk}
 						/>
-						<BottomButtons/>
+						<BottomButtons key={'bottom-buttons-sidebar'}/>
 					</div>
 					<Modal
+						key={'about-us-modal-sidebar'}
 						styleOnModal={{
 							backgroundColor: 'var(--color-dropdowns)',
 							color: 'inherit'
@@ -270,7 +274,9 @@ export const Sidebar: FC<SidebarProps> = ({
 						marginTop: 'auto', 
 						opacity: '0.6',
 						cursor: 'pointer'
-					}}>
+					}}
+					key={'about-us-sidebar'}
+					>
 						<TextWithImg 
 							onClick={() =>setAboutUsIsOpen(true) } 
 							text={'About us'} 
@@ -287,13 +293,16 @@ export const Sidebar: FC<SidebarProps> = ({
 							fontSize: 'var(--ft-pg-24)',
 							height: '48px',
 						}}
+						key={'buttons-bottom-sidebar'}
 						>
 							<Button 
+								key={'button-logout-sidebar'}
 								buttonText={'Logout'}
 								clickHandler={logout} 
 								variant={'contained'}
 							></Button>
 							<Button 
+								key={'button-back-sidebar'}
 								buttonText={'Back to main'}
 								clickHandler={() => toggleShow(!isOpen)} 
 								variant={'contained'}

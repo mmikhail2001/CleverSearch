@@ -29,16 +29,6 @@ export const LoginForm: FC<LoginFormProps> = () => {
 
 	const {whatDisplay} = useMobile()
 
-	if (loginResp.isSuccess) {
-		dispatch(loginAction());
-		if (location.key === 'default') {
-			navigate('/');
-		} else {
-			const fromUrl = location.state.from
-			navigate(fromUrl.pathname+fromUrl.search)
-		}
-	}
-	
 	useEffect(() => {
 		if (loginResp.isError 
 			&& 'status' in loginResp.error
@@ -58,6 +48,15 @@ export const LoginForm: FC<LoginFormProps> = () => {
 			setError('User not exist')
 		}
 
+		if (loginResp.isSuccess) {
+			dispatch(loginAction());
+			if (location.key === 'default') {
+				navigate('/');
+			} else {
+				const fromUrl = location.state.from
+				navigate(fromUrl.pathname+fromUrl.search)
+			}
+		}
 	},  [loginResp])
 
 	useEffect(() => {

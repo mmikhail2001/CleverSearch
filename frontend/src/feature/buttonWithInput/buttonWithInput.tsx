@@ -37,9 +37,10 @@ export const TextWithInput: FC<TextWithInputProps> = ({
   };
 
   return (
-    <div onClick={handleClick} className={className || ''} style={{...stylesOnRoot}}>
+    <div key={`classnames_${className}`} onClick={handleClick} className={className || ''} style={{...stylesOnRoot}}>
       {startIcon}
       <Typography
+        key={`typo_${className}`}
         sx={{
           cursor: 'pointer',
           color:'inherit',
@@ -49,6 +50,7 @@ export const TextWithInput: FC<TextWithInputProps> = ({
       >{buttonText}</Typography>
       {endIcon}
       <input
+        key={`input_${className}`}
         accept={isNullOrUndefined(accept) ? correctFormats : accept}
         multiple={true}
         ref={hiddenFileInput}

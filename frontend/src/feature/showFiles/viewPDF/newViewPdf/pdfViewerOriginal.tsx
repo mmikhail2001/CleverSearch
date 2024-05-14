@@ -4,6 +4,8 @@ import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import useResizeObserver from 'use-resize-observer';
 import Page from './page/pageWrapper';
 import PdfPage from './page/pageOfPPdf';
+import { CircularProgress } from '@mui/material';
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
 export interface PdfViewerProps {
   itemCount: number,
@@ -24,7 +26,6 @@ const PdfViewer: FC<PdfViewerProps> = ({
 }) => {
   const [pages, setPages] = useState([] as PDFPageProxy[]);
   const listRef = useRef<VariableSizeList>();
-
   
   const {
     ref,
@@ -96,10 +97,11 @@ const PdfViewer: FC<PdfViewerProps> = ({
 
   const renderPage: FC<ListChildComponentProps> = ({ index, style }) => {
     fetchPage(index);
+
     return (
       // @ts-expect-error HACK
       <Page style={{...style, width:`fit-content`}}>
-        <PdfPage page={pages[index]} scale={scale} />
+        {!isNullOrUndefined(pages[index]) ? <PdfPage page={pages[index]} scale={scale} /> : <CircularProgress />}
       </Page>
     );
   }

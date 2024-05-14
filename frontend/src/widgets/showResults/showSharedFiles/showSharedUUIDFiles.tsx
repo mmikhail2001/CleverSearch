@@ -22,7 +22,6 @@ export const ShowSharedUUIDFiles: FC<ShowSharedUUIDFilesProps> = () => {
 	const [requestShareFolder] = useGetShareFolderUUIDMutation()
 
 	useEffect(() => {
-		console.log("???")
 		requestShareFolder(diruuid).then(() => {
 			dispatch(switchToShared())
 			getFilesOfUUIDFolder(String(diruuid))

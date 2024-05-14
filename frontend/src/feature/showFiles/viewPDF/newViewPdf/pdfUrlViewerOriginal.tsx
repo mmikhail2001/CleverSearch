@@ -4,6 +4,7 @@ import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { VariableSizeList } from 'react-window';
 import PdfViewer from './pdfViewerOriginal';
 import { PdfControls } from './pdfControls';
+import { CircularProgress } from '@mui/material';
 
 export interface PdfUrlViewerProps {
   url: string,
@@ -51,21 +52,26 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
   return (
     <div className='pdf-with-controls'>
         <PdfControls
-        changePage={(page) => setCurrentPage(page-1)}
-        currentPage={currentPage + 1}
-        maxPage={itemCount}
-        scale={settedScale}
-        zoomIn={() => setsettedScale(p => p + 0.25)}
-        zoomOut={() => setsettedScale(p => p - 0.25)}
-      />
-      <PdfViewer
-        windowRef={windowRef}
-        itemCount={itemCount}
-        getPdfPage={handleGetPdfPage}
-        onLoad={() => { setFirstPageLoaded(true); }}
-        scale={settedScale}
-        gap={40}
-      />
+          changePage={(page) => setCurrentPage(page-1)}
+          currentPage={currentPage + 1}
+          maxPage={itemCount}
+          scale={settedScale}
+          zoomIn={() => setsettedScale(p => p + 0.25)}
+          zoomOut={() => setsettedScale(p => p - 0.25)}
+        />
+        
+        {isFirstPageLoaded ? null : <div style={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '1.2rem'}}>
+            <CircularProgress></CircularProgress>
+          </div>}
+
+        <PdfViewer
+          windowRef={windowRef}
+          itemCount={itemCount}
+          getPdfPage={handleGetPdfPage}
+          onLoad={() => { setFirstPageLoaded(true); }}
+          scale={settedScale}
+          gap={40}
+        />
     </div>
   );
 };

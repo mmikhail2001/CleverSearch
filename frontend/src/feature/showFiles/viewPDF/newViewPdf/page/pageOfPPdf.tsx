@@ -11,10 +11,11 @@ const PdfPage: FC<PdfPageProps> = React.memo(function pdfPage({ page, scale }: P
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const textLayerRef = useRef<HTMLDivElement>(null);
 
+  if (!page) {
+    return;
+  }
+
   useEffect(() => {
-    if (!page) {
-      return;
-    }
     const viewport = page.getViewport({ scale });
 
     // Prepare canvas using PDF page dimensions

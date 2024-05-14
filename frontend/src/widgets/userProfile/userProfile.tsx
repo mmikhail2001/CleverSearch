@@ -90,8 +90,8 @@ export const UserProfile: FC<UserProfileProps> = ({
 			mainElement={profileMain()}
 		>
 			{[
-				<div onClick={() => navigate('/settings')}>Settings</div>,
-				<div onClick={logout}>Logout</div>,
+				<div onClick={() => navigate('/settings')} key={'settings-profile'} >Settings</div>,
+				<div onClick={logout} key={'logout-profile'}>Logout</div>,
 			]}
 		</DropDown >)
 	}

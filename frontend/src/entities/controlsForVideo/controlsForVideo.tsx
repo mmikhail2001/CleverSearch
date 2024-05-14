@@ -143,7 +143,9 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 						mainElement={getVolumeIcon(currentVolume)}
 					>
 						{[
-							<Box sx={
+							<Box
+								key={'box-control'} 
+								sx={
 									{
 										height: 130,
 										overflow: 'hidden',

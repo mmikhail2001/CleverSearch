@@ -45,11 +45,12 @@ export const DiskView: FC<DiskViewProps> = ({
     const disksToShow = disks.clouds
         .map(
             val => {
-                if (alreadyShowed.find(disk => disk === val.disk)) return
+                if (!!alreadyShowed.find(disk => disk === val.disk)) {
+                    return null
+                }
                 alreadyShowed.push(val.disk)
-                
                 return <TextWithImgAndDropDown
-                    key={val.cloud_email + val.disk}
+                    key={`${val.cloud_email}__${val.disk}`}
                     selected={nameOfSelectedDisk === val.disk && needSelect}
                     disk={diskImgSrc.get(val.disk)}
                     cloudValues={disks.clouds}
