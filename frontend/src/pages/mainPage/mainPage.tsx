@@ -108,7 +108,7 @@ export const MainPage: FC = () => {
 					accept={correctFormats}
 					stylesOnComponent={{
 						display:'flex',
-						fontSize:'24px',
+						fontSize:'var(--ft-pg-24)',
 						height:'100%',
 						width:'100%',
 						justifyContent: 'center',

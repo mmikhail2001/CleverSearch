@@ -23,7 +23,7 @@ interface ButtonProps {
 const UIButtonWithStyle = styled(UIButton)({
 	boxShadow: '4px 6px 6px 0 rgba(var(--color-active-shadow),.08)',
 	textTransform: 'none',
-	fontSize: 'var(--ft-body)',
+	fontSize: 'var(--ft-body-plust)',
 	borderRadius: 'var(--big-radius)',
 	padding: '16px 24px',
 	border: 'none',

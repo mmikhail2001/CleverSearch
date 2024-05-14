@@ -72,7 +72,7 @@ export const SettingsPage: FC = () => {
 			justifyContent: 'center',
 			alignItems: 'center',
 		}}>
-			<Typography style={{opacity: '0.8'}} fontSize={'3.2rem'}>{titleText}</Typography>
+			<Typography style={{opacity: '0.8'}} fontSize={'var(--ft-pg-32)'}>{titleText}</Typography>
 			{imgWithText}
 		</div>
 	}
@@ -113,7 +113,7 @@ export const SettingsPage: FC = () => {
 							width: 'auto',
 							height: '75px',
 						}} /> 
-						<Typography fontSize={'15px'}>Google drive</Typography>
+						<Typography fontSize={'var(--ft-body-plust)'}>Google drive</Typography>
 					</div>,
 					'Connect clouds', 
 				)

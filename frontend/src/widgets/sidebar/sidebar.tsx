@@ -283,9 +283,8 @@ export const Sidebar: FC<SidebarProps> = ({
 						? <div style={{
 							display: 'flex',
 							justifyContent: 'space-between',
-							marginTop: 'auto',
 							width: '100%',
-							fontSize: '2.4rem',
+							fontSize: 'var(--ft-pg-24)',
 							height: '48px',
 						}}
 						>

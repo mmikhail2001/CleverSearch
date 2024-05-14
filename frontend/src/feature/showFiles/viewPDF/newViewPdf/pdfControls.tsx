@@ -55,7 +55,7 @@ export const PdfControls: FC<PdfControlsProps> = ({
         >
           <div style={{
             display: 'flex',
-            fontSize: '14px',
+            fontSize: 'var(--ft-body)',
             alignItems: 'center',
             background: 'var(--color-dropdowns)',
             borderRadius: 'var(--small-radius) var(--small-radius) 0 0',
@@ -82,7 +82,7 @@ export const PdfControls: FC<PdfControlsProps> = ({
                   width: '20px',
                 }}
                 removeFocusedBorder={true}
-                fontSize='14px'
+                fontSize='var(--ft-body)'
               >
               </Input>
               <Typography sx={{
