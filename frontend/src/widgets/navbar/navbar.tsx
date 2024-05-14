@@ -16,7 +16,17 @@ export const Navbar: FC<NavbarProps> = ({
 	const { email } = useAppSelector(state => state.userAuth)
 	const { whatDisplay, currentWidth } = useMobile()
 
-	const widthToSet = whatDisplay === 1 ? '600px' : `calc(${currentWidth}px - 2*var(--big-padding))`
+	let widthToSet;
+
+	if (whatDisplay === 1) {
+		if (currentWidth > 1250) {
+			widthToSet = '672px'
+		} else {
+			widthToSet = '550px'			
+		}
+	} else {
+		widthToSet = `calc(${currentWidth}px - 2*var(--big-padding))`
+	}
 
 	return (
 		<div className="navbar">

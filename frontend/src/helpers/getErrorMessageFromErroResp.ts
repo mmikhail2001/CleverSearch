@@ -6,6 +6,8 @@ const getErrorMessageFromError = (error: ErrorMSG): string => {
     switch(error.data.status) {
         case 0:
             return 'Input query string'
+        case 2:
+            return 'File with this name already exist'
         case 3:
             return 'Folder with this name already exist'
         case 11:

@@ -33,6 +33,7 @@ import { BottomButtons } from './bottomButtons';
 import { notificationBar } from '@helpers/notificationBar';
 import { DiskConnect } from '@widgets/diskConnect/diskConnect';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { getErrorMessageFromErroResp } from '@helpers/getErrorMessageFromErroResp';
 
 interface SidebarProps {
 	width: string;
@@ -109,6 +110,16 @@ export const Sidebar: FC<SidebarProps> = ({
 			setFilesWasSend(false)
 		}
 	}, [filesWasSend,sendResp])
+
+	useEffect(() => {
+		if (sendResp.isError) {
+			const error = getErrorMessageFromErroResp(sendResp.error)
+			notificationBar({
+				children: error,
+				variant: 'error'
+			})
+		}
+	}, [sendResp])
 
 	const diskToConnect = ():React.ReactNode | null => {
 		return Array.from(diskImgSrc)
@@ -275,6 +286,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							marginTop: 'auto',
 							width: '100%',
 							fontSize: '2.4rem',
+							height: '48px',
 						}}
 						>
 							<Button 
@@ -297,19 +309,15 @@ export const Sidebar: FC<SidebarProps> = ({
 
 	if (isMobile) {
 		return (
-			<Modal
-				isFullWidth={true}
-				isOpen={isOpen}
-				closeModal={() => toggleShow(false)}
-				isFullscreen={true}
-				className={''}
-				stylesOnContentBackground={{
-					background: 'linear-gradient(to bottom, #11344E, #700F49)',
-				}} 
-				styleOnModal={{color:"inherit"}}
+			<Drawer
+				width={'320px'}
+				isPermanent={!isMobile}
+				open={isOpen}
+				borderRight={'1px solid rgba(255,255,255,0.4)'}
+				toggleDrawer={toggleShow}
 			>
 				{renderSidebar()}
-			</Modal>
+			</Drawer>
 		)
 	}
 

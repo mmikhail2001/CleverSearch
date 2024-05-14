@@ -106,6 +106,7 @@ export const SettingsPage: FC = () => {
 							gap: '16px', 
 							alignItems: 'center',
 							width: '100%',
+							cursor: 'pointer',
 						}}
 					>
 						<img src={googleDisk.src} style={{
@@ -135,6 +136,7 @@ export const SettingsPage: FC = () => {
 							display: 'flex',
 							flexDirection: 'column',
 							gap: '16px',
+							cursor: 'pointer',
 						}}
 						buttonText='Change profile'
 						onChange={(files) => {

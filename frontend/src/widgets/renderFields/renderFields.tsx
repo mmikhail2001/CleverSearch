@@ -74,7 +74,6 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	if (isLoading) {
 		return (
 			<div key={'rendered-list'} className='show-all-files' style={{height: height}}>
-				{renderHeader(isMobile)}
 				<div style={{
 					display: 'flex',
 					justifyContent: 'center',

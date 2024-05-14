@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 
 const reconnectTimeout = 2000;
-const pingStatusTimeout = 7000;
+const pingStatusTimeout = 5000;
 
 
 export const useWebSocket = () => {
@@ -55,10 +55,9 @@ export const useWebSocket = () => {
                         case 'changeStatus': 
                             dispatch(addNewFiles([transfromMSG.file]))
                             break;
-                        case "PING":
+                        case "PONG":
                             lastPong = new Date().getTime();
-                            ping()
-                        break;
+                          break;
                         default: 
                             console.warn('WS: unknown event', transfromMSG.event)
                     }
@@ -77,18 +76,22 @@ export const useWebSocket = () => {
 
             const ping = () => {
                 lastPing = new Date().getTime();
+                
                 if (ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ event: 'PONG' }));
+                    ws.send('PING');
                 }
             }
 
             const startPingPong = () => {
                 pingIntervalRef.current = setInterval(() => {
                     if (ws.readyState === WebSocket.OPEN) {
-                        if (lastPing > lastPong) {
+                        const fiveSecondsAgo = lastPing - (5 * 1000);
+
+                        if (fiveSecondsAgo > lastPong) {
                             clearInterval(pingIntervalRef.current);
                             ws.close()
                         }
+
                         ping()
                     } else {
                         clearInterval(pingIntervalRef.current);

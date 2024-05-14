@@ -33,6 +33,14 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 
 	useEffect(() => {
 		setvalueToShow(data?.body)
+		
+		if (searchResp.isSuccess) {
+			if (data?.body?.length > 1 && data?.body[0].disk === 'google') {
+				if (isCanBeAdd) {
+					dispatch(removeAddPermission())
+				}
+			}
+		}
 	}, [data?.body])
 
 	useEffect(() => {

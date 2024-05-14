@@ -168,7 +168,7 @@ export const FileShow: FC<FileShowProps> = ({
 				
 				{isMobile ? null :
 					<div className='file-show__date'>
-						{date}
+						<Typography fontSize={'var(--ft-body)'}>{date}</Typography>
 					</div>
 				}
 

@@ -102,10 +102,12 @@ export const SearchLine: FC<SearchLineProps> = ({
 		dispatch(switchToSearch());
 	}
 
+	const widthToSearchLine = whatDisplay === 1 ? `calc(${width} - 172px)`  : width
+
 	const renderOpenBox = (): React.ReactNode => {
 		return (
 			<SearchBox
-				width={whatDisplay === 1 ? `calc(${width} - 136px)`  : width}
+				width={widthToSearchLine}
 				key={'searchbox'}
 				fontSize={'var(--ft-body)'}
 				changeState={(obj: searchStateValue) => {
@@ -124,7 +126,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 		return (
 				<div 
 						className={['search-line', isBoxOpen ? 'open-search-line' : ''].join(' ')}
-						style={{ width: whatDisplay === 1 ? `calc(${width} - 136px)`  : width}}
+						style={{ width: widthToSearchLine}}
 					>
 						<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
 							<div className="search-icon-container"
@@ -140,6 +142,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 							</div>
 							<div className="search-text">
 								<Input
+									removeFocusedBorder={true}
 									style={{backgroundColor: 'var(--color-active)', color: 'inherit' }}
 									fontSize={'var(--ft-paragraph)'}
 									isFullWidth
