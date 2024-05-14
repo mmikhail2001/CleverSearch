@@ -14,6 +14,7 @@ import { ShowGlobal } from '../showGlobal';
 import { getDriveURLFront, getInternalURLFront } from '@helpers/transformsToURL';
 import { SearchParams } from '@models/searchParams';
 import { GetSearchNoFilesErrorElement } from '@feature/errorElements';
+import { removeAddPermission } from '@store/canAdd';
 
 interface ShowSearchedFilesProps { }
 
@@ -27,11 +28,16 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     const showReq = useAppSelector(state => state.showRequest)
     const searchParams = useAppSelector(state => state.searchRequest)
     const { isSearch } = useAppSelector(state => state.whatToShow)
+    const { isCanBeAdd } = useAppSelector(state => state.addPermission)
+
 
     useEffect(() => {
         if (isSearch 
         ) {
             search(searchParams)
+        }
+        if (isCanBeAdd) {
+            dispatch(removeAddPermission())
         }
     }, [searchParams])
 

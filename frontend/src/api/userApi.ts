@@ -43,7 +43,7 @@ export const userApi = createApi({
 		emailCheck: builder.mutation<EmailChecksResp[],string[]>({
 			query: (emails: string[]) => ({
 				url: `/emails/check`,
-				method: 'GET',
+				method: 'POST',
 				body: JSON.stringify(emails)
 			}),
 		}),

@@ -14,7 +14,8 @@ export type diskTypes = 'google' | 'yandex' | 'own' | 'internal';
 
 /** if text of diskType return true */
 export const isDiskType = (text: string): text is diskTypes => {
-	if (['google', 'yandex', 'own', 'internal'].includes(text)) return true;
+	const diskToCheck = text.toLowerCase()
+	if (['google', 'yandex', 'own', 'internal'].includes(diskToCheck)) return true;
 	return false;
 };
 
@@ -46,7 +47,7 @@ export const diskImgSrc = new Map([
 	[
 		'google',
 		{
-			diskName: 'google',
+			diskName: 'Google',
 			src: GoogleSVG,
 			altText: 'text',
 		},

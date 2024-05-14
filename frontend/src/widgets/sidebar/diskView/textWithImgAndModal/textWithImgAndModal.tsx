@@ -92,7 +92,7 @@ export const TextWithImgAndDropDown: FC<TextWithImgAndDropDownProps> = (
                 <TextWithImg
                 key={diskName + src}
                 className={[selected ? 'selected' : '', 'text-with-img-row'].join(' ')}
-                text={diskName}
+                text={diskName.toLowerCase()}
                 imgSrc={src}
                 altImgText={altText}
                 onClick={(e) => {

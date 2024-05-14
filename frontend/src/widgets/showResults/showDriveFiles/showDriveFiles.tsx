@@ -10,6 +10,7 @@ import { ShowGlobal } from '../showGlobal';
 import { useGetDriveFilesMutation } from '@api/filesApi';
 import { useShowDriveParams } from '@helpers/hooks/useShowParams';
 import { GetShowNoFilesErrorElement } from '@feature/errorElements';
+import { removeAddPermission } from '@store/canAdd';
 
 
 interface ShowDriveFilesProps { }
@@ -22,6 +23,7 @@ export const ShowDriveFiles: FC<ShowDriveFilesProps> = () => {
     const showReq = useAppSelector(state => state.showRequest)
     
     const { isExternal, whatDiskToShow } = useAppSelector(state => state.whatToShow)
+    const { isCanBeAdd } = useAppSelector(state => state.addPermission)
 
     const dispatch = useDispatch();
 
@@ -33,6 +35,9 @@ export const ShowDriveFiles: FC<ShowDriveFilesProps> = () => {
             });
         }
 
+        if (isCanBeAdd) {
+            dispatch(removeAddPermission())
+        }
     }, [showReq, isExternal])
 
     if (!isExternal) {

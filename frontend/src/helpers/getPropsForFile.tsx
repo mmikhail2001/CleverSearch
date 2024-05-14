@@ -52,12 +52,13 @@ export const getImageProps = (
             <Modal 
                 className={'modal__img-show'}
                 styleOnModal={{
-                    background: 'var(--color-dropdowns)',
+                    background: 'transparent',
                     borderRadius:'15px',
-                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    border: "nono",
                     color:'inherit',
                 }}
                 stylesOnContentBackground={{
+                    padding: '0px',
                     overflow:'hidden',
                 }}
                 isOpen={state}
@@ -127,9 +128,9 @@ export const getVideoProps = (
                 isOpen={state} 
                 closeModal={() => changeState(false)}
                 styleOnModal={{
-                    background: 'var(--color-dropdowns)',
+                    background: 'transparent',
                     borderRadius:'15px',
-                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    border: "nono",
                     color:'inherit',
                 }}
                 stylesOnContentBackground={{

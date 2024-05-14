@@ -40,12 +40,13 @@ export const ViewImg: FC<ViewImgProps> = React.memo(function viewImg({ imgSrc, a
 			const screenResHeight = window.innerHeight
 			const screenResWidth = window.innerWidth
 
-			const maxContainerHeight = screenResHeight - 104;
-			const maxContainerWidth = screenResWidth - 114;
+			const maxContainerHeight = screenResHeight - 60;
+			const maxContainerWidth = screenResWidth - 60;
 
 			let widthRatio: number;
 			let heightRatio: number;
 
+			console.log('width',maxContainerWidth, imgWidth,'height', maxContainerHeight, imgHeight)
 			if (maxContainerWidth >= imgWidth && maxContainerHeight >= imgHeight) {
 				// Image can be inside container
 				setWidthCont(`${imgWidth}px`)
@@ -67,6 +68,8 @@ export const ViewImg: FC<ViewImgProps> = React.memo(function viewImg({ imgSrc, a
 		img.src = imgSrc;
   	}, [imgSrc]);
 
+
+
 	return (
 		<div 
 			className='view-img-container' 
@@ -78,15 +81,14 @@ export const ViewImg: FC<ViewImgProps> = React.memo(function viewImg({ imgSrc, a
 					centerOnInit={true}
 					minScale={0.4}
 					initialScale={zoomLevel}
+					
 					disablePadding={true}
 				>
 				{({ zoomIn, zoomOut, resetTransform, ...rest }) => (
-					<React.Fragment>
-						<TransformComponent
-						>
-							<img src={imgSrc} width={'100%'} height={'100%'} alt={altText} />
-						</TransformComponent>
-					</React.Fragment>
+					<TransformComponent
+					>
+						<img src={imgSrc} width={'100%'} height={'100%'} alt={altText} />
+					</TransformComponent>
 				)}
 				</TransformWrapper>
 			: "Loading..."	

@@ -6,6 +6,7 @@ import { useDeleteFileMutation, useGetFavouriteMutation } from '@api/filesApi';
 import { switchToLoved, switchToShow } from '@store/whatToShow';
 import { ShowGlobal } from '../showGlobal';
 import { GetShowNoFilesErrorElement } from '@feature/errorElements';
+import { removeAddPermission } from '@store/canAdd';
 
 interface ShowLovedFilesProps { }
 
@@ -15,10 +16,16 @@ export const ShowLovedFiles: FC<ShowLovedFilesProps> = () => {
     const { isLoved } = useAppSelector(state => state.whatToShow)
     const dispatch = useDispatch();
     const [deleteFile, respDelete] = useDeleteFileMutation();
+    const { isCanBeAdd } = useAppSelector(state => state.addPermission)
 
     if (!isLoved) {
         dispatch(switchToLoved())
     }
+
+    if (isCanBeAdd) {
+        dispatch(removeAddPermission())
+    }
+
     useEffect(() => {
         loved(null);
     }, [respDelete.isSuccess])

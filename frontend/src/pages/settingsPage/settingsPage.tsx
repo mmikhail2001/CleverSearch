@@ -70,6 +70,7 @@ export const SettingsPage: FC = () => {
 			display: 'flex',
 			flexDirection: 'column',
 			justifyContent: 'center',
+			alignItems: 'center',
 		}}>
 			<Typography style={{opacity: '0.8'}} fontSize={'3.2rem'}>{titleText}</Typography>
 			{imgWithText}
@@ -99,10 +100,16 @@ export const SettingsPage: FC = () => {
 							connect('google')
 							setDiskToConnect('google')
 						}} 
-						style={{display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center'}}
+						style={{
+							display: 'flex', 
+							flexDirection: 'column', 
+							gap: '16px', 
+							alignItems: 'center',
+							width: '100%',
+						}}
 					>
 						<img src={googleDisk.src} style={{
-							width: '75px',
+							width: 'auto',
 							height: '75px',
 						}} /> 
 						<Typography fontSize={'15px'}>Google drive</Typography>

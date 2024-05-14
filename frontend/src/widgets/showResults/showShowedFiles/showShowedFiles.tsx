@@ -10,6 +10,7 @@ import { ShowGlobal } from '../showGlobal';
 import { useGetInternalFilesMutation } from '@api/filesApi';
 import { useShowInternalParams } from '@helpers/hooks/useShowParams';
 import { GetShowNoFilesErrorElement } from '@feature/errorElements';
+import { giveAddPermission } from '@store/canAdd';
 
 interface ShowShowedFilesProps { }
 
@@ -21,12 +22,16 @@ export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const showReq = useAppSelector(state => state.showRequest)
     
     const { isShow } = useAppSelector(state => state.whatToShow)
+    const { isCanBeAdd } = useAppSelector(state => state.addPermission)
 
     const dispatch = useDispatch();
 
     useEffect(() => {
         if (isShow) {
             show([...showReq.dir].join('/'));
+        }
+        if (!isCanBeAdd) {
+            dispatch(giveAddPermission())
         }
     }, [showReq, isShow])
 

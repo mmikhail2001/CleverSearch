@@ -12,6 +12,7 @@ import { getSharedURLFront } from '@helpers/transformsToURL';
 import { useSharedParams } from '@helpers/hooks/useShowParams';
 import { ShowParams } from '@models/searchParams';
 import { GetShowNoFilesErrorElement } from '@feature/errorElements';
+import { giveAddPermission, removeAddPermission } from '@store/canAdd';
 
 interface ShowSharedFilesProps { }
 
@@ -24,7 +25,8 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 
 	const showReq = useAppSelector(state => state.showRequest)
 	const { isShared } = useAppSelector(state => state.whatToShow)
-	
+	const { isCanBeAdd } = useAppSelector(state => state.addPermission)
+
 	const [valueToShow, setvalueToShow] = useState(data?.body);
 
 	const navigate = useNavigate()
@@ -42,6 +44,18 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 			showShared(showReq.dir.join('/'))
 		}
 	}, [showReq, isShared])
+
+	useEffect(()=> {
+		if (showReq.dir?.length === 0 || showReq.dir.length === 1 && showReq.dir[0] === '/') {
+			if (isCanBeAdd) {
+				dispatch(removeAddPermission())
+			}
+		} else {
+			if (!isCanBeAdd) {
+				dispatch(giveAddPermission())
+			}
+		}
+	},[showReq.dir])
 
 	if (!isShared) {
 		dispatch(switchToShared())

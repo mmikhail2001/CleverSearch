@@ -4,7 +4,7 @@ import { Button } from '@entities/button/button';
 import { Input } from '@entities/input/input';
 import { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './login.scss';
 import React from 'react';
 import { Typography } from '@mui/material';
@@ -18,6 +18,8 @@ export const LoginForm: FC<LoginFormProps> = () => {
 	const [loginField, setLogin] = useState('');
 	const [passwordField, setPassword] = useState('');
 
+	const location = useLocation();
+
 	const [error, setError] = useState('')
 
 	const [login, loginResp] = useLoginMutation();
@@ -29,7 +31,12 @@ export const LoginForm: FC<LoginFormProps> = () => {
 
 	if (loginResp.isSuccess) {
 		dispatch(loginAction());
-		navigate('/');
+		if (location.key === 'default') {
+			navigate('/');
+		} else {
+			const fromUrl = location.state.from
+			navigate(fromUrl.pathname+fromUrl.search)
+		}
 	}
 	
 	useEffect(() => {
@@ -85,6 +92,7 @@ export const LoginForm: FC<LoginFormProps> = () => {
 					<Typography className='login-form__name'>Authorization</Typography>
 					<div className='login-form__inputs'>
 						<Input
+							isFullWidth={true}
 							specificPaddingInside='small-padding'
 							size='medium'
 							border="none"
@@ -97,6 +105,7 @@ export const LoginForm: FC<LoginFormProps> = () => {
 							onChange={(e) => setLogin(e.target.value)}
 						></Input>
 						<Input
+							isFullWidth={true}
 							specificPaddingInside='small-padding'
 							disabled={loginResp.isLoading}
 							size='medium'
@@ -130,7 +139,7 @@ export const LoginForm: FC<LoginFormProps> = () => {
 						isFullSize={true}
 						clickHandler={
 							() => {
-								navigate('/register')
+								navigate('/register', {replace: true, state: location.state})
 							}
 						}
 					/>
@@ -141,9 +150,15 @@ export const LoginForm: FC<LoginFormProps> = () => {
 
 	const renderInfoBlock = () => {
 		return (
-			<div style={{display: 'flex', flexDirection: 'column', padding: '32px'}}>
+			<div style={{
+				display: 'flex', 
+				flexDirection: 'column', 
+				padding: '32px',
+				alignItems: 'center',
+				}}
+			>
 				<Typography fontSize={'var(--ft-title)'} style={{opacity: '0.8'}}>Info</Typography>
-				<Typography fontSize={'var(--ft-pg-24)'} style={{opacity: '0.6'}}>CleverSearch is a web application designed to revolutionize data management and retrieval. Users can store their data securely, effortlessly share it with others, and seamlessly integrate external drives for expanded storage options. The standout feature of CleverSearch is its intelligent semantic search capability, allowing users to search for meaning across all their files. Whether it's documents, images, or any other file type, CleverSearch's advanced search functionality ensures users can quickly locate the information they need, regardless of where it's stored. With CleverSearch, managing and accessing your data has never been easier or more intuitive.</Typography>
+				<Typography fontSize={'var(--ft-paragraph)'} style={{opacity: '0.6'}}>CleverSearch is a web application designed to revolutionize data management and retrieval. Users can store their data securely, effortlessly share it with others, and seamlessly integrate external drives for expanded storage options. The standout feature of CleverSearch is its intelligent semantic search capability, allowing users to search for meaning across all their files. Whether it's documents, images, or any other file type, CleverSearch's advanced search functionality ensures users can quickly locate the information they need, regardless of where it's stored. With CleverSearch, managing and accessing your data has never been easier or more intuitive.</Typography>
 			</div>
 		)
 	}

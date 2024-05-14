@@ -128,6 +128,8 @@ export const Shared: FC<SharedProps> = ({
     const [emails, setEmail] = useState([] as string[])
     const [accessType, setAccessType] = useState<AccessRights>('reader' as AccessRights)
     const [isCopied, setCopied] = useCopyState()
+
+    const [isResponseCorrect, setResponseCorrect] = useState(false)
     
     const [incorrectEmails, setIncorrectEmails] = useState([] as string[])
     
@@ -145,23 +147,35 @@ export const Shared: FC<SharedProps> = ({
                     children: 'All emails correct',
                     variant: 'info'
                 })
-                share({
-                    access_type: accessType,
-                    by_emails: shareByEmail,
-                    dir: dirPath,
-                    emails: emails,
-                })
+                setResponseCorrect(true)
                 setIncorrectEmails([])
             } else {
-                notificationBar({
-                    children: 'Some emails incorrect: ',
-                    variant: 'warning'
-                })
+                setResponseCorrect(false)
                 setIncorrectEmails(respIncorrectEmails.map(val => val.email))
             }
            
         }
     }, [respEmails])
+    
+    useEffect(() => {
+        if(isResponseCorrect) {
+            share({
+                access_type: accessType,
+                by_emails: shareByEmail,
+                dir: dirPath,
+                emails: emails,
+            })
+        }
+    }, [isResponseCorrect])
+
+    useEffect(() => {
+        if (resp.isSuccess) {
+            notificationBar({
+                children: 'Share successful!',
+                variant: 'success'
+            })
+        }
+    }, [resp])
 
     return (
         <div className={['shared-modal', className].join(' ')} onClick={(e) => e.preventDefault()}>
@@ -282,7 +296,11 @@ export const Shared: FC<SharedProps> = ({
                             notificationBar({children: 'Write email to share', variant: 'warning'})
                             return
                         }
-                        checkEmails(emails)
+                        if (shareByEmail) {
+                            checkEmails(emails)
+                        } else {
+                            setResponseCorrect(true)
+                        }
                     }}
                 />
             

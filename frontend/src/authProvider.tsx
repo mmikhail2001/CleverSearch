@@ -8,6 +8,7 @@ import { addDisk } from '@store/userDisks';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { Navigate, useLocation } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 export interface AuthContextType {
 	state: boolean,
@@ -44,6 +45,9 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
 			dispatch(loginAction());
 		}
 	}
+	if (isLoading) {
+		<LoadingPage></LoadingPage>
+	}
 
 	const passedContext = {
 		state: authState,
@@ -75,11 +79,13 @@ export const RequireAuth: FC<{ children: React.ReactNode }> = ({ children }) => 
 	const auth = useAppSelector(state => state.userAuth.isAuthenticated);
 	const location = useLocation();
 	const authState = useAuth()
+	const navigate = useNavigate()
 
 	if (authState.isLoading) return <LoadingPage />
 
 	if (!auth) {
-		return <Navigate to="/login" state={{ from: location }} replace />;
+		navigate('/login', {state: {'from': location}})
+		return <LoadingPage></LoadingPage>
 	}
 
 	return children;

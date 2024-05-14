@@ -21,9 +21,10 @@ export const SmartSwitch: FC<SmartSwitchProps> = ({
     }
     return (
         <div className={['smart-switch', isSmartSearch ? '' : 'not-selected-smart'].join(' ')}>
-            <Typography fontSize={'var(--ft-paragraph)'}>Smart</Typography>
-            <Switch checked={isSmartSearch}
-                color='secondary'
+            <Typography fontSize={'17px'}>Smart</Typography>
+            <Switch
+                size={'small'} 
+                checked={isSmartSearch}
                 onChange={handleChange}
             ></Switch>
         </div>

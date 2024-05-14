@@ -55,6 +55,8 @@ export const Sidebar: FC<SidebarProps> = ({
 		isExternal,
 	} = useAppSelector((state) => state.whatToShow);
 
+	const { isCanBeAdd } = useAppSelector(state => state.addPermission)
+
 	const dispatch = useDispatch();
 	const navigate = useNavigate()
 
@@ -146,7 +148,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							styleMain={{width: '179px'}}
 							mainElement={
 								<Button
-									disabled={!(isShared || isShow)}
+									disabled={!isCanBeAdd}
 									endIcon={<AddIcon fontSize='inherit'/>}
 									isFullSize={true}
 									fontSize={'var(--ft-paragraph)'}
@@ -159,7 +161,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							}
 							open={isCreationPopOpen}
 							toggleOpen={(state) => {
-								if (!(isShared || isShow)) return
+								if (!isCanBeAdd) return
 								setCreationPopOpen(state)
 							}}
 							isCloseOnSelect={false}
@@ -260,7 +262,7 @@ export const Sidebar: FC<SidebarProps> = ({
 					}}>
 						<TextWithImg 
 							onClick={() =>setAboutUsIsOpen(true) } 
-							text={'AboutUs'} 
+							text={'About us'} 
 							imgSrc={<InfoOutlinedIcon fontSize='inherit'></InfoOutlinedIcon>} 
 							altImgText={''} 
 							className={'text-with-img-row text-with-img'}

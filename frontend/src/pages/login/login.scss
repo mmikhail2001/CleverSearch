@@ -15,7 +15,7 @@
 .login-form {
     gap: 3rem;
     height:auto;
-    width: auto;
+    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: start;
@@ -24,10 +24,12 @@
 }
 
 .login-form__main {
-    width: fit-content;
+    width: 100%;
     padding: 1rem;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    gap: 32px;
 }
 
 .login-form__buttons {
@@ -49,6 +51,7 @@
 }
 
 .login-form__inputs {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 2rem;

@@ -186,7 +186,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 			width: width,
 			display:'flex',
 			flexDirection: 'row',
-			gap: '16px',
+			gap: '32px',
 			alignItems: 'center',
 		}}>
 			<PopOver
