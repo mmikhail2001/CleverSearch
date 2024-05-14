@@ -165,7 +165,7 @@ func Run() error {
 	apiAuth.HandleFunc("/dirs/create", fileHandler.CreateDir).Methods("POST")
 	apiAuth.HandleFunc("/dirs/share", fileHandler.ShareDir).Methods("POST")
 
-	apiAuth.HandleFunc("/users/emails/check", userHandler.CheckEmails).Methods("GET")
+	apiAuth.HandleFunc("/users/emails/check", userHandler.CheckEmails).Methods("POST")
 	apiAuth.HandleFunc("/users/profile", userHandler.Profile).Methods("GET")
 	api.HandleFunc("/users/logout", userHandler.Logout).Methods("POST")
 	api.HandleFunc("/users/login", userHandler.Login).Methods("POST")
