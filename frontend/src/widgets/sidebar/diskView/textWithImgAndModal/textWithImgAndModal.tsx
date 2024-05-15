@@ -15,7 +15,7 @@ import { useAppSelector } from '@store/store';
 const isSelectedDisk =
     (disk: ConnectedClouds, selectedDisk: ConnectedClouds[]): boolean => {
         return !!selectedDisk.find(val => val.cloud_email === disk.cloud_email
-            && val.disk === disk.disk
+            && val.disk.toLowerCase() === disk.disk.toLowerCase()
         )
     }
 
@@ -51,14 +51,6 @@ export const TextWithImgAndDropDown: FC<TextWithImgAndDropDownProps> = (
         const ref = useRef(null)
         const {whatDisplay} = useMobile()
         const isMobile = whatDisplay === 2
-        
-        const handleOpen = (state: boolean):void => {
-            if (!state) setOpen(state)
-
-            if (isExternal) {
-                setOpen(state)
-            }
-        }
 
         const showRefresh = isNullOrUndefined(isRefreshShow) ? 'true' : isRefreshShow
         
@@ -73,12 +65,13 @@ export const TextWithImgAndDropDown: FC<TextWithImgAndDropDownProps> = (
 
         const currentDiskSelected: ConnectedClouds[] = selectedCloud
             .filter(val => isSelectedDisk(val, selectedCloud))
-            .filter(val => val.disk === diskName)
+            .filter(val => val.disk.toLowerCase() === diskName.toLowerCase())
 
-        const emailsInDisk = cloudValues.filter(val => val.disk === disk.diskName).map(val => val.cloud_email)
-        const emailSelectCloud = currentDiskSelected?.filter(val => val.cloud_email !== '')
+            const emailsInDisk = cloudValues.filter(val => val.disk.toLowerCase() === disk.diskName.toLowerCase()).map(val => val.cloud_email)
+            const emailSelectCloud = currentDiskSelected?.filter(val => val.cloud_email !== '')
 
         let cssForSelectorWithEmail: CSS.Properties;
+       
         if (isMobile) {
             cssForSelectorWithEmail = {
                 maxWidth: refSize.current ? `calc(${refSize.current.clientWidth}px + 0.25rem)` : '212px',
@@ -87,6 +80,16 @@ export const TextWithImgAndDropDown: FC<TextWithImgAndDropDownProps> = (
             }
         }
 
+        const handleOpen = (state: boolean):void => {
+            if (emailsInDisk.length === 1) return
+
+            if (!state) setOpen(state)
+
+            if (isExternal) {
+                setOpen(state)
+            }
+        }
+        
         const mainElementToRender = ():React.ReactNode => {
             return (
                 <TextWithImg
@@ -97,10 +100,11 @@ export const TextWithImgAndDropDown: FC<TextWithImgAndDropDownProps> = (
                 altImgText={altText}
                 onClick={(e) => {
                     if (e.target === ref.current) return
+
                     if (emailSelectCloud.length > 0) {
                         setState(
                             {
-                                disk: diskName,
+                                disk: diskName.toLowerCase(),
                                 access_token: emailSelectCloud[0].access_token,
                                 cloud_email: emailSelectCloud[0].cloud_email,
                             } as ConnectedClouds);
@@ -149,6 +153,8 @@ export const TextWithImgAndDropDown: FC<TextWithImgAndDropDownProps> = (
                 >
                     {[<div style={{ 
                             width: isMobile ? '100%' :'250px' ,
+                            maxWidth: isMobile ? '100%' :'250px' ,
+                            overflow: 'hidden',
                             height: '30px',
                         }}
                         ref={refSize}

@@ -252,7 +252,7 @@ export const Sidebar: FC<SidebarProps> = ({
 
 								dispatch(switchDisk(disk))
 
-								const email = disks.clouds.find((val) => val.disk === disk.disk).cloud_email
+								const email = disks.clouds.find((val) => val.disk.toLowerCase() === disk.disk.toLowerCase()).cloud_email
 								const url = getDriveURLFront([], email)
 								navigate(url)
 								dispatch(newValues({...showReq,dir:[], disk: disk}))

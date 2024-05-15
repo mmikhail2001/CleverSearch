@@ -43,7 +43,6 @@ export const useWebSocket = () => {
             };
 
             ws.onmessage = (msg:MessageEvent<any>) => {
-                console.log("GET MSG", msg)
                 const jsonMsg = JSON.parse(msg.data)
                 let transfromMSG:Notify;
 
