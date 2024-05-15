@@ -161,6 +161,9 @@ export const Sidebar: FC<SidebarProps> = ({
 							mainElement={
 								<Button
 									disabled={!isCanBeAdd}
+									style={{
+										height: '50px'
+									}}
 									endIcon={<AddIcon fontSize='inherit'/>}
 									isFullSize={true}
 									fontSize={'var(--ft-paragraph)'}

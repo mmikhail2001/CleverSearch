@@ -38,20 +38,18 @@ export const UserProfile: FC<UserProfileProps> = ({
 	}, [respSetAvatar])
 
 	useEffect(() => {
-		if (email !== '') {
+		if (email === '') {
+			if (!profileResp.isSuccess && !profileResp.isLoading && !profileResp.isError) {
+				profile(null)
+			}
+	
+			if (profileResp.data && profileResp.data.email) {
+				dispatch(setUserEmail({ email: profileResp.data.email }))
+			}
+		} else {
 			setImage(getAvatarByEmail(email))
 		}
-	}, [email])
-
-	if (email === '') {
-		if (!profileResp.isSuccess && !profileResp.isLoading && !profileResp.isError) {
-			profile(null)
-		}
-
-		if (profileResp.data && profileResp.data.email) {
-			dispatch(setUserEmail({ email: profileResp.data.email }))
-		}
-	}
+	}, [email, profileResp])
 
 	const profileMain = (): React.ReactNode => {
 		return (

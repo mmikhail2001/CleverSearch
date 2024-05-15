@@ -13,7 +13,8 @@ export interface PdfViewerProps {
   scale: number,
   gap: number,
   windowRef: React.MutableRefObject<VariableSizeList>,
-  onLoad: () => void
+  onLoad: () => void,
+  scrollPage: (page:number) => void,
 }
 
 const PdfViewer: FC<PdfViewerProps> = ({
@@ -23,6 +24,7 @@ const PdfViewer: FC<PdfViewerProps> = ({
   gap,
   windowRef,
   onLoad,
+  scrollPage,
 }) => {
   const [pages, setPages] = useState([] as PDFPageProxy[]);
   const listRef = useRef<VariableSizeList>();
@@ -87,17 +89,14 @@ const PdfViewer: FC<PdfViewerProps> = ({
     listRef?.current?.resetAfterIndex(0);
   }, [scale]);
 
-  // TODO replace with class
   const style = {
     width: `100%`,
     minWidth: '300px',
     height: '100%',
   };
 
-
   const renderPage: FC<ListChildComponentProps> = ({ index, style }) => {
     fetchPage(index);
-
     return (
       // @ts-expect-error HACK
       <Page style={{...style, width:`fit-content`}}>
@@ -117,6 +116,13 @@ const PdfViewer: FC<PdfViewerProps> = ({
         itemCount={itemCount}
         itemSize={handleItemSize}
         className='pdf-list-page'
+        onItemsRendered={(props) => {
+          const stopPage = Number(props.visibleStopIndex)
+          if (!Number.isNaN(stopPage)) {
+            scrollPage(stopPage + 1)
+          }
+        }}
+
       >
         {renderPage}
       </VariableSizeList>

@@ -19,6 +19,7 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
   const [settedScale, setsettedScale] = useState(1);
 
   const [currentPage, setCurrentPage] = useState<number>(page || 0)
+  const [currentPageToShow, setCurrentPageToshow] = useState<number>(page || 0)
 
   const scrollToItem = () => {
     windowRef?.current && windowRef.current.scrollToItem(currentPage, 'start');
@@ -52,12 +53,15 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
   return (
     <div className='pdf-with-controls'>
         <PdfControls
-          changePage={(page) => setCurrentPage(page-1)}
-          currentPage={currentPage + 1}
+          changePage={(page) => {
+            setCurrentPage(page-1)
+            setCurrentPageToshow(page)
+          }}
+          currentPage={currentPageToShow}
           maxPage={itemCount}
           scale={settedScale}
-          zoomIn={() => setsettedScale(p => p + 0.25)}
-          zoomOut={() => setsettedScale(p => p - 0.25)}
+          zoomOut={() => setsettedScale(p => p + 0.25)}
+          zoomIn={() => setsettedScale(p => p - 0.25)}
         />
         
         {isFirstPageLoaded ? null : <div style={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '1.2rem'}}>
@@ -65,6 +69,7 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
           </div>}
 
         <PdfViewer
+          scrollPage={page => setCurrentPageToshow(page)}
           windowRef={windowRef}
           itemCount={itemCount}
           getPdfPage={handleGetPdfPage}

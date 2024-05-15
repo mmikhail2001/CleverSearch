@@ -1,120 +1,122 @@
 import { Notify } from '@models/ws';
 import { addNewFiles } from '@store/fileProcess';
 import { useAppSelector } from '@store/store';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-const reconnectTimeout = 2000;
-const pingStatusTimeout = 8000;
+const reconnectTimeout = 3000;
+const pingALiveCheckTimeout = 30000;
+const pingStatusTimeout = 20000;
 
+const wsSecure = process.env.wsAdress !== 'localhost' ? 'wss' : 'ws';
 
 export const useWebSocket = () => {
     const dispatch = useDispatch();
     const reconnectTimeoutRef = useRef<NodeJS.Timeout>(null);
     const pingIntervalRef = useRef<NodeJS.Timeout>(null);
 
-    const {isAuthenticated} = useAppSelector(state => state.userAuth)
+    const [ws, setWebsocket] = useState<WebSocket | null>(null)
 
     useEffect(() => {
-        let ws: WebSocket = null;
-        if (isAuthenticated) {
-            let lastPing: number = 0
-            let lastPong: number = 0
+        let lastPing: number = new Date().getTime()
+        let lastPong: number = new Date().getTime()
 
-            const wsSecure = process.env.wsAdress !== 'localhost' ? 'wss' : 'ws';
-            const connect = () => {
-                ws = new WebSocket(`${wsSecure}://${process.env.wsAdress}/api/ws`);
+        const connect = () => {
+            if (ws === null) {
+                setWebsocket(new WebSocket(`${wsSecure}://${process.env.wsAdress}/api/ws`))
+                return 
+            } 
 
-                ws.onopen = () => {
-                    console.info('WS: connected');
-                    startPingPong();
-                };
-
-                ws.onerror = (error) => {
-                    console.error('WS: error', error);
-                    reconnect();
-                };
-
-                ws.onclose = () => {
-                    console.warn('WS: closed');
-                    reconnect();
-                };
-
-                ws.onmessage = (msg:MessageEvent<any>) => {
-                    const jsonMsg = JSON.parse(msg.data)
-                    let transfromMSG:Notify;
-
-                    if ('event' in jsonMsg && 'file' in jsonMsg) {
-                        transfromMSG = jsonMsg
-                    } else {
-                        console.info('WS: receive and cant recognize: ', event)
-                        return
-                    }
-
-                    switch (transfromMSG.event) {
-                        case 'changeStatus': 
-                            console.info('WS: receive', event)
-                            dispatch(addNewFiles([transfromMSG.file]))
-                            break;
-                        case "PONG":
-                            lastPong = new Date().getTime();
-                          break;
-                        default: 
-                            console.warn('WS: unknown event', transfromMSG.event)
-                    }
-                }
+            ws.onopen = () => {
+                console.info('WS: connected');
+                startPingPong();
             };
 
-            const reconnect = () => {
-                if (!reconnectTimeoutRef.current) {
-                    console.info('WS: reconnecting...');
-                    reconnectTimeoutRef.current = setTimeout(() => {
-                        reconnectTimeoutRef.current = null;
-                        connect();
-                    }, reconnectTimeout);
-                }
+            ws.onerror = (error) => {
+                console.error('WS: error', error);
+                reconnect();
             };
 
-            const ping = () => {
-                lastPing = new Date().getTime();
-                
-                if (ws.readyState === WebSocket.OPEN) {
-                    ws.send('PING');
+            ws.onclose = () => {
+                console.warn('WS: closed');
+                reconnect();
+            };
+
+            ws.onmessage = (msg:MessageEvent<any>) => {
+                console.log("GET MSG", msg)
+                const jsonMsg = JSON.parse(msg.data)
+                let transfromMSG:Notify;
+
+                if ('event' in jsonMsg && 'file' in jsonMsg) {
+                    transfromMSG = jsonMsg
+                } else {
+                    console.info('WS: receive and cant recognize: ', event)
+                    return
+                }
+
+                switch (transfromMSG.event) {
+                    case 'changeStatus': 
+                        console.info('WS: receive', event)
+                        dispatch(addNewFiles([transfromMSG.file]))
+                        break;
+                    case "PONG":
+                        lastPong = new Date().getTime();
+                        break;
+                    default: 
+                        console.warn('WS: unknown event', transfromMSG.event)
                 }
             }
+        };
 
-            const startPingPong = () => {
-                pingIntervalRef.current = setInterval(() => {
-                    if (ws.readyState === WebSocket.OPEN) {
-                        const fiveSecondsAgo = lastPing - pingStatusTimeout;
+        const reconnect = () => {
+            if (!reconnectTimeoutRef.current) {
+                console.info('WS: reconnecting...');
+                reconnectTimeoutRef.current = setTimeout(() => {
+                    reconnectTimeoutRef.current = null;
+                    setWebsocket(null)
+                    connect();
+                }, reconnectTimeout);
+            }
+        };
 
-                        if (fiveSecondsAgo > lastPong) {
-                            clearInterval(pingIntervalRef.current);
-                            ws.close()
-                        }
+        const ping = () => {
+            lastPing = new Date().getTime();
+            
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send('PING');
+            }
+        }
 
-                        ping()
-                    } else {
+        const startPingPong = () => {
+            ping()
+            pingIntervalRef.current = setInterval(() => {
+                if (ws.readyState === WebSocket.OPEN) {
+                    const pingTimeoutAgo = lastPing - pingALiveCheckTimeout;
+
+                    if (pingTimeoutAgo > lastPong) {
                         clearInterval(pingIntervalRef.current);
+                        ws.close()
                     }
-                }, pingStatusTimeout);
-            };
 
-            connect();
-
-            return () => {
-                if (ws) {
-                    ws.close();
-                }
-                if (reconnectTimeoutRef.current) {
-                    clearTimeout(reconnectTimeoutRef.current);
-                }
-                if (pingIntervalRef.current) {
+                    ping()
+                } else {
                     clearInterval(pingIntervalRef.current);
                 }
-            };
-        } else {
-            ws?.close()
-        }
-    }, [isAuthenticated]);
+            }, pingStatusTimeout);
+        };
+
+        connect();
+        
+        return () => {
+            if (ws) {
+                ws.close();
+            }
+            if (reconnectTimeoutRef.current) {
+                clearTimeout(reconnectTimeoutRef.current);
+            }
+            if (pingIntervalRef.current) {
+                clearInterval(pingIntervalRef.current);
+            }
+        };
+    }, [ws]);
 };

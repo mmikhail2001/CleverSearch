@@ -6,7 +6,7 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded';
 import { Input } from '@entities/input/input';
 
-import { FC, useState } from "react"
+import { FC, useEffect, useState } from "react"
 
 export interface PdfControlsProps {
     zoomOut: () => void, 
@@ -32,6 +32,10 @@ export const PdfControls: FC<PdfControlsProps> = ({
       
       setpageToSelect(pageToSet)
     }
+
+    useEffect(() => {
+      setpageToSelect(String(currentPage))
+    }, [currentPage])
   
     const enterKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key.toLowerCase() === 'enter') {
@@ -44,74 +48,85 @@ export const PdfControls: FC<PdfControlsProps> = ({
         }
       }
     }
-  
-      return (
-        <div
-          style={{
+
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <div style={{
+          display: 'flex',
+          fontSize: 'var(--ft-body)',
+          alignItems: 'center',
+          borderRadius: 'var(--small-radius) var(--small-radius) 0 0',
+          paddingRight: '16px',
+          paddingLeft: '16px',
+          width: '100%',
+          justifyContent: 'center',
+          gap: '16px',
+        }}>
+          <div className='modal-page-number' style={{
             display: 'flex',
-            flexDirection: 'column',
+            flexDirection: 'row',
+            height: '100%',
             alignItems: 'center',
-          }}
-        >
-          <div style={{
-            display: 'flex',
-            fontSize: 'var(--ft-body)',
-            alignItems: 'center',
-            background: 'var(--color-dropdowns)',
-            borderRadius: 'var(--small-radius) var(--small-radius) 0 0',
-            paddingRight: '16px',
-            paddingLeft: '16px',
-            width: '100%',
-            justifyContent: 'center',
-            gap: '16px',
+            paddingRight: 'var(--big-padding)',
+            paddingLeft: 'var(--big-padding)',
+            borderRadius: "var(--small-radius)",
+            background: 'rgba(53,53,53,0.9)',
           }}>
-            <div className='modal-page-number' style={{
-              display: 'flex',
-              flexDirection: 'row',
-            }}>
-              <Input
-                onChange={handleChangePage}
-                onKeyDown={enterKeyPress}
-                value={pageToSelect}
-                placeholder={String(currentPage)}
-                disabled={false}
-                type={'text'}
-                isFullWidth={false }
-                border={'none'}
-                style={{
-                  width: '20px',
-                }}
-                removeFocusedBorder={true}
-                fontSize='var(--ft-body)'
+            <Input
+              onChange={handleChangePage}
+              onKeyDown={enterKeyPress}
+              value={pageToSelect}
+              placeholder={String(currentPage)}
+              disabled={false}
+              type={'text'}
+              isFullWidth={false }
+              border={'none'}
+              style={{
+                width: '20px',
+              }}
+              removeFocusedBorder={true}
+              fontSize='var(--ft-body)'
+            >
+            </Input>
+            <Typography sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                width: 'fit-content',
+                height: '20px',
+              }}
+              fontSize={'inherit'}
               >
-              </Input>
-              <Typography sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  width: '20px'
-                }}
-                fontSize={'inherit'}
-                >
-                  / {maxPage}
-                </Typography>
-            </div>
-            <div className="modal-scale">
-              <IconButton 
-                onClick={() => zoomOut()}
-                sx={{color:'inherit'}}
-              >
-                <AddRoundedIcon sx={{color:'inherit'}} />
-              </IconButton>
-              <Typography fontSize={'var(--ft-body)'}>{scale}</Typography>
-              <IconButton 
-                onClick={() => zoomIn()}
-                sx={{color:'inherit'}}
-              >
-                <RemoveRoundedIcon sx={{color:'inherit !'}} />
-              </IconButton>
-            </div>
+                / {maxPage}
+              </Typography>
+          </div>
+          <div className="modal-scale" style={{
+              paddingLeft: 'var(--normal-padding)',
+              paddingRight: 'var(--normal-padding)',
+              borderRadius: "var(--small-radius)",
+              background: 'rgba(53,53,53,0.9)',
+          }}>
+            <IconButton 
+              onClick={() => zoomOut()}
+              sx={{color:'black'}}
+            >
+              <AddRoundedIcon sx={{color:'inherit', borderRadius: 'var(--big-radius)', backgroundColor: 'rgba(255,255,255,0.3)'}} />
+            </IconButton>
+            <Typography fontSize={'var(--ft-body)'}>{scale}</Typography>
+            <IconButton 
+              onClick={() => zoomIn()}
+              sx={{color:'black'}}
+            >
+              <RemoveRoundedIcon sx={{color:'inherit', borderRadius: 'var(--big-radius)', backgroundColor: 'rgba(255,255,255,0.3)'}}/>
+            </IconButton>
           </div>
         </div>
-      )
+      </div>
+    )
   }
   

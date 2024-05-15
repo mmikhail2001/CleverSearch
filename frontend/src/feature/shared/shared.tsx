@@ -76,7 +76,7 @@ const getEmailShow = (
                 {emails.map(val => (
                     <ListItem
                         key={`${val}_list`}
-                        className={ incorrectEmails.find(incorrectEmail => val === incorrectEmail) ?
+                        className={ !!incorrectEmails.find(incorrectEmail => val === incorrectEmail) ?
                             'email-list__item-incorrect'
                             :'email-list__item'
                         }
@@ -140,7 +140,7 @@ export const Shared: FC<SharedProps> = ({
     
     useEffect(() => {
         if(respEmails.isSuccess) {
-            let respIncorrectEmails = respEmails.data.filter(val => val.exists)
+            let respIncorrectEmails = respEmails.data.filter(val => !val.exists)
             
             if (respIncorrectEmails.length === 0) {
                 notificationBar({
@@ -268,7 +268,10 @@ export const Shared: FC<SharedProps> = ({
                 <Button
                     fontSize='var(--ft-body)'
                     buttonText='Copy'
-                    variant={'contained'}
+                    variant={'text'}
+                    style={{
+                        color: 'inherit',
+                    }}
                     disabled={!resp.isSuccess}
                     clickHandler={(event) => {
                         event.stopPropagation();

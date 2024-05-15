@@ -44,7 +44,7 @@ export const userApi = createApi({
 			query: (emails: string[]) => ({
 				url: `/emails/check`,
 				method: 'POST',
-				body: JSON.stringify(emails)
+				body: JSON.stringify({emails: emails})
 			}),
 		}),
 

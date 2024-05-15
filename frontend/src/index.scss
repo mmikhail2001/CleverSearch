@@ -155,9 +155,10 @@ body {
         --ft-body-plust: 1.4rem;
         --ft-paragraph: 1.6rem;
         --ft-pg-24: 2.2rem;
-        --ft-pg-32: 3rem
+        --ft-pg-32: 3rem;
         --ft-title: 3.8rem;
     }
+    
     @media screen and (min-width: $pc-width) {
         /* Font sizes */
         --ft-small-text: 1.2rem;
@@ -165,7 +166,7 @@ body {
         --ft-body-plust: 1.6rem;
         --ft-paragraph: 1.8rem;
         --ft-pg-24: 2.4rem;
-        --ft-pg-32: 3.2rem
+        --ft-pg-32: 3.2rem;
         --ft-title: 4rem;
     }
 }
