@@ -8,16 +8,20 @@
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
+    max-height: 100dvh;
+    overflow: auto;
 }
 
 .settings {
-    width: 330px;
+    width: 100%;
+    max-width: min(100%, 342px);
     display: flex;
     align-items: center;
     flex-direction: column;
     gap: 5.8rem;
     padding: var(--huge-padding);
     justify-content: start;
+    margin-top: 92px;
 }
 
 .disk-connect-settings {

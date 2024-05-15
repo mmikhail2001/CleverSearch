@@ -4,6 +4,8 @@ import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import useResizeObserver from 'use-resize-observer';
 import Page from './page/pageWrapper';
 import PdfPage from './page/pageOfPPdf';
+import { CircularProgress } from '@mui/material';
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
 export interface PdfViewerProps {
   itemCount: number,
@@ -11,7 +13,8 @@ export interface PdfViewerProps {
   scale: number,
   gap: number,
   windowRef: React.MutableRefObject<VariableSizeList>,
-  onLoad: () => void
+  onLoad: () => void,
+  scrollPage: (page:number) => void,
 }
 
 const PdfViewer: FC<PdfViewerProps> = ({
@@ -21,10 +24,10 @@ const PdfViewer: FC<PdfViewerProps> = ({
   gap,
   windowRef,
   onLoad,
+  scrollPage,
 }) => {
   const [pages, setPages] = useState([] as PDFPageProxy[]);
   const listRef = useRef<VariableSizeList>();
-
   
   const {
     ref,
@@ -86,21 +89,18 @@ const PdfViewer: FC<PdfViewerProps> = ({
     listRef?.current?.resetAfterIndex(0);
   }, [scale]);
 
-  // TODO replace with class
   const style = {
     width: `100%`,
     minWidth: '300px',
     height: '100%',
-    background: 'var(--color-dropdowns)'
   };
-
 
   const renderPage: FC<ListChildComponentProps> = ({ index, style }) => {
     fetchPage(index);
     return (
       // @ts-expect-error HACK
       <Page style={{...style, width:`fit-content`}}>
-        <PdfPage page={pages[index]} scale={scale} />
+        {!isNullOrUndefined(pages[index]) ? <PdfPage page={pages[index]} scale={scale} /> : <CircularProgress />}
       </Page>
     );
   }
@@ -116,6 +116,13 @@ const PdfViewer: FC<PdfViewerProps> = ({
         itemCount={itemCount}
         itemSize={handleItemSize}
         className='pdf-list-page'
+        onItemsRendered={(props) => {
+          const stopPage = Number(props.visibleStopIndex)
+          if (!Number.isNaN(stopPage)) {
+            scrollPage(stopPage + 1)
+          }
+        }}
+
       >
         {renderPage}
       </VariableSizeList>

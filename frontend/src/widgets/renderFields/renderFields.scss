@@ -15,6 +15,7 @@
 
 .modal-body__pdf {
     height: 100%;
+    align-items: flex-start;
 }
 
 .show-all-files {
@@ -58,7 +59,6 @@
 }
 
 .modal-scale {
-    width: 100%;
     color: inherit;
     display: flex;
     flex-direction: row;

@@ -15,18 +15,28 @@ export const Navbar: FC<NavbarProps> = ({
 	const { email } = useAppSelector(state => state.userAuth)
 	const { whatDisplay, currentWidth } = useMobile()
 
-	const widthToSet = whatDisplay === 1 ? '600px' : `calc(${currentWidth}px - 2*var(--big-padding))`
+	let widthToSet;
+
+	if (whatDisplay === 1) {
+		if (currentWidth > 1250) {
+			widthToSet = '672px'
+		} else {
+			widthToSet = '550px'			
+		}
+	} else {
+		widthToSet = `calc(${currentWidth}px - 2*var(--big-padding))`
+	}
 
 	return (
 		<div className="navbar">
-			<div className="search-bar-place" style={{ width: '100%' }}>
+			<div className="search-bar-place" key={'search-line-placement'} style={{ width: 'fit-content' }}>
 				<SearchLine
 					width={widthToSet}
 					onIconClick={toggleSidebar}
 				/>
 			</div>
-			{whatDisplay === 1 ? <div className="user-profile-place">
-				<UserProfile email={email} />
+			{whatDisplay === 1 ? <div className="user-profile-place" key={'user-profile-placement-navbar'}>
+				<UserProfile key={'user-profile-navbar'} email={email} />
 			</div> : null}
 		</div>
 	);

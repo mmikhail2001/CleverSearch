@@ -1,3 +1,4 @@
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 import DiskSVG from '@icons/disks/Disk.svg';
 import GoogleSVG from '@icons/disks/Google.svg';
 import YandexSVG from '@icons/disks/Yandex.svg';
@@ -14,7 +15,10 @@ export type diskTypes = 'google' | 'yandex' | 'own' | 'internal';
 
 /** if text of diskType return true */
 export const isDiskType = (text: string): text is diskTypes => {
-	if (['google', 'yandex', 'own', 'internal'].includes(text)) return true;
+	if (isNullOrUndefined(text)) return false
+
+	const diskToCheck = text.toLowerCase()
+	if (['google', 'yandex', 'own', 'internal'].includes(diskToCheck)) return true;
 	return false;
 };
 
@@ -46,7 +50,7 @@ export const diskImgSrc = new Map([
 	[
 		'google',
 		{
-			diskName: 'google',
+			diskName: 'Google',
 			src: GoogleSVG,
 			altText: 'text',
 		},

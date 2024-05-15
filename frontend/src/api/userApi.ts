@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { UserData } from '@models/userModels';
-import { UserProfileResponse } from '@models/user'
+import { EmailChecksResp, UserProfileResponse } from '@models/user'
 
 export const userApi = createApi({
 	reducerPath: 'userApi',
@@ -40,6 +40,14 @@ export const userApi = createApi({
 			}),
 		}),
 
+		emailCheck: builder.mutation<EmailChecksResp[],string[]>({
+			query: (emails: string[]) => ({
+				url: `/emails/check`,
+				method: 'POST',
+				body: JSON.stringify({emails: emails})
+			}),
+		}),
+
 		profile: builder.query<UserProfileResponse, null>({ query: () => '/profile' }),
 	}),
 });
@@ -51,6 +59,7 @@ export const {
 	useRegisterMutation,
 	useLogoutMutation,
 	useSetAvatarMutation,
+	useEmailCheckMutation,
 } = userApi;
 
 

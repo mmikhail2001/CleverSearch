@@ -45,7 +45,7 @@ export const BottomButtons: FC<BottomButtonsProps> = ({
                 }}
             />
             <TextWithImg
-                text="shared"
+                text="shared with me"
                 className={['shared', isShared ? 'selected' : '', 'text-with-img-row'].join(' ')}
                 imgSrc={<PeopleAltIcon />}
                 altImgText="Картинка с двумя людьми"
@@ -68,7 +68,7 @@ export const BottomButtons: FC<BottomButtonsProps> = ({
             {isMobile ? 
             <TextWithImg
                 text="settings"
-                className={['settings-button', isLoved ? 'selected' : '', 'text-with-img-row'].join(' ')}
+                className={['settings-button', 'text-with-img-row'].join(' ')}
                 imgSrc={<SettingsRoundedIcon sx={{color:"inherit", width:'var(--ft-paragraph)', height:'var(--ft-paragraph)'}}/>} 
                 altImgText="Сердце"
                 onClick={() => {

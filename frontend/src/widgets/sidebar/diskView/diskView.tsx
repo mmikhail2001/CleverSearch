@@ -33,8 +33,11 @@ export const DiskView: FC<DiskViewProps> = ({
     useEffect(() => {
         if (refreshResp.isSuccess &&  typeof showReq.disk !== 'string' && showReq.disk.disk === nameOfSelectedDisk) {
             dispatch(newValues({...showReq, disk: showReq.disk}))
+            notificationBar({
+                children: 'Refresh files successfully',
+                variant:'success',
+            })
         }
-
     }, [refreshResp])
 
 
@@ -42,11 +45,12 @@ export const DiskView: FC<DiskViewProps> = ({
     const disksToShow = disks.clouds
         .map(
             val => {
-                if (alreadyShowed.find(disk => disk === val.disk)) return
+                if (!!alreadyShowed.find(disk => disk === val.disk)) {
+                    return null
+                }
                 alreadyShowed.push(val.disk)
-                
                 return <TextWithImgAndDropDown
-                    key={val.cloud_email + val.disk}
+                    key={`${val.cloud_email}__${val.disk}`}
                     selected={nameOfSelectedDisk === val.disk && needSelect}
                     disk={diskImgSrc.get(val.disk)}
                     cloudValues={disks.clouds}

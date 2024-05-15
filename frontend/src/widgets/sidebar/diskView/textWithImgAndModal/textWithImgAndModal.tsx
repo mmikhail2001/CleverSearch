@@ -90,9 +90,9 @@ export const TextWithImgAndDropDown: FC<TextWithImgAndDropDownProps> = (
         const mainElementToRender = ():React.ReactNode => {
             return (
                 <TextWithImg
-                key={diskName + src}
+                key={`${diskName}__${src}`}
                 className={[selected ? 'selected' : '', 'text-with-img-row'].join(' ')}
-                text={diskName}
+                text={diskName.toLowerCase()}
                 imgSrc={src}
                 altImgText={altText}
                 onClick={(e) => {
@@ -133,7 +133,7 @@ export const TextWithImgAndDropDown: FC<TextWithImgAndDropDownProps> = (
                 }
             />
             )
-        }
+        } 
 
         return (
             <>
@@ -152,6 +152,7 @@ export const TextWithImgAndDropDown: FC<TextWithImgAndDropDownProps> = (
                             height: '30px',
                         }}
                         ref={refSize}
+                        key={'container--select-disk'}
                     >
                         <SelectorMulti
                             height='30px'

@@ -1,0 +1,21 @@
+.smart-switch {
+    height: 35px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: #1B509F;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0px 0px 100px 7px #1B509F;
+    border-radius: var(--big-radius);
+    padding-right: 10px;
+
+    gap: 20px;
+    width: 140px;
+    padding-left: 15px;
+}
+
+.not-selected-smart {
+    box-shadow: none;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}

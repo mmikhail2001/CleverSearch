@@ -129,7 +129,7 @@ export const PopOver: FC<PopOverProps> = ({
                 anchorOrigin={anchorOrigin}
             >
                 {
-                    children.map(
+                    children?.map(
                         child => <div key={child.toString().slice(-5, -9)} onClick={isNeedCloseOnSelect ? handleClose : null}>
                             {child}
                         </div>

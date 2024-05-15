@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import { ShowGlobal } from '../showGlobal';
 import { useGetDriveFilesMutation } from '@api/filesApi';
 import { useShowDriveParams } from '@helpers/hooks/useShowParams';
+import { GetShowNoFilesErrorElement } from '@feature/errorElements';
+import { removeAddPermission } from '@store/canAdd';
 
 
 interface ShowDriveFilesProps { }
@@ -21,8 +23,15 @@ export const ShowDriveFiles: FC<ShowDriveFilesProps> = () => {
     const showReq = useAppSelector(state => state.showRequest)
     
     const { isExternal, whatDiskToShow } = useAppSelector(state => state.whatToShow)
+    const { isCanBeAdd } = useAppSelector(state => state.addPermission)
 
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (!isExternal) {
+            dispatch(switchToExternal())
+        }
+    },[])
 
     useEffect(() => {
         if (isExternal && typeof whatDiskToShow !== 'string') {
@@ -32,14 +41,18 @@ export const ShowDriveFiles: FC<ShowDriveFilesProps> = () => {
             });
         }
 
-    }, [showReq, isExternal])
+        if (isCanBeAdd) {
+            dispatch(removeAddPermission())
+        }
 
-    if (!isExternal) {
-        dispatch(switchToExternal())
-    }
+        if (!isExternal) {
+            dispatch(switchToExternal())
+        }
+    }, [showReq, isExternal])
 
     return (
         <ShowGlobal
+            errorElement={<GetShowNoFilesErrorElement/>}
             getValue={() => {
                 if (typeof whatDiskToShow !== 'string') {
                     show({

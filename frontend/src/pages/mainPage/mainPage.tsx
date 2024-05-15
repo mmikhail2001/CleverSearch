@@ -4,7 +4,7 @@ import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { switchToLoved, switchToShow } from '@store/whatToShow';
 
-import { useWebsoket} from '@helpers/hooks/useWebsocket'
+import { useWebSocket } from '@helpers/hooks/useWebsocket'
 import { Navbar } from '@widgets/navbar/navbar';
 import { Outlet, useNavigate } from 'react-router-dom';
 import './mainPage.scss';
@@ -30,7 +30,7 @@ import { fileUploadNotification } from '@helpers/fileUploadNotification';
 const drawerWidth = '294px'
 
 export const MainPage: FC = () => {
-	useWebsoket()
+	useWebSocket()
 
 	const { whatDisplay } = useMobile()
 	const {isLoved, isShow, isShared} = useAppSelector(state => state.whatToShow)
@@ -108,7 +108,7 @@ export const MainPage: FC = () => {
 					accept={correctFormats}
 					stylesOnComponent={{
 						display:'flex',
-						fontSize:'24px',
+						fontSize:'var(--ft-pg-24)',
 						height:'100%',
 						width:'100%',
 						justifyContent: 'center',

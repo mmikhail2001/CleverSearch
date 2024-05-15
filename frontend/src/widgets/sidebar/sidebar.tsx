@@ -32,6 +32,8 @@ import { isCorrectFormat } from '@helpers/isCorrectFormat';
 import { BottomButtons } from './bottomButtons';
 import { notificationBar } from '@helpers/notificationBar';
 import { DiskConnect } from '@widgets/diskConnect/diskConnect';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { getErrorMessageFromErroResp } from '@helpers/getErrorMessageFromErroResp';
 
 interface SidebarProps {
 	width: string;
@@ -54,6 +56,8 @@ export const Sidebar: FC<SidebarProps> = ({
 		isExternal,
 	} = useAppSelector((state) => state.whatToShow);
 
+	const { isCanBeAdd } = useAppSelector(state => state.addPermission)
+
 	const dispatch = useDispatch();
 	const navigate = useNavigate()
 
@@ -71,6 +75,8 @@ export const Sidebar: FC<SidebarProps> = ({
 	const [filesWasSend, setFilesWasSend] = useState<boolean>(false) 
 
 	const [isCreationPopOpen,setCreationPopOpen] = useState<boolean>(false)
+
+	const [aboutUsIsOpen, setAboutUsIsOpen] = useState(false)
 
 	const refreshFiles = () => {
 		if (isSearch) {
@@ -105,13 +111,23 @@ export const Sidebar: FC<SidebarProps> = ({
 		}
 	}, [filesWasSend,sendResp])
 
+	useEffect(() => {
+		if (sendResp.isError) {
+			const error = getErrorMessageFromErroResp(sendResp.error)
+			notificationBar({
+				children: error,
+				variant: 'error'
+			})
+		}
+	}, [sendResp])
+
 	const diskToConnect = ():React.ReactNode | null => {
 		return Array.from(diskImgSrc)
 		.filter(val => val[1].diskName !== 'internal'
 			&& val[1].diskName !== 'own')
 		.map((val) => {
 			if (isExternalDisk(val[1])) {
-				return <DiskConnect classname='show-add-line' disk={val[1]} />
+				return <DiskConnect key={String(val[1])} classname='show-add-line' disk={val[1]} />
 			}
 			return null
 		})
@@ -124,7 +140,7 @@ export const Sidebar: FC<SidebarProps> = ({
 					className="sidebar"
 					style={{ width: width }}
 				>
-					<div className="our-name-place">
+					<div className="our-name-place" key={'our-name'}>
 						{isMobile ?
 							<UserProfile email={email} isDropdownExist={false} />
 							:
@@ -137,13 +153,17 @@ export const Sidebar: FC<SidebarProps> = ({
 							</Typography>
 						}
 					</div>
-					<div className='button_sidebar'>
+					<div className='button_sidebar' key={'add-button-sidebar'}>
 						<PopOver
+							key={'add-popover-sidebar'}
 							background={'var(--color-selected)'}
 							styleMain={{width: '179px'}}
 							mainElement={
 								<Button
-									disabled={!(isShared || isShow)}
+									disabled={!isCanBeAdd}
+									style={{
+										height: '50px'
+									}}
 									endIcon={<AddIcon fontSize='inherit'/>}
 									isFullSize={true}
 									fontSize={'var(--ft-paragraph)'}
@@ -156,7 +176,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							}
 							open={isCreationPopOpen}
 							toggleOpen={(state) => {
-								if (!(isShared || isShow)) return
+								if (!isCanBeAdd) return
 								setCreationPopOpen(state)
 							}}
 							isCloseOnSelect={false}
@@ -164,6 +184,7 @@ export const Sidebar: FC<SidebarProps> = ({
 						>
 							{[
 								<TextWithInput
+									key={'file-input-sidebar'}
 									startIcon={<InsertDriveFileRoundedIcon fontSize='inherit' sx={{color: "#0A9542", marginBottom: '3px'}}/>}
 									textStyles={{fontSize:'var(--ft-paragraph)'}}
 									stylesOnRoot={{
@@ -202,6 +223,7 @@ export const Sidebar: FC<SidebarProps> = ({
 									disabled={false}
 								></TextWithInput>,
 								<FolderCreation
+									key={'folder-creation-sidebar'}
 									onClose={() => setCreationPopOpen(false)}
 									dirs={showReq.dir}
 									onFolderCreation={() => {
@@ -213,7 +235,7 @@ export const Sidebar: FC<SidebarProps> = ({
 							]}
 						</PopOver>
 					</div>
-					<div className='disk-show'>
+					<div className='disk-show' key={'disk-show-sidebar'}>
 						<DiskView
 							needSelect={isShow || isExternal}
 							externalView={isExternal}
@@ -237,23 +259,53 @@ export const Sidebar: FC<SidebarProps> = ({
 							}}
 							nameOfSelectedDisk={typeof whatDiskToShow === 'string' ? whatDiskToShow : whatDiskToShow.disk}
 						/>
-						<BottomButtons/>
+						<BottomButtons key={'bottom-buttons-sidebar'}/>
+					</div>
+					<Modal
+						key={'about-us-modal-sidebar'}
+						styleOnModal={{
+							backgroundColor: 'var(--color-dropdowns)',
+							color: 'inherit'
+						}}
+						isOpen={aboutUsIsOpen} 
+						closeModal={() => setAboutUsIsOpen(false)} 
+					>
+						<Typography>Something</Typography>
+					</Modal>
+					<div style={{
+						width: '100%', 
+						marginTop: 'auto', 
+						opacity: '0.6',
+						cursor: 'pointer'
+					}}
+					key={'about-us-sidebar'}
+					>
+						<TextWithImg 
+							onClick={() =>setAboutUsIsOpen(true) } 
+							text={'About us'} 
+							imgSrc={<InfoOutlinedIcon fontSize='inherit'></InfoOutlinedIcon>} 
+							altImgText={''} 
+							className={'text-with-img-row text-with-img'}
+						/>
 					</div>
 					{isMobile
 						? <div style={{
 							display: 'flex',
 							justifyContent: 'space-between',
-							marginTop: 'auto',
 							width: '100%',
-							fontSize: '2.4rem',
+							fontSize: 'var(--ft-pg-24)',
+							height: '48px',
 						}}
+						key={'buttons-bottom-sidebar'}
 						>
 							<Button 
+								key={'button-logout-sidebar'}
 								buttonText={'Logout'}
 								clickHandler={logout} 
 								variant={'contained'}
 							></Button>
 							<Button 
+								key={'button-back-sidebar'}
 								buttonText={'Back to main'}
 								clickHandler={() => toggleShow(!isOpen)} 
 								variant={'contained'}
@@ -268,19 +320,15 @@ export const Sidebar: FC<SidebarProps> = ({
 
 	if (isMobile) {
 		return (
-			<Modal
-				isFullWidth={true}
-				isOpen={isOpen}
-				closeModal={() => toggleShow(false)}
-				isFullscreen={true}
-				className={''}
-				stylesOnContentBackground={{
-					background: 'linear-gradient(to bottom, #11344E, #700F49)',
-				}} 
-				styleOnModal={{color:"inherit"}}
+			<Drawer
+				width={'320px'}
+				isPermanent={!isMobile}
+				open={isOpen}
+				borderRight={'1px solid rgba(255,255,255,0.4)'}
+				toggleDrawer={toggleShow}
 			>
 				{renderSidebar()}
-			</Modal>
+			</Drawer>
 		)
 	}
 

@@ -40,21 +40,8 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 	const [options, setOptions] = useState<Option[]>([])
 
 	const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
-	const handleChange = (event: React.SyntheticEvent<Element, Event>, value: Option): void => {
-		const arrVal: Option[] = Array.isArray(value) ? value : [value]
-
-		setSelectedValues(arrVal.map(val => val.value))
-		onChange(arrVal.map(val => val.value))
-	}
-
-	const debouncedOnInputChange = debounce((query: string) => {
-		setLoading(true)
-		loadFunction(query).then((val) => {
-			setOptions(val)
-			setLoading(false)
-		})
-	}, debounceTime);
-
+	
+	// If default value exist and default value not selected then select default value
 	useEffect(() => {
 		if (defaultOption && (
 			!selectedValues
@@ -65,16 +52,35 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 		}
 	}, [defaultOption])
 
+	// If pass clear signal then clear selected
 	useEffect(() => {
 		if (clear) {
 			setSelectedValues([])
 		}
 	}, [clear])
 
+	// Set selected values and pass value to onChange function
+	const handleChange = (event: React.SyntheticEvent<Element, Event>, value: Option): void => {
+		const arrVal: Option[] = Array.isArray(value) ? value : [value]
+
+		setSelectedValues(arrVal.map(val => val.value))
+		onChange(arrVal.map(val => val.value))
+	}
+
+	// Search only when user stops input
+	const debouncedOnInputChange = debounce((query: string) => {
+		setLoading(true)
+		loadFunction(query).then((val) => {
+			setOptions(val)
+			setLoading(false)
+		})
+	}, debounceTime);
+
 	const handleInputChange = (event: React.SyntheticEvent, value: string): void => {
 		debouncedOnInputChange(value)
 	}
 
+	// Load on start
 	useEffect(() => {
 		setLoading(true)
 		loadFunction('').then((val) => {
@@ -83,18 +89,23 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 		})
 	}, [])
 
+
 	const getSelectedValueToOptions = (): null | Option[] => {
 		if (selectedValues.length === 0) {
 			return null
 		}
 
+		if (selectedValues.length === 1 && selectedValues[0] === '/') return null
+		
 		return selectedValues.map((val) => {
+			const splits = val.split('/')
 			return {
-				label: val.replace(/^\//, ''),
+				label: splits[splits.length - 1],
 				value: val,
 			}
 		})
 	}
+
 	const selectedOptions = React.useMemo(getSelectedValueToOptions, [selectedValues])
 
 	const getOptionLabel = (opt: Option | Option[]): string => {
@@ -149,7 +160,20 @@ export const SelectorAsync: FC<SelectorAsyncProps> = ({
 			onClose={() => setOpen(false)}
 			loading={loading}
 			isOptionEqualToValue={
-				(option: Option, value: Option) => option.label === value.label
+				(option: Option | Option[], value: Option | Option[]) => {
+					if (Array.isArray(option) && Array.isArray(value)) {
+						return !!option.find(val => value.find(valVal => val.label === valVal.label))
+					}
+
+					if ((!Array.isArray(option) && !Array.isArray(value))) {
+						return option.label === value.label
+					}
+					if (!Array.isArray(option) && Array.isArray(value)) {
+						return !!value.find(val => val.label === option.label)
+					}
+
+					return false
+				}
 			}
 			onChange={handleChange}
 			filterOptions={(x) => x} // cause fetch from back

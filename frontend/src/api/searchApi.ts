@@ -12,28 +12,34 @@ export const searchAPi = createApi({
 	reducerPath: 'searchAPi',
 
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${process.env.protocol}://${process.env.adress}/api/`,
+		baseUrl: `${process.env.protocol}://${process.env.adress}/`,
 	}),
 	endpoints: (builder) => ({
 		// TODO limit offset
 		search: builder.mutation<SearchResponse, SearchParams>({
 			query: (searchReq: SearchParams) => ({
-				url: transformToSearchRequestString(searchReq),
+				url: `api/${transformToSearchRequestString(searchReq)}`,
 				method: 'GET',
 			}),
 		}),
 		
 		showSharedByID: builder.mutation<SharedUUIDResponse, string>({
 			query: (dirUUID: string) => ({
-				url: `files/${dirUUID}`,
+				url: `api/files/${dirUUID}`,
 				method: 'GET',
 			}),
 		}),
-	
+		getShareFolderUUID: builder.mutation<SharedUUIDResponse, string>({
+			query: (dirUUID: string) => ({
+				url: `dirs/${dirUUID}?sharing=true`,
+				method: 'GET',
+			}),
+		}),
 	}),
 });
 
 export const { 
 	useSearchMutation, 
 	useShowSharedByIDMutation,
+	useGetShareFolderUUIDMutation,
 } = searchAPi;

@@ -2,14 +2,14 @@ import { useAppSelector } from '@store/store';
 import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { useShowSharedByIDMutation } from '@api/searchApi';
+import {useGetShareFolderUUIDMutation, useShowSharedByIDMutation } from '@api/searchApi';
 import { switchToShared } from '@store/whatToShow';
 import { useNavigate, useParams } from 'react-router-dom';
 
 interface ShowSharedUUIDFilesProps { }
 
 export const ShowSharedUUIDFiles: FC<ShowSharedUUIDFilesProps> = () => {
-	const [shareByUUID, { data, ...searchRespUUID }] = useShowSharedByIDMutation({ fixedCacheKey: 'share' });
+	const [getFilesOfUUIDFolder, { data, ...searchRespUUID }] = useShowSharedByIDMutation({ fixedCacheKey: 'share' });
 
 	const dispatch = useDispatch();
 	const { isShared } = useAppSelector(state => state.whatToShow)
@@ -18,11 +18,15 @@ export const ShowSharedUUIDFiles: FC<ShowSharedUUIDFilesProps> = () => {
 
 	const navigate = useNavigate()
 	const { diruuid } = useParams()
+	
+	const [requestShareFolder] = useGetShareFolderUUIDMutation()
 
 	useEffect(() => {
-		dispatch(switchToShared())
-		shareByUUID(String(diruuid))
-	}, [])
+		requestShareFolder(diruuid).then(() => {
+			dispatch(switchToShared())
+			getFilesOfUUIDFolder(String(diruuid))
+		})
+	},[])
 
 	if (!isShared) {
 		dispatch(switchToShared())

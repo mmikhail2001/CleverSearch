@@ -25,6 +25,7 @@ interface ShowGlobalFilesProps {
     isError: boolean,
     isLoading: boolean,
     openFolder: (dirToShow: string[], diskToShow: diskTypes | ConnectedClouds) => void,
+    errorElement: React.ReactNode,
 }
 
 export const ShowGlobal: FC<ShowGlobalFilesProps> = ({
@@ -39,6 +40,7 @@ export const ShowGlobal: FC<ShowGlobalFilesProps> = ({
     isError,
     isLoading,
     openFolder,
+    errorElement,
 }) => {
     const navigate = useNavigate();
     
@@ -82,6 +84,7 @@ export const ShowGlobal: FC<ShowGlobalFilesProps> = ({
                 />
             </div>
             <RenderFields
+                noResultsElement={errorElement}
                 height={heightToSet}
                 data={data}
                 error={error}

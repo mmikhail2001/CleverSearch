@@ -1,13 +1,16 @@
-import { useProfileQuery } from '@api/userApi';
+import { useLazyProfileQuery, useProfileQuery } from '@api/userApi';
+import { isDiskType } from '@models/disk';
+import { isConnectedClouds } from '@models/user';
 import { LoadingPage } from '@pages/loadingPage/loadingPage';
 import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { useAppSelector } from '@store/store';
 import { login as loginAction, logout as logoutAction, setUserEmail } from '@store/userAuth';
 import { addDisk } from '@store/userDisks';
-import React, { FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Navigate, useLocation } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 export interface AuthContextType {
 	state: boolean,
@@ -24,64 +27,106 @@ export interface AuthReturns {
 }
 
 export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
-	let authState = false;
 	const dispatch = useDispatch();
+	const [passedContext, setPassedContext] = useState({
+		isLoading: true,
+		state: false,
+	} as AuthContextType)
 
-	const { isError, isSuccess, isLoading, data } = useProfileQuery(null);
+	const {isAuthenticated} = useAppSelector(state => state.userAuth)
+	const [getProfile, resp] = useLazyProfileQuery()
 
-	if (isError) {
-		authState = false;
-		dispatch(logoutAction());
-	} else {
-		if (isSuccess) {
-			authState = true;
-			if (data.connected_clouds) {
-				data.connected_clouds.forEach(element => {
-					dispatch(addDisk(element))
-				});
+	useEffect(() => {
+		getProfile(null)
+	}, [isAuthenticated])
+
+	useEffect(() => {
+		if (resp.isLoading || resp.isFetching) {
+			setPassedContext({
+				state: false,
+				isLoading: true,
+			})
+		} else {
+			if (resp.isError) {
+				dispatch(logoutAction());
+				
+				setPassedContext({
+					state: false,
+					isLoading: false,
+				})
 			}
-			dispatch(setUserEmail({ email: data.email }))
-			dispatch(loginAction());
-		}
-	}
+	
+			if (resp.isSuccess) {
+				if (resp.data.connected_clouds) {
+					resp.data.connected_clouds.forEach(element => {
+						dispatch(addDisk(element))
+					});
+				}
+				dispatch(setUserEmail({ email: resp.data.email }))
+				dispatch(loginAction());
+				
+				setPassedContext({
+					state: true,
+					isLoading: false,
+				})
+			}
 
-	const passedContext = {
-		state: authState,
-		isLoading: isLoading,
-	} as AuthContextType;
+			if (!resp.isError && !resp.isSuccess && !resp.isUninitialized) {
+				setPassedContext({
+					state: false,
+					isLoading: false,
+				})
+			}
+		}
+	}, [resp])
 
 	return <AuthContext.Provider value={passedContext}>{children}</AuthContext.Provider>;
+};
+
+export const ProtectedFromAuthUser: FC<{ children: React.ReactNode }> = ({ children }) => {
+	const authState = useAuth()
+	const location = useLocation();
+
+	const navigate = useNavigate()
+
+	const [elementToReturn, setElementToReturn] = useState<React.ReactNode>(null)
+
+	useEffect(() => {
+		if (authState.isLoading) {
+			setElementToReturn(<LoadingPage />)
+		} else {
+			if (authState.state) {
+				navigate('/', {state: { from: location, replace: true }})
+			}
+
+			setElementToReturn(children)
+		}
+	}, [authState,children])
+	
+	return elementToReturn;
+};
+
+export const RequireAuth: FC<{ children: React.ReactNode }> = ({ children }) => {
+	const location = useLocation();
+	const authState = useAuth()
+	const navigate = useNavigate()
+	
+	const [elementToReturn, setElementToReturn] = useState<React.ReactNode>(null)
+
+	useEffect(() => {
+		if (authState.isLoading) {
+			setElementToReturn(<LoadingPage></LoadingPage>)
+		} else {
+			if (!authState.state) {
+				navigate('/login', {state: {'from': location}})
+			}
+			setElementToReturn(children)
+		}
+	}, [authState, children])
+
+	return elementToReturn;
 };
 
 export function useAuth(): AuthContextType {
 	return React.useContext(AuthContext);
 }
-
-
-export const ProtectedFromAuthUser: FC<{ children: React.ReactNode }> = ({ children }) => {
-	const authState = useAuth()
-	const auth = useAppSelector(state => state.userAuth.isAuthenticated);
-	const location = useLocation();
-
-	if (authState.isLoading) return <LoadingPage />
-	if (auth) {
-		return <Navigate to="/" state={{ from: location }} replace />;
-	}
-
-	return children;
-};
-
-export const RequireAuth: FC<{ children: React.ReactNode }> = ({ children }) => {
-	const auth = useAppSelector(state => state.userAuth.isAuthenticated);
-	const location = useLocation();
-	const authState = useAuth()
-
-	if (authState.isLoading) return <LoadingPage />
-
-	if (!auth) {
-		return <Navigate to="/login" state={{ from: location }} replace />;
-	}
-
-	return children;
-};
-

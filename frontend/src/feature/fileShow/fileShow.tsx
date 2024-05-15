@@ -73,21 +73,21 @@ export const FileShow: FC<FileShowProps> = ({
 				</div>}
 		>
 			{config.isDelete ?
-				<div onClick={(event) => {
+				<div key={'delete_btn'} onClick={(event) => {
 					event.stopPropagation();
 					onDelete();
 					setOpenDropDown(false)
 				}}>Remove</div>
 				: null}
 			{config.isCanBeLoved ? 
-			<div onClick={onFavourite}>
+			<div key={'remove_btn'} onClick={onFavourite}>
 				{!config.isLoved ? 'To Favourite' : 'Remove from Favourite'}
 			</div>
 			: null
 			}
 			{config.isShare ?
-				<React.Fragment>
-					<div
+					<div 
+						key={'share_btn'}
 						onClick={(event) => {
 							event.stopPropagation();
 							setOpen(true);
@@ -95,7 +95,6 @@ export const FileShow: FC<FileShowProps> = ({
 					>
 						Share
 					</div>
-				</React.Fragment>
 				: null}
 		</DropDown>
 	}
@@ -169,7 +168,7 @@ export const FileShow: FC<FileShowProps> = ({
 				
 				{isMobile ? null :
 					<div className='file-show__date'>
-						{date}
+						<Typography fontSize={'var(--ft-body)'}>{date}</Typography>
 					</div>
 				}
 

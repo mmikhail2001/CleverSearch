@@ -5,6 +5,8 @@ import { useDispatch } from 'react-redux';
 import { useDeleteFileMutation, useGetFavouriteMutation } from '@api/filesApi';
 import { switchToLoved, switchToShow } from '@store/whatToShow';
 import { ShowGlobal } from '../showGlobal';
+import { GetShowNoFilesErrorElement } from '@feature/errorElements';
+import { removeAddPermission } from '@store/canAdd';
 
 interface ShowLovedFilesProps { }
 
@@ -15,15 +17,25 @@ export const ShowLovedFiles: FC<ShowLovedFilesProps> = () => {
     const dispatch = useDispatch();
     const [deleteFile, respDelete] = useDeleteFileMutation();
 
-    if (!isLoved) {
-        dispatch(switchToLoved())
-    }
+    const { isCanBeAdd } = useAppSelector(state => state.addPermission)
+
+    useEffect(() => {
+        if (!isLoved) {
+            dispatch(switchToLoved())
+        }
+    
+        if (isCanBeAdd) {
+            dispatch(removeAddPermission())
+        }
+    }, [isLoved, isCanBeAdd])
+
     useEffect(() => {
         loved(null);
     }, [respDelete.isSuccess])
 
     return (
         <ShowGlobal
+            errorElement={<GetShowNoFilesErrorElement/>}
             breadCrumbsReactions={() => () => {}}
             dirs={[]}
             firstElementInBreadCrumbs='Loved'
