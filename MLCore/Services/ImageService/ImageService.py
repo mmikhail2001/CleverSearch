@@ -57,13 +57,17 @@ class ImageService(IDataService):
             )
         )
 
-        if text_embeddings:
+        os.remove(local_file_path)
+
+        if len(text_embeddings):
             self.__insert_text_repr_data(
                 document,
                 text_embeddings
             )
 
-        os.remove(local_file_path)
+            return True
+        else:
+            return False
 
     def __insert_text_repr_data(self, document, text_embeddings):
 

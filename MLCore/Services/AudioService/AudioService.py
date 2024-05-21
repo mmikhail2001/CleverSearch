@@ -28,7 +28,7 @@ class AudioService(IDataService):
         self.num_of_insts = num_of_insts
         self.worker = proc_cls()
 
-    def update_collection_file(self, uuid: str):
+    def update_collection_file(self, uuid: str) -> bool:
 
         document = self.mongo_collection.find_one({'_id': uuid})
 
@@ -44,16 +44,21 @@ class AudioService(IDataService):
 
         os.remove(local_file_path)
 
-        upd_query = {
-            '$set':
-            {
-                'ml_data': {
-                    'text_repr': proc_list,
-                    'timestart': list(map(lambda x: int(x), timestamps))
+        if len(proc_list):
+            upd_query = {
+                '$set':
+                {
+                    'ml_data': {
+                        'text_repr': proc_list,
+                        'timestart': list(map(lambda x: int(x), timestamps))
+                    }
                 }
             }
-        }
 
-        self.mongo_collection.update_one(
-            {'_id': document['_id']}, upd_query
-        )
+            self.mongo_collection.update_one(
+                {'_id': document['_id']}, upd_query
+            )
+
+            return True
+        else:
+            return False

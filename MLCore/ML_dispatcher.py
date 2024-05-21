@@ -60,10 +60,11 @@ class MLDispatcher:
             logging.critical(f'doc_uuid: {doc_uuid} || file type: {file_type}')
 
             if doc_meta['status'] != 'processed':
-                self.services[file_type].update_collection_file(
+                sucsess_processed_status = self.services[file_type].update_collection_file(
                     doc_uuid
                 )
-                requests.post(f'http://backend:8080/api/ml/complete?file_uuid={doc_uuid}')
+                if sucsess_processed_status:
+                    requests.post(f'http://backend:8080/api/ml/complete?file_uuid={doc_uuid}')
 
 
     def run(self, queue_name: str):
