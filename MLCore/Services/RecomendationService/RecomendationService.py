@@ -77,13 +77,15 @@ class SearchService():
 
     def find_text_files(self, data_array, sorted_list, file_type):
         result = {}
+        logger.critical(sorted_list)
         for elem in sorted_list:
             if elem[0] not in result:
                 result[elem[0]] = elem[1]
         files_uuid = [
             {
                 "file_uuid": data_array[k]['id'],
-                'page_number': data_array[k]['ml_data'][1]['Value'][result[k]]
+                'page_number': data_array[k]['ml_data'][1]['Value'][result[k]],
+                'cos_sim': sorted_list[k][2].item()
             } for k in list(result.keys())]
         return {file_type: files_uuid}
 
@@ -95,7 +97,8 @@ class SearchService():
         files_uuid = [
             {
                 "file_uuid": data_array[k]['id'],
-                'timestamp': data_array[k]['ml_data'][1]['Value'][result[k]]
+                'timestamp': data_array[k]['ml_data'][1]['Value'][result[k]],
+                'cos_sim': sorted_list[k][2].item()
             } for k in list(result.keys())]
         return {file_type: files_uuid}
     
@@ -106,7 +109,8 @@ class SearchService():
                 result[elem[0]] = elem[1]
         files_uuid = [
             {
-                "file_uuid": data_array[k]['id']
+                "file_uuid": data_array[k]['id'],
+                'cos_sim': sorted_list[k][2].item()
             } for k in list(result.keys())]
         return {file_type: files_uuid}
 
