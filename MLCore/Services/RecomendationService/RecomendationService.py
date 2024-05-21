@@ -48,7 +48,7 @@ class SearchService():
                     dists.append(
                         (i, j, cosine_similarity([list_embs[i][0][j]], query_emb))
                     )
-            logger.info(dists)
+
             sorted_list = sorted(dists, key=lambda x: x[2], reverse=True)[:5]
 
             if params['file_type'] == 'audio' or params['file_type'] == 'video':
@@ -77,7 +77,6 @@ class SearchService():
 
     def find_text_files(self, data_array, sorted_list, file_type):
         result = {}
-        logger.critical(sorted_list)
         for elem in sorted_list:
             if elem[0] not in result:
                 result[elem[0]] = elem[1]
