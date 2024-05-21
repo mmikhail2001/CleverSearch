@@ -8,18 +8,18 @@ import { CircularProgress } from '@mui/material';
 
 export interface PdfUrlViewerProps {
   url: string,
-  page: number,
+  pages: number[],
 }
 
-const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
+const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, pages }) => {
   const pdfRef = useRef<PDFDocumentProxy>();
   const windowRef = useRef<VariableSizeList>(null)
   const [itemCount, setItemCount] = useState(0);
   const [isFirstPageLoaded, setFirstPageLoaded] = useState(false);
   const [settedScale, setsettedScale] = useState(1);
 
-  const [currentPage, setCurrentPage] = useState<number>(page || 0)
-  const [currentPageToShow, setCurrentPageToshow] = useState<number>(page || 0)
+  const [currentPage, setCurrentPage] = useState<number>(pages[0] || 0)
+  const [currentPageToShow, setCurrentPageToshow] = useState<number>(pages[0] || 0)
 
   const scrollToItem = () => {
     windowRef?.current && windowRef.current.scrollToItem(currentPage, 'start');
@@ -53,6 +53,7 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
   return (
     <div className='pdf-with-controls'>
         <PdfControls
+          searchPages={pages}
           changePage={(page) => {
             setCurrentPage(page-1)
             setCurrentPageToshow(page)

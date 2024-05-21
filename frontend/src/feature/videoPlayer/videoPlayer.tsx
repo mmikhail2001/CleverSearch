@@ -15,7 +15,7 @@ import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 interface VideoPlayerProps {
 	url: string,
 	duration: number,
-	start_time?: number,
+	start_time?: number[],
 	authToken?: string,
 	isAudio?: boolean,
 }
@@ -114,13 +114,14 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 					onDuration={handleDuration}
 					onReady={(pl) => {
 						if (firstTime) {
-							pl.seekTo(start_time || 0)
+							pl.seekTo(start_time[0] || 0)
 							setFirstTime(false)
 						}
 					}}
 				>
 				</ReactPlayer>
 				<ControlsForVideo
+					searchTimeCodes={start_time}
 					isFullScreen={fullScreen.active}
 					isPlaying={state.playing}
 					currentTime={state.played}

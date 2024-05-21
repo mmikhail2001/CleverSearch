@@ -105,7 +105,7 @@ export const getPdfProps = (
             >
                 <ViewPDF
                     pdfURL={file.link}
-                    openPageInPDF={file.page_number || 0}
+                    openPageInPDF={file.page_number || [0]}
                 />
             </Modal>
         )
@@ -141,7 +141,7 @@ export const getVideoProps = (
                     isAudio={file.file_type === 'audio'}                
                     url={file.link}
                     duration={file.duration || 0}
-                    start_time={file.timestart || 0}
+                    start_time={file.timestart || [0]}
                 ></VideoPlayer>
             </Modal>
         )

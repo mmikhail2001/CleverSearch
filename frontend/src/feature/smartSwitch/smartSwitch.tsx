@@ -18,6 +18,7 @@ export const SmartSwitch: FC<SmartSwitchProps> = ({
     const handleChange = () => {
         changeSmartSearch()
     }
+
     return (
         <Tooltip
             slotProps={{tooltip:{style:{

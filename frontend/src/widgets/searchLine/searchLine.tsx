@@ -62,6 +62,10 @@ export const SearchLine: FC<SearchLineProps> = ({
 		query: '',
 		smartSearch: false,
 	})
+
+	useEffect(() => {
+		setSearchValue({...searchValue, dir: searchReq.dir})
+	}, [])
 	
 	useEffect(() => {
 		setSearchValue({
@@ -71,16 +75,13 @@ export const SearchLine: FC<SearchLineProps> = ({
 			fileType: searchReq.fileType,
 		})
 	}, [searchReq])
+	console.log('searchReq',searchReq, searchValue)
 
 	useEffect(() => {
 		if ((isShow || isExternal) && !compareArrays(showReq.dir, searchValue.dir)){
 			setSearchValue({ ...searchValue, dir: showReq.dir })
 		}
 	}, [showReq.dir])
-
-	useEffect(() => {
-		setSearchValue({...searchValue, dir: searchReq.dir})
-	}, [])
 
 	if (isOpen !== isBoxOpen ) {
 		dispatch(changeOpenFilter(isBoxOpen))
