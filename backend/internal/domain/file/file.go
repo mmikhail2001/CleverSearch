@@ -78,6 +78,7 @@ type File struct {
 	PageNumber int
 	Timestart  int
 	Duration   int
+	CosSim     float64
 
 	IsFav bool
 
