@@ -152,6 +152,11 @@ export const Shared: FC<SharedProps> = ({
             } else {
                 setResponseCorrect(false)
                 setIncorrectEmails(respIncorrectEmails.map(val => val.email))
+                
+                notificationBar({
+                    children: "Some emails is incorrect",
+                    variant: 'error',
+                })
             }
            
         }
