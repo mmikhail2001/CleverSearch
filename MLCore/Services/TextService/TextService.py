@@ -67,3 +67,5 @@ class TextService(IDataService):
         self.mongo_collection.update_one(
             {'_id': document['_id']}, upd_query
         )
+
+        return True
