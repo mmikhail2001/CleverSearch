@@ -270,7 +270,14 @@ export const Sidebar: FC<SidebarProps> = ({
 						isOpen={aboutUsIsOpen} 
 						closeModal={() => setAboutUsIsOpen(false)} 
 					>
-						<Typography>Something</Typography>
+						<Typography fontSize={'var(--ft-body-plust)'} style={{opacity: '0.8'}}>Info</Typography>
+						<Typography fontSize={'var(--ft-body)'} style={{
+							opacity: '0.6',
+							width: '100%',
+							maxWidth: '600px',
+						}}>
+						CleverSearch is a web application designed to revolutionize data management and retrieval. Users can store their data securely, effortlessly share it with others, and seamlessly integrate external drives for expanded storage options. The standout feature of CleverSearch is its intelligent semantic search capability, allowing users to search for meaning across all their files. Whether it's documents, images, or any other file type, CleverSearch's advanced search functionality ensures users can quickly locate the information they need, regardless of where it's stored. With CleverSearch, managing and accessing your data has never been easier or more intuitive.
+						</Typography>
 					</Modal>
 					<div style={{
 						width: '100%', 

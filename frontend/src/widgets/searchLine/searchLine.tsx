@@ -75,7 +75,6 @@ export const SearchLine: FC<SearchLineProps> = ({
 			fileType: searchReq.fileType,
 		})
 	}, [searchReq])
-	console.log('searchReq',searchReq, searchValue)
 
 	useEffect(() => {
 		if ((isShow || isExternal) && !compareArrays(showReq.dir, searchValue.dir)){

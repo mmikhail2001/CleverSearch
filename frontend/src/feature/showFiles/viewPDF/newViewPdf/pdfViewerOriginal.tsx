@@ -39,9 +39,10 @@ const PdfViewer: FC<PdfViewerProps> = ({
 
   useEffect(() => {
     const maxWidth = pages.reduce((prev, current) => {
-      let currentWidth = current.getViewport().viewBox[2]
+      let currentWidth = current?.getViewport()?.viewBox[2]
       return currentWidth > prev ? currentWidth : prev
     },0)
+
     if (widthToSet !== maxWidth)
       setWidthToSet(maxWidth)
   }, [pages])

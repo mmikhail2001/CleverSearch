@@ -21,9 +21,18 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, pages }) => {
   const [currentPage, setCurrentPage] = useState<number>(pages[0] || 0)
   const [currentPageToShow, setCurrentPageToshow] = useState<number>(pages[0] || 0)
 
+  const [firstScroll, setFirstScroll] = useState<boolean>(true)
+
   const scrollToItem = () => {
     windowRef?.current && windowRef.current.scrollToItem(currentPage, 'start');
   };
+
+  useEffect(() => {
+    scrollToItem()
+    setTimeout(() => {
+      scrollToItem()
+    }, 300);
+  }, [])
 
   useEffect(() => {
     let loadingTask: PDFDocumentLoadingTask;
@@ -55,6 +64,7 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, pages }) => {
         <PdfControls
           searchPages={pages}
           changePage={(page) => {
+            setFirstScroll(false)
             setCurrentPage(page-1)
             setCurrentPageToshow(page)
           }}
@@ -70,7 +80,7 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, pages }) => {
           </div>}
 
         <PdfViewer
-          scrollPage={page => setCurrentPageToshow(page)}
+          scrollPage={page => {setFirstScroll(false); setCurrentPageToshow(page)}}
           windowRef={windowRef}
           itemCount={itemCount}
           getPdfPage={handleGetPdfPage}
