@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
+	"sort"
 	"strings"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
@@ -77,6 +78,7 @@ func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOpt
 				return nil, err
 			}
 			fileTmp.PageNumber = searchItem.PageNumber
+			fileTmp.CosSim = searchItem.CosSim
 			filesTmp = append(filesTmp, fileTmp)
 		}
 		filesGeneral = append(filesGeneral, filesTmp...)
@@ -89,6 +91,7 @@ func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOpt
 				log.Println("GetFileByID (Image) error:", err)
 				return nil, err
 			}
+			fileTmp.CosSim = searchItem.CosSim
 			filesTmp = append(filesTmp, fileTmp)
 		}
 		filesGeneral = append(filesGeneral, filesTmp...)
@@ -102,6 +105,7 @@ func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOpt
 				return nil, err
 			}
 			fileTmp.Timestart = searchItem.Timestart
+			fileTmp.CosSim = searchItem.CosSim
 			filesTmp = append(filesTmp, fileTmp)
 		}
 		filesGeneral = append(filesGeneral, filesTmp...)
@@ -115,10 +119,15 @@ func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOpt
 				return nil, err
 			}
 			fileTmp.Timestart = searchItem.Timestart
+			fileTmp.CosSim = searchItem.CosSim
 			filesTmp = append(filesTmp, fileTmp)
 		}
 		filesGeneral = append(filesGeneral, filesTmp...)
 	}
+
+	sort.Slice(filesGeneral, func(i, j int) bool {
+		return filesGeneral[i].CosSim > filesGeneral[j].CosSim
+	})
+
 	return filesGeneral, nil
-	// return []file.File{}, fmt.Errorf("file type response from ml not correct")
 }
