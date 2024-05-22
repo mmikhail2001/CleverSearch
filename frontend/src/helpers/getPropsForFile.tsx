@@ -11,6 +11,8 @@ import FolderIcon from '@mui/icons-material/Folder';
 import ArticleRoundedIcon from '@mui/icons-material/ArticleRounded';
 import VideoFileRoundedIcon from '@mui/icons-material/VideoFileRounded';
 
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+
 import React from 'react';
 import { useMobile } from "src/mobileProvider";
 
@@ -64,6 +66,16 @@ export const getImageProps = (
                 isOpen={state}
                 closeModal={() => changeState(false)}
             >
+                <div style={{
+                    position: 'absolute',
+                    top: '27px',
+                    right: '24px',
+                    fontSize: 'var(--ft-paragraph)',
+                }}
+                onClick={() => changeState(false)}
+                >
+                    <CloseOutlinedIcon fontSize="inherit"></CloseOutlinedIcon>
+                </div>
                 <ViewImg imgSrc={file.link} altText={''}/>
             </Modal>
         )
@@ -103,9 +115,19 @@ export const getPdfProps = (
                     justifyContent: 'start',
                 }}
             >
+                <div style={{
+                    position: 'absolute',
+                    top: '27px',
+                    right: '24px',
+                    fontSize: 'var(--ft-paragraph)',
+                }}
+                onClick={() => changeState(false)}
+                >
+                    <CloseOutlinedIcon fontSize="inherit"></CloseOutlinedIcon>
+                </div>
                 <ViewPDF
                     pdfURL={file.link}
-                    openPageInPDF={file.page_number || 0}
+                    openPageInPDF={Array.isArray(file.page_number) ? file.page_number : [file.page_number] || [0]}
                 />
             </Modal>
         )
@@ -141,7 +163,7 @@ export const getVideoProps = (
                     isAudio={file.file_type === 'audio'}                
                     url={file.link}
                     duration={file.duration || 0}
-                    start_time={file.timestart || 0}
+                    start_time={Array.isArray(file.timestart) ? file.timestart : [file.timestart] || [0]}
                 ></VideoPlayer>
             </Modal>
         )

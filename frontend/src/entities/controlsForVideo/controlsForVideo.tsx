@@ -20,8 +20,12 @@ import VolumeUpRoundedIcon from '@mui/icons-material/VolumeUpRounded';
 import SpeedRoundedIcon from '@mui/icons-material/SpeedRounded';
 
 import { DropDown } from '@entities/dropDown/dropDown';
-import { Box, Slider } from '@mui/material'
+import { Box, IconButton, Slider, Typography } from '@mui/material'
 import { useMobile } from 'src/mobileProvider';
+
+import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
+import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
+
 
 interface ControlsForVideoProps {
 	currentTime: number,
@@ -36,6 +40,7 @@ interface ControlsForVideoProps {
 	// Can accept only from 0 to 1
 	setVolume: (desiredVolume: number) => void
 	isPlaying: boolean,
+	searchTimeCodes?: number[],
 }
 
 export const ControlsForVideo: FC<ControlsForVideoProps> = ({
@@ -50,9 +55,12 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 	currentVolume,
 	setVolume,
 	isPlaying,
+	searchTimeCodes,
 }) => {
 	const [isOpenVolume, setOpenVolume] = useState(false)
 	const [speedOpen, setSpeedOpen] = useState(false)
+
+	const [currentTimeCodeSearched, setCurrentTimeCodeSearched] = useState(0)
 
 	const {whatDisplay} = useMobile()
 
@@ -69,7 +77,6 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 		return 0
 	}
 
-
 	const getVolumeIcon = (volume: number): React.ReactNode => {
 		if (volume >= 0.5) {
 			return <VolumeUpRoundedIcon fontSize='inherit' className='contorl-img'/>
@@ -79,6 +86,21 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 		}
 
 		return <VolumeOffRoundedIcon fontSize='inherit' className='contorl-img'/>
+	}
+
+	const handleSelectTimecode = (timeCodeSelected: number) => {
+		if (searchTimeCodes?.length <= timeCodeSelected) {
+			setCurrentTimeCodeSearched(searchTimeCodes.length - 1)
+			return
+		  }
+	  
+		  if (timeCodeSelected < 0) {
+			setCurrentTimeCodeSearched(0)
+			return
+		  }
+	  
+		  setCurrentTimeCodeSearched(timeCodeSelected)
+		  setTime(searchTimeCodes[timeCodeSelected])
 	}
 
 	return (
@@ -94,7 +116,13 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 					style={{ width: '100%', height: '100%' }}
 					onChange={handleChange} />
 			</div>
-			<div className='controls' style={{gap: whatDisplay !== 1 ? null : '8px'}}>
+			<div 
+				className='controls' 
+				style={{
+					gap: whatDisplay !== 1 ? null : '8px',
+					position: 'relative',
+				}}
+			>
 				<div className='start-stop-container'>
 					{!isPlaying ?
 						<PlayArrowRoundedIcon onClick={start} fontSize='inherit'/>
@@ -187,6 +215,37 @@ export const ControlsForVideo: FC<ControlsForVideoProps> = ({
 					}
 				</div>
 			</div>
+				{
+					searchTimeCodes?.length > 1
+					?<div 
+						className='timecode-show' 
+						style={{
+							display: 'flex',
+							flexDirection:'row',
+							fontSize: 'var(--ft-body-plust)',
+							position: 'absolute',
+							bottom: '88px',
+							right: '32px',
+						}}
+					>
+						 	<IconButton
+								onClick={() => handleSelectTimecode(currentTimeCodeSearched + 1)}
+								sx={{color:'black', fontSize: 'var(--ft-body-plust)'}}
+								disabled={currentTimeCodeSearched === searchTimeCodes?.length - 1}
+							>
+							<KeyboardArrowUpOutlinedIcon fontSize='inherit' sx={{color:'inherit', borderRadius: 'var(--big-radius)', backgroundColor: 'rgba(255,255,255,0.3)'}}/>
+							</IconButton>
+							<Typography fontSize={'var(--ft-body)'}></Typography>
+							<IconButton 
+								onClick={() => handleSelectTimecode(currentTimeCodeSearched - 1)}
+								sx={{color:'black', fontSize: 'var(--ft-body-plust)'}}
+								disabled={currentTimeCodeSearched === 0}
+							>
+							<KeyboardArrowDownOutlinedIcon fontSize='inherit'  sx={{color:'inherit', borderRadius: 'var(--big-radius)', backgroundColor: 'rgba(255,255,255,0.3)'}}/>
+							</IconButton>
+					</div>
+					:null
+				}
 		</div>
 	)
 };

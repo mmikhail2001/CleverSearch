@@ -52,6 +52,7 @@ export const useSearchParams = () => {
             || !compareArrays(searchParams.fileType, searchState.fileType)
             || searchParams.smartSearch !== searchState.smartSearch
         ) {
+            console.log(searchState, params)
             dispatch(newSearchValues({
                 query: searchState.query,
                 smartSearch: searchState.smartSearch,

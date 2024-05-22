@@ -62,6 +62,10 @@ export const SearchLine: FC<SearchLineProps> = ({
 		query: '',
 		smartSearch: false,
 	})
+
+	useEffect(() => {
+		setSearchValue({...searchValue, dir: searchReq.dir})
+	}, [])
 	
 	useEffect(() => {
 		setSearchValue({
@@ -77,10 +81,6 @@ export const SearchLine: FC<SearchLineProps> = ({
 			setSearchValue({ ...searchValue, dir: showReq.dir })
 		}
 	}, [showReq.dir])
-
-	useEffect(() => {
-		setSearchValue({...searchValue, dir: searchReq.dir})
-	}, [])
 
 	if (isOpen !== isBoxOpen ) {
 		dispatch(changeOpenFilter(isBoxOpen))
