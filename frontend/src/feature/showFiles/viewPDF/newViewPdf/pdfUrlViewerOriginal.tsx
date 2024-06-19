@@ -3,25 +3,36 @@ import { DocumentInitParameters, PDFDocumentLoadingTask, PDFDocumentProxy } from
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { VariableSizeList } from 'react-window';
 import PdfViewer from './pdfViewerOriginal';
-import { Typography } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
+import { PdfControls } from './pdfControls';
+import { CircularProgress } from '@mui/material';
 
 export interface PdfUrlViewerProps {
   url: string,
-  page: number,
+  pages: number[],
 }
 
-const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
+const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, pages }) => {
   const pdfRef = useRef<PDFDocumentProxy>();
   const windowRef = useRef<VariableSizeList>(null)
   const [itemCount, setItemCount] = useState(0);
   const [isFirstPageLoaded, setFirstPageLoaded] = useState(false);
   const [settedScale, setsettedScale] = useState(1);
 
+  const [currentPage, setCurrentPage] = useState<number>(pages[0] || 0)
+  const [currentPageToShow, setCurrentPageToshow] = useState<number>(pages[0] || 0)
+
+  const [firstScroll, setFirstScroll] = useState<boolean>(true)
+
   const scrollToItem = () => {
-    windowRef?.current && windowRef.current.scrollToItem(page - 1, 'start');
+    windowRef?.current && windowRef.current.scrollToItem(currentPage, 'start');
   };
+
+  useEffect(() => {
+    scrollToItem()
+    setTimeout(() => {
+      scrollToItem()
+    }, 300);
+  }, [])
 
   useEffect(() => {
     let loadingTask: PDFDocumentLoadingTask;
@@ -46,46 +57,40 @@ const PdfUrlViewer: FC<PdfUrlViewerProps> = ({ url, page }) => {
 
   useEffect(() => {
     scrollToItem()
-  }, [isFirstPageLoaded])
+  }, [isFirstPageLoaded, currentPage])
 
   return (
-    <>
-      <PdfViewer
-        windowRef={windowRef}
-        itemCount={itemCount}
-        getPdfPage={handleGetPdfPage}
-        onLoad={() => { setFirstPageLoaded(true); }}
-        scale={settedScale}
-        gap={40}
-      />
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Typography fontSize={'var(--ft-body)'}>Scale</Typography>
-        <div style={{
-          display: 'flex',
-          fontSize: 'calc(var(--ft-body) - 0.3rem)',
-          alignItems: 'center',
-        }}>
-          <RemoveIcon
-            style={{ background: 'var(--main-color-100)', borderRadius: 'var(--small-radius)' }}
-            fontSize='inherit'
-            onClick={() => setsettedScale(p => p - 0.25)}
-          />
-          <Typography fontSize={'var(--ft-body)'}>{settedScale}</Typography>
-          <AddIcon
-            style={{ background: 'var(--main-color-100)', borderRadius: 'var(--small-radius)' }}
-            fontSize='inherit'
-            onClick={() => setsettedScale(p => p + 0.25)}
-          />
-        </div>
-      </div>
-    </>
+    <div className='pdf-with-controls'>
+        <PdfControls
+          searchPages={pages}
+          changePage={(page) => {
+            setFirstScroll(false)
+            setCurrentPage(page-1)
+            setCurrentPageToshow(page)
+          }}
+          currentPage={currentPageToShow}
+          maxPage={itemCount}
+          scale={settedScale}
+          zoomOut={() => setsettedScale(p => p + 0.25)}
+          zoomIn={() => setsettedScale(p => p - 0.25)}
+        />
+        
+        {isFirstPageLoaded ? null : <div style={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '1.2rem'}}>
+            <CircularProgress></CircularProgress>
+          </div>}
+
+        <PdfViewer
+          scrollPage={page => {setFirstScroll(false); setCurrentPageToshow(page)}}
+          windowRef={windowRef}
+          itemCount={itemCount}
+          getPdfPage={handleGetPdfPage}
+          onLoad={() => { setFirstPageLoaded(true); }}
+          scale={settedScale}
+          gap={40}
+        />
+    </div>
   );
 };
+
 
 export default PdfUrlViewer;

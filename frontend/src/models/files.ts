@@ -27,8 +27,8 @@ export interface fileFile {
       is_owner: boolean;
     };
     duration?: number,
-    timestart?: number,
-    page_number?: number,
+    timestart?: number[],
+    page_number?: number[],
     is_fav?: boolean,
   }
 

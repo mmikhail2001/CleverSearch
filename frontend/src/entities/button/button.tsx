@@ -23,7 +23,7 @@ interface ButtonProps {
 const UIButtonWithStyle = styled(UIButton)({
 	boxShadow: '4px 6px 6px 0 rgba(var(--color-active-shadow),.08)',
 	textTransform: 'none',
-	fontSize: 16,
+	fontSize: 'var(--ft-body-plust)',
 	borderRadius: 'var(--big-radius)',
 	padding: '16px 24px',
 	border: 'none',
@@ -82,10 +82,9 @@ export const Button: FC<ButtonProps> = ({
 		...style,
 		textTransform: 'none',
 		fontSize: fontSize,
-		justifyContent: variant === 'text' ? 'start' : null,
 		padding: variant === 'text' ? '0' : null,
 	};
-	console.log('variant', variant)
+
 	switch (variant) {
 		case 'contained':
 		break;
@@ -97,7 +96,6 @@ export const Button: FC<ButtonProps> = ({
 			}
 		break;
 		case 'text':
-			console.log('CSSS style text')
 			cssStyles= {
 				...cssStyles,
 				backgroundColor: 'transparent',
@@ -129,7 +127,13 @@ export const Button: FC<ButtonProps> = ({
 			startIcon={startIconSrc ? <img src={startIconSrc} /> : null}
 			endIcon={endIcon ? endIcon : null}
 			sx={
-				{...cssStyles,
+				{
+					...cssStyles,
+					"&.Mui-disabled": { 
+						color: 'inherit',
+						background: variant === 'text' ? 'none' : 'var(--color-active)',
+						opacity: '0.3',
+					  },
 				}
 			}
 		>

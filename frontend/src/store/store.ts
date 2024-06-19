@@ -13,6 +13,8 @@ import reducer from './whatToShow';
 import { reducer as reducerDisks } from './userDisks'
 import {reducer as reducerFileWS} from './fileProcess' 
 import {reducer as createSlice} from './searchFilter' 
+import {reducer as shareAccess} from './shareAccess' 
+import {reducer as addPermission} from './canAdd' 
 
 export const store = configureStore({
 	reducer: {
@@ -27,6 +29,8 @@ export const store = configureStore({
 		userAuth: reducerUser,
 		disks: reducerDisks,
 		searchFilter: createSlice,
+		shareAccess: shareAccess,
+		addPermission: addPermission,
 	},
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware()

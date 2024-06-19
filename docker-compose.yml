@@ -60,14 +60,73 @@ services:
     networks:
       clevernet:
 
-  mlcore:
+  mlcore_core:
+    image: windowskonon1337/cleversearch_mlcore_core:latest
+    networks:
+      clevernet:
+
+  mlcore_rec_service:
     build:
       context: ./MLCore
-      dockerfile: Dockerfile
+      dockerfile: Services/RecomendationService/Dockerfile.rec_service
     restart: always
     ports:
       - 8081:8081
     depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
+
+  mlcore_img_service:
+    build:
+      context: ./MLCore
+      dockerfile: Services/ImageService/Dockerfile.img_service
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
+
+  mlcore_text_service:
+    build:
+      context: ./MLCore
+      dockerfile: Services/TextService/Dockerfile.text_service
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
+
+
+  mlcore_audio_service:
+    build:
+      context: ./MLCore
+      dockerfile: Services/AudioService/Dockerfile.audio_service
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet:
+
+  mlcore_video_service:
+    build:
+      context: ./MLCore
+      dockerfile: Services/VideoService/Dockerfile.video_service
+    restart: always
+    depends_on:
+      - mlcore_core
       - rabbitmq
       - mongodb
       - minio
@@ -83,8 +142,8 @@ services:
       - backend
     volumes:
       # dd exec -it containerID nginx -s reload
-      - ./config/default.conf:/etc/nginx/conf.d/default.conf
-      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend/config/nginx_dev/default.conf:/etc/nginx/conf.d/default.conf
+      - ./frontend/config/nginx_dev/nginx.conf:/etc/nginx/nginx.conf
       - ./frontend:/app/frontend
     networks:
       clevernet:

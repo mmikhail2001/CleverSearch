@@ -12,7 +12,6 @@ import { SearchBox } from './searchBox/searchBox';
 import { newSearchValues } from '@store/searchRequest';
 
 import { useNavigate } from 'react-router-dom';
-import { transformToSearchRequestString } from '@api/transforms';
 
 import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -27,6 +26,7 @@ import { compareArrays } from '@helpers/hooks/useShowParams';
 import { newValues } from '@store/showRequest';
 import { changeOpenFilter } from '@store/searchFilter';
 import { getSearchURLFront } from '@helpers/transformsToURL';
+import { SmartSwitch } from '@feature/smartSwitch/smartSwitch';
 
 export interface searchStateValue {
 	smartSearch: boolean;
@@ -54,7 +54,7 @@ export const SearchLine: FC<SearchLineProps> = ({
 
 	const { whatDisplay } = useMobile();
 
-	const {isShow} = useAppSelector(state => state.whatToShow)
+	const {isShow, isExternal} = useAppSelector(state => state.whatToShow)
 
 	const searchReq = useAppSelector(state => state.searchRequest)
 	const showReq = useAppSelector(state => state.showRequest)
@@ -62,6 +62,10 @@ export const SearchLine: FC<SearchLineProps> = ({
 		query: '',
 		smartSearch: false,
 	})
+
+	useEffect(() => {
+		setSearchValue({...searchValue, dir: searchReq.dir})
+	}, [])
 	
 	useEffect(() => {
 		setSearchValue({
@@ -72,36 +76,37 @@ export const SearchLine: FC<SearchLineProps> = ({
 		})
 	}, [searchReq])
 
-	if (isShow && !compareArrays(showReq.dir, searchValue.dir)){
-		setSearchValue({ ...searchValue, dir: showReq.dir })
-	}
-
 	useEffect(() => {
-		setSearchValue({...searchValue, dir: searchReq.dir})
-	}, [])
+		if ((isShow || isExternal) && !compareArrays(showReq.dir, searchValue.dir)){
+			setSearchValue({ ...searchValue, dir: showReq.dir })
+		}
+	}, [showReq.dir])
 
 	if (isOpen !== isBoxOpen ) {
 		dispatch(changeOpenFilter(isBoxOpen))
 	}
 
 	function mySearch(): void {
-		dispatch(switchToSearch());
 		dispatch(newSearchValues(searchValue));
 		dispatch(newValues({...showReq, dir: []}))
-
+		
 		setTimeout(
 			() => setisBoxOpen(false),
 			0
 		)
-
+		
 		const url = getSearchURLFront(searchValue.fileType,searchValue.smartSearch, searchValue.dir, searchValue.query)
 		navigate(url)
+
+		dispatch(switchToSearch());
 	}
+
+	const widthToSearchLine = whatDisplay === 1 ? `calc(${width} - 172px)`  : width
 
 	const renderOpenBox = (): React.ReactNode => {
 		return (
 			<SearchBox
-				width={width}
+				width={widthToSearchLine}
 				key={'searchbox'}
 				fontSize={'var(--ft-body)'}
 				changeState={(obj: searchStateValue) => {
@@ -116,76 +121,106 @@ export const SearchLine: FC<SearchLineProps> = ({
 		)
 	}
 
-	return (
-		<PopOver
-			background={'transparent'}
-			marginTop={'2.4rem'}
-			whatCorner='left'
-			variants={'down'}
-			key={'search-popover-with-box'}
-			open={isBoxOpen}
-			toggleOpen={setisBoxOpen}
-			isCloseOnSelect={false}
-			mainElement={
+	const renderSearchLine = () => {
+		return (
 				<div 
-					className={['search-line', isBoxOpen ? 'open-search-line' : ''].join(' ')}
-					style={{ width: width }}
-				>
-					<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
-						<div className="search-icon-container"
-							onClick={whatDisplay === 1 ? onIconClick : () => {
-								setisBoxOpen(false)
-								onIconClick()
-							} }
-							style={{ fontSize: 'var(--ft-paragraph)' }}>
-							{whatDisplay === 1 ?
-								<SearchIcon fontSize='inherit' />
-								: <DehazeIcon sx={{ cursor: 'pointer' }} fontSize='inherit' />
-							}
-						</div>
-						<div className="search-text">
-							<Input
-								style={{backgroundColor: 'var(--color-active)'}}
-								fontSize={'var(--ft-paragraph)'}
-								isFullWidth
-								variant='text'
-								onKeyDown={(e) => {
-									if (e.key.toLowerCase() === 'enter') {
-										mySearch()
-									}
-								}}
-								onChange={(e) =>
-									setSearchValue({ ...searchValue, query: e.target.value })
+						className={['search-line', isBoxOpen ? 'open-search-line' : ''].join(' ')}
+						style={{ width: widthToSearchLine}}
+					>
+						<div className="icon-with-text" onClick={(e) => e.stopPropagation()}>
+							<div className="search-icon-container"
+								onClick={whatDisplay === 1 ? onIconClick : () => {
+									setisBoxOpen(false)
+									onIconClick()
+								} }
+								style={{ fontSize: 'var(--ft-pg-24)', paddingBottom: '25px' }}>
+								{whatDisplay === 1 ?
+									<SearchIcon fontSize='inherit' />
+									: <DehazeIcon sx={{ cursor: 'pointer' }} fontSize='inherit' />
 								}
-								disabled={response.isLoading}
-								placeholder={'Find any file'}
-								type={'search'}
-								value={searchValue?.query || ''}
+							</div>
+							<div className="search-text">
+								<Input
+									removeFocusedBorder={true}
+									style={{backgroundColor: 'var(--color-active)', color: 'inherit' }}
+									fontSize={'var(--ft-paragraph)'}
+									isFullWidth
+									variant='text'
+									onKeyDown={(e) => {
+										if (e.key.toLowerCase() === 'enter') {
+											mySearch()
+										}
+									}}
+									onChange={(e) =>
+										setSearchValue({ ...searchValue, query: e.target.value })
+									}
+									disabled={response.isLoading}
+									placeholder={'Find any file'}
+									type={'search'}
+									value={searchValue?.query || ''}
+								/>
+							</div>
+						</div>
+						<div
+							className="filter-icon-container"
+							onClick={() => {
+									setTimeout(
+										() => setisBoxOpen(!isBoxOpen),
+										0
+									)
+								}
+							}
+							style={{ 
+								fontSize: 'var(--ft-paragraph)',
+								marginLeft: 'var(--normal-padding)',
+							}}
+						>
+							<TuneIcon
+								fontSize='inherit' 
 							/>
 						</div>
-					</div>
-					<div
-						className="filter-icon-container"
-						onClick={() => {
-								setTimeout(
-									() => setisBoxOpen(!isBoxOpen),
-									0
-								)
-							}
-						}
-						style={{ 
-							fontSize: 'var(--ft-paragraph)',
-							marginLeft: 'var(--normal-padding)',
+					</div >
+		)
+	}
+
+	return (
+		<div style={{
+			width: width,
+			display:'flex',
+			flexDirection: 'row',
+			gap: '32px',
+			alignItems: 'center',
+		}}>
+			<PopOver
+				background={'transparent'}
+				marginTop={'2.4rem'}
+				whatCorner='left'
+				variants={'down'}
+				key={'search-popover-with-box'}
+				open={isBoxOpen}
+				toggleOpen={(state) =>setisBoxOpen(state)}
+				isCloseOnSelect={false}
+				mainElement={renderSearchLine()}
+			>
+				{[renderOpenBox()]}
+			</PopOver>
+			
+			{
+			whatDisplay === 1 ? 
+				<div style={{zIndex: isBoxOpen ? 1301 : null}}>
+					<SmartSwitch
+						isSmartSearch={searchValue.smartSearch}
+						changeSmartSearch={() => {
+							setSearchValue({
+								...searchValue,
+								smartSearch: !searchValue.smartSearch,
+							})
 						}}
-					>
-						<TuneIcon
-							fontSize='inherit' 
-						/>
-					</div>
-				</div >
+					/>
+				</div> 
+			: null
 			}
-		>
-			{[renderOpenBox()]}
-		</PopOver>
+		</div>
+
 	);
 };

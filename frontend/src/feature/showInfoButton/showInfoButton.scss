@@ -1,0 +1,11 @@
+.info-text {
+    opacity: 0;
+    overflow: hidden;
+    max-height: 0;
+    transition: opacity 700ms ease-in-out, max-height 700ms ease-in-out;
+  }
+  
+.info-text.visible {
+    opacity: 1;
+    max-height: 400px;
+}

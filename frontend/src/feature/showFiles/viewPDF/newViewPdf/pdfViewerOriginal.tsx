@@ -4,6 +4,8 @@ import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import useResizeObserver from 'use-resize-observer';
 import Page from './page/pageWrapper';
 import PdfPage from './page/pageOfPPdf';
+import { CircularProgress } from '@mui/material';
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
 
 export interface PdfViewerProps {
   itemCount: number,
@@ -11,9 +13,9 @@ export interface PdfViewerProps {
   scale: number,
   gap: number,
   windowRef: React.MutableRefObject<VariableSizeList>,
-  onLoad: () => void
+  onLoad: () => void,
+  scrollPage: (page:number) => void,
 }
-
 
 const PdfViewer: FC<PdfViewerProps> = ({
   itemCount,
@@ -22,15 +24,28 @@ const PdfViewer: FC<PdfViewerProps> = ({
   gap,
   windowRef,
   onLoad,
+  scrollPage,
 }) => {
   const [pages, setPages] = useState([] as PDFPageProxy[]);
   const listRef = useRef<VariableSizeList>();
-
+  
   const {
     ref,
     width: internalWidth = 400,
     height: internalHeight = 900
   } = useResizeObserver();
+  
+  const [widthToSet, setWidthToSet] = useState(internalWidth)
+
+  useEffect(() => {
+    const maxWidth = pages.reduce((prev, current) => {
+      let currentWidth = current?.getViewport()?.viewBox[2]
+      return currentWidth > prev ? currentWidth : prev
+    },0)
+
+    if (widthToSet !== maxWidth)
+      setWidthToSet(maxWidth)
+  }, [pages])
 
   const fetchPage = useCallback(
     (index: number) => {
@@ -75,33 +90,40 @@ const PdfViewer: FC<PdfViewerProps> = ({
     listRef?.current?.resetAfterIndex(0);
   }, [scale]);
 
-  // TODO replace with class
   const style = {
-    width: '100%',
+    width: `100%`,
+    minWidth: '300px',
     height: '100%',
-    border: '1px solid #ccc',
-    background: '#ddd'
   };
-
 
   const renderPage: FC<ListChildComponentProps> = ({ index, style }) => {
     fetchPage(index);
     return (
       // @ts-expect-error HACK
-      <Page style={style}>
-        <PdfPage page={pages[index]} scale={scale} />
+      <Page style={{...style, width:`fit-content`}}>
+        {!isNullOrUndefined(pages[index]) ? <PdfPage page={pages[index]} scale={scale} /> : <CircularProgress />}
       </Page>
     );
   }
 
+  const settedWidth = widthToSet * scale + 20 < 330 ? `330px` : `calc(calc(${widthToSet}px * var(--scale-factor)) + ${30}px)`
+
   return (
-    <div className="pdf-viewer" ref={ref} style={style}>
+    <div className="pdf-viewer" ref={ref} style={{...style, width: "fit-content", maxWidth: '100%'}}>
       <VariableSizeList
         ref={handleListRef}
-        width={internalWidth}
+        width={settedWidth}
         height={internalHeight}
         itemCount={itemCount}
         itemSize={handleItemSize}
+        className='pdf-list-page'
+        onItemsRendered={(props) => {
+          const stopPage = Number(props.visibleStopIndex)
+          if (!Number.isNaN(stopPage)) {
+            scrollPage(stopPage + 1)
+          }
+        }}
+
       >
         {renderPage}
       </VariableSizeList>

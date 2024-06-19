@@ -24,7 +24,7 @@ func (r *Repository) UploadToStorage(ctx context.Context, fileReader io.Reader, 
 
 	exists, err := r.minio.BucketExists(ctx, file.Bucket)
 	if err != nil {
-		log.Println("Failed to check bucket [", file.Bucket, "] existence:", err)
+		log.Println("Failed to check bucket [", file.Bucket, "] existence:", exists, "err: ", err)
 		return file, err
 	}
 
@@ -75,6 +75,15 @@ func (r *Repository) RemoveFromStorage(ctx context.Context, file file.File) erro
 	}
 
 	return nil
+}
+
+func (r *Repository) BucketExists(ctx context.Context, bucketName string) (bool, error) {
+	exists, err := r.minio.BucketExists(ctx, bucketName)
+	if err != nil {
+		log.Println("Failed to check if bucket exists in MinIO:", err)
+		return false, err
+	}
+	return exists, nil
 }
 
 func (r *Repository) IsBucketEmpty(ctx context.Context, bucketName string) (bool, error) {

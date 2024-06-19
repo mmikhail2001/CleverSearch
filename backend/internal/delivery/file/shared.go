@@ -3,9 +3,18 @@ package file
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // https://stackoverflow.com/questions/23714383/what-are-all-the-possible-values-for-http-content-type-header
+
+func getFileExtension(filename string) string {
+	parts := strings.Split(filename, ".")
+	if len(parts) > 1 {
+		return parts[len(parts)-1]
+	}
+	return ""
+}
 
 func setLimitOffset(value string, defaultValue int) (int, error) {
 	if value == "" {

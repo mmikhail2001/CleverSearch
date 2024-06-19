@@ -34,6 +34,8 @@ type fileDTO struct {
 
 	Favs []string `bson:"favs"`
 
+	ConvertedToPDF bool `bson:"converted_to_pdf"`
+
 	MLData interface{} `bson:"ml_data"`
 }
 
@@ -52,17 +54,20 @@ type searchResponseDTO struct {
 }
 
 type searchTextItemDTO struct {
-	FileID     string `json:"file_uuid"`
-	PageNumber int    `json:"page_number"`
+	FileID     string  `json:"file_uuid"`
+	PageNumber int     `json:"page_number"`
+	CosSim     float64 `json:"cos_sim"`
 }
 
 type searchImageItemDTO struct {
-	FileID string `json:"file_uuid"`
+	FileID string  `json:"file_uuid"`
+	CosSim float64 `json:"cos_sim"`
 }
 
 type searchAudioVideoItemDTO struct {
-	FileID    string `json:"file_uuid"`
-	Timestart int    `json:"timestart"`
+	FileID    string  `json:"file_uuid"`
+	Timestart int     `json:"timestamp"`
+	CosSim    float64 `json:"cos_sim"`
 }
 
 type sharedDirDTO struct {

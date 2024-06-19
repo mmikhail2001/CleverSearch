@@ -24,10 +24,13 @@ yarn-error.log*
 
 tmp
 backend/vendor
+creds.json
 
-
+# python
 .venv
 __py*
 
 **/.vscode/
 /vscode/
+
+**/creds.json

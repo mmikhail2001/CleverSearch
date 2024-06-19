@@ -10,6 +10,9 @@ import { ShowGlobal } from '../showGlobal';
 import { useGetSharedFilesMutation } from '@api/filesApi';
 import { getSharedURLFront } from '@helpers/transformsToURL';
 import { useSharedParams } from '@helpers/hooks/useShowParams';
+import { ShowParams } from '@models/searchParams';
+import { GetShowNoFilesErrorElement } from '@feature/errorElements';
+import { giveAddPermission, removeAddPermission } from '@store/canAdd';
 
 interface ShowSharedFilesProps { }
 
@@ -22,13 +25,27 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 
 	const showReq = useAppSelector(state => state.showRequest)
 	const { isShared } = useAppSelector(state => state.whatToShow)
-	
+	const { isCanBeAdd } = useAppSelector(state => state.addPermission)
+
 	const [valueToShow, setvalueToShow] = useState(data?.body);
 
 	const navigate = useNavigate()
 
 	useEffect(() => {
-		setvalueToShow(data?.body)
+		if (data?.body && !('length' in data?.body)) {
+			setvalueToShow([data?.body])
+		} else {
+			setvalueToShow(data?.body)
+		}
+		
+		if (searchResp.isSuccess) {
+			if (data?.body?.length > 1 && data?.body[0].disk === 'google') {
+				if (isCanBeAdd) {
+					dispatch(removeAddPermission())
+				}
+			}
+		}
+
 	}, [data?.body])
 
 	useEffect(() => {
@@ -36,19 +53,30 @@ export const ShowSharedFiles: FC<ShowSharedFilesProps> = () => {
 	}, [])
 
 	useEffect(() => {
-		showShared(showReq.dir.join('/'))
+		if (isShared) {
+			showShared(showReq.dir.join('/'))
+		}
+
+		if (!isShared) {
+			dispatch(switchToShared())
+		}
 	}, [showReq, isShared])
 
-	if (!isShared) {
-		dispatch(switchToShared())
-	}
-
-	if (valueToShow && !('length' in valueToShow)) {
-		setvalueToShow([valueToShow])
-	}
+	useEffect(()=> {
+		if (showReq.dir?.length === 0 || showReq.dir.length === 1 && showReq.dir[0] === '/') {
+			if (isCanBeAdd) {
+				dispatch(removeAddPermission())
+			}
+		} else {
+			if (!isCanBeAdd) {
+				dispatch(giveAddPermission())
+			}
+		}
+	},[showReq.dir])
 
 	return (
 		<ShowGlobal
+			errorElement={<GetShowNoFilesErrorElement/>}
             getValue={() => showShared(showReq.dir.join('/'))} 
             whatShow={isShared} 
             switchToWhatShow={() => dispatch(switchToShared())} 

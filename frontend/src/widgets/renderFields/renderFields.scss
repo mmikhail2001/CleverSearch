@@ -1,3 +1,6 @@
+@import '../../index.scss';
+
+
 .modal__img-show {
     display: flex;
     flex-direction: column;
@@ -5,13 +8,14 @@
 
 .modal__pdf-show {
     height: 100%;
-    width: 90%;
+    width: 100%;
     display: flex;
     flex-direction: column;
 }
 
 .modal-body__pdf {
     height: 100%;
+    align-items: flex-start;
 }
 
 .show-all-files {
@@ -20,9 +24,17 @@
     padding-left: 3rem;
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
+
+    @media screen and (max-width: $pc-width) {
+        gap: 1.6rem;
+    }
+    
+    @media screen and (min-width: $pc-width) {
+        gap: 1.2rem;
+    }
 
     margin-top: 2.8rem;
+    padding-right: 0.5rem;
 }
 
 .show-all-files::-webkit-scrollbar {
@@ -44,4 +56,16 @@
 /* Handle on hover */
 .show-all-files::-webkit-scrollbar-thumb:hover {
     background: rgba(255,255,255,0.4); 
+}
+
+.modal-scale {
+    color: inherit;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-line:hover {
+    background-color: transparent;
 }

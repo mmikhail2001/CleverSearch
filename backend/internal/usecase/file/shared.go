@@ -57,6 +57,23 @@ func filterFilesByNesting(files []fileDomain.File, dir string) []fileDomain.File
 	return filteredFiles
 }
 
+func getFileExtension(filename string) string {
+	parts := strings.Split(filename, ".")
+	if len(parts) > 1 {
+		return parts[len(parts)-1]
+	}
+	return ""
+}
+
+func replaceExtension(fileName, newExtension string) string {
+	parts := strings.Split(fileName, ".")
+	if len(parts) > 1 {
+		parts[len(parts)-1] = newExtension
+		return strings.Join(parts, ".")
+	}
+	return fileName + "." + newExtension
+}
+
 func printPaths(files []fileDomain.File, message string) {
 	fmt.Println(message)
 	for _, file := range files {

@@ -35,6 +35,11 @@ type User struct {
 	ConnectedClouds []UserCloud
 }
 
+type ReportEmail struct {
+	Email  string
+	Exists bool
+}
+
 type UserCloud struct {
 	Cloud      file.DiskType
 	CloudEmail string

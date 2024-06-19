@@ -4,12 +4,7 @@ import './renderFields.scss';
 import { useAddToFavouriteMutation, useDeleteToFavouriteMutation } from '@api/filesApi';
 import { useAppSelector } from '@store/store';
 import { fileFile } from '@models/files';
-
-export interface renderReturns {
-	renderModal: () => React.ReactNode | null;
-	clickHandler: () => void;
-	imgSrc: string | React.ReactNode;
-}
+import { renderReturns } from '@helpers/getPropsForFile';
 
 export interface FileWithModalProps {
 	file: fileFile,
@@ -24,6 +19,7 @@ export const FileWithModal: FC<FileWithModalProps> = ({
 }) => {
 	const [deleteFavourite, respDeleteFavourite] = useDeleteToFavouriteMutation()
 	const [addFavourite, respAddFavourite] = useAddToFavouriteMutation()
+	const {email} = useAppSelector(state => state.userAuth)
 
 	const [isOpen, setOpen] = useState(false)
 
@@ -36,8 +32,8 @@ export const FileWithModal: FC<FileWithModalProps> = ({
 	const {isLoved} = useAppSelector(state => state.whatToShow)
 
 	const canBeDeleted = (file: fileFile): boolean => {
-		return !file.is_shared
-			|| file.is_shared && file.share_access === 'writer'
+		return (!file.is_shared
+			|| file.is_shared && file.share_access === 'writer') && file.email === email || file.email === email
 	}
 
 	let fileFav: boolean;
@@ -86,6 +82,7 @@ export const FileWithModal: FC<FileWithModalProps> = ({
 				config={{
 					isDelete: canBeDeleted(file),
 					isShare: dirPath && dirPath.split('/').length == 2,
+					shareAccess: file.share_access,
 					isCanBeLoved: !file.is_dir,
 					isLoved: fileFav,
 				}}

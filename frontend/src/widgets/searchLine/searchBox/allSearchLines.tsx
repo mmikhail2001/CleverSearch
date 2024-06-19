@@ -4,6 +4,11 @@ import React, { FC } from 'react';
 import { SearchFileType } from './searchLines/searchFilteType';
 import { SearchFolderLine } from './searchLines/searchFolder';
 import { Switch } from '@entities/switch/switch'
+import { Typography } from '@mui/material';
+
+import Tooltip from '@mui/material/Tooltip';
+import { useMobile } from 'src/mobileProvider';
+
 
 interface AllSearchLinesProps {
 	changeState: React.Dispatch<React.SetStateAction<SearchParams>>;
@@ -18,19 +23,36 @@ export const AllSearchLines: FC<AllSearchLinesProps> = ({
 	state,
 	fontSize,
 }) => {
+	const {whatDisplay} = useMobile()
 	return (
 		<>
-			<div className='line'>
-				<p className='line__name'>Smart search</p>
-				<Switch
-					checked={state.smartSearch}
-					disabled={false}
-					onChange={() =>
-						changeState({ ...state, smartSearch: !state.smartSearch })
-					}
-					fontSize={fontSize}
-				/>
-			</div>
+			{whatDisplay === 1 ? null : 
+				<Tooltip
+					slotProps={{tooltip:{style:{
+							fontSize: 'var(--ft-small-text)',
+							background: 'rgba(79,79,79,0.2)',
+							backdropFilter: 'blur(12px)',
+							color: 'rgba(255,255,255,0.9)',
+							padding: '1.2rem',
+						}}
+					}}
+					title={'Smart search enables matching within files, not just their titles. It can recognize text within images, videos, and audio. Moreover, it searches by meaning rather than exact matches'}
+				>
+					<div className='line'>
+						<Typography fontSize={'var(--ft-body)'} className='line__name'>Smart search</Typography>
+						<Switch
+							style={{width:'fit-content'}}
+							checked={state.smartSearch}
+							disabled={false}
+							onChange={() =>
+								changeState({ ...state, smartSearch: !state.smartSearch })
+							}
+							fontSize={fontSize}
+						/>
+					</div>
+				</Tooltip>
+			}
+			
 			<SearchFolderLine
 				fontSize={fontSize}
 				changeState={changeState}

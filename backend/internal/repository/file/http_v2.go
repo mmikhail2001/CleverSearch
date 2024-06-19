@@ -3,24 +3,37 @@ package file
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"slices"
+	"sort"
+	"strings"
 
 	"github.com/WindowsKonon1337/CleverSearch/internal/domain/file"
 )
 
-var apiServiceMLSearch = "http://mlcore:8081/search"
+var apiServiceMLSearch = "http://mlcore_rec_service:8081/search"
 
 func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOptionsV2) ([]file.File, error) {
 	queryParams := url.Values{}
 	queryParams.Set("query", fileOptions.Query)
-	queryParams.Set("file_type", string(fileOptions.FileType))
+	// queryParams.Set("file_type", string(fileOptions.FileType))
+
+	if len(fileOptions.FileTypes) > 0 {
+		types := make([]string, len(fileOptions.FileTypes))
+		for i, fileType := range fileOptions.FileTypes {
+			types[i] = string(fileType)
+		}
+		queryParams.Set("file_type", strings.Join(types, ","))
+	}
+
 	queryParams.Set("dir", fileOptions.Dir)
 	queryParams.Set("user_id", fileOptions.UserID)
 	url := apiServiceMLSearch + "?" + queryParams.Encode()
+
+	log.Println("url =====", url)
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -55,53 +68,66 @@ func (r *Repository) SmartSearchV2(ctx context.Context, fileOptions file.FileOpt
 		return nil, err
 	}
 
-	var files []file.File
-	if fileOptions.FileType == file.Text {
+	var filesGeneral []file.File
+	if slices.Contains(fileOptions.FileTypes, file.Text) {
+		var filesTmp []file.File
 		for _, searchItem := range response.Text {
-			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			fileTmp, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
 				log.Println("GetFileByID (Text) error:", err)
 				return nil, err
 			}
-			file.PageNumber = searchItem.PageNumber
-			files = append(files, file)
+			fileTmp.PageNumber = searchItem.PageNumber
+			fileTmp.CosSim = searchItem.CosSim
+			filesTmp = append(filesTmp, fileTmp)
 		}
-		return files, nil
+		filesGeneral = append(filesGeneral, filesTmp...)
 	}
-	if fileOptions.FileType == file.Image {
+	if slices.Contains(fileOptions.FileTypes, file.Image) {
+		var filesTmp []file.File
 		for _, searchItem := range response.Image {
-			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			fileTmp, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
 				log.Println("GetFileByID (Image) error:", err)
 				return nil, err
 			}
-			files = append(files, file)
+			fileTmp.CosSim = searchItem.CosSim
+			filesTmp = append(filesTmp, fileTmp)
 		}
-		return files, nil
+		filesGeneral = append(filesGeneral, filesTmp...)
 	}
-	if fileOptions.FileType == file.Audio {
+	if slices.Contains(fileOptions.FileTypes, file.Audio) {
+		var filesTmp []file.File
 		for _, searchItem := range response.Audio {
-			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			fileTmp, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
 				log.Println("GetFileByID (Audio) error:", err)
 				return nil, err
 			}
-			file.Timestart = searchItem.Timestart
-			files = append(files, file)
+			fileTmp.Timestart = searchItem.Timestart
+			fileTmp.CosSim = searchItem.CosSim
+			filesTmp = append(filesTmp, fileTmp)
 		}
-		return files, nil
+		filesGeneral = append(filesGeneral, filesTmp...)
 	}
-	if fileOptions.FileType == file.Video {
+	if slices.Contains(fileOptions.FileTypes, file.Video) {
+		var filesTmp []file.File
 		for _, searchItem := range response.Video {
-			file, err := r.GetFileByID(ctx, searchItem.FileID)
+			fileTmp, err := r.GetFileByID(ctx, searchItem.FileID)
 			if err != nil {
 				log.Println("GetFileByID (Video) error:", err)
 				return nil, err
 			}
-			file.Timestart = searchItem.Timestart
-			files = append(files, file)
+			fileTmp.Timestart = searchItem.Timestart
+			fileTmp.CosSim = searchItem.CosSim
+			filesTmp = append(filesTmp, fileTmp)
 		}
-		return files, nil
+		filesGeneral = append(filesGeneral, filesTmp...)
 	}
-	return []file.File{}, fmt.Errorf("file type response from ml not correct")
+
+	sort.Slice(filesGeneral, func(i, j int) bool {
+		return filesGeneral[i].CosSim > filesGeneral[j].CosSim
+	})
+
+	return filesGeneral, nil
 }

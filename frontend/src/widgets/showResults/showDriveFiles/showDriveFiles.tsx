@@ -4,11 +4,13 @@ import { useDispatch } from 'react-redux';
 
 import { getDriveURLFront } from '@helpers/transformsToURL';
 import { changeDir, newValues } from '@store/showRequest';
-import { switchToShow } from '@store/whatToShow';
+import { switchToExternal, switchToShow } from '@store/whatToShow';
 import { useNavigate } from 'react-router-dom';
 import { ShowGlobal } from '../showGlobal';
-import { useGetDriveFilesMutation, useGetInternalFilesMutation } from '@api/filesApi';
+import { useGetDriveFilesMutation } from '@api/filesApi';
 import { useShowDriveParams } from '@helpers/hooks/useShowParams';
+import { GetShowNoFilesErrorElement } from '@feature/errorElements';
+import { removeAddPermission } from '@store/canAdd';
 
 
 interface ShowDriveFilesProps { }
@@ -20,26 +22,37 @@ export const ShowDriveFiles: FC<ShowDriveFilesProps> = () => {
     const [show, showResp] = useGetDriveFilesMutation({ fixedCacheKey: 'show' });
     const showReq = useAppSelector(state => state.showRequest)
     
-    const { isShow, whatDiskToShow } = useAppSelector(state => state.whatToShow)
+    const { isExternal, whatDiskToShow } = useAppSelector(state => state.whatToShow)
+    const { isCanBeAdd } = useAppSelector(state => state.addPermission)
 
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (isShow && typeof whatDiskToShow !== 'string') {
+        if (!isExternal) {
+            dispatch(switchToExternal())
+        }
+    },[])
+
+    useEffect(() => {
+        if (isExternal && typeof whatDiskToShow !== 'string') {
             show({
                 dir:[showReq.dir].join('/'),
                 email: whatDiskToShow.cloud_email,
             });
         }
 
-    }, [showReq, isShow])
+        if (isCanBeAdd) {
+            dispatch(removeAddPermission())
+        }
 
-    if (!isShow) {
-        dispatch(switchToShow())
-    }
+        if (!isExternal) {
+            dispatch(switchToExternal())
+        }
+    }, [showReq, isExternal])
 
     return (
         <ShowGlobal
+            errorElement={<GetShowNoFilesErrorElement/>}
             getValue={() => {
                 if (typeof whatDiskToShow !== 'string') {
                     show({
@@ -50,8 +63,8 @@ export const ShowDriveFiles: FC<ShowDriveFilesProps> = () => {
                     console.error('whatDiskToShow is equal to string in driver page')
                 }
             }} 
-            whatShow={isShow} 
-            switchToWhatShow={() => dispatch(switchToShow())} 
+            whatShow={isExternal} 
+            switchToWhatShow={() => dispatch(switchToExternal())} 
             firstElementInBreadCrumbs={'Show'} 
             dirs={[...showReq.dir]} 
             breadCrumbsReactions={(dir, index) => {

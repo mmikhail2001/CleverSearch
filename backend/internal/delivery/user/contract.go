@@ -13,6 +13,7 @@ type Usecase interface {
 	Logout(ctx context.Context, sessionID string) error
 	AddAvatar(ctx context.Context, fileReader io.Reader, contentType string) error
 	GetAvatar(ctx context.Context, userEmail string) (string, string, error)
+	CheckEmails(ctx context.Context, emails []string) ([]cleveruser.ReportEmail, error)
 }
 
 type CloudUsecase interface {

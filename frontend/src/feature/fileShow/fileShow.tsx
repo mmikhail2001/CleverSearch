@@ -6,7 +6,10 @@ import { Typography } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useMobile } from 'src/mobileProvider';
 import { getAvatarByEmail } from '@api/userApi';
+
 import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
+import ModeRoundedIcon from '@mui/icons-material/ModeRounded';
+import LibraryBooksRoundedIcon from '@mui/icons-material/LibraryBooksRounded';
 
 interface FileShowProps {
 	iconSrc: string | React.ReactNode;
@@ -18,7 +21,13 @@ interface FileShowProps {
 	onDelete: () => void;
 	dirPath?: string
 	author: string,
-	config: { isDelete?: boolean, isShare?: boolean, isLoved?: boolean, isCanBeLoved?: boolean },
+	config: { 
+		isDelete?: boolean, 
+		isShare?: boolean, 
+		isLoved?: boolean, 
+		isCanBeLoved?: boolean,
+		shareAccess?: string,
+	},
 	onFavourite?: () => void,
 }
 
@@ -64,21 +73,21 @@ export const FileShow: FC<FileShowProps> = ({
 				</div>}
 		>
 			{config.isDelete ?
-				<div onClick={(event) => {
+				<div key={'delete_btn'} onClick={(event) => {
 					event.stopPropagation();
 					onDelete();
 					setOpenDropDown(false)
 				}}>Remove</div>
 				: null}
 			{config.isCanBeLoved ? 
-			<div onClick={onFavourite}>
+			<div key={'remove_btn'} onClick={onFavourite}>
 				{!config.isLoved ? 'To Favourite' : 'Remove from Favourite'}
 			</div>
 			: null
 			}
 			{config.isShare ?
-				<React.Fragment>
-					<div
+					<div 
+						key={'share_btn'}
 						onClick={(event) => {
 							event.stopPropagation();
 							setOpen(true);
@@ -86,9 +95,40 @@ export const FileShow: FC<FileShowProps> = ({
 					>
 						Share
 					</div>
-				</React.Fragment>
 				: null}
 		</DropDown>
+	}
+
+	const renderShareIcon = (): null | React.ReactNode => {
+		if (!config.isShare || config.shareAccess === '') return null
+		switch(config.shareAccess) {
+			case 'writer': 
+			return <ModeRoundedIcon 
+					fontSize='medium' 
+					sx={{
+						borderRadius: '2.5rem',
+						color: 'var(--color-dropdowns)',
+						position: 'absolute',
+						top:"50%",
+						left: '50%',
+						transform: 'translate(-50%, -50%)',
+					}}
+				/>
+			case 'reader': 
+				return <LibraryBooksRoundedIcon 
+					fontSize='medium' 
+					sx={{
+						borderRadius: '2.5rem',
+						color: 'var(--color-dropdowns)',
+						position: 'absolute',
+						top:"50%",
+						left: '50%',
+						transform: 'translate(-50%, -50%)',
+					}}
+				/>
+			default:
+				return null
+		}
 	}
 
 	return (
@@ -114,6 +154,7 @@ export const FileShow: FC<FileShowProps> = ({
 							}}
 						/>
 						: null}
+						{renderShareIcon()}
 					</div>
 					<div className="filename-with-date">
 						<Typography fontSize={'var(--ft-body)'} className="filename">{filename}</Typography>
@@ -122,13 +163,12 @@ export const FileShow: FC<FileShowProps> = ({
 							?<Typography fontSize={'var(--ft-body)'} className="date">{date}</Typography>
 							:null 
 						}
-						
 					</div>
 				</div>
 				
 				{isMobile ? null :
 					<div className='file-show__date'>
-						{date}
+						<Typography fontSize={'var(--ft-body)'}>{date}</Typography>
 					</div>
 				}
 

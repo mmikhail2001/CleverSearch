@@ -1,0 +1,159 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - 'dev*'
+      - 'deploy_BACK-CLEVER-13'
+
+jobs:
+  print_info:
+    name: Print Run Information
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Print Default Info
+        run: |
+          echo "GitHub Action initiated by: ${{ github.actor }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Event name: ${{ github.event_name }}"
+          echo "Run ID: ${{ github.run_id }}"
+
+  build_backend:
+    if: contains(github.event.head_commit.message, 'BACK-CLEVER')
+    name: Build and Push Backend Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | docker login --username windowskonon1337 --password-stdin
+      - name: Build backend image
+        run: docker build -t windowskonon1337/cleversearch_backend:latest ./backend
+      - name: Push backend image to Docker Hub
+        run: docker push windowskonon1337/cleversearch_backend:latest
+
+  build_mlcore_core:
+    if: contains(github.event.head_commit.message, 'ML-CLEVER')
+    name: Build and Push MLCore Core Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | docker login --username windowskonon1337 --password-stdin
+      - name: Build mlcore image
+        run: docker build -t windowskonon1337/cleversearch_mlcore_core:latest -f ./MLCore/Dockerfile.core ./MLCore
+      - name: Push mlcore image to Docker Hub
+        run: docker push windowskonon1337/cleversearch_mlcore_core:latest
+
+  build_mlcore_rec_service:
+    if: contains(github.event.head_commit.message, 'ML-CLEVER')
+    name: Build and Push MLCore Docker Rec Service Image
+    needs: [build_mlcore_core]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | docker login --username windowskonon1337 --password-stdin
+      - name: Build mlcore image
+        run: docker build -t windowskonon1337/cleversearch_mlcore_rec_service:latest -f ./MLCore/Services/RecomendationService/Dockerfile.rec_service ./MLCore
+      - name: Push mlcore image to Docker Hub
+        run: docker push windowskonon1337/cleversearch_mlcore_rec_service:latest
+
+  build_mlcore_img_service:
+    if: contains(github.event.head_commit.message, 'ML-CLEVER')
+    name: Build and Push MLCore Docker Img Service Image
+    needs: [build_mlcore_core]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | docker login --username windowskonon1337 --password-stdin
+      - name: Build mlcore image
+        run: docker build -t windowskonon1337/cleversearch_mlcore_img_service:latest -f ./MLCore/Services/ImageService/Dockerfile.img_service ./MLCore
+      - name: Push mlcore image to Docker Hub
+        run: docker push windowskonon1337/cleversearch_mlcore_img_service:latest
+
+  build_mlcore_video_service:
+    if: contains(github.event.head_commit.message, 'ML-CLEVER')
+    name: Build and Push MLCore Docker Vid Service Image
+    needs: [build_mlcore_core]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | docker login --username windowskonon1337 --password-stdin
+      - name: Build mlcore image
+        run: docker build -t windowskonon1337/cleversearch_mlcore_video_service:latest -f ./MLCore/Services/VideoService/Dockerfile.video_service ./MLCore
+      - name: Push mlcore image to Docker Hub
+        run: docker push windowskonon1337/cleversearch_mlcore_video_service:latest
+
+  build_mlcore_audio_service:
+    if: contains(github.event.head_commit.message, 'ML-CLEVER')
+    name: Build and Push MLCore Docker Aud Service Image
+    needs: [build_mlcore_core]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | docker login --username windowskonon1337 --password-stdin
+      - name: Build mlcore image
+        run: docker build -t windowskonon1337/cleversearch_mlcore_audio_service:latest -f ./MLCore/Services/AudioService/Dockerfile.audio_service ./MLCore
+      - name: Push mlcore image to Docker Hub
+        run: docker push windowskonon1337/cleversearch_mlcore_audio_service:latest
+
+  build_mlcore_text_service:
+    if: contains(github.event.head_commit.message, 'ML-CLEVER')
+    name: Build and Push MLCore Docker Txt Service Image
+    needs: [build_mlcore_core]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | docker login --username windowskonon1337 --password-stdin
+      - name: Build mlcore image
+        run: docker build -t windowskonon1337/cleversearch_mlcore_text_service:latest -f ./MLCore/Services/TextService/Dockerfile.text_service ./MLCore
+      - name: Push mlcore image to Docker Hub
+        run: docker push windowskonon1337/cleversearch_mlcore_text_service:latest
+
+  build_frontend:
+    if: contains(github.event.head_commit.message, 'FRONT-CLEVER')
+    name: Build and Push Frontend Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | docker login --username windowskonon1337 --password-stdin
+      - name: Build frontend image
+        run: docker build -t windowskonon1337/cleversearch_frontend:latest ./frontend
+      - name: Push frontend image to Docker Hub
+        run: docker push windowskonon1337/cleversearch_frontend:latest
+
+  deploy:
+    name: Deploy on Server
+    needs: [build_backend, build_frontend, build_mlcore_core, build_mlcore_text_service, build_mlcore_audio_service, build_mlcore_video_service, build_mlcore_img_service, build_mlcore_rec_service]
+    runs-on: ubuntu-latest
+    if: ${{ always() }} && ${{ success() }}
+    steps:
+      - name: SSH and Restart Docker Compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST_SERVER }}
+          username: ${{ secrets.USERNAME_SERVER }}
+          key: ${{ secrets.SSH_SERVER_KEY }}
+          script: |
+            cd ~/clever
+            docker compose down
+            docker compose pull
+            docker compose up -d

@@ -11,7 +11,8 @@ export const isErrorMsg = (obj: any): obj is ErrorMSG => {
     return obj 
     && 'status' in obj 
     && 'data' in obj
-    // && 'status' in obj.data
+    && obj.data
+    && 'status' in obj.data
     // && 'message' in obj.data
     // && 'body' in obj.data
 }

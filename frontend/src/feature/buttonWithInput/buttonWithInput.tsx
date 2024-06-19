@@ -1,52 +1,57 @@
 import React, { FC, useRef } from 'react';
 import { Button, VariantBtn } from '@entities/button/button';
-import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
 
 import './buttonWithInput.scss'
 import { Typography } from '@mui/material';
+import CSS from 'csstype'
+import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
+import { correctFormats } from '@helpers/isCorrectFormat';
 
 interface TextWithInputProps {
   onChange: (a: FileList) => void;
   disabled: boolean;
-  variant: VariantBtn;
   className?: string;
   buttonText: string;
+  startIcon?: React.ReactNode;
+  endIcon?: React.ReactNode;
+  stylesOnRoot?: CSS.Properties;
+  textStyles?:CSS.Properties;
+  accept?: string,
 }
 
 export const TextWithInput: FC<TextWithInputProps> = ({
   onChange,
   disabled,
-  variant,
   className,
   buttonText,
+  startIcon,
+  endIcon,
+  stylesOnRoot,
+  textStyles,
+  accept,
 }) => {
   const hiddenFileInput = useRef(null);
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
     hiddenFileInput.current.click();
   };
 
   return (
-    <div className={className || ''} style={{ 
-        width: '185px', 
-        paddingLeft:'1.5rem', 
-        paddingTop: '1rem',
-        paddingBottom: '0.5rem',
-        fontSize: 'var(--ft-paragraph)',
-        display: 'grid',
-				gridTemplateColumns: "minmax(0, 0.5fr) minmax(0, 3fr) minmax(0, 0.25fr)",
-        alignItems:'center',
-      }}>
-      <InsertDriveFileRoundedIcon fontSize='inherit' sx={{color: "#0A9542", marginBottom: '3px'}}/>
+    <div key={`classnames_${className}`} onClick={handleClick} className={className || ''} style={{...stylesOnRoot}}>
+      {startIcon}
       <Typography
-        sx={{cursor: 'pointer'}}
-        fontSize='var(--ft-paragraph)'
-        onClick={(e) => {
-          e.stopPropagation()
-          handleClick()
+        key={`typo_${className}`}
+        sx={{
+          cursor: 'pointer',
+          color:'inherit',
+          ...textStyles,
         }}
-        style={{color:'inherit'}}
+        onClick={handleClick}
       >{buttonText}</Typography>
+      {endIcon}
       <input
+        key={`input_${className}`}
+        accept={isNullOrUndefined(accept) ? correctFormats : accept}
         multiple={true}
         ref={hiddenFileInput}
         type="file"
@@ -56,7 +61,6 @@ export const TextWithInput: FC<TextWithInputProps> = ({
           const files = event.target.files;
           if (files) {
             onChange(files);
-
           }
           event.target.value = '';
         }}

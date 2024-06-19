@@ -54,6 +54,28 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// возвращает 200, если не авторизован
+func (m *Middleware) AuthMiddlewareSoft(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		sessionCookie, err := r.Cookie(shared.CookieName)
+		if err != nil {
+			log.Println("User not auth:", err)
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		user, err := m.userUsecase.GetUserBySession(r.Context(), sessionCookie.Value)
+		if err != nil {
+			log.Println("Session unvalid:", err)
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), shared.UserContextName, user)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 func (m *Middleware) GetUserIDMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID := r.URL.Query().Get("user_id")
@@ -76,7 +98,6 @@ func (m *Middleware) GetUserIDMiddleware(next http.Handler) http.Handler {
 func (m *Middleware) AccessLogMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("request:", r.URL)
-		log.Println("query string:", r.URL.Query())
 		next.ServeHTTP(w, r)
 	})
 }

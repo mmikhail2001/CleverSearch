@@ -2,7 +2,9 @@ package cloud
 
 import (
 	"context"
+	"encoding/base32"
 	"fmt"
+	"io"
 	"log"
 	"strings"
 	"time"
@@ -21,9 +23,23 @@ func printPaths(files []fileDomain.File, message string) {
 	fmt.Printf("\n\n")
 }
 
+func replaceExtension(fileName, newExtension string) string {
+	parts := strings.Split(fileName, ".")
+	if len(parts) > 1 {
+		parts[len(parts)-1] = newExtension
+		return strings.Join(parts, ".")
+	}
+	return fileName + "." + newExtension
+}
+
 func (uc *Usecase) downloadAndUploadFiles(ctx context.Context, srv *drive.Service, files []fileDomain.File) {
 	for _, file := range files {
 		if file.IsDir {
+			err := uc.fileRepo.CreateFile(ctx, file)
+			if err != nil {
+				log.Printf("Failed to CreateFile file %s in mongo, err: %v", file.Path, err)
+				continue
+			}
 			continue
 		}
 		fileReader, err := srv.Files.Get(file.CloudID).Download()
@@ -32,9 +48,63 @@ func (uc *Usecase) downloadAndUploadFiles(ctx context.Context, srv *drive.Servic
 			continue
 		}
 
-		_, err = uc.fileRepo.UploadToStorage(ctx, fileReader.Body, file)
+		isExtValid := false
+		switch file.Extension {
+		case "doc", "docx", "odt", "ppt", "pptx", "odp", "txt", "md", "pdf", "mp3", "mp4", "jpeg", "jpg", "png":
+			isExtValid = true
+		}
+
+		if !isExtValid {
+			log.Printf("Extension file [ %s ] in google not valid", file.Extension)
+			continue
+		}
+
+		converted := false
+		var fileReaderConverted io.Reader
+		switch file.Extension {
+		case "doc", "docx", "odt", "ppt", "pptx", "odp", "txt", "md":
+			var size int64
+			fileReaderConverted, size, err = uc.fileUsecase.ConvertToPDF(ctx, fileReader.Body, file)
+			if err != nil {
+				log.Println("ConvertToPDF [file: ", file.Path, "] error:", err)
+				continue
+			}
+			converted = true
+			file.Extension = "pdf"
+			file.Size = fileDomain.SizeType(size)
+			file.Path = replaceExtension(file.Path, "pdf")
+			file.Filename = replaceExtension(file.Filename, "pdf")
+			file.Link = fmt.Sprintf("/minio/%s/%s", file.Bucket, file.Path)
+			file.ConvertedToPDF = true
+			file.ContentType = "application/pdf"
+			// file.Link = replaceExtension(file.Link, "pdf")
+			file.FileType = fileDomain.Text
+		}
+
+		err = uc.fileRepo.CreateFile(ctx, file)
 		if err != nil {
-			log.Printf("Failed to upload file %s to MinIO: %v", file.Path, err)
+			log.Printf("Failed to CreateFile file %s in mongo, err: %v", file.Path, err)
+			continue
+		}
+
+		if converted {
+			_, err = uc.fileRepo.UploadToStorage(ctx, fileReaderConverted, file)
+			if err != nil {
+				log.Printf("Failed to upload file %s to MinIO: %v", file.Path, err)
+				continue
+			}
+		} else {
+			_, err = uc.fileRepo.UploadToStorage(ctx, fileReader.Body, file)
+			if err != nil {
+				log.Printf("Failed to upload file %s to MinIO: %v", file.Path, err)
+				continue
+			}
+		}
+
+		file.Status = "uploaded"
+		err = uc.fileRepo.Update(ctx, file)
+		if err != nil {
+			log.Println("Failed to update status file after download from google, file path:", file.Path, "err: ", err)
 			continue
 		}
 
@@ -69,9 +139,10 @@ func (uc *Usecase) fillFilesRecursively(ctx context.Context, srv *drive.Service,
 			UserID:      user.ID,
 			FileType:    uc.fileUsecase.GetFileTypeByContentType(file.MimeType),
 			Path:        currentPath + "/" + file.Name,
-			Bucket:      strings.Split(cloudUserEmail, "@")[0] + "---" + user.Bucket,
-			IsDir:       file.MimeType == "application/vnd.google-apps.folder",
-			Size:        fileDomain.SizeType(file.Size),
+			// Bucket:      strings.Split(cloudUserEmail, "@")[0] + "---" + user.Bucket,
+			Bucket: strings.ToLower(base32.StdEncoding.EncodeToString([]byte(cloudUserEmail))),
+			IsDir:  file.MimeType == "application/vnd.google-apps.folder",
+			Size:   fileDomain.SizeType(file.Size),
 		}
 
 		if !fileInfo.IsDir {

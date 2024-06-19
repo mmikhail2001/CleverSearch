@@ -1,6 +1,3 @@
-import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
-import { diskTypes, isDiskType } from '@models/disk';
-import { fileTypes } from '@models/searchParams';
 import { ConnectedClouds } from '@models/user';
 import { useEffect } from 'react';
 import { useAppSelector } from '@store/store';
@@ -13,26 +10,30 @@ import { useNavigate } from 'react-router-dom';
 
 
 export const compareArrays = (a: any[], b: any[]): boolean =>
-    a
+{
+    return a
     && b
     && a.length === b.length &&
     a.every((element: any, index: number) => element === b[index]);
+}
+    
 
 export const useShowInternalParams = () => {
     const showRequest = useAppSelector(state => state.showRequest)
     const dispatch = useDispatch()
+    const {whatDiskToShow} = useAppSelector(state => state.whatToShow)
 
     const urlParams = useParamsFromURL()
     let dir: string[] = []
     if ("dir" in urlParams) {
-        dir = urlParams.dir.split('/')
+        dir = urlParams.dir.split('/').filter(val => val !== '')
     } else {
         dir = []
     }
-    
     useEffect(() => {
-        dispatch(switchDisk('internal'))
-
+        if (whatDiskToShow !== 'internal'){
+            dispatch(switchDisk('internal'))
+        }
         if (!
             (
                 compareArrays(showRequest.dir,dir) 
@@ -64,7 +65,7 @@ export const useShowDriveParams = () => {
     const urlParams = useParamsFromURL()
 
     if ("dir" in urlParams) {
-        dir = urlParams.dir.split('/')
+        dir = urlParams.dir.split('/').filter(val => val !== '')
     }
 
     if ('cloud_email' in urlParams) {
@@ -78,12 +79,14 @@ export const useShowDriveParams = () => {
     useEffect(() => {
         if (disk.cloud_email === '') {
             console.warn("can't find cloud email in drive")
+
             dispatch(switchDisk('internal'))
             navigate('/internal')
             
             return
         } else {
             dispatch(switchDisk(disk))
+            dispatch(selectCloud(disk))
         }
 
         if (!
@@ -111,7 +114,7 @@ export const useSharedParams = () => {
     const urlParams = useParamsFromURL()
     let dir: string[] = []
     if ("dir" in urlParams) {
-        dir = urlParams.dir.split('/')
+        dir = urlParams.dir.split('/').filter(val => val !== '')
     } else {
         dir = []
     }

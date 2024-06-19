@@ -1,6 +1,9 @@
 import logging
 import os
 
+import sys
+sys.path.insert(4, 'MLCore/Processors')
+
 from AudioProcessor import AudioProcessor
 from IDataProcessor import IDataProcessor
 from utils.get_console_logger import get_console_logger
@@ -20,7 +23,7 @@ class VideoProcessor(IDataProcessor):
         video_path = video_path.replace(' ', '')
         audio_path = video_path.split('.')[0] + '.mp3'
 
-        logger.info(f'audio_path: {audio_path}')
+        # logger.info(f'audio_path: {audio_path}')
 
         os.system(f'ffmpeg -i {video_path} {audio_path} > /dev/null')
 

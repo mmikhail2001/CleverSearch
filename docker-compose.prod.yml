@@ -5,9 +5,6 @@ services:
     image: minio/minio:latest
     # for DNS resolve
     restart: always
-    ports:
-      - 9000:9000
-      - 9090:9090 # web
     volumes:
       - minio_data:/data
     environment:
@@ -20,8 +17,6 @@ services:
   mongodb:
     image: mongo:5.0
     restart: always
-    ports:
-      - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: USERNAME
       MONGO_INITDB_ROOT_PASSWORD: PASSWORD
@@ -33,9 +28,6 @@ services:
   rabbitmq:
     image: rabbitmq:3.9-management
     restart: always
-    ports:
-      - 5672:5672
-      - 15672:15672
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -46,23 +38,73 @@ services:
   backend:
     image: windowskonon1337/cleversearch_backend
     restart: always
-    ports:
-      - 8080:8080
     depends_on:
       - rabbitmq
       - mongodb
       - minio
     volumes:
+      - ./creds.json:/app/creds.json
       - minio_data:/app/minio_files
     networks:
       clevernet.prod:
 
-  mlcore:
-    image: windowskonon1337/cleversearch_mlcore
+  mlcore_core:
+    image: windowskonon1337/cleversearch_mlcore_core:latest
     restart: always
+    networks:
+      clevernet.prod:
+
+  mlcore_rec_service:
+    image: windowskonon1337/cleversearch_mlcore_rec_service:latest
     ports:
       - 8081:8081
+    restart: always
     depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet.prod:
+
+  mlcore_img_service:
+    image: windowskonon1337/cleversearch_mlcore_img_service:latest
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet.prod:
+
+  mlcore_video_service:
+    image: windowskonon1337/cleversearch_mlcore_video_service:latest
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet.prod:
+
+  mlcore_audio_service:
+    image: windowskonon1337/cleversearch_mlcore_audio_service:latest
+    restart: always
+    depends_on:
+      - mlcore_core
+      - rabbitmq
+      - mongodb
+      - minio
+    networks:
+      clevernet.prod:
+
+  mlcore_text_service:
+    image: windowskonon1337/cleversearch_mlcore_text_service:latest
+    restart: always
+    depends_on:
+      - mlcore_core
       - rabbitmq
       - mongodb
       - minio
@@ -72,6 +114,7 @@ services:
   frontend:
     image: windowskonon1337/cleversearch_frontend
     ports:
+      - 80:80
       - 443:443
     restart: always
     volumes:
@@ -81,6 +124,7 @@ services:
     networks:
       clevernet.prod:
 
+# volumes :)
 volumes:
   minio_data:
   mongo_data:

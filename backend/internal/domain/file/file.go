@@ -29,6 +29,8 @@ var (
 	StatusDirNotSharing               = 10
 	ErrMLService                      = errors.New("ml service returns error")
 	StatusMLService                   = 11
+	ErrExtNotValid                    = errors.New("file extension is not suitable for processing")
+	StatusExtNotValid                 = 12
 )
 
 type AccessType string
@@ -75,9 +77,12 @@ type File struct {
 
 	PageNumber int
 	Timestart  int
-	Duration   time.Duration
+	Duration   int
+	CosSim     float64
 
 	IsFav bool
+
+	ConvertedToPDF bool
 
 	MLData interface{}
 }
@@ -124,7 +129,8 @@ type FileOptions struct {
 }
 
 type FileOptionsV2 struct {
-	FileType FileType
+	FileType  FileType
+	FileTypes []FileType
 
 	Dir string
 

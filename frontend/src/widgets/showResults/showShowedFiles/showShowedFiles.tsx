@@ -1,5 +1,5 @@
 import { useAppSelector } from '@store/store';
-import React,{ FC, useEffect } from 'react';
+import React,{ FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { getInternalURLFront } from '@helpers/transformsToURL';
@@ -8,35 +8,37 @@ import { switchToShow } from '@store/whatToShow';
 import { useNavigate } from 'react-router-dom';
 import { ShowGlobal } from '../showGlobal';
 import { useGetInternalFilesMutation } from '@api/filesApi';
-import { useSharedParams } from '@helpers/hooks/useShowParams';
+import { useShowInternalParams } from '@helpers/hooks/useShowParams';
+import { GetShowNoFilesErrorElement } from '@feature/errorElements';
+import { giveAddPermission } from '@store/canAdd';
 
 interface ShowShowedFilesProps { }
 
 export const ShowShowedFiles: FC<ShowShowedFilesProps> = () => {
     const navigate = useNavigate();
-    useSharedParams()
+    useShowInternalParams()
     
     const [show, showResp] = useGetInternalFilesMutation({ fixedCacheKey: 'show' });
     const showReq = useAppSelector(state => state.showRequest)
     
-    const { isShow, whatDiskToShow } = useAppSelector(state => state.whatToShow)
+    const { isShow } = useAppSelector(state => state.whatToShow)
+    const { isCanBeAdd } = useAppSelector(state => state.addPermission)
 
     const dispatch = useDispatch();
 
     useEffect(() => {
         if (isShow) {
-            show([showReq.dir].join('/'));
+            show([...showReq.dir].join('/'));
         }
-
+        if (!isCanBeAdd) {
+            dispatch(giveAddPermission())
+        }
     }, [showReq, isShow])
-
-    if (!isShow) {
-        dispatch(switchToShow())
-    }
 
     return (
         <ShowGlobal
-            getValue={() => show(showReq.dir.join('/'))} 
+            errorElement={<GetShowNoFilesErrorElement/>}
+            getValue={() => { show(showReq.dir.join('/'))}} 
             whatShow={isShow} 
             switchToWhatShow={() => dispatch(switchToShow())} 
             firstElementInBreadCrumbs={'Show'} 

@@ -61,6 +61,20 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ext := getFileExtension(handler.Filename)
+
+	isExtValid := false
+	switch ext {
+	case "doc", "docx", "odt", "ppt", "pptx", "odp", "txt", "md", "pdf", "mp3", "mp4", "jpeg", "jpg", "png":
+		isExtValid = true
+	}
+
+	if !isExtValid {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(shared.NewResponse(file.StatusExtNotValid, file.ErrExtNotValid.Error(), nil))
+		return
+	}
+
 	fileType := h.usecase.GetFileTypeByContentType(contentType)
 
 	if dir != "/" {

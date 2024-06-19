@@ -1,0 +1,11 @@
+pika==1.3.2
+aiormq==6.8.0
+pymongo==4.6.2
+numpy==1.26.4
+minio
+pillow
+opencv-python
+easyocr
+pypdf
+pymorphy2
+nltk

@@ -60,18 +60,17 @@ class MLDispatcher:
             logging.critical(f'doc_uuid: {doc_uuid} || file type: {file_type}')
 
             if doc_meta['status'] != 'processed':
-                self.services[file_type].update_collection_file(
+                sucsess_processed_status = self.services[file_type].update_collection_file(
                     doc_uuid
                 )
-                requests.post(f'http://backend:8080/api/ml/complete?file_uuid={doc_uuid}')
+                if sucsess_processed_status:
+                    requests.post(f'http://backend:8080/api/ml/complete?file_uuid={doc_uuid}')
 
 
-    def run(self):
+    def run(self, queue_name: str):
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port,\
             virtual_host='/',credentials=pika.PlainCredentials('guest', 'guest'), heartbeat=600, blocked_connection_timeout=300))
         channel = connection.channel()
-
-        queue_name = 'transmit-queue'
 
         channel.basic_consume(queue=queue_name, on_message_callback=self.__callback, auto_ack=True)
 

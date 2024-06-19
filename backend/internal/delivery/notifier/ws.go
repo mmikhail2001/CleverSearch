@@ -48,4 +48,22 @@ func (h *Handler) ConnectNotifications(w http.ResponseWriter, r *http.Request) {
 		Send:   make(chan notifier.Notify, bufferChannelNotification),
 	}
 	h.usecase.Register(client)
+
+	go func() {
+		defer conn.Close()
+
+		for {
+			_, message, err := conn.ReadMessage()
+			if err != nil {
+				log.Println("Error while reading on conn:", err)
+				break
+			}
+			if string(message) == "PING" {
+				h.usecase.Notify(notifier.Notify{
+					Event:  "PONG",
+					UserID: user.ID,
+				})
+			}
+		}
+	}()
 }

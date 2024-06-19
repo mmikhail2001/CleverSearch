@@ -7,36 +7,39 @@ import { useNavigate } from 'react-router-dom';
 import {  switchToProcessed } from '@store/whatToShow';
 import { removeFiles } from '@store/fileProcess';
 import { ShowGlobal } from '../showGlobal';
+import { GetShowNoFilesErrorElement } from '@feature/errorElements';
+import { removeAddPermission } from '@store/canAdd';
 
 interface ShowProcessedFilesProps { }
 
 
 export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
-    const { isProccessed, whatDiskToShow } = useAppSelector(state => state.whatToShow)
-    const navigate = useNavigate();
+    const { isProccessed } = useAppSelector(state => state.whatToShow)
 
     const [show, showResp] = useGetUploadedFilesMutation({ fixedCacheKey: 'processed' });
 
-    const {isOpen} = useAppSelector(state => state.searchFilter)
-
-    const [deleteFile] = useDeleteFileMutation();
     const dispatch = useDispatch();
 
     const filesProcessed = useAppSelector(state => state.fileProcess)
+    const { isCanBeAdd } = useAppSelector(state => state.addPermission)
 
     useEffect(() => {
         if (isProccessed) {
             show(null);
         }
 
+        if (isCanBeAdd) {
+            dispatch(removeAddPermission())
+        }
+
         if (filesProcessed.fileOnProcess && filesProcessed.fileOnProcess.length > 1) {
             dispatch(removeFiles(filesProcessed.fileOnProcess))
         }
+        
+        if (!isProccessed) {
+            dispatch(switchToProcessed())
+        }
     }, [isProccessed,filesProcessed.fileOnProcess])
-
-    if (!isProccessed) {
-        dispatch(switchToProcessed())
-    }
 
     const mainElement = useRef<HTMLDivElement>(null)
     const headerElement = useRef<HTMLDivElement>(null)
@@ -55,19 +58,20 @@ export const ShowProcessedFiles: FC<ShowProcessedFilesProps> = () => {
 
     return (
         <ShowGlobal
-        firstElementInBreadCrumbs='Uploaded'
-        breadCrumbsReactions={() => { return () => { }; } }
-        dirs={[]}
-        getValue={() => show(null)}
-        data={showResp.data?.body}
-        error={showResp.error}
-        isError={showResp.isError}
-        isLoading={showResp.isLoading}
-        openFolder={() => {
-            return () => {}
-        }}
-        whatShow={isProccessed}
-        switchToWhatShow={() => dispatch(switchToProcessed())}
+            errorElement={<GetShowNoFilesErrorElement/>}
+            firstElementInBreadCrumbs='Uploaded'
+            breadCrumbsReactions={() => { return () => { }; } }
+            dirs={[]}
+            getValue={() => show(null)}
+            data={showResp.data?.body}
+            error={showResp.error}
+            isError={showResp.isError}
+            isLoading={showResp.isLoading}
+            openFolder={() => {
+                return () => {}
+            }}
+            whatShow={isProccessed}
+            switchToWhatShow={() => dispatch(switchToProcessed())}
         />
     )
 };

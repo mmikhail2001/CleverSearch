@@ -13,6 +13,8 @@ import { newValues } from '@store/showRequest';
 import { ShowGlobal } from '../showGlobal';
 import { getDriveURLFront, getInternalURLFront } from '@helpers/transformsToURL';
 import { SearchParams } from '@models/searchParams';
+import { GetSearchNoFilesErrorElement } from '@feature/errorElements';
+import { removeAddPermission } from '@store/canAdd';
 
 interface ShowSearchedFilesProps { }
 
@@ -26,27 +28,23 @@ export const ShowSearchedFiles: FC<ShowSearchedFilesProps> = () => {
     const showReq = useAppSelector(state => state.showRequest)
     const searchParams = useAppSelector(state => state.searchRequest)
     const { isSearch } = useAppSelector(state => state.whatToShow)
-    const [query, setQuery] = useState<SearchParams>({} as SearchParams)
+    const { isCanBeAdd } = useAppSelector(state => state.addPermission)
 
     useEffect(() => {
-        if (searchParams.query !== query.query
-            || searchParams.dir !== query.dir
-            || searchParams.fileType !== query.fileType
-            || searchParams.smartSearch !== query.smartSearch
+        if (isSearch 
         ) {
             search(searchParams)
-            setQuery(searchParams)
+        }
+        if (isCanBeAdd) {
+            dispatch(removeAddPermission())
         }
     }, [searchParams])
-
-    if (!isSearch) {
-        dispatch(switchToSearch())
-    }
 
     const paramsSearch = useAppSelector((state) => state.searchRequest);
 
     return (
         <ShowGlobal
+            errorElement={<GetSearchNoFilesErrorElement/>}
             firstElementInBreadCrumbs='Search results'
             breadCrumbsReactions={() => { return () => { }; } }
             dirs={[]}

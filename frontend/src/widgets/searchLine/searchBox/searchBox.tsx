@@ -23,7 +23,7 @@ const setToInitial = (
 	state: SearchParams,
 ) => {
 	changeState({
-		fileType: ['all' as fileTypes],
+		fileType: [],
 		smartSearch: false,
 		query: state.query,
 		dir: [],
@@ -50,7 +50,7 @@ export const SearchBox: FC<SearchBoxProps> = ({
 			/>
 			<div className="buttons">
 				<Button
-					style={{color: 'rgba(255,255,255, 0.8)'}}
+					style={{color: 'rgba(255,255,255, 0.8)', justifyContent: 'start'}}
 					fontSize={fontSize}
 					variant={'text'}
 					buttonText="Clear"

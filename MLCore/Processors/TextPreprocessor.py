@@ -36,7 +36,7 @@ class TextPreprocessor:
             self.text = [(0, readable)]
         else:
             self.text = readable.read()
-        logger.debug(self.text)
+        # logger.debug(self.text)
 
     def process(self):
         result = []

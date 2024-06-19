@@ -16,6 +16,7 @@ type FileUsecase interface {
 	GetFiles(ctx context.Context, options fileDomain.FileOptions) ([]fileDomain.File, error)
 	CreateDir(ctx context.Context, file fileDomain.File) (fileDomain.File, error)
 	DeleteFiles(ctx context.Context, filePaths []string) error
+	ConvertToPDF(ctx context.Context, reader io.Reader, file file.File) (io.Reader, int64, error)
 }
 
 type FileRepository interface {
@@ -25,6 +26,7 @@ type FileRepository interface {
 	GetFileByCloudID(ctx context.Context, cloudID string) (file.File, error)
 	GetFileByPath(ctx context.Context, path string, userID string) (file.File, error)
 	GetSharedDir(ctx context.Context, fileID string, userID string) (file.SharedDir, error)
+	Update(ctx context.Context, file file.File) error
 }
 
 type UserRepository interface {

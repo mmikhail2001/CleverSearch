@@ -7,6 +7,7 @@ const showSlice = createSlice({
 	initialState: {
 		isSearch: false,
 		isShow: false,
+		isExternal: false,
 		isProccessed: false,
 		isShared: false,
 		isLoved: false,
@@ -20,7 +21,8 @@ const showSlice = createSlice({
 			state.isProccessed = false;
 			state.isShared = false;
 			state.isLoved = false;
-			state.isDrive = false
+			state.isDrive = false;
+			state.isExternal = false;
 		},
 		switchToShow(state) {
 			state.isShow = true;
@@ -28,7 +30,8 @@ const showSlice = createSlice({
 			state.isProccessed = false;
 			state.isShared = false;
 			state.isLoved = false;
-			state.isDrive = false
+			state.isDrive = false;
+			state.isExternal = false;
 		},
 		switchToProcessed(state) {
 			state.isShow = false;
@@ -36,7 +39,8 @@ const showSlice = createSlice({
 			state.isProccessed = true;
 			state.isShared = false;
 			state.isLoved = false;
-			state.isDrive = false
+			state.isDrive = false;
+			state.isExternal = false;
 		},
 		switchToShared(state) {
 			state.isShow = false;
@@ -44,7 +48,8 @@ const showSlice = createSlice({
 			state.isProccessed = false;
 			state.isShared = true;
 			state.isLoved = false;
-			state.isDrive = false
+			state.isDrive = false;
+			state.isExternal = false;
 		},
 		switchToLoved(state) {
 			state.isShow = false;
@@ -52,7 +57,8 @@ const showSlice = createSlice({
 			state.isProccessed = false;
 			state.isShared = false;
 			state.isLoved = true;
-			state.isDrive = false
+			state.isDrive = false;
+			state.isExternal = false;
 		},
 		switchToDrive(state) {
 			state.isShow = false;
@@ -60,7 +66,17 @@ const showSlice = createSlice({
 			state.isProccessed = false;
 			state.isShared = false;
 			state.isLoved = false;
-			state.isDrive = true
+			state.isDrive = true;
+			state.isExternal = false;
+		},
+		switchToExternal(state) {
+			state.isShow = false;
+			state.isSearch = false;
+			state.isProccessed = false;
+			state.isShared = false;
+			state.isLoved = false;
+			state.isDrive = false;
+			state.isExternal = true;
 		},
 		switchDisk(state, action: PayloadAction<diskTypes | ConnectedClouds>) {
 			return {
@@ -82,6 +98,7 @@ export const {
 	switchToLoved ,
 	switchDisk,
 	switchToDrive,
+	switchToExternal,
 	} = actions;
 // Export the reducer, either as a default or named export
 export default reducer;

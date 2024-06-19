@@ -1,26 +1,23 @@
-import { Modal } from '@feature/modal/modal';
-import { ViewImg } from '@feature/showFiles/viewImg/viewImg';
-import { ViewPDF } from '@feature/showFiles/viewPDF/pdfViewer';
-import { VideoPlayer } from '@feature/videoPlayer/videoPlayer';
 import { AccessRights, getAccessRights } from '@models/searchParams';
-import { SerializedError, UnknownAction } from '@reduxjs/toolkit';
+import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import React, { Dispatch, FC } from 'react';
-import { FileWithModal, renderReturns } from './fileWithModal';
+import React, { FC } from 'react';
+import { FileWithModal } from './fileWithModal';
 import './renderFields.scss';
 import { Typography } from '@mui/material';
-import { useAppSelector } from '@store/store';
 import {getErrorMessageFromErroResp} from '@helpers/getErrorMessageFromErroResp'
 import { useMobile } from 'src/mobileProvider';
 import { diskTypes } from '@models/disk';
 import { ConnectedClouds } from '@models/user';
-import ImageIcon from '@mui/icons-material/Image';
-import FolderIcon from '@mui/icons-material/Folder';
-import ArticleRoundedIcon from '@mui/icons-material/ArticleRounded';
-import VideoFileRoundedIcon from '@mui/icons-material/VideoFileRounded';
 import AccessibleForwardRoundedIcon from '@mui/icons-material/AccessibleForwardRounded';
 import { fileFile } from '@models/files';
 import { isNullOrUndefined } from '@helpers/isNullOrUndefined';
+
+import CircularProgress from '@mui/material/CircularProgress';
+import NothingSVG from '@icons/Nothing.svg'
+
+import {renderReturns, getDirProps, getPdfProps, getVideoProps, getImageProps} from '@helpers/getPropsForFile'
+import { GetErrorElementOnBugShow } from '@feature/errorElements/index';
 
 export interface RenderFieldsProps {
 	height?:string,
@@ -30,6 +27,29 @@ export interface RenderFieldsProps {
 	isLoading: boolean,
 	deleteFile: (fileName: string, accessRights: AccessRights) => void,
 	openFolder: (dirToShow: string[], diskToShow: diskTypes | ConnectedClouds) => void,
+	noResultsElement?: React.ReactNode, 
+}
+
+const renderHeader = (isMobile: boolean):React.ReactNode => {
+	return (
+		<div className='file-show-line header-line' style={{cursor: 'default'}}>
+			<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Name</Typography>
+			
+			{isMobile ? null 
+			: <Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Created date</Typography>
+			}
+			
+			<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Author</Typography>
+			
+			{isMobile 
+			? null 
+			:<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Size</Typography>
+			
+			}
+			<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}></Typography>
+			
+		</div>
+	)
 }
 
 export const RenderFields: FC<RenderFieldsProps> = ({
@@ -40,156 +60,69 @@ export const RenderFields: FC<RenderFieldsProps> = ({
 	isLoading,
 	deleteFile,
 	openFolder,
+	noResultsElement,
 }) => {
-	const disks = useAppSelector(state => state.disks)
 	const {whatDisplay} = useMobile()
-	const isMobile = whatDisplay === 2
-
-	if (isLoading) {
-		return <h1>Подождите, загружаем файлы...</h1>;
-	}
+	const isMobile = whatDisplay !== 1
 
 	if (isError) {
-			return <h1>{getErrorMessageFromErroResp(error)}</h1>;
+			return <GetErrorElementOnBugShow 
+				error={getErrorMessageFromErroResp(error)}
+			/>
 		}
 
-	if (isNullOrUndefined(data) || !data || data.length === 0) {
-		return <div className='show-all-files' style={{fontSize: 'var(--ft-body-plus)'}}>
-			Nothing here :(
-			</div>;
+	if (isLoading) {
+		return (
+			<div key={'rendered-list'} className='show-all-files' style={{height: height}}>
+				<div style={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}>
+					<CircularProgress color='inherit' />
+				</div>
+			</div>
+		)
 	}
 
-	const getDirProps = (file: fileFile): renderReturns => {
-		const imgSrc = <FolderIcon fontSize='inherit' sx={{color: "#DB9713"}} />;
-		const clickHandler = () => {
-			const dirsPath = file.path.split('/')
-			let disk: diskTypes | ConnectedClouds = 'internal';
-			if (file.cloud_email !== '') {
-				disk = {
-					cloud_email:file.cloud_email, 
-					disk: file.disk,
-					access_token: '',
-				}
-			}
-			
-			openFolder(dirsPath, disk);
-		};
-		const renderModal = (): null => null
-		return { imgSrc, clickHandler, renderModal }
-	};
-
-	const getImageProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void): renderReturns => {
-		const renderModal = () => {
-			return (
-				<Modal className={'modal__img-show'} isOpen={state} closeModal={() => changeState(false)}>
-					<ViewImg imgSrc={file.link} altText={''} />
-				</Modal>
-			)
-		}
-		const imgSrc = <ImageIcon fontSize='inherit' sx={{color:'#0A9542'}}/>;
-		const clickHandler = (): null => null;
-		return { clickHandler, imgSrc, renderModal }
-	};
-
-	const getPdfProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void): renderReturns => {
-		const renderModal = () => {
-			return (
-				<Modal
-					isFullWidth={true}
-					className={'modal__pdf-show'}
-					isOpen={state}
-					closeModal={() => changeState(false)}
-					bodyClassName={'modal-body__pdf'}
-				>
-					<ViewPDF
-						pdfURL={file.link}
-						openPageInPDF={file.page_number || 0}
-					/>
-				</Modal>
-			)
-		}
-
-		const imgSrc = <ArticleRoundedIcon fontSize='inherit' sx={{color: "#4285F4"}} />;
-
-		return { clickHandler: () => { }, imgSrc, renderModal }
-	};
-
-	const getVideoProps = (file: fileFile, state: boolean, changeState: (whatToState: boolean) => void): renderReturns => {
-		const renderModal = () => {
-			// TODO видео уезжает, зажать по высоте
-			return (
-				<Modal className={'modal__video-show'} isOpen={state} closeModal={() => changeState(false)}>
-					<VideoPlayer
-						url={file.link}
-						duration={file.duration || 0}
-						start_time={file.timestart || 0}
-					></VideoPlayer>
-				</Modal>
-			)
-		}
-		
-		const imgSrc = <VideoFileRoundedIcon fontSize='inherit' sx={{color: "#DC15BC"}} />;
-		return { clickHandler: () => { }, imgSrc, renderModal }
-	};
+	if ((isNullOrUndefined(data) || !data || data.length === 0 && !isLoading)) {
+		return noResultsElement
+	}
 
 	return (
 		<div key={'rendered-list'} className='show-all-files' style={{height: height}}>
-			<div className='file-show-line' style={{cursor: 'default'}}>
-				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Name</Typography>
-				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Created date</Typography>
-				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Author</Typography>
-				{isMobile 
-				? null 
-				:<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}>Size</Typography>
-				}
-				<Typography fontWeight={400} fontSize={'var(--ft-pg-24)'}></Typography>
-				
-			</div>
+			{renderHeader(isMobile)}
 			{data.map((file) => {
 				const getFileProps = (file: fileFile, isOpen: boolean, changeState: (isOpen: boolean) => void): renderReturns => {
-					let renderModal: () => React.ReactNode | null = () => null;
-					let clickHandler: () => void;
-					let iconSrc: string | React.ReactNode = '';
-
+					let fileProp: renderReturns;
+					
 					if (file.is_dir) {
-						const dirProp: renderReturns = getDirProps(file);
-
-						iconSrc = dirProp.imgSrc;
-						clickHandler = dirProp.clickHandler
-						renderModal = dirProp.renderModal
-					} else {
-						let fileProp: renderReturns;
-						
+						fileProp = getDirProps(file, openFolder);
+					} else {						
 						switch (file.file_type) {
 							case 'img':
 								fileProp = getImageProps(file, isOpen, changeState);
-
-								iconSrc = fileProp.imgSrc
-								clickHandler = fileProp.clickHandler
-								renderModal = fileProp.renderModal
 								break;
+
 							case 'text':
 								fileProp = getPdfProps(file, isOpen, changeState);
-
-								iconSrc = fileProp.imgSrc
-								clickHandler = fileProp.clickHandler
-								renderModal = fileProp.renderModal
 								break;
+
 							case 'video':
 							case 'audio':
 								fileProp = getVideoProps(file, isOpen, changeState);
-
-								iconSrc = fileProp.imgSrc
-								clickHandler = fileProp.clickHandler
-								renderModal = fileProp.renderModal
 								break;
-
 							default:
-								iconSrc = <AccessibleForwardRoundedIcon fontSize='inherit' sx={{color:'#4285F4'}}/>;
+								fileProp = {
+									clickHandler: () => {},
+									imgSrc: <AccessibleForwardRoundedIcon fontSize='inherit' sx={{color:'#4285F4'}}/>,
+									renderModal: () => {return <></>}
+								}
 						}
 					}
+					
 					return {
-						clickHandler, imgSrc: iconSrc, renderModal
+						...fileProp,
 					}
 				}
 
